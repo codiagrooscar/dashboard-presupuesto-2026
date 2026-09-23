@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: codiagro-presupuesto-dashboard
+    env: static
+    buildCommand: ""
+    staticPublishPath: ./web_dashboard

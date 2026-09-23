@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Controller Presupuesto Septiembre 2026 | Codiagro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script src="/chart.umd.min.js"></script>
+  <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1120;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --accent-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --warn: #f59e0b;
+      --warn-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      --danger: #ef4444;
+      --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      --info: #3b82f6;
+      --info-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+      border-bottom: 1px solid var(--card-border);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-container {
+      max-width: 1700px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .brand-logo {
+      height: 38px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+
+    .brand-titles h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-live {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: var(--accent);
+      font-size: 0.7rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-titles p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent-gradient);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.55rem 1.25rem;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45);
+    }
+
+    /* NAVIGATION TABS */
+    .tabs-wrapper {
+      background: #0f172a;
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 73px;
+      z-index: 90;
+    }
+
+    .tabs-container {
+      max-width: 1700px;
+      margin: 0 auto;
+      display: flex;
+      overflow-x: auto;
+      padding: 0 2rem;
+      scrollbar-width: thin;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.85rem 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .tab-btn.active {
+      color: #ffffff;
+      border-bottom-color: var(--accent);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .tab-badge {
+      font-size: 0.72rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 9999px;
+      font-weight: 700;
+    }
+
+    .badge-success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .badge-neutral { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+    .badge-info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+
+    /* MAIN CONTAINER */
+    main {
+      flex: 1;
+      max-width: 1700px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--card-border);
+    }
+
+    .kpi-card.accent-emerald::before { background: var(--accent-gradient); }
+    .kpi-card.accent-amber::before { background: var(--warn-gradient); }
+    .kpi-card.accent-rose::before { background: var(--danger-gradient); }
+    .kpi-card.accent-blue::before { background: var(--info-gradient); }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .kpi-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-subtext {
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* PROGRESS BAR */
+    .progress-bar-container {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 9999px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 0.6rem;
+      width: 100%;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: var(--accent-gradient);
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .progress-bar-fill.amber { background: var(--warn-gradient); }
+    .progress-bar-fill.rose { background: var(--danger-gradient); }
+
+    /* CHARTS SECTION */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 1100px) {
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+
+    .chart-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .panel-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .panel-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--muted);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 320px;
+      width: 100%;
+    }
+
+    /* TABLE SECTION */
+    .table-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .search-input {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--card-border);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.88rem;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-sm);
+      width: 320px;
+      max-width: 100%;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pill-btn {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pill-btn:hover {
+      color: var(--ink);
+      border-color: #475569;
+    }
+
+    .pill-btn.active {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .table-wrapper {
+      overflow-x: hidden;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--card-border);
+      width: 100%;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.82rem;
+      table-layout: fixed;
+    }
+
+    thead th {
+      background: #0f172a;
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 0.6rem 0.45rem;
+      border-bottom: 1px solid var(--card-border);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+      transition: background 0.15s;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.3);
+    }
+
+    tbody tr:hover {
+      background: rgba(16, 185, 129, 0.05);
+    }
+
+    tbody td {
+      padding: 0.5rem 0.45rem;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    tfoot tr {
+      background: #0f172a;
+      border-top: 2px solid var(--card-border);
+      font-weight: 700;
+    }
+
+    tfoot td {
+      padding: 0.6rem 0.45rem;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+
+    .tag-commercial {
+      font-weight: 600;
+      color: #38bdf8;
+      cursor: pointer;
+    }
+
+    .tag-commercial:hover {
+      text-decoration: underline;
+    }
+
+    .progress-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      justify-content: flex-end;
+    }
+
+    .mini-bar {
+      width: 28px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .mini-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: var(--accent);
+    }
+
+    .btn-table-action {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--accent);
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-table-action:hover {
+      background: var(--accent);
+      color: #000000;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #0f172a;
+      border-top: 1px solid var(--card-border);
+      padding: 1.25rem 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-container">
+      <div class="brand-section">
+        <img class="brand-logo" src="/codiagro_logo.png" alt="Codiagro">
+        <div class="brand-titles">
+          <h1>
+            Controller Presupuesto Septiembre 2026
+            <span class="badge-live">En Tiempo Real</span>
+          </h1>
+          <p>Seguimiento Diario de Previsión vs Pedidos a Fecha <strong style="color:#f8fafc">22/09/2026</strong> | Codiagro S.L.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="tabs-wrapper">
+    <div class="tabs-container" id="tabsNav">
+      <button class="tab-btn active" onclick="switchTab('resumen')">
+        Resumen General
+        <span class="tab-badge badge-success" id="tabBadgeResumen">99.0%</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('Alfonso')">
+        Alfonso
+        <span class="tab-badge badge-success" id="tabBadgeAlfonso">459.7%</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('García')">
+        García
+        <span class="tab-badge badge-success" id="tabBadgeGarcia">144.4%</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('Irene')">
+        Irene
+        <span class="tab-badge badge-warning" id="tabBadgeIrene">61.6%</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('Javier')">
+        Javier
+        <span class="tab-badge badge-success" id="tabBadgeJavier">157.8%</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('Mehmet')">
+        Mehmet
+        <span class="tab-badge badge-warning" id="tabBadgeMehmet">87.8%</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('Pedro')">
+        Pedro
+        <span class="tab-badge badge-danger" id="tabBadgePedro">35.6%</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('Ricardo')">
+        Ricardo
+        <span class="tab-badge badge-warning" id="tabBadgeRicardo">73.0%</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main id="appContent">
+    <div style="text-align:center; padding: 4rem; color: var(--muted)">
+      Cargando datos de previsión y pedidos...
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    Codiagro S.L. &copy; 2026 | Sistema de Seguimiento Diario de Ventas y Previsiones | Fichero de pedidos diario cruzado con Presupuesto Oficial 2026-2027
+  </footer>
+
+  <script>
+    let appData = null;
+    let currentTab = 'resumen';
+    let currentFilter = 'ALL';
+    let searchQuery = '';
+
+    const fmtNum = (n, dec=0) => {
+      if (isNaN(n) || n === null) return '0';
+      return Number(n).toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    };
+
+    const fmtCurr = (n) => {
+      if (isNaN(n) || n === null) return '0,00 €';
+      return Number(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    };
+
+    async function loadData() {
+      try {
+        let resp;
+        try {
+          resp = await fetch('/api/data');
+          if (!resp.ok) throw new Error('API not available');
+        } catch (e) {
+          resp = await fetch('dashboard_data.json');
+        }
+        appData = await resp.json();
+        updateNavBadges();
+        renderCurrentTab();
+      } catch (err) {
+        console.error("Error cargando datos:", err);
+        document.getElementById('appContent').innerHTML = `
+          <div style="text-align:center; padding: 3rem; color: #ef4444">
+            <h3>Error al cargar los datos del dashboard</h3>
+            <p style="margin-top:0.5rem; color: var(--muted)">${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function updateNavBadges() {
+      if (!appData) return;
+      document.getElementById('tabBadgeResumen').innerText = appData.global_kpis.pct_consec.toFixed(1) + '%';
+      
+      const badgeClass = pct => pct >= 100 ? 'badge-success' : (pct >= 50 ? 'badge-warning' : 'badge-danger');
+
+      for (let item of appData.resumen_comerciales) {
+        const c = item.comercial;
+        let elId = 'tabBadge' + (c === 'García' ? 'Garcia' : c);
+        const el = document.getElementById(elId);
+        if (el) {
+          el.innerText = item.pct_consec.toFixed(1) + '%';
+          el.className = 'tab-badge ' + badgeClass(item.pct_consec);
+        }
+      }
+    }
+
+    function switchTab(tabKey) {
+      currentTab = tabKey;
+      searchQuery = '';
+      currentFilter = 'ALL';
+
+      // Update active tab buttons
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => {
+        const isMatch = btn.getAttribute('onclick').includes(`'${tabKey}'`);
+        btn.classList.toggle('active', isMatch);
+      });
+
+      renderCurrentTab();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderCurrentTab() {
+      if (!appData) return;
+      const container = document.getElementById('appContent');
+      if (currentTab === 'resumen') {
+        renderResumenTab(container);
+      } else {
+        renderComercialTab(container, currentTab);
+      }
+    }
+
+    // ==========================================
+    // RENDER: RESUMEN GENERAL
+    // ==========================================
+    function renderResumenTab(container) {
+      const g = appData.global_kpis;
+      const resList = appData.resumen_comerciales;
+
+      const pctGlobalClass = g.pct_consec >= 100 ? 'badge-success' : 'badge-warning';
+
+      let html = `
+        <!-- KPI GRID -->
+        <div class="kpi-grid">
+          <div class="kpi-card accent-blue">
+            <div class="kpi-header">
+              <span class="kpi-title">Budget Septiembre</span>
+              <span class="tab-badge badge-neutral">Previsión Base</span>
+            </div>
+            <div class="kpi-value">${fmtNum(g.budget_uds)} <span style="font-size:1rem;font-weight:600;color:var(--muted)">u</span></div>
+            <div class="kpi-subtext">Total planificado para el mes</div>
+          </div>
+
+          <div class="kpi-card accent-emerald">
+            <div class="kpi-header">
+              <span class="kpi-title">Pedidos a Fecha</span>
+              <span class="tab-badge ${pctGlobalClass}">${g.pct_consec.toFixed(1)}%</span>
+            </div>
+            <div class="kpi-value">${fmtNum(g.pedidos_uds)} <span style="font-size:1rem;font-weight:600;color:var(--muted)">u</span></div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width: ${Math.min(100, g.pct_consec)}%"></div>
+            </div>
+            <div class="kpi-subtext" style="margin-top:0.4rem">
+              <span>Servidas: <strong>${fmtNum(g.servidas_uds)}</strong></span> &bull; 
+              <span>Pendientes: <strong>${fmtNum(g.pendientes_uds)}</strong></span>
+            </div>
+          </div>
+
+          <div class="kpi-card ${g.gap_uds > 0 ? 'accent-amber' : 'accent-emerald'}">
+            <div class="kpi-header">
+              <span class="kpi-title">Falta Conseguir (Gap)</span>
+              <span class="tab-badge ${g.gap_uds > 0 ? 'badge-warning' : 'badge-success'}">${g.gap_uds > 0 ? 'En Brecha' : 'Objetivo Cubierto'}</span>
+            </div>
+            <div class="kpi-value">${fmtNum(g.gap_uds)} <span style="font-size:1rem;font-weight:600;color:var(--muted)">u</span></div>
+            <div class="kpi-subtext">Unidades restantes de comerciales rezagados</div>
+          </div>
+
+          <div class="kpi-card accent-blue">
+            <div class="kpi-header">
+              <span class="kpi-title">Pendientes de Servir</span>
+              <span class="tab-badge badge-neutral">Logística / Entrega</span>
+            </div>
+            <div class="kpi-value">${fmtNum(g.pendientes_uds)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
+            <div class="kpi-subtext">Servidas acumuladas: <strong style="color:#34d399">${fmtNum(g.servidas_uds)} u</strong></div>
+          </div>
+        </div>
+
+        <!-- CHARTS SECTION -->
+        <div class="charts-grid">
+          <div class="chart-panel">
+            <div class="panel-header">
+              <div class="panel-title">Comparativa Budget vs Pedidos por Comercial (Unidades)</div>
+              <span class="panel-badge">Septiembre 2026</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartBudgetVsPedidos"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-panel">
+            <div class="panel-header">
+              <div class="panel-title">% Consecución por Comercial</div>
+              <span class="panel-badge">Objetivo: 100%</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="chartPctConsecucion"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUMMARY TABLE -->
+        <div class="table-panel">
+          <div class="panel-header">
+            <div class="panel-title">Desglose de Consecución y Desviación por Comercial</div>
+            <span class="panel-badge">7 Comerciales Oficiales</span>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <colgroup>
+                <col style="width: 14%">
+                <col style="width: 7%">
+                <col style="width: 10%">
+                <col style="width: 10%">
+                <col style="width: 9%">
+                <col style="width: 9%">
+                <col style="width: 9%">
+                <col style="width: 9%">
+                <col style="width: 8%">
+                <col style="width: 8%">
+                <col style="width: 7%">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Comercial</th>
+                  <th class="text-center">Clientes</th>
+                  <th class="text-right">Budget</th>
+                  <th class="text-right">Pedidos</th>
+                  <th class="text-right">Servidas</th>
+                  <th class="text-right">Pendientes</th>
+                  <th class="text-right">Falta</th>
+                  <th class="text-right">Desv.</th>
+                  <th class="text-right">%</th>
+                  <th class="text-center">Estado</th>
+                  <th class="text-center">Ver</th>
+                </tr>
+              </thead>
+              <tbody>
+      `;
+
+      resList.forEach(r => {
+        const pctBadge = r.pct_consec >= 100 ? 'badge-success' : (r.pct_consec >= 50 ? 'badge-warning' : 'badge-danger');
+        const desvColor = r.desv_uds >= 0 ? '#34d399' : '#f87171';
+        const desvPrefix = r.desv_uds > 0 ? '+' : '';
+
+        html += `
+          <tr>
+            <td><strong class="tag-commercial" onclick="switchTab('${r.comercial}')">${r.comercial}</strong></td>
+            <td class="text-center">${r.clientes_activos}</td>
+            <td class="text-right">${fmtNum(r.budget_uds, 2)}</td>
+            <td class="text-right" style="font-weight:700">${fmtNum(r.pedidos_uds, 2)}</td>
+            <td class="text-right">${fmtNum(r.servidas_uds, 2)}</td>
+            <td class="text-right">${fmtNum(r.pendientes_uds, 2)}</td>
+            <td class="text-right" style="color: ${r.gap_uds > 0 ? '#fbbf24' : '#94a3b8'}">${fmtNum(r.gap_uds, 2)}</td>
+            <td class="text-right" style="color: ${desvColor}">${desvPrefix}${fmtNum(r.desv_uds, 2)}</td>
+            <td class="text-right">
+              <div class="progress-cell">
+                <div class="mini-bar">
+                  <div class="mini-bar-fill" style="width:${Math.min(100, r.pct_consec)}%; background: ${r.pct_consec >= 100 ? '#10b981' : (r.pct_consec >= 50 ? '#f59e0b' : '#ef4444')}"></div>
+                </div>
+                <strong>${r.pct_consec.toFixed(1)}%</strong>
+              </div>
+            </td>
+            <td class="text-center"><span class="tab-badge ${pctBadge}">${r.estado}</span></td>
+            <td class="text-center">
+              <button class="btn-table-action" onclick="switchTab('${r.comercial}')">Ver Detalle &rarr;</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>TOTAL GENERAL</td>
+                  <td class="text-center">${resList.reduce((acc, c) => acc + c.clientes_activos, 0)}</td>
+                  <td class="text-right">${fmtNum(g.budget_uds, 2)}</td>
+                  <td class="text-right">${fmtNum(g.pedidos_uds, 2)}</td>
+                  <td class="text-right">${fmtNum(g.servidas_uds, 2)}</td>
+                  <td class="text-right">${fmtNum(g.pendientes_uds, 2)}</td>
+                  <td class="text-right" style="color:#fbbf24">${fmtNum(g.gap_uds, 2)}</td>
+                  <td class="text-right" style="color:#34d399">${(g.pedidos_uds - g.budget_uds >= 0 ? '+' : '')}${fmtNum(g.pedidos_uds - g.budget_uds, 2)}</td>
+                  <td class="text-right" style="color:#34d399; font-size:1rem">${g.pct_consec.toFixed(1)}%</td>
+                  <td class="text-center"><span class="tab-badge badge-success">EN OBJETIVO</span></td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+      initResumenCharts(resList);
+    }
+
+    function initResumenCharts(resList) {
+      const labels = resList.map(r => r.comercial);
+      const dataBudget = resList.map(r => r.budget_uds);
+      const dataPedidos = resList.map(r => r.pedidos_uds);
+      const dataPct = resList.map(r => r.pct_consec);
+
+      // Chart 1: Budget vs Pedidos
+      const ctx1 = document.getElementById('chartBudgetVsPedidos');
+      if (ctx1) {
+        new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Budget Sep (u)',
+                data: dataBudget,
+                backgroundColor: 'rgba(59, 130, 246, 0.75)',
+                borderColor: '#3b82f6',
+                borderWidth: 1,
+                borderRadius: 4
+              },
+              {
+                label: 'Pedidos Sep (u)',
+                data: dataPedidos,
+                backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                borderColor: '#10b981',
+                borderWidth: 1,
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: { color: '#94a3b8', font: { family: 'Inter', weight: 600 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: ctx => `${ctx.dataset.label}: ${fmtNum(ctx.parsed.y)} u`
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                ticks: { color: '#cbd5e1', font: { family: 'Inter', weight: 600 } }
+              },
+              y: {
+                grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                ticks: { color: '#94a3b8' }
+              }
+            }
+          }
+        });
+      }
+
+      // Chart 2: Consecución %
+      const ctx2 = document.getElementById('chartPctConsecucion');
+      if (ctx2) {
+        new Chart(ctx2, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: '% Consecución',
+              data: dataPct,
+              backgroundColor: dataPct.map(p => p >= 100 ? 'rgba(16, 185, 129, 0.85)' : (p >= 50 ? 'rgba(245, 158, 11, 0.85)' : 'rgba(239, 68, 68, 0.85)')),
+              borderRadius: 4
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => `Consecución: ${ctx.parsed.x.toFixed(1)}%`
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                ticks: {
+                  color: '#94a3b8',
+                  callback: val => val + '%'
+                }
+              },
+              y: {
+                grid: { display: false },
+                ticks: { color: '#cbd5e1', font: { family: 'Inter', weight: 600 } }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    // ==========================================
+    // RENDER: COMERCIAL INDIVIDUAL
+    // ==========================================
+    function renderComercialTab(container, comName) {
+      const comData = appData.comerciales[comName];
+      if (!comData) {
+        container.innerHTML = `<div style="padding:3rem;text-align:center;color:#ef4444">No se encontraron datos para ${comName}</div>`;
+        return;
+      }
+
+      const k = comData.kpis;
+      const lines = comData.lineas;
+
+      const pctBadge = k.pct_consec >= 100 ? 'badge-success' : (k.pct_consec >= 50 ? 'badge-warning' : 'badge-danger');
+
+      let html = `
+        <!-- KPI GRID -->
+        <div class="kpi-grid">
+          <div class="kpi-card accent-blue">
+            <div class="kpi-header">
+              <span class="kpi-title">Budget Septiembre</span>
+              <span class="tab-badge badge-neutral">Previsión Base</span>
+            </div>
+            <div class="kpi-value">${fmtNum(k.budget_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
+            <div class="kpi-subtext">Objetivo asignado a ${comName}</div>
+          </div>
+
+          <div class="kpi-card accent-emerald">
+            <div class="kpi-header">
+              <span class="kpi-title">Pedidos a Fecha</span>
+              <span class="tab-badge ${pctBadge}">${k.pct_consec.toFixed(1)}%</span>
+            </div>
+            <div class="kpi-value">${fmtNum(k.pedidos_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill ${k.pct_consec < 50 ? 'rose' : (k.pct_consec < 100 ? 'amber' : '')}" style="width: ${Math.min(100, k.pct_consec)}%"></div>
+            </div>
+            <div class="kpi-subtext" style="margin-top:0.4rem">
+              <span>Servidas: <strong>${fmtNum(k.servidas_uds, 2)}</strong></span> &bull; 
+              <span>Pendientes: <strong>${fmtNum(k.pendientes_uds, 2)}</strong></span>
+            </div>
+          </div>
+
+          <div class="kpi-card ${k.gap_uds > 0 ? 'accent-amber' : 'accent-emerald'}">
+            <div class="kpi-header">
+              <span class="kpi-title">Falta Conseguir (Gap)</span>
+              <span class="tab-badge ${k.gap_uds > 0 ? 'badge-warning' : 'badge-success'}">${k.gap_uds > 0 ? 'Por Cubrir' : 'Objetivo Conseguido'}</span>
+            </div>
+            <div class="kpi-value">${fmtNum(k.gap_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
+            <div class="kpi-subtext">Desviación: <strong style="color: ${k.desv_uds >= 0 ? '#34d399' : '#f87171'}">${(k.desv_uds >= 0 ? '+' : '')}${fmtNum(k.desv_uds, 2)} u</strong></div>
+          </div>
+
+          <div class="kpi-card accent-blue">
+            <div class="kpi-header">
+              <span class="kpi-title">Pendientes de Servir</span>
+              <span class="tab-badge badge-neutral">Por Entregar</span>
+            </div>
+            <div class="kpi-value">${fmtNum(k.pendientes_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
+            <div class="kpi-subtext">Servidas acumuladas: <strong style="color:#34d399">${fmtNum(k.servidas_uds, 2)} u</strong></div>
+          </div>
+        </div>
+
+        <!-- TABLE SECTION -->
+        <div class="table-panel">
+          <div class="table-controls">
+            <div>
+              <input type="text" class="search-input" id="searchTable" placeholder="Buscar por cliente, SKU o producto..." value="${searchQuery}" oninput="handleSearch(this.value)">
+            </div>
+            <div class="filter-pills">
+              <button class="pill-btn ${currentFilter === 'ALL' ? 'active' : ''}" onclick="setFilter('ALL')">Todos (${lines.length})</button>
+              <button class="pill-btn ${currentFilter === 'Superado' ? 'active' : ''}" onclick="setFilter('Superado')">Superados (${lines.filter(l => l.estado==='Superado').length})</button>
+              <button class="pill-btn ${currentFilter === 'En Curso' ? 'active' : ''}" onclick="setFilter('En Curso')">En Curso (${lines.filter(l => l.estado==='En Curso').length})</button>
+              <button class="pill-btn ${currentFilter === 'Rezagado' ? 'active' : ''}" onclick="setFilter('Rezagado')">Rezagados (${lines.filter(l => l.estado==='Rezagado').length})</button>
+              <button class="pill-btn ${currentFilter === 'Sin Pedido' ? 'active' : ''}" onclick="setFilter('Sin Pedido')">Sin Pedido (${lines.filter(l => l.estado==='Sin Pedido').length})</button>
+              <button class="pill-btn ${currentFilter === 'Extra Budget' ? 'active' : ''}" onclick="setFilter('Extra Budget')">Extra Budget (${lines.filter(l => l.estado==='Extra Budget').length})</button>
+            </div>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <colgroup>
+                <col style="width: 18%">
+                <col style="width: 7.5%">
+                <col style="width: 14.5%">
+                <col style="width: 7%">
+                <col style="width: 7%">
+                <col style="width: 6.5%">
+                <col style="width: 6.5%">
+                <col style="width: 6.5%">
+                <col style="width: 6.5%">
+                <col style="width: 7%">
+                <col style="width: 13%">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>SKU</th>
+                  <th>Artículo</th>
+                  <th class="text-right">Budget</th>
+                  <th class="text-right">Pedidos</th>
+                  <th class="text-right">Servidas</th>
+                  <th class="text-right">Pendientes</th>
+                  <th class="text-right">Falta</th>
+                  <th class="text-right">Desv.</th>
+                  <th class="text-right">%</th>
+                  <th class="text-center">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="linesTableBody">
+      `;
+
+      const filtered = lines.filter(l => {
+        // filter by status
+        if (currentFilter !== 'ALL' && l.estado !== currentFilter) return false;
+        // search query
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase();
+          const matchCli = l.cliente.toLowerCase().includes(q);
+          const matchSku = l.sku.toLowerCase().includes(q);
+          const matchDesc = l.descripcion.toLowerCase().includes(q);
+          if (!matchCli && !matchSku && !matchDesc) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        html += `<tr><td colspan="11" style="text-align:center; padding: 2.5rem; color: var(--muted)">No se encontraron líneas que coincidan con la búsqueda/filtro.</td></tr>`;
+      } else {
+        filtered.forEach(l => {
+          let stBadge = 'badge-neutral';
+          if (l.estado === 'Superado' || l.estado === 'Extra Budget') stBadge = 'badge-success';
+          else if (l.estado === 'En Curso') stBadge = 'badge-warning';
+          else if (l.estado === 'Rezagado') stBadge = 'badge-danger';
+
+          const desvCol = l.desv_uds >= 0 ? '#34d399' : '#f87171';
+          const desvPref = l.desv_uds > 0 ? '+' : '';
+
+          html += `
+            <tr>
+              <td><strong>${l.cliente}</strong></td>
+              <td><span style="font-family:monospace; background:rgba(255,255,255,0.06); padding:0.15rem 0.4rem; border-radius:4px; font-weight:600">${l.sku}</span></td>
+              <td><span style="color:#cbd5e1" title="${l.descripcion}">${l.descripcion || '—'}</span></td>
+              <td class="text-right">${fmtNum(l.budget_uds, 2)}</td>
+              <td class="text-right" style="font-weight:700; color:${l.pedidos_uds > 0 ? '#f8fafc' : 'var(--muted)'}">${fmtNum(l.pedidos_uds, 2)}</td>
+              <td class="text-right">${fmtNum(l.servidas_uds, 2)}</td>
+              <td class="text-right" style="color:${l.pendientes_uds > 0 ? '#fbbf24' : 'var(--muted)'}">${fmtNum(l.pendientes_uds, 2)}</td>
+              <td class="text-right" style="color:${l.gap_uds > 0 ? '#fbbf24' : 'var(--muted)'}">${fmtNum(l.gap_uds, 2)}</td>
+              <td class="text-right" style="color:${desvCol}">${desvPref}${fmtNum(l.desv_uds, 2)}</td>
+              <td class="text-right">
+                <div class="progress-cell">
+                  <div class="mini-bar">
+                    <div class="mini-bar-fill" style="width:${Math.min(100, l.pct_consec)}%; background:${l.pct_consec >= 100 ? '#10b981' : (l.pct_consec >= 50 ? '#f59e0b' : '#ef4444')}"></div>
+                  </div>
+                  <strong>${l.pct_consec.toFixed(1)}%</strong>
+                </div>
+              </td>
+              <td class="text-center"><span class="tab-badge ${stBadge}">${l.estado}</span></td>
+            </tr>
+          `;
+        });
+      }
+
+      html += `
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>TOTAL ${comName.toUpperCase()}</td>
+                  <td colspan="2" style="font-weight:normal; color:var(--muted)">${lines.length} combinaciones cliente-artículo</td>
+                  <td class="text-right">${fmtNum(k.budget_uds, 2)}</td>
+                  <td class="text-right">${fmtNum(k.pedidos_uds, 2)}</td>
+                  <td class="text-right">${fmtNum(k.servidas_uds, 2)}</td>
+                  <td class="text-right">${fmtNum(k.pendientes_uds, 2)}</td>
+                  <td class="text-right" style="color:#fbbf24">${fmtNum(k.gap_uds, 2)}</td>
+                  <td class="text-right" style="color:${k.desv_uds >= 0 ? '#34d399' : '#f87171'}">${(k.desv_uds >= 0 ? '+' : '')}${fmtNum(k.desv_uds, 2)}</td>
+                  <td class="text-right" style="color:#34d399; font-size:1rem">${k.pct_consec.toFixed(1)}%</td>
+                  <td class="text-center"><span class="tab-badge ${pctBadge}">${k.pct_consec >= 100 ? 'SUPERADO' : 'EN CURSO'}</span></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function handleSearch(val) {
+      searchQuery = val;
+      renderComercialTab(document.getElementById('appContent'), currentTab);
+      const input = document.getElementById('searchTable');
+      if (input) {
+        input.focus();
+        input.setSelectionRange(val.length, val.length);
+      }
+    }
+
+    function setFilter(filterKey) {
+      currentFilter = filterKey;
+      renderComercialTab(document.getElementById('appContent'), currentTab);
+    }
+
+    // Inicializar al cargar el DOM
+    document.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+</html>

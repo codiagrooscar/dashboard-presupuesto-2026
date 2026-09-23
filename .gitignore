@@ -1,0 +1,14 @@
+# Archivos temporales y cachés
+temp_*
+*.log
+__pycache__/
+*.tmp
+.DS_Store
+Thumbs.db
+*.bak
+*.pyc
+
+# Respaldos pesados
+Consolidado_Clasificacion_Comercial_2026_ORIGINAL_BACKUP.xlsx
+Presupuesto_Ventas_2027_PRE_GARCIA_V3_BACKUP.xlsx
+PRESUP NO VALIDOS/

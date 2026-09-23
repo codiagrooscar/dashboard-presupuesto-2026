@@ -25,9 +25,24 @@ def build_dataset():
     df_ped['SKU_CLEAN'] = df_ped['CodigoArticulo'].astype(str).str.strip().str.upper()
     df_ped = df_ped[~df_ped['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
 
-    shutil.copy2('Presupuesto_Ventas_2027.xlsx', 'temp_budget_input.xlsx')
+    # Cargar presupuesto (usar versión original sin aplanar si existe)
+    src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx' if os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx') else 'Presupuesto_Ventas_2027.xlsx'
+    shutil.copy2(src_budget, 'temp_budget_input.xlsx')
     df_bud = pd.read_excel('temp_budget_input.xlsx', sheet_name='Previsión Matriz Horizontal')
     df_bud = df_bud[df_bud['Comercial'].notna() & (~df_bud['Comercial'].astype(str).str.contains('TOTAL', case=False))].copy()
+
+    # Garantizar que todas las cifras estén en unidades originales sin aplanar (+5.2%)
+    FACTOR = 0.9479961392983893
+    INV_FACTOR = 1.0 / FACTOR
+    for idx, row in df_bud.iterrows():
+        com = str(row['Comercial']).strip()
+        if 'garc' not in norm(com).lower():
+            v = row['Sep-26 (u)']
+            if pd.notna(v) and v > 0 and abs(v - round(v)) > 0.04:
+                restored = round(v * INV_FACTOR, 2)
+                if abs(restored - round(restored)) < 0.05:
+                    restored = float(round(restored))
+                df_bud.at[idx, 'Sep-26 (u)'] = restored
     df_bud['Cliente'] = df_bud['Cliente'].apply(map_client_name)
     df_bud['CLIENTE_NORM'] = df_bud['Cliente'].apply(norm)
 

@@ -1,14 +1,14 @@
 {
   "global_kpis": {
     "budget_uds": 181966.0,
-    "pedidos_uds": 170801.0,
+    "pedidos_uds": 173601.0,
     "servidas_uds": 79957.0,
-    "pendientes_uds": 90844.0,
-    "gap_uds": 41370.0,
-    "pct_consec": 93.86423837420178,
-    "importe_neto": 546047.9299999999,
-    "fecha_corte": "22/09/2026",
-    "fecha_generacion": "24/09/2026 07:02"
+    "pendientes_uds": 93644.0,
+    "gap_uds": 39570.0,
+    "pct_consec": 95.40298737126716,
+    "importe_neto": 553021.9299999999,
+    "fecha_corte": "23/09/2026",
+    "fecha_generacion": "24/09/2026 07:11"
   },
   "resumen_comerciales": [
     {
@@ -28,13 +28,13 @@
       "comercial": "García",
       "clientes_activos": 5,
       "budget_uds": 37832.0,
-      "pedidos_uds": 51772.0,
+      "pedidos_uds": 52772.0,
       "servidas_uds": 2556.0,
-      "pendientes_uds": 49216.0,
+      "pendientes_uds": 50216.0,
       "gap_uds": 0.0,
-      "desv_uds": 13940.0,
-      "pct_consec": 136.8471135546627,
-      "importe_neto": 219191.2,
+      "desv_uds": 14940.0,
+      "pct_consec": 139.4903785155424,
+      "importe_neto": 220911.2,
       "estado": "Superado"
     },
     {
@@ -80,13 +80,13 @@
       "comercial": "Pedro",
       "clientes_activos": 3,
       "budget_uds": 17340.0,
-      "pedidos_uds": 5860.0,
+      "pedidos_uds": 7660.0,
       "servidas_uds": 5860.0,
-      "pendientes_uds": 0.0,
-      "gap_uds": 11480.0,
-      "desv_uds": -11480.0,
-      "pct_consec": 33.79469434832757,
-      "importe_neto": 15994.8,
+      "pendientes_uds": 1800.0,
+      "gap_uds": 9680.0,
+      "desv_uds": -9680.0,
+      "pct_consec": 44.17531718569781,
+      "importe_neto": 21248.8,
       "estado": "Rezagado"
     },
     {
@@ -459,13 +459,13 @@
       "comercial": "García",
       "kpis": {
         "budget_uds": 37832.0,
-        "pedidos_uds": 51772.0,
+        "pedidos_uds": 52772.0,
         "servidas_uds": 2556.0,
-        "pendientes_uds": 49216.0,
+        "pendientes_uds": 50216.0,
         "gap_uds": 0.0,
-        "desv_uds": 13940.0,
-        "pct_consec": 136.8471135546627,
-        "importe_neto": 219191.2
+        "desv_uds": 14940.0,
+        "pct_consec": 139.4903785155424,
+        "importe_neto": 220911.2
       },
       "lineas": [
         {
@@ -557,14 +557,14 @@
           "sku": "S1000",
           "descripcion": "SAL-WAX STAR, 1000 L",
           "budget_uds": 5000.0,
-          "pedidos_uds": 0.0,
+          "pedidos_uds": 1000.0,
           "servidas_uds": 0.0,
-          "pendientes_uds": 0.0,
-          "gap_uds": 5000.0,
-          "desv_uds": -5000.0,
-          "pct_consec": 0.0,
-          "importe_neto": 0.0,
-          "estado": "Sin Pedido"
+          "pendientes_uds": 1000.0,
+          "gap_uds": 4000.0,
+          "desv_uds": -4000.0,
+          "pct_consec": 20.0,
+          "importe_neto": 1720.0,
+          "estado": "Rezagado"
         },
         {
           "cliente": "AGROREBOLLO, S.L.",
@@ -2070,58 +2070,58 @@
         {
           "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
           "sku": "AN0005",
-          "descripcion": "ALCAPLANT NEW, 5 KG",
-          "budget_uds": 5500.0,
+          "descripcion": "ALCAPLANT NEW",
+          "budget_uds": 0.0,
           "pedidos_uds": 3300.0,
           "servidas_uds": 0.0,
           "pendientes_uds": 3300.0,
-          "gap_uds": 2200.0,
-          "desv_uds": -2200.0,
-          "pct_consec": 60.0,
+          "gap_uds": 0.0,
+          "desv_uds": 3300.0,
+          "pct_consec": 100.0,
           "importe_neto": 6765.0,
-          "estado": "En Curso"
+          "estado": "Extra Budget"
         },
         {
           "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
           "sku": "BIO0020",
           "descripcion": "BIORAD-20, 20 L",
-          "budget_uds": 10000.0,
+          "budget_uds": 0.0,
           "pedidos_uds": 10060.0,
           "servidas_uds": 0.0,
           "pendientes_uds": 10060.0,
           "gap_uds": 0.0,
-          "desv_uds": 60.0,
-          "pct_consec": 100.6,
+          "desv_uds": 10060.0,
+          "pct_consec": 100.0,
           "importe_neto": 21000.0,
-          "estado": "Superado"
+          "estado": "Extra Budget"
         },
         {
           "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
           "sku": "BIO1000",
           "descripcion": "BIORAD-20, 1000 L",
-          "budget_uds": 10000.0,
+          "budget_uds": 0.0,
           "pedidos_uds": 11000.0,
           "servidas_uds": 0.0,
           "pendientes_uds": 11000.0,
           "gap_uds": 0.0,
-          "desv_uds": 1000.0,
-          "pct_consec": 110.00000000000001,
+          "desv_uds": 11000.0,
+          "pct_consec": 100.0,
           "importe_neto": 19800.0,
-          "estado": "Superado"
+          "estado": "Extra Budget"
         },
         {
           "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
           "sku": "C-CU1000",
           "descripcion": "CODICOBRE, 1000 L",
-          "budget_uds": 2000.0,
+          "budget_uds": 0.0,
           "pedidos_uds": 1000.0,
           "servidas_uds": 0.0,
           "pendientes_uds": 1000.0,
-          "gap_uds": 1000.0,
-          "desv_uds": -1000.0,
-          "pct_consec": 50.0,
+          "gap_uds": 0.0,
+          "desv_uds": 1000.0,
+          "pct_consec": 100.0,
           "importe_neto": 3520.0,
-          "estado": "En Curso"
+          "estado": "Extra Budget"
         },
         {
           "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
@@ -2150,6 +2150,62 @@
           "pct_consec": 100.40816326530613,
           "importe_neto": 15744.0,
           "estado": "Superado"
+        },
+        {
+          "cliente": "ÇİTAR ÇİÇEK TARIM TIC. LTD. STI",
+          "sku": "AN0005",
+          "descripcion": "ALCAPLANT NEW, 5 KG",
+          "budget_uds": 5500.0,
+          "pedidos_uds": 0.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 0.0,
+          "gap_uds": 5500.0,
+          "desv_uds": -5500.0,
+          "pct_consec": 0.0,
+          "importe_neto": 0.0,
+          "estado": "Sin Pedido"
+        },
+        {
+          "cliente": "ÇİTAR ÇİÇEK TARIM TIC. LTD. STI",
+          "sku": "BIO0020",
+          "descripcion": "BIORAD-20, 20 L",
+          "budget_uds": 10000.0,
+          "pedidos_uds": 0.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 0.0,
+          "gap_uds": 10000.0,
+          "desv_uds": -10000.0,
+          "pct_consec": 0.0,
+          "importe_neto": 0.0,
+          "estado": "Sin Pedido"
+        },
+        {
+          "cliente": "ÇİTAR ÇİÇEK TARIM TIC. LTD. STI",
+          "sku": "BIO1000",
+          "descripcion": "BIORAD-20, 1000 L",
+          "budget_uds": 10000.0,
+          "pedidos_uds": 0.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 0.0,
+          "gap_uds": 10000.0,
+          "desv_uds": -10000.0,
+          "pct_consec": 0.0,
+          "importe_neto": 0.0,
+          "estado": "Sin Pedido"
+        },
+        {
+          "cliente": "ÇİTAR ÇİÇEK TARIM TIC. LTD. STI",
+          "sku": "C-CU1000",
+          "descripcion": "CODICOBRE, 1000 L",
+          "budget_uds": 2000.0,
+          "pedidos_uds": 0.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 0.0,
+          "gap_uds": 2000.0,
+          "desv_uds": -2000.0,
+          "pct_consec": 0.0,
+          "importe_neto": 0.0,
+          "estado": "Sin Pedido"
         }
       ]
     },
@@ -2157,13 +2213,13 @@
       "comercial": "Pedro",
       "kpis": {
         "budget_uds": 17340.0,
-        "pedidos_uds": 5860.0,
+        "pedidos_uds": 7660.0,
         "servidas_uds": 5860.0,
-        "pendientes_uds": 0.0,
-        "gap_uds": 11480.0,
-        "desv_uds": -11480.0,
-        "pct_consec": 33.79469434832757,
-        "importe_neto": 15994.8
+        "pendientes_uds": 1800.0,
+        "gap_uds": 9680.0,
+        "desv_uds": -9680.0,
+        "pct_consec": 44.17531718569781,
+        "importe_neto": 21248.8
       },
       "lineas": [
         {
@@ -2290,6 +2346,48 @@
           "desv_uds": 200.0,
           "pct_consec": 100.0,
           "importe_neto": 2258.0,
+          "estado": "Extra Budget"
+        },
+        {
+          "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
+          "sku": "N0200",
+          "descripcion": "NUTRICALE, 200 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 200.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 200.0,
+          "gap_uds": 0.0,
+          "desv_uds": 200.0,
+          "pct_consec": 100.0,
+          "importe_neto": 468.0,
+          "estado": "Extra Budget"
+        },
+        {
+          "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
+          "sku": "PT0200",
+          "descripcion": "AGROPOTASION, 200 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 600.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 600.0,
+          "gap_uds": 0.0,
+          "desv_uds": 600.0,
+          "pct_consec": 100.0,
+          "importe_neto": 1896.0,
+          "estado": "Extra Budget"
+        },
+        {
+          "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
+          "sku": "PT1000",
+          "descripcion": "AGROPOTASION, 1000 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 1000.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 1000.0,
+          "gap_uds": 0.0,
+          "desv_uds": 1000.0,
+          "pct_consec": 100.0,
+          "importe_neto": 2890.0,
           "estado": "Extra Budget"
         },
         {

@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import pandas as pd
 import numpy as np
 import unicodedata
@@ -9,15 +10,30 @@ def norm(s):
     if not isinstance(s, str): return ''
     return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn').upper().strip()
 
+def get_latest_pedidos_file():
+    target = 'Pedidos 24.09 comerciales.xlsx'
+    if os.path.exists(target):
+        return target
+    candidates = sorted(
+        [f for f in os.listdir('.') if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith('temp_')],
+        key=lambda x: os.path.getmtime(x),
+        reverse=True
+    )
+    if candidates:
+        return candidates[0]
+    return 'Pedidos 23.09 budget.xlsx'
+
 def build_dataset():
-    import shutil
-    shutil.copy2('Pedidos 23.09 budget.xlsx', 'temp_pedidos_input.xlsx')
+    pedidos_file = get_latest_pedidos_file()
+    print(f"Usando archivo de pedidos: {pedidos_file}")
+    shutil.copy2(pedidos_file, 'temp_pedidos_input.xlsx')
     df_ped = pd.read_excel('temp_pedidos_input.xlsx')
+
     def map_client_name(c):
         if not isinstance(c, str): return c
         cn = norm(c)
         if 'DOGA TARIM' in cn:
-            return 'ÇITAR ÇIÇEK TARIM TIC. LTD. STI'
+            return 'ÇİTAR ÇİÇEK TARIM TIC. LTD. STI'
         return c
 
     df_ped['Cliente'] = df_ped['Cliente'].apply(map_client_name)
@@ -170,6 +186,13 @@ def build_dataset():
             'lineas': lines
         }
 
+    # Fecha de corte automática basada en el último pedido
+    if 'FechaPedido' in df_ped.columns and df_ped['FechaPedido'].notna().any():
+        max_dt = pd.to_datetime(df_ped['FechaPedido']).max()
+        fecha_corte = max_dt.strftime('%d/%m/%Y')
+    else:
+        fecha_corte = '23/09/2026'
+
     global_kpis = {
         'budget_uds': float(df_bud['Sep-26 (u)'].sum()),
         'pedidos_uds': float(df_ped['Pedidas'].sum()),
@@ -178,7 +201,7 @@ def build_dataset():
         'gap_uds': float(sum(item['gap_uds'] for item in summary_list)),
         'pct_consec': float((df_ped['Pedidas'].sum() / df_bud['Sep-26 (u)'].sum() * 100)),
         'importe_neto': float(df_ped['ImporteNeto'].sum()),
-        'fecha_corte': '22/09/2026',
+        'fecha_corte': fecha_corte,
         'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M')
     }
 

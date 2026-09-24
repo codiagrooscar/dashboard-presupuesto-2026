@@ -18,9 +18,29 @@ def norm(s):
 
 print("Cargando y procesando datos...")
 
-# 1. Cargar Pedidos de forma segura ante bloqueos de Excel
-shutil.copy2('Pedidos 23.09 budget.xlsx', 'temp_pedidos_input.xlsx')
+def get_latest_pedidos_file():
+    target = 'Pedidos 24.09 comerciales.xlsx'
+    if os.path.exists(target):
+        return target
+    candidates = sorted(
+        [f for f in os.listdir('.') if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith('temp_')],
+        key=lambda x: os.path.getmtime(x),
+        reverse=True
+    )
+    if candidates:
+        return candidates[0]
+    return 'Pedidos 23.09 budget.xlsx'
+
+pedidos_file = get_latest_pedidos_file()
+print(f"Excel Dashboard usando pedidos: {pedidos_file}")
+shutil.copy2(pedidos_file, 'temp_pedidos_input.xlsx')
 df_ped = pd.read_excel('temp_pedidos_input.xlsx')
+
+if 'FechaPedido' in df_ped.columns and df_ped['FechaPedido'].notna().any():
+    max_dt = pd.to_datetime(df_ped['FechaPedido']).max()
+    fecha_corte = max_dt.strftime('%d/%m/%Y')
+else:
+    fecha_corte = '23/09/2026'
 
 def map_client_name(c):
     if not isinstance(c, str): return c
@@ -37,8 +57,22 @@ df_ped['SKU_CLEAN'] = df_ped['CodigoArticulo'].astype(str).str.strip().str.upper
 df_ped = df_ped[~df_ped['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
 
 # 2. Cargar Budget de forma segura
-shutil.copy2('Presupuesto_Ventas_2027.xlsx', 'temp_budget_input.xlsx')
+src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx' if os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx') else 'Presupuesto_Ventas_2027.xlsx'
+shutil.copy2(src_budget, 'temp_budget_input.xlsx')
 df_bud = pd.read_excel('temp_budget_input.xlsx', sheet_name='Previsión Matriz Horizontal')
+df_bud = df_bud[df_bud['Comercial'].notna() & (~df_bud['Comercial'].astype(str).str.contains('TOTAL', case=False))].copy()
+
+FACTOR = 0.9479961392983893
+INV_FACTOR = 1.0 / FACTOR
+for idx, row in df_bud.iterrows():
+    com = str(row['Comercial']).strip()
+    if 'garc' not in norm(com).lower():
+        v = row['Sep-26 (u)']
+        if pd.notna(v) and v > 0 and abs(v - round(v)) > 0.04:
+            restored = round(v * INV_FACTOR, 2)
+            if abs(restored - round(restored)) < 0.05:
+                restored = float(round(restored))
+            df_bud.at[idx, 'Sep-26 (u)'] = restored
 df_bud = df_bud[df_bud['Comercial'].notna() & (~df_bud['Comercial'].astype(str).str.contains('TOTAL', case=False))].copy()
 df_bud['Cliente'] = df_bud['Cliente'].apply(map_client_name)
 df_bud['CLIENTE_NORM'] = df_bud['Cliente'].apply(norm)
@@ -125,7 +159,7 @@ ws_res['B2'].alignment = Alignment(horizontal='left', vertical='center', indent=
 ws_res.row_dimensions[2].height = 40
 
 ws_res.merge_cells('B3:J3')
-ws_res['B3'] = f"Comparativa Budget Septiembre (Unidades) vs Pedidos Reales a Fecha 22/09/2026 | Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+ws_res['B3'] = f"Comparativa Budget Septiembre (Unidades) vs Pedidos Reales a Fecha {fecha_corte} | Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
 ws_res['B3'].font = font_subtitle
 ws_res['B3'].fill = PatternFill(start_color='1E293B', end_color='1E293B', fill_type='solid')
 ws_res['B3'].alignment = Alignment(horizontal='left', vertical='center', indent=1)
@@ -302,7 +336,7 @@ for c in comerciales:
     ws.row_dimensions[2].height = 36
     
     ws.merge_cells('B3:L3')
-    ws['B3'] = f"Seguimiento diario de Previsión Septiembre 2026 vs Pedidos a Fecha 22/09/2026"
+    ws['B3'] = f"Seguimiento diario de Previsión Septiembre 2026 vs Pedidos a Fecha {fecha_corte}"
     ws['B3'].font = font_subtitle
     ws['B3'].fill = PatternFill(start_color='1E293B', end_color='1E293B', fill_type='solid')
     ws['B3'].alignment = Alignment(horizontal='left', vertical='center', indent=1)

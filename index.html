@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Controller Presupuesto Septiembre 2026 | Codiagro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -623,10 +626,10 @@
       try {
         let resp;
         try {
-          resp = await fetch('/api/data');
+          resp = await fetch('/api/data?t=' + Date.now(), { cache: 'no-store' });
           if (!resp.ok) throw new Error('API not available');
         } catch (e) {
-          resp = await fetch('dashboard_data.json');
+          resp = await fetch('dashboard_data.json?t=' + Date.now(), { cache: 'no-store' });
         }
         appData = await resp.json();
         if (appData && appData.global_kpis && appData.global_kpis.fecha_corte) {

@@ -547,7 +547,7 @@
             Controller Presupuesto Septiembre 2026
             <span class="badge-live">En Tiempo Real</span>
           </h1>
-          <p>Seguimiento Diario de Previsión vs Pedidos a Fecha <strong id="headerFechaCorte" style="color:#f8fafc">23/09/2026</strong> | Codiagro S.L.</p>
+          <p>Seguimiento Diario de Previsión vs Pedidos a Fecha <strong id="headerFechaCorte" style="color:#f8fafc">25/09/2026</strong> | Codiagro S.L.</p>
         </div>
       </div>
     </div>
@@ -629,6 +629,10 @@
           resp = await fetch('dashboard_data.json');
         }
         appData = await resp.json();
+        if (appData && appData.global_kpis && appData.global_kpis.fecha_corte) {
+          const elDate = document.getElementById('headerFechaCorte');
+          if (elDate) elDate.innerText = appData.global_kpis.fecha_corte;
+        }
         updateNavBadges();
         renderCurrentTab();
       } catch (err) {

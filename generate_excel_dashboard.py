@@ -1,6 +1,7 @@
 import sys
 import os
 import shutil
+import re
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.chart import BarChart, Reference
@@ -19,28 +20,33 @@ def norm(s):
 print("Cargando y procesando datos...")
 
 def get_latest_pedidos_file():
-    target = 'Pedidos 24.09 comerciales.xlsx'
-    if os.path.exists(target):
-        return target
-    candidates = sorted(
-        [f for f in os.listdir('.') if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith('temp_')],
-        key=lambda x: os.path.getmtime(x),
-        reverse=True
-    )
-    if candidates:
-        return candidates[0]
-    return 'Pedidos 23.09 budget.xlsx'
+    candidates = [
+        f for f in os.listdir('.')
+        if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
+    ]
+    if not candidates:
+        return 'Pedidos 23.09 budget.xlsx'
+    def sort_key(f):
+        m = re.search(r'(\d{1,2})\.(\d{1,2})', f)
+        if m:
+            return (int(m.group(2)), int(m.group(1)), os.path.getmtime(f))
+        return (0, 0, os.path.getmtime(f))
+    candidates.sort(key=sort_key, reverse=True)
+    return candidates[0]
 
 pedidos_file = get_latest_pedidos_file()
 print(f"Excel Dashboard usando pedidos: {pedidos_file}")
 shutil.copy2(pedidos_file, 'temp_pedidos_input.xlsx')
 df_ped = pd.read_excel('temp_pedidos_input.xlsx')
 
-if 'FechaPedido' in df_ped.columns and df_ped['FechaPedido'].notna().any():
+m_fc = re.search(r'(\d{1,2})\.(\d{1,2})', pedidos_file)
+if m_fc:
+    fecha_corte = f"{m_fc.group(1).zfill(2)}/{m_fc.group(2).zfill(2)}/2026"
+elif 'FechaPedido' in df_ped.columns and df_ped['FechaPedido'].notna().any():
     max_dt = pd.to_datetime(df_ped['FechaPedido']).max()
     fecha_corte = max_dt.strftime('%d/%m/%Y')
 else:
-    fecha_corte = '23/09/2026'
+    fecha_corte = datetime.now().strftime('%d/%m/%Y')
 
 def map_client_name(c):
     if not isinstance(c, str): return c

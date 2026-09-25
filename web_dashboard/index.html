@@ -706,7 +706,7 @@
         <div class="kpi-grid">
           <div class="kpi-card accent-blue">
             <div class="kpi-header">
-              <span class="kpi-title">Budget Septiembre</span>
+              <span class="kpi-title">Estimación Septiembre</span>
               <span class="tab-badge badge-neutral">Previsión Base</span>
             </div>
             <div class="kpi-value">${fmtNum(g.budget_uds)} <span style="font-size:1rem;font-weight:600;color:var(--muted)">u</span></div>
@@ -751,7 +751,7 @@
         <div class="charts-grid">
           <div class="chart-panel">
             <div class="panel-header">
-              <div class="panel-title">Comparativa Budget vs Pedidos por Comercial (Unidades)</div>
+              <div class="panel-title">Comparativa Estimación vs Pedidos por Comercial (Unidades)</div>
               <span class="panel-badge">Septiembre 2026</span>
             </div>
             <div class="chart-container">
@@ -796,7 +796,7 @@
                 <tr>
                   <th>Comercial</th>
                   <th class="text-center">Clientes</th>
-                  <th class="text-right">Budget</th>
+                  <th class="text-right">Estimación</th>
                   <th class="text-right">Pedidos</th>
                   <th class="text-right">Servidas</th>
                   <th class="text-right">Pendientes</th>
@@ -882,7 +882,7 @@
             labels: labels,
             datasets: [
               {
-                label: 'Budget Sep (u)',
+                label: 'Estimación Sep (u)',
                 data: dataBudget,
                 backgroundColor: 'rgba(59, 130, 246, 0.75)',
                 borderColor: '#3b82f6',
@@ -976,7 +976,7 @@
     function renderComercialTab(container, comName) {
       const comData = appData.comerciales[comName];
       if (!comData) {
-        container.innerHTML = `<div style="padding:3rem;text-align:center;color:#ef4444">No se encontraron datos para ${comName}</div>`;
+        container.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--muted)">No hay datos disponibles para ${comName}</div>`;
         return;
       }
 
@@ -984,13 +984,80 @@
       const lines = comData.lineas;
 
       const pctBadge = k.pct_consec >= 100 ? 'badge-success' : (k.pct_consec >= 50 ? 'badge-warning' : 'badge-danger');
+      const isExtra = (st) => st === 'Extra Budget' || st === 'Extra Estimación';
+      const extraCount = lines.filter(l => isExtra(l.estado)).length;
+
+      // Filtrado previo para poder computar subtotales de la partida filtrada
+      const filtered = lines.filter(l => {
+        // Filtro por estado
+        if (currentFilter !== 'ALL') {
+          if (currentFilter === 'Extra Estimación' || currentFilter === 'Extra Budget') {
+            if (!isExtra(l.estado)) return false;
+          } else if (l.estado !== currentFilter) {
+            return false;
+          }
+        }
+        // Filtro por texto de búsqueda
+        if (searchQuery.trim() !== '') {
+          const q = searchQuery.toLowerCase();
+          const matchCli = (l.cliente || '').toLowerCase().includes(q);
+          const matchSku = (l.sku || '').toLowerCase().includes(q);
+          const matchDesc = (l.descripcion || '').toLowerCase().includes(q);
+          if (!matchCli && !matchSku && !matchDesc) return false;
+        }
+        return true;
+      });
+
+      const isFiltered = (searchQuery.trim() !== '' || currentFilter !== 'ALL');
+
+      // Cálculo de subtotales de la partida filtrada
+      let subBudget = 0;
+      let subPedidos = 0;
+      let subServidas = 0;
+      let subPendientes = 0;
+      let subGap = 0;
+      let subDesv = 0;
+      let subPct = 0;
+      let subBadge = 'badge-neutral';
+      let subBadgeText = 'SIN ESTIMACIÓN';
+      let subtotalLabel = 'SUBTOTAL FILTRADO';
+
+      if (filtered.length > 0) {
+        subBudget = filtered.reduce((acc, l) => acc + (l.budget_uds || 0), 0);
+        subPedidos = filtered.reduce((acc, l) => acc + (l.pedidos_uds || 0), 0);
+        subServidas = filtered.reduce((acc, l) => acc + (l.servidas_uds || 0), 0);
+        subPendientes = filtered.reduce((acc, l) => acc + (l.pendientes_uds || 0), 0);
+        subGap = filtered.reduce((acc, l) => acc + (l.gap_uds || 0), 0);
+        subDesv = subPedidos - subBudget;
+        subPct = subBudget > 0 ? (subPedidos / subBudget * 100) : (subPedidos > 0 ? 100 : 0);
+
+        if (subBudget > 0) {
+          if (subPct >= 100) { subBadge = 'badge-success'; subBadgeText = 'SUPERADO'; }
+          else if (subPct >= 50) { subBadge = 'badge-warning'; subBadgeText = 'EN CURSO'; }
+          else { subBadge = 'badge-danger'; subBadgeText = 'REZAGADO'; }
+        } else if (subPedidos > 0) {
+          subBadge = 'badge-success';
+          subBadgeText = 'EXTRA ESTIMACIÓN';
+        }
+
+        const uniqueClients = [...new Set(filtered.map(l => (l.cliente || '').trim()).filter(Boolean))];
+        if (uniqueClients.length === 1) {
+          subtotalLabel = `TOTAL ${uniqueClients[0].toUpperCase()}`;
+        } else if (searchQuery.trim() !== '') {
+          subtotalLabel = `SUBTOTAL "${searchQuery.trim().toUpperCase()}"`;
+        } else if (currentFilter !== 'ALL') {
+          subtotalLabel = `SUBTOTAL ${currentFilter.toUpperCase()}`;
+        } else {
+          subtotalLabel = `SUBTOTAL FILTRADO`;
+        }
+      }
 
       let html = `
         <!-- KPI GRID -->
         <div class="kpi-grid">
           <div class="kpi-card accent-blue">
             <div class="kpi-header">
-              <span class="kpi-title">Budget Septiembre</span>
+              <span class="kpi-title">Estimación Septiembre</span>
               <span class="tab-badge badge-neutral">Previsión Base</span>
             </div>
             <div class="kpi-value">${fmtNum(k.budget_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
@@ -1043,9 +1110,32 @@
               <button class="pill-btn ${currentFilter === 'En Curso' ? 'active' : ''}" onclick="setFilter('En Curso')">En Curso (${lines.filter(l => l.estado==='En Curso').length})</button>
               <button class="pill-btn ${currentFilter === 'Rezagado' ? 'active' : ''}" onclick="setFilter('Rezagado')">Rezagados (${lines.filter(l => l.estado==='Rezagado').length})</button>
               <button class="pill-btn ${currentFilter === 'Sin Pedido' ? 'active' : ''}" onclick="setFilter('Sin Pedido')">Sin Pedido (${lines.filter(l => l.estado==='Sin Pedido').length})</button>
-              <button class="pill-btn ${currentFilter === 'Extra Budget' ? 'active' : ''}" onclick="setFilter('Extra Budget')">Extra Budget (${lines.filter(l => l.estado==='Extra Budget').length})</button>
+              <button class="pill-btn ${currentFilter === 'Extra Estimación' ? 'active' : ''}" onclick="setFilter('Extra Estimación')">Extra Estimación (${extraCount})</button>
             </div>
           </div>
+
+          ${isFiltered && filtered.length > 0 ? `
+          <div class="subtotal-banner" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.16) 0%, rgba(30, 41, 59, 0.95) 100%); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: var(--radius-sm); padding: 0.75rem 1.25rem; margin-bottom: 0.9rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.85rem; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
+            <div style="display:flex; align-items:center; gap:0.65rem;">
+              <span style="background: var(--accent); color: #042f2e; font-weight: 800; font-size: 0.72rem; padding: 0.22rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">SUBTOTAL</span>
+              <strong style="color: #f8fafc; font-size: 1.05rem; letter-spacing: -0.01em;">${subtotalLabel}</strong>
+              <span style="color: var(--muted); font-size: 0.82rem;">(${filtered.length} partida${filtered.length > 1 ? 's' : ''})</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:1.35rem; font-size: 0.85rem; flex-wrap: wrap;">
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Estimación:</span> <strong style="color: #f8fafc; font-size: 0.95rem;">${fmtNum(subBudget, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Pedidos:</span> <strong style="color: #34d399; font-size: 0.95rem;">${fmtNum(subPedidos, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Servidas:</span> <strong style="color: #f8fafc; font-size: 0.95rem;">${fmtNum(subServidas, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Pendientes:</span> <strong style="color: ${subPendientes > 0 ? '#fbbf24' : 'var(--muted)'}; font-size: 0.95rem;">${fmtNum(subPendientes, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Falta:</span> <strong style="color: ${subGap > 0 ? '#fbbf24' : 'var(--muted)'}; font-size: 0.95rem;">${fmtNum(subGap, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Desv:</span> <strong style="color: ${subDesv >= 0 ? '#34d399' : '#f87171'}; font-size: 0.95rem;">${(subDesv >= 0 ? '+' : '')}${fmtNum(subDesv, 2)} u</strong></div>
+              <div style="display:flex; align-items:center; gap: 0.4rem;">
+                <span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">%:</span>
+                <strong style="color: #34d399; font-size: 1.05rem; font-weight: 800;">${subPct.toFixed(1)}%</strong>
+                <span class="tab-badge ${subBadge}" style="font-size: 0.68rem; padding: 0.15rem 0.45rem;">${subBadgeText}</span>
+              </div>
+            </div>
+          </div>
+          ` : ''}
 
           <div class="table-wrapper">
             <table>
@@ -1067,7 +1157,7 @@
                   <th>Cliente</th>
                   <th>SKU</th>
                   <th>Artículo</th>
-                  <th class="text-right">Budget</th>
+                  <th class="text-right">Estimación</th>
                   <th class="text-right">Pedidos</th>
                   <th class="text-right">Servidas</th>
                   <th class="text-right">Pendientes</th>
@@ -1080,26 +1170,14 @@
               <tbody id="linesTableBody">
       `;
 
-      const filtered = lines.filter(l => {
-        // filter by status
-        if (currentFilter !== 'ALL' && l.estado !== currentFilter) return false;
-        // search query
-        if (searchQuery.trim() !== '') {
-          const q = searchQuery.toLowerCase();
-          const matchCli = l.cliente.toLowerCase().includes(q);
-          const matchSku = l.sku.toLowerCase().includes(q);
-          const matchDesc = l.descripcion.toLowerCase().includes(q);
-          if (!matchCli && !matchSku && !matchDesc) return false;
-        }
-        return true;
-      });
-
       if (filtered.length === 0) {
         html += `<tr><td colspan="11" style="text-align:center; padding: 2.5rem; color: var(--muted)">No se encontraron líneas que coincidan con la búsqueda/filtro.</td></tr>`;
       } else {
         filtered.forEach(l => {
+          const isExtraLine = isExtra(l.estado);
+          const estadoDisplay = isExtraLine ? 'Extra Estimación' : l.estado;
           let stBadge = 'badge-neutral';
-          if (l.estado === 'Superado' || l.estado === 'Extra Budget') stBadge = 'badge-success';
+          if (l.estado === 'Superado' || isExtraLine) stBadge = 'badge-success';
           else if (l.estado === 'En Curso') stBadge = 'badge-warning';
           else if (l.estado === 'Rezagado') stBadge = 'badge-danger';
 
@@ -1125,7 +1203,7 @@
                   <strong>${l.pct_consec.toFixed(1)}%</strong>
                 </div>
               </td>
-              <td class="text-center"><span class="tab-badge ${stBadge}">${l.estado}</span></td>
+              <td class="text-center"><span class="tab-badge ${stBadge}">${estadoDisplay}</span></td>
             </tr>
           `;
         });
@@ -1134,8 +1212,24 @@
       html += `
               </tbody>
               <tfoot>
-                <tr>
-                  <td>TOTAL ${comName.toUpperCase()}</td>
+                ${isFiltered && filtered.length > 0 ? `
+                <tr style="background: rgba(16, 185, 129, 0.16); border-top: 2px solid #10b981; border-bottom: 1px solid rgba(51, 65, 85, 0.8);">
+                  <td style="color: #34d399; font-weight: 800; font-size: 0.85rem;" title="${subtotalLabel}">
+                    <span style="display:inline-block; margin-right:4px;">📌</span>${subtotalLabel}
+                  </td>
+                  <td colspan="2" style="font-weight: 600; color: #cbd5e1;">${filtered.length} partida${filtered.length > 1 ? 's' : ''} filtrada${filtered.length > 1 ? 's' : ''}</td>
+                  <td class="text-right" style="color: #f8fafc; font-weight: 700;">${fmtNum(subBudget, 2)}</td>
+                  <td class="text-right" style="color: #f8fafc; font-weight: 800;">${fmtNum(subPedidos, 2)}</td>
+                  <td class="text-right" style="font-weight: 700;">${fmtNum(subServidas, 2)}</td>
+                  <td class="text-right" style="color: ${subPendientes > 0 ? '#fbbf24' : 'var(--muted)'}; font-weight: 700;">${fmtNum(subPendientes, 2)}</td>
+                  <td class="text-right" style="color: ${subGap > 0 ? '#fbbf24' : 'var(--muted)'}; font-weight: 700;">${fmtNum(subGap, 2)}</td>
+                  <td class="text-right" style="color: ${subDesv >= 0 ? '#34d399' : '#f87171'}; font-weight: 700;">${(subDesv >= 0 ? '+' : '')}${fmtNum(subDesv, 2)}</td>
+                  <td class="text-right" style="color: #34d399; font-size: 1rem; font-weight: 800;">${subPct.toFixed(1)}%</td>
+                  <td class="text-center"><span class="tab-badge ${subBadge}">${subBadgeText}</span></td>
+                </tr>
+                ` : ''}
+                <tr style="${isFiltered ? 'opacity: 0.65; font-size: 0.78rem;' : ''}">
+                  <td>TOTAL ${comName.toUpperCase()} ${isFiltered ? '(GLOBAL)' : ''}</td>
                   <td colspan="2" style="font-weight:normal; color:var(--muted)">${lines.length} combinaciones cliente-artículo</td>
                   <td class="text-right">${fmtNum(k.budget_uds, 2)}</td>
                   <td class="text-right">${fmtNum(k.pedidos_uds, 2)}</td>
@@ -1157,11 +1251,13 @@
 
     function handleSearch(val) {
       searchQuery = val;
-      renderComercialTab(document.getElementById('appContent'), currentTab);
       const input = document.getElementById('searchTable');
-      if (input) {
-        input.focus();
-        input.setSelectionRange(val.length, val.length);
+      const cursorPos = input ? input.selectionStart : val.length;
+      renderComercialTab(document.getElementById('appContent'), currentTab);
+      const newInput = document.getElementById('searchTable');
+      if (newInput) {
+        newInput.focus();
+        try { newInput.setSelectionRange(cursorPos, cursorPos); } catch(e){}
       }
     }
 

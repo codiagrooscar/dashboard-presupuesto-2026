@@ -165,7 +165,7 @@ ws_res['B2'].alignment = Alignment(horizontal='left', vertical='center', indent=
 ws_res.row_dimensions[2].height = 40
 
 ws_res.merge_cells('B3:J3')
-ws_res['B3'] = f"Comparativa Budget Septiembre (Unidades) vs Pedidos Reales a Fecha {fecha_corte} | Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+ws_res['B3'] = f"Comparativa Estimación Septiembre (Unidades) vs Pedidos Reales a Fecha {fecha_corte} | Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
 ws_res['B3'].font = font_subtitle
 ws_res['B3'].fill = PatternFill(start_color='1E293B', end_color='1E293B', fill_type='solid')
 ws_res['B3'].alignment = Alignment(horizontal='left', vertical='center', indent=1)
@@ -180,7 +180,7 @@ tot_gap = sum(max(0.0, df_bud[df_bud['Comercial']==c]['Sep-26 (u)'].sum() - df_p
 tot_pct = (tot_ped / tot_bud * 100) if tot_bud > 0 else 0.0
 
 kpi_data = [
-    ('B', 'C', 'BUDGET SEP (UDS)', f"{tot_bud:,.0f} u", fill_card_kpi, '0F172A'),
+    ('B', 'C', 'ESTIMACIÓN SEP (UDS)', f"{tot_bud:,.0f} u", fill_card_kpi, '0F172A'),
     ('D', 'E', 'PEDIDOS REALES (UDS)', f"{tot_ped:,.0f} u", fill_card_accent, '047857'),
     ('F', 'G', '% CONSECUCIÓN GLOBAL', f"{tot_pct:.1f}%", fill_card_accent if tot_pct>=100 else fill_card_kpi, '047857' if tot_pct>=100 else 'B45309'),
     ('H', 'I', 'FALTA CONSEGUIR (GAP)', f"{tot_gap:,.0f} u", fill_warning if tot_gap>0 else fill_card_accent, 'B45309' if tot_gap>0 else '047857'),
@@ -215,7 +215,7 @@ ws_res['B8'] = "RESUMEN CONSOLIDADO POR COMERCIAL (UNIDADES)"
 ws_res['B8'].font = Font(name='Segoe UI', size=12, bold=True, color='0F172A')
 
 headers_res = [
-    'Comercial', 'Clientes Activos', 'Budget Sep (u)', 'Pedidos Sep (u)',
+    'Comercial', 'Clientes Activos', 'Estimación Sep (u)', 'Pedidos Sep (u)',
     'Servidas (u)', 'Pendientes (u)', 'Falta Conseguir (u)', 'Desviación (u)',
     '% Consecución'
 ]
@@ -299,7 +299,7 @@ ws_res.row_dimensions[cur_row].height = 24
 chart1 = BarChart()
 chart1.type = "col"
 chart1.style = 10
-chart1.title = "Budget Septiembre vs Pedidos Reales por Comercial (Unidades)"
+chart1.title = "Estimación Septiembre vs Pedidos Reales por Comercial (Unidades)"
 chart1.y_axis.title = "Unidades"
 chart1.x_axis.title = "Comercial"
 chart1.width = 18
@@ -350,7 +350,7 @@ for c in comerciales:
     
     # KPI Cards para el Comercial (SÓLO UNIDADES)
     cards = [
-        ('B', 'C', 'BUDGET SEP (U)', f"{com_bud_tot:,.0f} u", fill_card_kpi, '0F172A'),
+        ('B', 'C', 'ESTIMACIÓN SEP (U)', f"{com_bud_tot:,.0f} u", fill_card_kpi, '0F172A'),
         ('D', 'E', 'PEDIDOS REALES (U)', f"{com_ped_tot:,.0f} u", fill_card_accent if com_pct_tot>=100 else fill_card_kpi, '047857' if com_pct_tot>=100 else '0F172A'),
         ('F', 'G', '% CONSECUCIÓN', f"{com_pct_tot:.1f}%", fill_card_accent if com_pct_tot>=100 else fill_warning, '047857' if com_pct_tot>=100 else 'B45309'),
         ('H', 'I', 'FALTA CONSEGUIR (GAP)', f"{com_gap_tot:,.0f} u", fill_warning if com_gap_tot>0 else fill_card_accent, 'B45309' if com_gap_tot>0 else '047857'),
@@ -379,7 +379,7 @@ for c in comerciales:
     ws['B8'].font = Font(name='Segoe UI', size=11, bold=True, color='0F172A')
     
     det_headers = [
-        'Cliente', 'Cód. Artículo', 'Descripción Artículo', 'Budget Sep (u)',
+        'Cliente', 'Cód. Artículo', 'Descripción Artículo', 'Estimación Sep (u)',
         'Pedidos Sep (u)', 'Servidas (u)', 'Pendientes (u)', 'Falta (u)',
         'Desv. (u)', '% Consec.', 'Estado'
     ]
@@ -435,7 +435,7 @@ for c in comerciales:
         pct_val = (p_u / b_u * 100) if b_u > 0 else (100.0 if p_u > 0 else 0.0)
         status_cell = ws.cell(row_num, 12)
         if b_u == 0 and p_u > 0:
-            status_cell.value = "Extra Budget"
+            status_cell.value = "Extra Estimación"
             status_cell.fill = fill_success
             status_cell.font = font_success
         elif pct_val >= 100:

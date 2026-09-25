@@ -8,7 +8,7 @@
     "pct_consec": 102.42847564929711,
     "importe_neto": 584679.56,
     "fecha_corte": "25/09/2026",
-    "fecha_generacion": "25/09/2026 07:39"
+    "fecha_generacion": "25/09/2026 10:49"
   },
   "resumen_comerciales": [
     {
@@ -157,7 +157,7 @@
           "desv_uds": 300.0,
           "pct_consec": 100.0,
           "importe_neto": 1458.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGROTÉCNICA DEL NORTE, S.L",
@@ -171,7 +171,7 @@
           "desv_uds": 300.0,
           "pct_consec": 100.0,
           "importe_neto": 1014.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGROVEYCA,S.L",
@@ -185,7 +185,7 @@
           "desv_uds": 400.0,
           "pct_consec": 100.0,
           "importe_neto": 1944.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGROVEYCA,S.L",
@@ -213,7 +213,7 @@
           "desv_uds": 50.0,
           "pct_consec": 100.0,
           "importe_neto": 270.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -227,7 +227,7 @@
           "desv_uds": 100.0,
           "pct_consec": 100.0,
           "importe_neto": 558.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -241,7 +241,7 @@
           "desv_uds": 20.0,
           "pct_consec": 100.0,
           "importe_neto": 89.4,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -255,7 +255,7 @@
           "desv_uds": 40.0,
           "pct_consec": 100.0,
           "importe_neto": 96.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "BARDENAS COMERCIAL, S.L.",
@@ -269,7 +269,7 @@
           "desv_uds": 300.0,
           "pct_consec": 100.0,
           "importe_neto": 1014.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "BARDENAS COMERCIAL, S.L.",
@@ -283,7 +283,7 @@
           "desv_uds": 300.0,
           "pct_consec": 100.0,
           "importe_neto": 1056.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL NORTE AGROCAMPO, S.L.",
@@ -297,7 +297,7 @@
           "desv_uds": 40.0,
           "pct_consec": 100.0,
           "importe_neto": 195.6,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL NORTE AGROCAMPO, S.L.",
@@ -311,7 +311,7 @@
           "desv_uds": 20.0,
           "pct_consec": 100.0,
           "importe_neto": 40.4,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL NORTE AGROCAMPO, S.L.",
@@ -325,7 +325,7 @@
           "desv_uds": 60.0,
           "pct_consec": 100.0,
           "importe_neto": 144.6,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL NORTE AGROCAMPO, S.L.",
@@ -339,7 +339,7 @@
           "desv_uds": 20.0,
           "pct_consec": 100.0,
           "importe_neto": 61.4,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL NORTE AGROCAMPO, S.L.",
@@ -353,7 +353,7 @@
           "desv_uds": 20.0,
           "pct_consec": 100.0,
           "importe_neto": 83.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL NORTE AGROCAMPO, S.L.",
@@ -367,7 +367,7 @@
           "desv_uds": 20.0,
           "pct_consec": 100.0,
           "importe_neto": 68.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL NORTE AGROCAMPO, S.L.",
@@ -381,7 +381,7 @@
           "desv_uds": 40.0,
           "pct_consec": 100.0,
           "importe_neto": 89.2,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "MAJ AGROQUIMICOS S.L.",
@@ -395,7 +395,7 @@
           "desv_uds": 20.0,
           "pct_consec": 100.0,
           "importe_neto": 0.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SAFIAGRO, S.A.",
@@ -409,7 +409,7 @@
           "desv_uds": 640.0,
           "pct_consec": 100.0,
           "importe_neto": 1836.8,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "T.J AGRICULTURA S.L.",
@@ -423,7 +423,7 @@
           "desv_uds": 600.0,
           "pct_consec": 100.0,
           "importe_neto": 1086.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "T.J AGRICULTURA S.L.",
@@ -437,7 +437,7 @@
           "desv_uds": 500.0,
           "pct_consec": 100.0,
           "importe_neto": 2045.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "VILLALTA SATIVUM, S.L.",
@@ -451,7 +451,7 @@
           "desv_uds": 2800.0,
           "pct_consec": 100.0,
           "importe_neto": 5012.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         }
       ]
     },
@@ -522,7 +522,7 @@
           "desv_uds": 100.0,
           "pct_consec": 100.0,
           "importe_neto": 723.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGRONEW FITO, S.L.",
@@ -704,7 +704,7 @@
           "desv_uds": 400.0,
           "pct_consec": 100.0,
           "importe_neto": 3952.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "DOTRA GULF TRADING COMPANY",
@@ -718,7 +718,7 @@
           "desv_uds": 504.0,
           "pct_consec": 100.0,
           "importe_neto": 3094.56,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "DOTRA GULF TRADING COMPANY",
@@ -732,7 +732,7 @@
           "desv_uds": 800.0,
           "pct_consec": 100.0,
           "importe_neto": 2096.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "DOTRA GULF TRADING COMPANY",
@@ -746,7 +746,7 @@
           "desv_uds": 1080.0,
           "pct_consec": 100.0,
           "importe_neto": 13554.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "DOTRA GULF TRADING COMPANY",
@@ -760,7 +760,7 @@
           "desv_uds": 17500.0,
           "pct_consec": 100.0,
           "importe_neto": 65800.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "INIESTA DEL PINO DISTRIBUCIONES S.L.U",
@@ -802,7 +802,7 @@
           "desv_uds": 1056.0,
           "pct_consec": 100.0,
           "importe_neto": 5712.96,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SC MARCOSER S.R.L.",
@@ -816,7 +816,7 @@
           "desv_uds": 528.0,
           "pct_consec": 100.0,
           "importe_neto": 2993.76,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SC MARCOSER S.R.L.",
@@ -830,7 +830,7 @@
           "desv_uds": 396.0,
           "pct_consec": 100.0,
           "importe_neto": 1948.32,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SC MARCOSER S.R.L.",
@@ -844,7 +844,7 @@
           "desv_uds": 792.0,
           "pct_consec": 100.0,
           "importe_neto": 2645.28,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SC MARCOSER S.R.L.",
@@ -858,7 +858,7 @@
           "desv_uds": 600.0,
           "pct_consec": 100.0,
           "importe_neto": 1530.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SC MARCOSER S.R.L.",
@@ -872,7 +872,7 @@
           "desv_uds": 640.0,
           "pct_consec": 100.0,
           "importe_neto": 1472.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SC MARCOSER S.R.L.",
@@ -886,7 +886,7 @@
           "desv_uds": 792.0,
           "pct_consec": 100.0,
           "importe_neto": 4284.72,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SC MARCOSER S.R.L.",
@@ -900,7 +900,7 @@
           "desv_uds": 640.0,
           "pct_consec": 100.0,
           "importe_neto": 1638.4,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SC MARCOSER S.R.L.",
@@ -914,7 +914,7 @@
           "desv_uds": 792.0,
           "pct_consec": 100.0,
           "importe_neto": 9543.6,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SC MARCOSER S.R.L.",
@@ -928,7 +928,7 @@
           "desv_uds": 640.0,
           "pct_consec": 100.0,
           "importe_neto": 6790.4,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SC MARCOSER S.R.L.",
@@ -942,7 +942,7 @@
           "desv_uds": 1056.0,
           "pct_consec": 100.0,
           "importe_neto": 4878.72,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SERVIAGRI´ 97, S.L.",
@@ -970,7 +970,7 @@
           "desv_uds": 120.0,
           "pct_consec": 100.0,
           "importe_neto": 0.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SERVIAGRI´ 97, S.L.",
@@ -1026,7 +1026,7 @@
           "desv_uds": 24.0,
           "pct_consec": 100.0,
           "importe_neto": 110.88,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SERVIAGRI´ 97, S.L.",
@@ -1040,7 +1040,7 @@
           "desv_uds": 100.0,
           "pct_consec": 100.0,
           "importe_neto": 331.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "SERVIAGRI´ 97, S.L.",
@@ -1082,7 +1082,7 @@
           "desv_uds": 60.0,
           "pct_consec": 100.0,
           "importe_neto": 284.4,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "TRATAMIENTOS AGRICOLAS BRENES, S.L.",
@@ -1139,7 +1139,7 @@
           "desv_uds": 20.0,
           "pct_consec": 100.0,
           "importe_neto": 0.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "CAMPOEJIDO S.C.A.",
@@ -1475,7 +1475,7 @@
           "desv_uds": 8000.0,
           "pct_consec": 100.0,
           "importe_neto": 20560.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "GUIVARTO AGRICOLA, S.L.",
@@ -1587,7 +1587,7 @@
           "desv_uds": 200.0,
           "pct_consec": 100.0,
           "importe_neto": 1162.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         }
       ]
     },
@@ -1630,7 +1630,7 @@
           "desv_uds": 1000.0,
           "pct_consec": 100.0,
           "importe_neto": 2700.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -1658,7 +1658,7 @@
           "desv_uds": 40.0,
           "pct_consec": 100.0,
           "importe_neto": 130.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -1672,7 +1672,7 @@
           "desv_uds": 100.0,
           "pct_consec": 100.0,
           "importe_neto": 292.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -1686,7 +1686,7 @@
           "desv_uds": 60.0,
           "pct_consec": 100.0,
           "importe_neto": 219.6,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -1700,7 +1700,7 @@
           "desv_uds": 60.0,
           "pct_consec": 100.0,
           "importe_neto": 241.2,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -1714,7 +1714,7 @@
           "desv_uds": 200.0,
           "pct_consec": 100.0,
           "importe_neto": 460.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -1728,7 +1728,7 @@
           "desv_uds": 40.0,
           "pct_consec": 100.0,
           "importe_neto": 105.6,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -1742,7 +1742,7 @@
           "desv_uds": 40.0,
           "pct_consec": 100.0,
           "importe_neto": 148.8,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "ALMENDRALIA IBÉRICA, S.L.U.",
@@ -1756,7 +1756,7 @@
           "desv_uds": 1100.0,
           "pct_consec": 100.0,
           "importe_neto": 1958.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "CABRERA MORALES FRANCISCO",
@@ -1770,7 +1770,7 @@
           "desv_uds": 375.0,
           "pct_consec": 100.0,
           "importe_neto": 1822.5,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "CABRERA MORALES FRANCISCO",
@@ -1798,7 +1798,7 @@
           "desv_uds": 600.0,
           "pct_consec": 100.0,
           "importe_neto": 1272.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "CABRERA MORALES FRANCISCO",
@@ -1812,7 +1812,7 @@
           "desv_uds": 1280.0,
           "pct_consec": 100.0,
           "importe_neto": 2585.6,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "CABRERA MORALES FRANCISCO",
@@ -1826,7 +1826,7 @@
           "desv_uds": 200.0,
           "pct_consec": 100.0,
           "importe_neto": 868.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "CODIMED EXPORT, S.L.",
@@ -1868,7 +1868,7 @@
           "desv_uds": 100.0,
           "pct_consec": 100.0,
           "importe_neto": 314.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "CODIMED EXPORT, S.L.",
@@ -1882,7 +1882,7 @@
           "desv_uds": 200.0,
           "pct_consec": 100.0,
           "importe_neto": 604.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "CODIMED EXPORT, S.L.",
@@ -1896,7 +1896,7 @@
           "desv_uds": 320.0,
           "pct_consec": 100.0,
           "importe_neto": 3241.6000000000004,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FINCA DOÑA ANA C.B.",
@@ -1910,7 +1910,7 @@
           "desv_uds": 120.0,
           "pct_consec": 100.0,
           "importe_neto": 613.2,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FINCA DOÑA ANA C.B.",
@@ -1924,7 +1924,7 @@
           "desv_uds": 1000.0,
           "pct_consec": 100.0,
           "importe_neto": 3600.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS CARCAIXENT, S.L.",
@@ -1938,7 +1938,7 @@
           "desv_uds": 100.0,
           "pct_consec": 100.0,
           "importe_neto": 393.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS CARCAIXENT, S.L.",
@@ -1952,7 +1952,7 @@
           "desv_uds": 200.0,
           "pct_consec": 100.0,
           "importe_neto": 1014.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS CARCAIXENT, S.L.",
@@ -1966,7 +1966,7 @@
           "desv_uds": 100.0,
           "pct_consec": 100.0,
           "importe_neto": 630.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS CARCAIXENT, S.L.",
@@ -1980,7 +1980,7 @@
           "desv_uds": 600.0,
           "pct_consec": 100.0,
           "importe_neto": 2052.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS CARCAIXENT, S.L.",
@@ -1994,7 +1994,7 @@
           "desv_uds": 1920.0,
           "pct_consec": 100.0,
           "importe_neto": 6067.200000000001,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS DRAGO S.L.U",
@@ -2008,7 +2008,7 @@
           "desv_uds": 1600.0,
           "pct_consec": 100.0,
           "importe_neto": 4276.8,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS DRAGO S.L.U",
@@ -2022,7 +2022,7 @@
           "desv_uds": 10000.0,
           "pct_consec": 100.0,
           "importe_neto": 24840.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS DRAGO S.L.U",
@@ -2036,7 +2036,7 @@
           "desv_uds": 24.0,
           "pct_consec": 100.0,
           "importe_neto": 121.44,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS DRAGO S.L.U",
@@ -2050,7 +2050,7 @@
           "desv_uds": 1280.0,
           "pct_consec": 100.0,
           "importe_neto": 2873.09,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS DRAGO S.L.U",
@@ -2064,7 +2064,7 @@
           "desv_uds": 400.0,
           "pct_consec": 100.0,
           "importe_neto": 1383.84,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS DRAGO S.L.U",
@@ -2078,7 +2078,7 @@
           "desv_uds": 640.0,
           "pct_consec": 100.0,
           "importe_neto": 2035.58,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS DRAGO S.L.U",
@@ -2092,7 +2092,7 @@
           "desv_uds": 800.0,
           "pct_consec": 100.0,
           "importe_neto": 1378.08,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOSANITARIOS DRAGO S.L.U",
@@ -2106,7 +2106,7 @@
           "desv_uds": 40.0,
           "pct_consec": 100.0,
           "importe_neto": 148.8,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOXENT S.C.L.V.",
@@ -2148,7 +2148,7 @@
           "desv_uds": 200.0,
           "pct_consec": 100.0,
           "importe_neto": 383.16,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         }
       ]
     },
@@ -2177,7 +2177,7 @@
           "desv_uds": 3300.0,
           "pct_consec": 100.0,
           "importe_neto": 6765.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
@@ -2191,7 +2191,7 @@
           "desv_uds": 10060.0,
           "pct_consec": 100.0,
           "importe_neto": 21000.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
@@ -2205,7 +2205,7 @@
           "desv_uds": 11000.0,
           "pct_consec": 100.0,
           "importe_neto": 19800.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
@@ -2219,7 +2219,7 @@
           "desv_uds": 1000.0,
           "pct_consec": 100.0,
           "importe_neto": 3520.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
@@ -2444,7 +2444,7 @@
           "desv_uds": 200.0,
           "pct_consec": 100.0,
           "importe_neto": 2258.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
@@ -2458,7 +2458,7 @@
           "desv_uds": 200.0,
           "pct_consec": 100.0,
           "importe_neto": 468.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
@@ -2472,7 +2472,7 @@
           "desv_uds": 600.0,
           "pct_consec": 100.0,
           "importe_neto": 1896.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
@@ -2486,7 +2486,7 @@
           "desv_uds": 1000.0,
           "pct_consec": 100.0,
           "importe_neto": 2890.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
@@ -2556,7 +2556,7 @@
           "desv_uds": 400.0,
           "pct_consec": 100.0,
           "importe_neto": 1528.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOMURCIA S.L.",
@@ -2570,7 +2570,7 @@
           "desv_uds": 200.0,
           "pct_consec": 100.0,
           "importe_neto": 0.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "FITOMURCIA S.L.",
@@ -2584,7 +2584,7 @@
           "desv_uds": 300.0,
           "pct_consec": 100.0,
           "importe_neto": 1110.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         }
       ]
     },
@@ -2613,7 +2613,7 @@
           "desv_uds": 3000.0,
           "pct_consec": 100.0,
           "importe_neto": 12000.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "ECUAQUIMICA",
@@ -2627,7 +2627,7 @@
           "desv_uds": 2200.0,
           "pct_consec": 100.0,
           "importe_neto": 4026.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "ECUAQUIMICA",
@@ -2641,7 +2641,7 @@
           "desv_uds": 6600.0,
           "pct_consec": 100.0,
           "importe_neto": 10890.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "EUROFERTIL, S.A.",
@@ -2669,7 +2669,7 @@
           "desv_uds": 3000.0,
           "pct_consec": 100.0,
           "importe_neto": 8760.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "EUROFERTIL, S.A.    ",
@@ -2683,7 +2683,7 @@
           "desv_uds": 3300.0,
           "pct_consec": 100.0,
           "importe_neto": 6072.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "EUROFERTIL, S.A.    ",
@@ -2697,7 +2697,7 @@
           "desv_uds": 4400.0,
           "pct_consec": 100.0,
           "importe_neto": 7260.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "EUROFERTIL, S.A.    ",
@@ -2711,7 +2711,7 @@
           "desv_uds": 2000.0,
           "pct_consec": 100.0,
           "importe_neto": 5760.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "EUROFERTIL, S.A.    ",
@@ -2725,7 +2725,7 @@
           "desv_uds": 1000.0,
           "pct_consec": 100.0,
           "importe_neto": 3370.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "EUROFERTIL, S.A.    ",
@@ -2739,7 +2739,7 @@
           "desv_uds": 1000.0,
           "pct_consec": 100.0,
           "importe_neto": 2920.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "EUROFERTIL, S.A.    ",
@@ -2753,7 +2753,7 @@
           "desv_uds": 750.0,
           "pct_consec": 100.0,
           "importe_neto": 1897.5,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "EUROFERTIL, S.A.    ",
@@ -2767,7 +2767,7 @@
           "desv_uds": 1000.0,
           "pct_consec": 100.0,
           "importe_neto": 4020.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "EUROFERTIL, S.A.    ",
@@ -2781,7 +2781,7 @@
           "desv_uds": 2000.0,
           "pct_consec": 100.0,
           "importe_neto": 12200.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "EUROFERTIL, S.A.    ",
@@ -2795,7 +2795,7 @@
           "desv_uds": 1600.0,
           "pct_consec": 100.0,
           "importe_neto": 5952.0,
-          "estado": "Extra Budget"
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "LEKKERBIO B.V.",

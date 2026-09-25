@@ -149,7 +149,7 @@ def build_dataset():
             pct_u = float((p_u / b_u * 100) if b_u > 0 else (100.0 if p_u > 0 else 0.0))
 
             if b_u == 0 and p_u > 0:
-                est = "Extra Budget"
+                est = "Extra Estimación"
             elif pct_u >= 100:
                 est = "Superado"
             elif pct_u >= 50:

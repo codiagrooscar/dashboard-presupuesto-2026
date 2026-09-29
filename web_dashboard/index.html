@@ -550,7 +550,7 @@
             Controller Presupuesto Septiembre 2026
             <span class="badge-live">En Tiempo Real</span>
           </h1>
-          <p>Seguimiento Diario de Previsión vs Pedidos a Fecha <strong id="headerFechaCorte" style="color:#f8fafc">25/09/2026</strong> | Codiagro S.L.</p>
+          <p>Seguimiento Diario de Previsión vs Pedidos a Fecha <strong id="headerFechaCorte" style="color:#f8fafc">28/09/2026</strong> | Codiagro S.L.</p>
         </div>
       </div>
     </div>
@@ -561,11 +561,11 @@
     <div class="tabs-container" id="tabsNav">
       <button class="tab-btn active" onclick="switchTab('resumen')">
         Resumen General
-        <span class="tab-badge badge-success" id="tabBadgeResumen">99.0%</span>
+        <span class="tab-badge badge-success" id="tabBadgeResumen">111.8%</span>
       </button>
       <button class="tab-btn" onclick="switchTab('Alfonso')">
         Alfonso
-        <span class="tab-badge badge-success" id="tabBadgeAlfonso">459.7%</span>
+        <span class="tab-badge badge-success" id="tabBadgeAlfonso">491.8%</span>
       </button>
       <button class="tab-btn" onclick="switchTab('García')">
         García
@@ -625,10 +625,15 @@
     async function loadData() {
       try {
         let resp;
-        try {
-          resp = await fetch('/api/data?t=' + Date.now(), { cache: 'no-store' });
-          if (!resp.ok) throw new Error('API not available');
-        } catch (e) {
+        const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        if (isLocal) {
+          try {
+            resp = await fetch('/api/data?t=' + Date.now(), { cache: 'no-store' });
+            if (!resp.ok) throw new Error('API not available');
+          } catch (e) {
+            resp = await fetch('dashboard_data.json?t=' + Date.now(), { cache: 'no-store' });
+          }
+        } else {
           resp = await fetch('dashboard_data.json?t=' + Date.now(), { cache: 'no-store' });
         }
         appData = await resp.json();
@@ -1266,8 +1271,12 @@
       renderComercialTab(document.getElementById('appContent'), currentTab);
     }
 
-    // Inicializar al cargar el DOM
-    document.addEventListener('DOMContentLoaded', loadData);
+    // Inicializar al cargar el DOM de forma segura
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadData);
+    } else {
+      loadData();
+    }
   </script>
 </body>
 </html>

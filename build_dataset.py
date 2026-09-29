@@ -78,6 +78,7 @@ def build_dataset():
     client_map[norm('FINCA DOÑA ANA C.B.')] = 'Javier'
     client_map[norm('FITOSANITARIOS CARCAIXENT, S.L.')] = 'Javier'
     client_map[norm('ALMENDRALIA IBÉRICA, S.L.U.')] = 'Javier'
+    client_map[norm('TÉCNICAS AGRÍCOLAS, S.A.')] = 'Ricardo'
 
     df_ped['Comercial'] = df_ped['CLIENTE_NORM'].map(client_map).fillna('Sin Asignar')
 

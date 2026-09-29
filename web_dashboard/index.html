@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script src="chart.umd.min.js"></script>
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
+  <script src="dashboard_data.js"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -624,19 +625,33 @@
 
     async function loadData() {
       try {
-        let resp;
-        const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        if (isLocal) {
-          try {
-            resp = await fetch('/api/data?t=' + Date.now(), { cache: 'no-store' });
-            if (!resp.ok) throw new Error('API not available');
-          } catch (e) {
-            resp = await fetch('dashboard_data.json?t=' + Date.now(), { cache: 'no-store' });
-          }
+        if (window.DASHBOARD_DATA && window.DASHBOARD_DATA.global_kpis) {
+          appData = window.DASHBOARD_DATA;
         } else {
-          resp = await fetch('dashboard_data.json?t=' + Date.now(), { cache: 'no-store' });
+          let resp = null;
+          const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+          if (isLocal) {
+            try {
+              const r = await fetch('/api/data?t=' + Date.now(), { cache: 'no-store' });
+              if (r.ok) resp = r;
+            } catch (e) {}
+          }
+          if (!resp) {
+            const urlsToTry = [
+              'dashboard_data.json?t=' + Date.now(),
+              './dashboard_data.json?t=' + Date.now()
+            ];
+            for (const u of urlsToTry) {
+              try {
+                const r = await fetch(u);
+                if (r.ok) { resp = r; break; }
+              } catch (e) {}
+            }
+          }
+          if (!resp) throw new Error('No se pudo descargar el archivo de datos');
+          appData = await resp.json();
         }
-        appData = await resp.json();
+
         if (appData && appData.global_kpis && appData.global_kpis.fecha_corte) {
           const elDate = document.getElementById('headerFechaCorte');
           if (elDate) elDate.innerText = appData.global_kpis.fecha_corte;
@@ -647,8 +662,9 @@
         console.error("Error cargando datos:", err);
         document.getElementById('appContent').innerHTML = `
           <div style="text-align:center; padding: 3rem; color: #ef4444">
-            <h3>Error al cargar los datos del dashboard</h3>
+            <h3 style="font-size:1.3rem; margin-bottom: 0.5rem">Error al cargar los datos del dashboard</h3>
             <p style="margin-top:0.5rem; color: var(--muted)">${err.message}</p>
+            <button onclick="location.reload()" style="margin-top:1.5rem; background:#10b981; color:#fff; border:none; padding:0.6rem 1.4rem; border-radius:8px; cursor:pointer; font-weight:600">Reintentar</button>
           </div>
         `;
       }

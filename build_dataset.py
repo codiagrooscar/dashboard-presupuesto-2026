@@ -226,5 +226,7 @@ if __name__ == '__main__':
     os.makedirs('web_dashboard', exist_ok=True)
     with open('web_dashboard/dashboard_data.json', 'w', encoding='utf-8') as f:
         json.dump(d, f, ensure_ascii=False, indent=2)
-    print("dashboard_data.json generado correctamente en raíz y web_dashboard/. Resumen global:")
+    with open('web_dashboard/dashboard_data.js', 'w', encoding='utf-8') as f:
+        f.write("window.DASHBOARD_DATA = " + json.dumps(d, ensure_ascii=False) + ";\n")
+    print("dashboard_data.json y dashboard_data.js generados correctamente en web_dashboard/. Resumen global:")
     print(d['global_kpis'])

@@ -8,25 +8,9 @@ Sistema de seguimiento diario comparativo entre la Previsión / Presupuesto de V
 
 La aplicación web (`web_dashboard`) está diseñada como una **SPA (Single Page Application) estática ultraligera** que no requiere base de datos ni servidor complejo. Todo funciona en el navegador a partir de `dashboard_data.json`.
 
-### 1. Opción A: Despliegue en Render (Recomendado vía GitHub)
-1. Sube este repositorio a tu cuenta de GitHub (ver sección *Subir a GitHub* abajo).
-2. Entra en [render.com](https://render.com) e inicia sesión.
-3. Haz clic en **New +** $\rightarrow$ **Static Site**.
-4. Conecta tu repositorio de GitHub.
-5. Configura los siguientes campos:
-   - **Name:** `codiagro-presupuesto-dashboard`
-   - **Branch:** `main` (o `master`)
-   - **Build Command:** *(dejar vacío)*
-   - **Publish directory:** `web_dashboard`
-6. Haz clic en **Create Static Site**.
-7. En menos de 1 minuto tendrás una URL pública y segura (`https://codiagro-presupuesto-dashboard.onrender.com`) lista para compartir.
-
-### 2. Opción B: Despliegue en Firebase Hosting
-Como ya tienes configurada la cuenta `codiagrooscar@gmail.com` y `firebase-tools`, puedes desplegar en segundos ejecutando:
-```bash
-firebase deploy --only hosting
-```
-Te entregará una URL instantánea tipo `https://mantenimiento-21758.web.app`.
+### 1. Despliegue en GitHub Pages (Oficial)
+El dashboard se publica automáticamente en GitHub Pages tras ejecutar `actualizar_dashboard.bat`:
+- **URL Oficial:** [https://codiagrooscar.github.io/dashboard-presupuesto-2026/](https://codiagrooscar.github.io/dashboard-presupuesto-2026/)
 
 ---
 
@@ -56,20 +40,17 @@ Cada día cuando recibas el nuevo fichero de pedidos:
      git add web_dashboard/dashboard_data.json
      git commit -m "Actualización diaria de pedidos"
      git push
-     ```
-     Render detectará el commit y actualizará la web automáticamente en 20 segundos.
-   - **En Firebase:**
      ```bash
-     firebase deploy --only hosting
+     actualizar_dashboard.bat
      ```
+     El script compila los pedidos, regenera el Excel y despliega en GitHub Pages automáticamente.
 
 ---
 
 ## 📦 Estructura del Proyecto
 
-- `web_dashboard/`: Archivos de la interfaz web (`index.html`, `dashboard_data.json`, `codiagro_logo.png`, `chart.umd.min.js`, `server.py`).
-- `build_dataset.py`: Script de cruce de datos y generación del JSON para el dashboard.
-- `generate_excel_dashboard.py`: Script generador del Excel multihistorial (`Seguimiento_Presupuesto_Sep_2026.xlsx`).
-- `update_garcia_budget.py`: Script de actualización de la previsión de García a partir de `Garcia 2026 V3 CORREGIDA.xlsx`.
-- `render.yaml`: Manifiesto para despliegue automático en Render.
-- `firebase.json` / `.firebaserc`: Configuración para Firebase Hosting.
+- `web_dashboard/`: Archivos de la interfaz web (`index.html`, `dashboard_data.json`, `dashboard_data.js`, `codiagro_logo.png`, `chart.umd.min.js`, `server.py`).
+- `build_dataset.py`: Script de cruce de datos y generación del JSON/JS para el dashboard.
+- `generate_excel_dashboard.py`: Script generador del Excel de seguimiento (`Seguimiento_Presupuesto_Sep_2026.xlsx`).
+- `actualizar_dashboard.bat`: Script automatizado diario para regenerar dataset, Excel y sincronizar GitHub Pages.
+- `render.yaml`: Manifiesto para despliegue alternativo en Render.

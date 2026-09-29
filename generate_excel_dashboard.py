@@ -94,10 +94,11 @@ df_bud['SKU_CLEAN'] = df_bud.apply(clean_budget_sku, axis=1)
 
 # Diccionario Cliente -> Comercial
 client_map = df_bud.groupby('CLIENTE_NORM')['Comercial'].first().to_dict()
-# Asignaciones explícitas de Javier
+# Asignaciones explícitas de Javier y Ricardo
 client_map[norm('FINCA DOÑA ANA C.B.')] = 'Javier'
 client_map[norm('FITOSANITARIOS CARCAIXENT, S.L.')] = 'Javier'
 client_map[norm('ALMENDRALIA IBÉRICA, S.L.U.')] = 'Javier'
+client_map[norm('TÉCNICAS AGRÍCOLAS, S.A.')] = 'Ricardo'
 
 df_ped['Comercial'] = df_ped['CLIENTE_NORM'].map(client_map).fillna('Sin Asignar')
 

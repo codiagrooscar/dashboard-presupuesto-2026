@@ -1,27 +1,27 @@
 {
   "global_kpis": {
     "budget_uds": 181966.0,
-    "pedidos_uds": 206419.0,
-    "servidas_uds": 101701.0,
-    "pendientes_uds": 104718.0,
-    "gap_uds": 24576.0,
-    "pct_consec": 113.43822472329997,
-    "importe_neto": 660697.1599999999,
-    "fecha_corte": "29/09/2026",
-    "fecha_generacion": "29/09/2026 07:48"
+    "pedidos_uds": 233625.0,
+    "servidas_uds": 102965.0,
+    "pendientes_uds": 130660.0,
+    "gap_uds": 15512.0,
+    "pct_consec": 128.38936944264313,
+    "importe_neto": 729630.6,
+    "fecha_corte": "30/09/2026",
+    "fecha_generacion": "30/09/2026 07:33"
   },
   "resumen_comerciales": [
     {
       "comercial": "Alfonso",
-      "clientes_activos": 11,
+      "clientes_activos": 12,
       "budget_uds": 2320.0,
-      "pedidos_uds": 11710.0,
-      "servidas_uds": 11710.0,
+      "pedidos_uds": 11874.0,
+      "servidas_uds": 11874.0,
       "pendientes_uds": 0.0,
       "gap_uds": 0.0,
-      "desv_uds": 9390.0,
-      "pct_consec": 504.7413793103448,
-      "importe_neto": 32483.8,
+      "desv_uds": 9554.0,
+      "pct_consec": 511.8103448275862,
+      "importe_neto": 33059.2,
       "estado": "Superado"
     },
     {
@@ -29,8 +29,8 @@
       "clientes_activos": 8,
       "budget_uds": 37832.0,
       "pedidos_uds": 56212.0,
-      "servidas_uds": 5896.0,
-      "pendientes_uds": 50316.0,
+      "servidas_uds": 6996.0,
+      "pendientes_uds": 49216.0,
       "gap_uds": 0.0,
       "desv_uds": 18380.0,
       "pct_consec": 148.5832099809685,
@@ -41,26 +41,26 @@
       "comercial": "Irene",
       "clientes_activos": 3,
       "budget_uds": 21914.0,
-      "pedidos_uds": 14826.0,
+      "pedidos_uds": 23674.0,
       "servidas_uds": 14826.0,
-      "pendientes_uds": 0.0,
-      "gap_uds": 7088.0,
-      "desv_uds": -7088.0,
-      "pct_consec": 67.65538012229625,
-      "importe_neto": 52678.969999999994,
-      "estado": "En Curso"
+      "pendientes_uds": 8848.0,
+      "gap_uds": 0.0,
+      "desv_uds": 1760.0,
+      "pct_consec": 108.0313954549603,
+      "importe_neto": 86319.12999999999,
+      "estado": "Superado"
     },
     {
       "comercial": "Javier",
       "clientes_activos": 8,
       "budget_uds": 17100.0,
-      "pedidos_uds": 38359.0,
+      "pedidos_uds": 45669.0,
       "servidas_uds": 38359.0,
-      "pendientes_uds": 0.0,
+      "pendientes_uds": 7310.0,
       "gap_uds": 0.0,
-      "desv_uds": 21259.0,
-      "pct_consec": 224.3216374269006,
-      "importe_neto": 102213.09000000001,
+      "desv_uds": 28569.0,
+      "pct_consec": 267.0701754385965,
+      "importe_neto": 119773.37,
       "estado": "Superado"
     },
     {
@@ -80,27 +80,27 @@
       "comercial": "Pedro",
       "clientes_activos": 3,
       "budget_uds": 17340.0,
-      "pedidos_uds": 7860.0,
+      "pedidos_uds": 8560.0,
       "servidas_uds": 7860.0,
-      "pendientes_uds": 0.0,
-      "gap_uds": 9480.0,
-      "desv_uds": -9480.0,
-      "pct_consec": 45.32871972318339,
-      "importe_neto": 22512.8,
+      "pendientes_uds": 700.0,
+      "gap_uds": 8780.0,
+      "desv_uds": -8780.0,
+      "pct_consec": 49.36562860438293,
+      "importe_neto": 23770.399999999998,
       "estado": "Rezagado"
     },
     {
       "comercial": "Ricardo",
-      "clientes_activos": 4,
+      "clientes_activos": 6,
       "budget_uds": 46000.0,
-      "pedidos_uds": 44724.0,
+      "pedidos_uds": 54908.0,
       "servidas_uds": 23050.0,
-      "pendientes_uds": 21674.0,
-      "gap_uds": 1276.0,
-      "desv_uds": -1276.0,
-      "pct_consec": 97.22608695652174,
-      "importe_neto": 137876.9,
-      "estado": "En Curso"
+      "pendientes_uds": 31858.0,
+      "gap_uds": 0.0,
+      "desv_uds": 8908.0,
+      "pct_consec": 119.36521739130434,
+      "importe_neto": 153776.90000000002,
+      "estado": "Superado"
     }
   ],
   "comerciales": {
@@ -108,13 +108,13 @@
       "comercial": "Alfonso",
       "kpis": {
         "budget_uds": 2320.0,
-        "pedidos_uds": 11710.0,
-        "servidas_uds": 11710.0,
+        "pedidos_uds": 11874.0,
+        "servidas_uds": 11874.0,
         "pendientes_uds": 0.0,
         "gap_uds": 0.0,
-        "desv_uds": 9390.0,
-        "pct_consec": 504.7413793103448,
-        "importe_neto": 32483.8
+        "desv_uds": 9554.0,
+        "pct_consec": 511.8103448275862,
+        "importe_neto": 33059.2
       },
       "lineas": [
         {
@@ -454,6 +454,48 @@
           "estado": "Extra Estimación"
         },
         {
+          "cliente": "MUNDOHUERTO-CARMEN SOLAZ BLANCO",
+          "sku": "PT0001",
+          "descripcion": "AGROPOTASION, 1 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 24.0,
+          "servidas_uds": 24.0,
+          "pendientes_uds": 0.0,
+          "gap_uds": 0.0,
+          "desv_uds": 24.0,
+          "pct_consec": 100.0,
+          "importe_neto": 108.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "MUNDOHUERTO-CARMEN SOLAZ BLANCO",
+          "sku": "PT0005",
+          "descripcion": "AGROPOTASION, 5 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 80.0,
+          "servidas_uds": 80.0,
+          "pendientes_uds": 0.0,
+          "gap_uds": 0.0,
+          "desv_uds": 80.0,
+          "pct_consec": 100.0,
+          "importe_neto": 276.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "MUNDOHUERTO-CARMEN SOLAZ BLANCO",
+          "sku": "PT0020",
+          "descripcion": "AGROPOTASION, 20 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 60.0,
+          "servidas_uds": 60.0,
+          "pendientes_uds": 0.0,
+          "gap_uds": 0.0,
+          "desv_uds": 60.0,
+          "pct_consec": 100.0,
+          "importe_neto": 191.4,
+          "estado": "Extra Estimación"
+        },
+        {
           "cliente": "SAFIAGRO, S.A.",
           "sku": "AGXK0020",
           "descripcion": "AGROXILATO-K, 20 L",
@@ -516,8 +558,8 @@
       "kpis": {
         "budget_uds": 37832.0,
         "pedidos_uds": 56212.0,
-        "servidas_uds": 5896.0,
-        "pendientes_uds": 50316.0,
+        "servidas_uds": 6996.0,
+        "pendientes_uds": 49216.0,
         "gap_uds": 0.0,
         "desv_uds": 18380.0,
         "pct_consec": 148.5832099809685,
@@ -824,8 +866,8 @@
           "descripcion": "ALCAPLANT NEW, 5 KG",
           "budget_uds": 0.0,
           "pedidos_uds": 1100.0,
-          "servidas_uds": 0.0,
-          "pendientes_uds": 1100.0,
+          "servidas_uds": 1100.0,
+          "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1100.0,
           "pct_consec": 100.0,
@@ -1174,13 +1216,13 @@
       "comercial": "Irene",
       "kpis": {
         "budget_uds": 21914.0,
-        "pedidos_uds": 14826.0,
+        "pedidos_uds": 23674.0,
         "servidas_uds": 14826.0,
-        "pendientes_uds": 0.0,
-        "gap_uds": 7088.0,
-        "desv_uds": -7088.0,
-        "pct_consec": 67.65538012229625,
-        "importe_neto": 52678.969999999994
+        "pendientes_uds": 8848.0,
+        "gap_uds": 0.0,
+        "desv_uds": 1760.0,
+        "pct_consec": 108.0313954549603,
+        "importe_neto": 86319.12999999999
       },
       "lineas": [
         {
@@ -1244,28 +1286,28 @@
           "sku": "AVAN0020",
           "descripcion": "FLORAMEC AVANCE, 20 L",
           "budget_uds": 960.0,
-          "pedidos_uds": 640.0,
+          "pedidos_uds": 2560.0,
           "servidas_uds": 640.0,
-          "pendientes_uds": 0.0,
-          "gap_uds": 320.0,
-          "desv_uds": -320.0,
-          "pct_consec": 66.66666666666666,
-          "importe_neto": 3270.4,
-          "estado": "En Curso"
+          "pendientes_uds": 1920.0,
+          "gap_uds": 0.0,
+          "desv_uds": 1600.0,
+          "pct_consec": 266.66666666666663,
+          "importe_neto": 13081.6,
+          "estado": "Superado"
         },
         {
           "cliente": "CAMPOEJIDO S.C.A.",
           "sku": "BIO0020",
           "descripcion": "BIORAD-20, 20 L",
           "budget_uds": 640.0,
-          "pedidos_uds": 0.0,
+          "pedidos_uds": 640.0,
           "servidas_uds": 0.0,
-          "pendientes_uds": 0.0,
-          "gap_uds": 640.0,
-          "desv_uds": -640.0,
-          "pct_consec": 0.0,
-          "importe_neto": 0.0,
-          "estado": "Sin Pedido"
+          "pendientes_uds": 640.0,
+          "gap_uds": 0.0,
+          "desv_uds": 0.0,
+          "pct_consec": 100.0,
+          "importe_neto": 1472.0,
+          "estado": "Superado"
         },
         {
           "cliente": "CAMPOEJIDO S.C.A.",
@@ -1314,13 +1356,13 @@
           "sku": "C-MB0005",
           "descripcion": "CODIFOL-MB, 5 L",
           "budget_uds": 400.0,
-          "pedidos_uds": 700.0,
+          "pedidos_uds": 1300.0,
           "servidas_uds": 700.0,
-          "pendientes_uds": 0.0,
+          "pendientes_uds": 600.0,
           "gap_uds": 0.0,
-          "desv_uds": 300.0,
-          "pct_consec": 175.0,
-          "importe_neto": 5910.0,
+          "desv_uds": 900.0,
+          "pct_consec": 325.0,
+          "importe_neto": 11820.0,
           "estado": "Superado"
         },
         {
@@ -1328,42 +1370,56 @@
           "sku": "CALCIO0005",
           "descripcion": "CALCIAMEC, 5 KG",
           "budget_uds": 800.0,
-          "pedidos_uds": 100.0,
+          "pedidos_uds": 1600.0,
           "servidas_uds": 100.0,
-          "pendientes_uds": 0.0,
-          "gap_uds": 700.0,
-          "desv_uds": -700.0,
-          "pct_consec": 12.5,
-          "importe_neto": 418.0,
-          "estado": "Rezagado"
+          "pendientes_uds": 1500.0,
+          "gap_uds": 0.0,
+          "desv_uds": 800.0,
+          "pct_consec": 200.0,
+          "importe_neto": 6688.0,
+          "estado": "Superado"
         },
         {
           "cliente": "CAMPOEJIDO S.C.A.",
           "sku": "CPLUS0020",
           "descripcion": "CALCIPLUS, 20 L",
           "budget_uds": 1280.0,
-          "pedidos_uds": 640.0,
+          "pedidos_uds": 4480.0,
           "servidas_uds": 640.0,
-          "pendientes_uds": 0.0,
-          "gap_uds": 640.0,
-          "desv_uds": -640.0,
-          "pct_consec": 50.0,
-          "importe_neto": 1446.4,
-          "estado": "En Curso"
+          "pendientes_uds": 3840.0,
+          "gap_uds": 0.0,
+          "desv_uds": 3200.0,
+          "pct_consec": 350.0,
+          "importe_neto": 10124.800000000001,
+          "estado": "Superado"
+        },
+        {
+          "cliente": "CAMPOEJIDO S.C.A.",
+          "sku": "PHD0001",
+          "descripcion": "PH-DOWNER, 1 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 48.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 48.0,
+          "gap_uds": 0.0,
+          "desv_uds": 48.0,
+          "pct_consec": 100.0,
+          "importe_neto": 274.56,
+          "estado": "Extra Estimación"
         },
         {
           "cliente": "CAMPOEJIDO S.C.A.",
           "sku": "PHD0005",
           "descripcion": "PH-DOWNER, 5 L",
           "budget_uds": 100.0,
-          "pedidos_uds": 0.0,
+          "pedidos_uds": 300.0,
           "servidas_uds": 0.0,
-          "pendientes_uds": 0.0,
-          "gap_uds": 100.0,
-          "desv_uds": -100.0,
-          "pct_consec": 0.0,
-          "importe_neto": 0.0,
-          "estado": "Sin Pedido"
+          "pendientes_uds": 300.0,
+          "gap_uds": 0.0,
+          "desv_uds": 200.0,
+          "pct_consec": 300.0,
+          "importe_neto": 1224.0,
+          "estado": "Superado"
         },
         {
           "cliente": "CAMPOEJIDO S.C.A.",
@@ -1679,13 +1735,13 @@
       "comercial": "Javier",
       "kpis": {
         "budget_uds": 17100.0,
-        "pedidos_uds": 38359.0,
+        "pedidos_uds": 45669.0,
         "servidas_uds": 38359.0,
-        "pendientes_uds": 0.0,
+        "pendientes_uds": 7310.0,
         "gap_uds": 0.0,
-        "desv_uds": 21259.0,
-        "pct_consec": 224.3216374269006,
-        "importe_neto": 102213.09000000001
+        "desv_uds": 28569.0,
+        "pct_consec": 267.0701754385965,
+        "importe_neto": 119773.37
       },
       "lineas": [
         {
@@ -1693,13 +1749,13 @@
           "sku": "AGXK0200",
           "descripcion": "AGROXILATO-K, 200 L",
           "budget_uds": 1600.0,
-          "pedidos_uds": 1600.0,
+          "pedidos_uds": 3200.0,
           "servidas_uds": 1600.0,
-          "pendientes_uds": 0.0,
+          "pendientes_uds": 1600.0,
           "gap_uds": 0.0,
-          "desv_uds": 0.0,
-          "pct_consec": 100.0,
-          "importe_neto": 4752.0,
+          "desv_uds": 1600.0,
+          "pct_consec": 200.0,
+          "importe_neto": 9504.0,
           "estado": "Superado"
         },
         {
@@ -1816,6 +1872,20 @@
         },
         {
           "cliente": "AGROQUIMICAS DRAGO S.L.",
+          "sku": "JF0020",
+          "descripcion": "DRAGO-FOS, 20 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 1280.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 1280.0,
+          "gap_uds": 0.0,
+          "desv_uds": 1280.0,
+          "pct_consec": 100.0,
+          "importe_neto": 2972.16,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "AGROQUIMICAS DRAGO S.L.",
           "sku": "PHD0005",
           "descripcion": "PH-DOWNER, 5 L",
           "budget_uds": 0.0,
@@ -1826,6 +1896,20 @@
           "desv_uds": 40.0,
           "pct_consec": 100.0,
           "importe_neto": 148.8,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "AGROQUIMICAS DRAGO S.L.",
+          "sku": "S0020",
+          "descripcion": "SAL-WAX STAR, 20 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 1280.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 1280.0,
+          "gap_uds": 0.0,
+          "desv_uds": 1280.0,
+          "pct_consec": 100.0,
+          "importe_neto": 2373.12,
           "estado": "Extra Estimación"
         },
         {
@@ -1847,13 +1931,27 @@
           "sku": "A-50(2)0005",
           "descripcion": "CODIORGAN A-50, 5 KG",
           "budget_uds": 0.0,
-          "pedidos_uds": 375.0,
+          "pedidos_uds": 625.0,
           "servidas_uds": 375.0,
-          "pendientes_uds": 0.0,
+          "pendientes_uds": 250.0,
           "gap_uds": 0.0,
-          "desv_uds": 375.0,
+          "desv_uds": 625.0,
           "pct_consec": 100.0,
-          "importe_neto": 1822.5,
+          "importe_neto": 3037.5,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "CABRERA MORALES FRANCISCO",
+          "sku": "A-50(2)0020",
+          "descripcion": "CODIORGAN A-50, 20 KG",
+          "budget_uds": 0.0,
+          "pedidos_uds": 100.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 100.0,
+          "gap_uds": 0.0,
+          "desv_uds": 100.0,
+          "pct_consec": 100.0,
+          "importe_neto": 474.0,
           "estado": "Extra Estimación"
         },
         {
@@ -1861,14 +1959,14 @@
           "sku": "ANAE0005",
           "descripcion": "ALCAPLANT NEW AE, 5 KG",
           "budget_uds": 6600.0,
-          "pedidos_uds": 4400.0,
+          "pedidos_uds": 6600.0,
           "servidas_uds": 4400.0,
-          "pendientes_uds": 0.0,
-          "gap_uds": 2200.0,
-          "desv_uds": -2200.0,
-          "pct_consec": 66.66666666666666,
-          "importe_neto": 7788.0,
-          "estado": "En Curso"
+          "pendientes_uds": 2200.0,
+          "gap_uds": 0.0,
+          "desv_uds": 0.0,
+          "pct_consec": 100.0,
+          "importe_neto": 11682.0,
+          "estado": "Superado"
         },
         {
           "cliente": "CABRERA MORALES FRANCISCO",
@@ -1903,13 +2001,41 @@
           "sku": "C-L0005",
           "descripcion": "CODIBOR-L, 5 L",
           "budget_uds": 0.0,
-          "pedidos_uds": 200.0,
+          "pedidos_uds": 400.0,
           "servidas_uds": 200.0,
-          "pendientes_uds": 0.0,
+          "pendientes_uds": 200.0,
+          "gap_uds": 0.0,
+          "desv_uds": 400.0,
+          "pct_consec": 100.0,
+          "importe_neto": 1736.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "CABRERA MORALES FRANCISCO",
+          "sku": "PIV0005",
+          "descripcion": "PGR IV, 5 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 200.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 200.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
           "pct_consec": 100.0,
-          "importe_neto": 868.0,
+          "importe_neto": 538.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "CABRERA MORALES FRANCISCO",
+          "sku": "PIV0020",
+          "descripcion": "PGR IV, 20 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 200.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 200.0,
+          "gap_uds": 0.0,
+          "desv_uds": 200.0,
+          "pct_consec": 100.0,
+          "importe_neto": 474.0,
           "estado": "Extra Estimación"
         },
         {
@@ -2409,13 +2535,13 @@
       "comercial": "Pedro",
       "kpis": {
         "budget_uds": 17340.0,
-        "pedidos_uds": 7860.0,
+        "pedidos_uds": 8560.0,
         "servidas_uds": 7860.0,
-        "pendientes_uds": 0.0,
-        "gap_uds": 9480.0,
-        "desv_uds": -9480.0,
-        "pct_consec": 45.32871972318339,
-        "importe_neto": 22512.8
+        "pendientes_uds": 700.0,
+        "gap_uds": 8780.0,
+        "desv_uds": -8780.0,
+        "pct_consec": 49.36562860438293,
+        "importe_neto": 23770.399999999998
       },
       "lineas": [
         {
@@ -2672,6 +2798,48 @@
         },
         {
           "cliente": "FITOMURCIA S.L.",
+          "sku": "C-L0020",
+          "descripcion": "CODIBOR-L, 20 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 320.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 320.0,
+          "gap_uds": 0.0,
+          "desv_uds": 320.0,
+          "pct_consec": 100.0,
+          "importe_neto": 1257.6,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "FITOMURCIA S.L.",
+          "sku": "C-MB0005",
+          "descripcion": "CODIFOL-MB, 5 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 60.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 60.0,
+          "gap_uds": 0.0,
+          "desv_uds": 60.0,
+          "pct_consec": 100.0,
+          "importe_neto": 0.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "FITOMURCIA S.L.",
+          "sku": "C-MB0020",
+          "descripcion": "CODIFOL-MB, 20 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 320.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 320.0,
+          "gap_uds": 0.0,
+          "desv_uds": 320.0,
+          "pct_consec": 100.0,
+          "importe_neto": 0.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "FITOMURCIA S.L.",
           "sku": "SPCE2B0020",
           "descripcion": "SPRINTENE CON BORO, 20 L",
           "budget_uds": 0.0,
@@ -2704,13 +2872,13 @@
       "comercial": "Ricardo",
       "kpis": {
         "budget_uds": 46000.0,
-        "pedidos_uds": 44724.0,
+        "pedidos_uds": 54908.0,
         "servidas_uds": 23050.0,
-        "pendientes_uds": 21674.0,
-        "gap_uds": 1276.0,
-        "desv_uds": -1276.0,
-        "pct_consec": 97.22608695652174,
-        "importe_neto": 137876.9
+        "pendientes_uds": 31858.0,
+        "gap_uds": 0.0,
+        "desv_uds": 8908.0,
+        "pct_consec": 119.36521739130434,
+        "importe_neto": 153776.90000000002
       },
       "lineas": [
         {
@@ -2725,6 +2893,104 @@
           "desv_uds": 3000.0,
           "pct_consec": 100.0,
           "importe_neto": 12000.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "CAMPO ABIERTO, S.A.S.",
+          "sku": "AGXCR0001",
+          "descripcion": "AGROXILATO-K",
+          "budget_uds": 0.0,
+          "pedidos_uds": 840.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 840.0,
+          "gap_uds": 0.0,
+          "desv_uds": 840.0,
+          "pct_consec": 100.0,
+          "importe_neto": 0.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "CAMPO ABIERTO, S.A.S.",
+          "sku": "AGXCR0020",
+          "descripcion": "AGROXILATO-K",
+          "budget_uds": 0.0,
+          "pedidos_uds": 2000.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 2000.0,
+          "gap_uds": 0.0,
+          "desv_uds": 2000.0,
+          "pct_consec": 100.0,
+          "importe_neto": 5800.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "CAMPO ABIERTO, S.A.S.",
+          "sku": "AN0020",
+          "descripcion": "ALCAPLANT NEW",
+          "budget_uds": 0.0,
+          "pedidos_uds": 4000.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 4000.0,
+          "gap_uds": 0.0,
+          "desv_uds": 4000.0,
+          "pct_consec": 100.0,
+          "importe_neto": 6600.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "CAMPO ABIERTO, S.A.S.",
+          "sku": "G30001",
+          "descripcion": "GREEN-UP, 1 L",
+          "budget_uds": 0.0,
+          "pedidos_uds": 240.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 240.0,
+          "gap_uds": 0.0,
+          "desv_uds": 240.0,
+          "pct_consec": 100.0,
+          "importe_neto": 0.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "CAMPO ABIERTO, S.A.S.",
+          "sku": "SSEG0001",
+          "descripcion": "SALWAX CALCIO",
+          "budget_uds": 0.0,
+          "pedidos_uds": 324.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 324.0,
+          "gap_uds": 0.0,
+          "desv_uds": 324.0,
+          "pct_consec": 100.0,
+          "importe_neto": 0.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "CAMPO ABIERTO, S.A.S.",
+          "sku": "SSEG0005",
+          "descripcion": "SALWAX CALCIO EGIPTO, 5 KG",
+          "budget_uds": 0.0,
+          "pedidos_uds": 480.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 480.0,
+          "gap_uds": 0.0,
+          "desv_uds": 480.0,
+          "pct_consec": 100.0,
+          "importe_neto": 1608.0,
+          "estado": "Extra Estimación"
+        },
+        {
+          "cliente": "CAMPO ABIERTO, S.A.S.",
+          "sku": "SSEG0020",
+          "descripcion": "SALWAX CALCIO EGIPTO, 20 KG",
+          "budget_uds": 0.0,
+          "pedidos_uds": 1200.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 1200.0,
+          "gap_uds": 0.0,
+          "desv_uds": 1200.0,
+          "pct_consec": 100.0,
+          "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
         {
@@ -2910,6 +3176,20 @@
           "estado": "Extra Estimación"
         },
         {
+          "cliente": "HORTIFRUT - PERU, S.A.C.",
+          "sku": "AN0020",
+          "descripcion": "ALCAPLANT NEW, 20 KG",
+          "budget_uds": 0.0,
+          "pedidos_uds": 1100.0,
+          "servidas_uds": 0.0,
+          "pendientes_uds": 1100.0,
+          "gap_uds": 0.0,
+          "desv_uds": 1100.0,
+          "pct_consec": 100.0,
+          "importe_neto": 1892.0,
+          "estado": "Extra Estimación"
+        },
+        {
           "cliente": "LEKKERBIO B.V.",
           "sku": "AO0020",
           "descripcion": "ALCAPLANT NEW",
@@ -2924,7 +3204,7 @@
           "estado": "Sin Pedido"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "A-500001",
           "descripcion": "CODIORGAN-A50, 1 KG",
           "budget_uds": 0.0,
@@ -2938,7 +3218,7 @@
           "estado": "Extra Estimación"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "AGXCR0001",
           "descripcion": "AGROXILATO-K, 1 L",
           "budget_uds": 0.0,
@@ -2952,7 +3232,7 @@
           "estado": "Extra Estimación"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "AGXCR0005",
           "descripcion": "AGROXILATO-K, 5 L",
           "budget_uds": 0.0,
@@ -2966,7 +3246,7 @@
           "estado": "Extra Estimación"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "AN0005",
           "descripcion": "ALCAPLANT, 5 KG",
           "budget_uds": 0.0,
@@ -2980,7 +3260,7 @@
           "estado": "Extra Estimación"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "B0001",
           "descripcion": "FORTALEZA,1 L",
           "budget_uds": 0.0,
@@ -2994,7 +3274,7 @@
           "estado": "Extra Estimación"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "C-CU0001",
           "descripcion": "CODICOBRE, 1 L",
           "budget_uds": 0.0,
@@ -3008,7 +3288,7 @@
           "estado": "Extra Estimación"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "C-CU0005",
           "descripcion": "CODICOBRE, 5 L",
           "budget_uds": 0.0,
@@ -3022,7 +3302,7 @@
           "estado": "Extra Estimación"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "SERVFLETE",
           "descripcion": "FREIGHT",
           "budget_uds": 0.0,
@@ -3036,7 +3316,7 @@
           "estado": "Extra Estimación"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "SERVSEGURO",
           "descripcion": "INSURANCE",
           "budget_uds": 0.0,
@@ -3050,7 +3330,7 @@
           "estado": "Extra Estimación"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "SPCE0001",
           "descripcion": "SPRINTENE ABONO CE, 1 L",
           "budget_uds": 0.0,
@@ -3064,7 +3344,7 @@
           "estado": "Extra Estimación"
         },
         {
-          "cliente": "TÉCNICAS AGRÍCOLAS, S.A.",
+          "cliente": "SERVICIOS AGROPECUARIOS EL LLANO, S. A. ",
           "sku": "SS0001",
           "descripcion": "SAL WAX MAX, 1 KG",
           "budget_uds": 0.0,

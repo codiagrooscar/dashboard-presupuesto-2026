@@ -244,13 +244,5 @@ def build_dataset():
     return dataset
 
 if __name__ == '__main__':
-    d = build_dataset()
-    with open('dashboard_data.json', 'w', encoding='utf-8') as f:
-        json.dump(d, f, ensure_ascii=False, indent=2)
-    os.makedirs('web_dashboard', exist_ok=True)
-    with open('web_dashboard/dashboard_data.json', 'w', encoding='utf-8') as f:
-        json.dump(d, f, ensure_ascii=False, indent=2)
-    with open('web_dashboard/dashboard_data.js', 'w', encoding='utf-8') as f:
-        f.write("window.DASHBOARD_DATA = " + json.dumps(d, ensure_ascii=False) + ";\n")
-    print("dashboard_data.json y dashboard_data.js generados correctamente en web_dashboard/. Resumen global:")
-    print(d['global_kpis'])
+    import build_multi_period
+    build_multi_period.build_all()

@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script src="chart.umd.min.js"></script>
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
-  <script src="dashboard_data.js"></script>
+  <script src="dashboard_data.js?v=20261001_1120"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -412,7 +412,8 @@
     }
 
     .table-wrapper {
-      overflow-x: hidden;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       border-radius: var(--radius-sm);
       border: 1px solid var(--card-border);
       width: 100%;
@@ -420,10 +421,10 @@
 
     table {
       width: 100%;
+      min-width: 980px;
       border-collapse: collapse;
       text-align: left;
       font-size: 0.82rem;
-      table-layout: fixed;
     }
 
     thead th {
@@ -537,6 +538,52 @@
       color: var(--muted);
       margin-top: auto;
     }
+
+    /* RESPONSIVE MOBILE STYLES */
+    @media (max-width: 768px) {
+      header {
+        padding: 0.75rem 1rem;
+      }
+      .brand-titles h1 {
+        font-size: 1.08rem;
+      }
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .tabs-wrapper {
+        top: 0;
+      }
+      .tabs-container {
+        padding: 0 0.5rem;
+      }
+      .tab-btn {
+        padding: 0.65rem 0.85rem;
+        font-size: 0.8rem;
+      }
+      main {
+        padding: 1rem 0.75rem;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      .table-panel {
+        padding: 1rem 0.75rem;
+      }
+      .search-input {
+        width: 100%;
+      }
+      .filter-pills {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 0.4rem;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
   </style>
 </head>
 <body>
@@ -614,14 +661,114 @@
     let searchQuery = '';
 
     const fmtNum = (n, dec=0) => {
-      if (isNaN(n) || n === null) return '0';
+      if (isNaN(n) || n === null || n === undefined) return '0';
       return Number(n).toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec });
     };
 
     const fmtCurr = (n) => {
-      if (isNaN(n) || n === null) return '0,00 €';
+      if (isNaN(n) || n === null || n === undefined) return '0,00 €';
       return Number(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
     };
+
+    const fmtPct = (val) => {
+      const n = Number(val);
+      if (isNaN(n) || val === null || val === undefined) return '0,0%';
+      return n.toFixed(1).replace('.', ',') + '%';
+    };
+
+    const fmtAcc = (val) => {
+      const n = Number(val);
+      if (isNaN(n) || val === null || val === undefined) return '0,0%';
+      return (n > 0 ? '+' : '') + n.toFixed(1).replace('.', ',') + '%';
+    };
+
+    function ensureAccuracyFields(data) {
+      if (!data) return;
+      let totalBudget = 0;
+      let totalPedidos = 0;
+      let totalServidas = 0;
+      let totalPendientes = 0;
+      let totalGap = 0;
+      let totalErrorAbs = 0;
+
+      if (data.comerciales) {
+        Object.keys(data.comerciales).forEach(com => {
+          const comObj = data.comerciales[com] || {};
+          const lines = comObj.lineas || [];
+          const k = comObj.kpis || {};
+          let comBudget = 0;
+          let comPedidos = 0;
+          let comServidas = 0;
+          let comPendientes = 0;
+          let comGap = 0;
+          let comError = 0;
+
+          lines.forEach(l => {
+            l.budget_uds = Number(l.budget_uds) || 0;
+            l.pedidos_uds = Number(l.pedidos_uds) || 0;
+            l.servidas_uds = Number(l.servidas_uds) || 0;
+            l.pendientes_uds = Number(l.pendientes_uds) || 0;
+            l.gap_uds = Number(l.gap_uds) || 0;
+            l.desv_uds = typeof l.desv_uds === 'number' ? l.desv_uds : (l.pedidos_uds - l.budget_uds);
+            l.pct_consec = typeof l.pct_consec === 'number' ? l.pct_consec : (l.budget_uds > 0 ? (l.pedidos_uds / l.budget_uds * 100) : (l.pedidos_uds > 0 ? 100 : 0));
+
+            if (typeof l.error_abs_uds !== 'number') {
+              l.error_abs_uds = Math.abs(l.pedidos_uds - l.budget_uds);
+            }
+            if (typeof l.forecast_accuracy !== 'number') {
+              l.forecast_accuracy = l.budget_uds > 0 ? ((1.0 - (l.error_abs_uds / l.budget_uds)) * 100) : 0;
+            }
+
+            comBudget += l.budget_uds;
+            comPedidos += l.pedidos_uds;
+            comServidas += l.servidas_uds;
+            comPendientes += l.pendientes_uds;
+            comGap += l.gap_uds;
+            comError += l.error_abs_uds;
+          });
+
+          if (typeof k.error_abs_uds !== 'number') k.error_abs_uds = comError;
+          if (typeof k.forecast_accuracy !== 'number') {
+            k.forecast_accuracy = (k.budget_uds || comBudget) > 0 ? ((1.0 - (k.error_abs_uds / (k.budget_uds || comBudget))) * 100) : 0;
+          }
+          if (typeof k.pct_consec !== 'number') {
+            k.pct_consec = (k.budget_uds || comBudget) > 0 ? ((k.pedidos_uds || comPedidos) / (k.budget_uds || comBudget) * 100) : 0;
+          }
+        });
+      }
+
+      if (data.resumen_comerciales) {
+        data.resumen_comerciales.forEach(r => {
+          if (typeof r.error_abs_uds !== 'number') {
+            const k = data.kpis_por_comercial && data.kpis_por_comercial[r.comercial];
+            r.error_abs_uds = k ? k.error_abs_uds : Math.abs((r.pedidos_uds || 0) - (r.budget_uds || 0));
+          }
+          if (typeof r.forecast_accuracy !== 'number') {
+            r.forecast_accuracy = (r.budget_uds || 0) > 0 ? ((1.0 - (r.error_abs_uds / r.budget_uds)) * 100) : 0;
+          }
+          if (typeof r.pct_consec !== 'number') {
+            r.pct_consec = (r.budget_uds || 0) > 0 ? ((r.pedidos_uds || 0) / r.budget_uds * 100) : 0;
+          }
+          totalBudget += r.budget_uds || 0;
+          totalPedidos += r.pedidos_uds || 0;
+          totalServidas += r.servidas_uds || 0;
+          totalPendientes += r.pendientes_uds || 0;
+          totalGap += r.gap_uds || 0;
+          totalErrorAbs += r.error_abs_uds || 0;
+        });
+      }
+
+      if (data.global_kpis) {
+        const g = data.global_kpis;
+        if (typeof g.error_abs_uds !== 'number') g.error_abs_uds = totalErrorAbs;
+        if (typeof g.forecast_accuracy !== 'number') {
+          g.forecast_accuracy = (g.budget_uds || 0) > 0 ? ((1.0 - (g.error_abs_uds / g.budget_uds)) * 100) : 0;
+        }
+        if (typeof g.pct_consec !== 'number') {
+          g.pct_consec = (g.budget_uds || 0) > 0 ? ((g.pedidos_uds || 0) / g.budget_uds * 100) : 0;
+        }
+      }
+    }
 
     async function loadData() {
       try {
@@ -652,6 +799,9 @@
           appData = await resp.json();
         }
 
+        // Asegurar que todos los campos de accuracy y error existen aunque provengan de caché antigua
+        ensureAccuracyFields(appData);
+
         if (appData && appData.global_kpis && appData.global_kpis.fecha_corte) {
           const elDate = document.getElementById('headerFechaCorte');
           if (elDate) elDate.innerText = appData.global_kpis.fecha_corte;
@@ -671,18 +821,21 @@
     }
 
     function updateNavBadges() {
-      if (!appData) return;
-      document.getElementById('tabBadgeResumen').innerText = appData.global_kpis.pct_consec.toFixed(1) + '%';
+      if (!appData || !appData.global_kpis) return;
+      const elRes = document.getElementById('tabBadgeResumen');
+      if (elRes) elRes.innerText = fmtPct(appData.global_kpis.pct_consec);
       
       const badgeClass = pct => pct >= 100 ? 'badge-success' : (pct >= 50 ? 'badge-warning' : 'badge-danger');
 
-      for (let item of appData.resumen_comerciales) {
-        const c = item.comercial;
-        let elId = 'tabBadge' + (c === 'García' ? 'Garcia' : c);
-        const el = document.getElementById(elId);
-        if (el) {
-          el.innerText = item.pct_consec.toFixed(1) + '%';
-          el.className = 'tab-badge ' + badgeClass(item.pct_consec);
+      if (appData.resumen_comerciales) {
+        for (let item of appData.resumen_comerciales) {
+          const c = item.comercial;
+          let elId = 'tabBadge' + (c === 'García' ? 'Garcia' : c);
+          const el = document.getElementById(elId);
+          if (el) {
+            el.innerText = fmtPct(item.pct_consec);
+            el.className = 'tab-badge ' + badgeClass(item.pct_consec);
+          }
         }
       }
     }
@@ -737,11 +890,11 @@
           <div class="kpi-card accent-emerald">
             <div class="kpi-header">
               <span class="kpi-title">Pedidos a Fecha</span>
-              <span class="tab-badge ${pctGlobalClass}">${g.pct_consec.toFixed(1)}%</span>
+              <span class="tab-badge ${pctGlobalClass}">${fmtPct(g.pct_consec)}</span>
             </div>
             <div class="kpi-value">${fmtNum(g.pedidos_uds)} <span style="font-size:1rem;font-weight:600;color:var(--muted)">u</span></div>
             <div class="progress-bar-container">
-              <div class="progress-bar-fill" style="width: ${Math.min(100, g.pct_consec)}%"></div>
+              <div class="progress-bar-fill" style="width: ${Math.min(100, g.pct_consec || 0)}%"></div>
             </div>
             <div class="kpi-subtext" style="margin-top:0.4rem">
               <span>Servidas: <strong>${fmtNum(g.servidas_uds)}</strong></span> &bull; 
@@ -772,7 +925,7 @@
               <span class="kpi-title">Forecast Accuracy</span>
               <span class="tab-badge badge-neutral" title="Fórmula oficial Dirección: 1 - SUM(|Ventas + Pendientes - Estimación|) / SUM(Estimación)">Fórmula Dirección</span>
             </div>
-            <div class="kpi-value" style="color: ${g.forecast_accuracy >= 0 ? '#34d399' : '#f87171'}">${g.forecast_accuracy > 0 ? '+' : ''}${g.forecast_accuracy.toFixed(1)}%</div>
+            <div class="kpi-value" style="color: ${(g.forecast_accuracy || 0) >= 0 ? '#34d399' : '#f87171'}">${fmtAcc(g.forecast_accuracy)}</div>
             <div class="kpi-subtext">Error Absoluto Total: <strong>${fmtNum(g.error_abs_uds, 2)} u</strong></div>
           </div>
         </div>
@@ -863,12 +1016,12 @@
             <td class="text-right">
               <div class="progress-cell">
                 <div class="mini-bar">
-                  <div class="mini-bar-fill" style="width:${Math.min(100, r.pct_consec)}%; background: ${r.pct_consec >= 100 ? '#10b981' : (r.pct_consec >= 50 ? '#f59e0b' : '#ef4444')}"></div>
+                  <div class="mini-bar-fill" style="width:${Math.min(100, r.pct_consec || 0)}%; background: ${(r.pct_consec || 0) >= 100 ? '#10b981' : ((r.pct_consec || 0) >= 50 ? '#f59e0b' : '#ef4444')}"></div>
                 </div>
-                <strong>${r.pct_consec.toFixed(1)}%</strong>
+                <strong>${fmtPct(r.pct_consec)}</strong>
               </div>
             </td>
-            <td class="text-right"><strong style="color: ${accColor}">${accSign}${accVal.toFixed(1)}%</strong></td>
+            <td class="text-right"><strong style="color: ${accColor}">${fmtAcc(accVal)}</strong></td>
             <td class="text-center"><span class="tab-badge ${pctBadge}">${r.estado}</span></td>
             <td class="text-center">
               <button class="btn-table-action" onclick="switchTab('${r.comercial}')">Ver Detalle &rarr;</button>
@@ -878,22 +1031,22 @@
       });
 
       const gAcc = g.forecast_accuracy;
-      const gAccColor = gAcc >= 80 ? '#34d399' : (gAcc >= 0 ? '#38bdf8' : '#f87171');
+      const gAccColor = (gAcc || 0) >= 80 ? '#34d399' : ((gAcc || 0) >= 0 ? '#38bdf8' : '#f87171');
 
       html += `
               </tbody>
               <tfoot>
                 <tr>
                   <td>TOTAL GENERAL</td>
-                  <td class="text-center">${resList.reduce((acc, c) => acc + c.clientes_activos, 0)}</td>
+                  <td class="text-center">${resList.reduce((acc, c) => acc + (c.clientes_activos || 0), 0)}</td>
                   <td class="text-right">${fmtNum(g.budget_uds, 2)}</td>
                   <td class="text-right">${fmtNum(g.pedidos_uds, 2)}</td>
                   <td class="text-right">${fmtNum(g.servidas_uds, 2)}</td>
                   <td class="text-right">${fmtNum(g.pendientes_uds, 2)}</td>
                   <td class="text-right" style="color:#fbbf24">${fmtNum(g.gap_uds, 2)}</td>
-                  <td class="text-right" style="color:#34d399">${(g.pedidos_uds - g.budget_uds >= 0 ? '+' : '')}${fmtNum(g.pedidos_uds - g.budget_uds, 2)}</td>
-                  <td class="text-right" style="color:#34d399; font-size:1rem">${g.pct_consec.toFixed(1)}%</td>
-                  <td class="text-right" style="color:${gAccColor}; font-size:0.95rem; font-weight:800">${gAcc > 0 ? '+' : ''}${gAcc.toFixed(1)}%</td>
+                  <td class="text-right" style="color:#34d399">${((g.pedidos_uds || 0) - (g.budget_uds || 0) >= 0 ? '+' : '')}${fmtNum((g.pedidos_uds || 0) - (g.budget_uds || 0), 2)}</td>
+                  <td class="text-right" style="color:#34d399; font-size:1rem">${fmtPct(g.pct_consec)}</td>
+                  <td class="text-right" style="color:${gAccColor}; font-size:0.95rem; font-weight:800">${fmtAcc(gAcc)}</td>
                   <td class="text-center"><span class="tab-badge badge-success">EN OBJETIVO</span></td>
                   <td></td>
                 </tr>
@@ -908,6 +1061,10 @@
     }
 
     function initResumenCharts(resList) {
+      if (typeof Chart === 'undefined') {
+        console.warn("Chart.js no está cargado.");
+        return;
+      }
       const labels = resList.map(r => r.comercial);
       const dataBudget = resList.map(r => r.budget_uds);
       const dataPedidos = resList.map(r => r.pedidos_uds);
@@ -988,7 +1145,7 @@
               legend: { display: false },
               tooltip: {
                 callbacks: {
-                  label: ctx => `Consecución: ${ctx.parsed.x.toFixed(1)}%`
+                  label: ctx => `Consecución: ${fmtPct(ctx.parsed.x)}`
                 }
               }
             },
@@ -1107,11 +1264,11 @@
           <div class="kpi-card accent-emerald">
             <div class="kpi-header">
               <span class="kpi-title">Pedidos a Fecha</span>
-              <span class="tab-badge ${pctBadge}">${k.pct_consec.toFixed(1)}%</span>
+              <span class="tab-badge ${pctBadge}">${fmtPct(k.pct_consec)}</span>
             </div>
             <div class="kpi-value">${fmtNum(k.pedidos_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
             <div class="progress-bar-container">
-              <div class="progress-bar-fill ${k.pct_consec < 50 ? 'rose' : (k.pct_consec < 100 ? 'amber' : '')}" style="width: ${Math.min(100, k.pct_consec)}%"></div>
+              <div class="progress-bar-fill ${k.pct_consec < 50 ? 'rose' : (k.pct_consec < 100 ? 'amber' : '')}" style="width: ${Math.min(100, k.pct_consec || 0)}%"></div>
             </div>
             <div class="kpi-subtext" style="margin-top:0.4rem">
               <span>Servidas: <strong>${fmtNum(k.servidas_uds, 2)}</strong></span> &bull; 
@@ -1142,7 +1299,7 @@
               <span class="kpi-title">Forecast Accuracy</span>
               <span class="tab-badge badge-neutral" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Fórmula Dirección</span>
             </div>
-            <div class="kpi-value" style="color: ${k.forecast_accuracy >= 0 ? '#34d399' : '#f87171'}">${k.forecast_accuracy > 0 ? '+' : ''}${k.forecast_accuracy.toFixed(1)}%</div>
+            <div class="kpi-value" style="color: ${(k.forecast_accuracy || 0) >= 0 ? '#34d399' : '#f87171'}">${fmtAcc(k.forecast_accuracy)}</div>
             <div class="kpi-subtext">Error Absoluto: <strong>${fmtNum(k.error_abs_uds, 2)} u</strong></div>
           </div>
         </div>
@@ -1179,12 +1336,12 @@
               <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Desv:</span> <strong style="color: ${subDesv >= 0 ? '#34d399' : '#f87171'}; font-size: 0.95rem;">${(subDesv >= 0 ? '+' : '')}${fmtNum(subDesv, 2)} u</strong></div>
               <div style="display:flex; align-items:center; gap: 0.35rem;">
                 <span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Consec:</span>
-                <strong style="color: #34d399; font-size: 1rem; font-weight: 800;">${subPct.toFixed(1)}%</strong>
+                <strong style="color: #34d399; font-size: 1rem; font-weight: 800;">${fmtPct(subPct)}</strong>
               </div>
               <div style="display:flex; align-items:center; gap: 0.35rem;">
                 <span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Accuracy:</span>
                 <strong style="color: ${subBudget > 0 && (1.0 - filtered.reduce((acc, l) => acc + (l.error_abs_uds || 0), 0)/subBudget) >= 0 ? '#34d399' : '#f87171'}; font-size: 1rem; font-weight: 800;">
-                  ${subBudget > 0 ? ((1.0 - filtered.reduce((acc, l) => acc + (l.error_abs_uds || 0), 0)/subBudget) * 100 > 0 ? '+' : '') + ((1.0 - filtered.reduce((acc, l) => acc + (l.error_abs_uds || 0), 0)/subBudget) * 100).toFixed(1) + '%' : '0.0%'}
+                  ${subBudget > 0 ? fmtAcc((1.0 - filtered.reduce((acc, l) => acc + (l.error_abs_uds || 0), 0)/subBudget) * 100) : '0,0%'}
                 </strong>
               </div>
               <span class="tab-badge ${subBadge}" style="font-size: 0.68rem; padding: 0.15rem 0.45rem;">${subBadgeText}</span>
@@ -1257,12 +1414,12 @@
               <td class="text-right">
                 <div class="progress-cell">
                   <div class="mini-bar">
-                    <div class="mini-bar-fill" style="width:${Math.min(100, l.pct_consec)}%; background:${l.pct_consec >= 100 ? '#10b981' : (l.pct_consec >= 50 ? '#f59e0b' : '#ef4444')}"></div>
+                    <div class="mini-bar-fill" style="width:${Math.min(100, l.pct_consec || 0)}%; background:${(l.pct_consec || 0) >= 100 ? '#10b981' : ((l.pct_consec || 0) >= 50 ? '#f59e0b' : '#ef4444')}"></div>
                   </div>
-                  <strong>${l.pct_consec.toFixed(1)}%</strong>
+                  <strong>${fmtPct(l.pct_consec)}</strong>
                 </div>
               </td>
-              <td class="text-right"><strong style="color:${lAccColor}">${lAcc > 0 ? '+' : ''}${lAcc.toFixed(1)}%</strong></td>
+              <td class="text-right"><strong style="color:${lAccColor}">${fmtAcc(lAcc)}</strong></td>
               <td class="text-center"><span class="tab-badge ${stBadge}">${estadoDisplay}</span></td>
             </tr>
           `;
@@ -1272,7 +1429,7 @@
       const subFilteredError = filtered.reduce((acc, l) => acc + (l.error_abs_uds || 0), 0);
       const subFilteredAcc = subBudget > 0 ? ((1.0 - subFilteredError / subBudget) * 100) : 0;
       const cAcc = k.forecast_accuracy;
-      const cAccColor = cAcc >= 80 ? '#34d399' : (cAcc >= 0 ? '#38bdf8' : '#f87171');
+      const cAccColor = (cAcc || 0) >= 80 ? '#34d399' : ((cAcc || 0) >= 0 ? '#38bdf8' : '#f87171');
 
       html += `
               </tbody>
@@ -1289,8 +1446,8 @@
                   <td class="text-right" style="color: ${subPendientes > 0 ? '#fbbf24' : 'var(--muted)'}; font-weight: 700;">${fmtNum(subPendientes, 2)}</td>
                   <td class="text-right" style="color: ${subGap > 0 ? '#fbbf24' : 'var(--muted)'}; font-weight: 700;">${fmtNum(subGap, 2)}</td>
                   <td class="text-right" style="color: ${subDesv >= 0 ? '#34d399' : '#f87171'}; font-weight: 700;">${(subDesv >= 0 ? '+' : '')}${fmtNum(subDesv, 2)}</td>
-                  <td class="text-right" style="color: #34d399; font-size: 1rem; font-weight: 800;">${subPct.toFixed(1)}%</td>
-                  <td class="text-right" style="color: ${subFilteredAcc >= 0 ? '#34d399' : '#f87171'}; font-size: 0.95rem; font-weight: 800;">${subFilteredAcc > 0 ? '+' : ''}${subFilteredAcc.toFixed(1)}%</td>
+                  <td class="text-right" style="color: #34d399; font-size: 1rem; font-weight: 800;">${fmtPct(subPct)}</td>
+                  <td class="text-right" style="color: ${subFilteredAcc >= 0 ? '#34d399' : '#f87171'}; font-size: 0.95rem; font-weight: 800;">${fmtAcc(subFilteredAcc)}</td>
                   <td class="text-center"><span class="tab-badge ${subBadge}">${subBadgeText}</span></td>
                 </tr>
                 ` : ''}
@@ -1302,10 +1459,10 @@
                   <td class="text-right">${fmtNum(k.servidas_uds, 2)}</td>
                   <td class="text-right">${fmtNum(k.pendientes_uds, 2)}</td>
                   <td class="text-right" style="color:#fbbf24">${fmtNum(k.gap_uds, 2)}</td>
-                  <td class="text-right" style="color:${k.desv_uds >= 0 ? '#34d399' : '#f87171'}">${(k.desv_uds >= 0 ? '+' : '')}${fmtNum(k.desv_uds, 2)}</td>
-                  <td class="text-right" style="color:#34d399; font-size:1rem">${k.pct_consec.toFixed(1)}%</td>
-                  <td class="text-right" style="color:${cAccColor}; font-size:0.95rem; font-weight:800">${cAcc > 0 ? '+' : ''}${cAcc.toFixed(1)}%</td>
-                  <td class="text-center"><span class="tab-badge ${pctBadge}">${k.pct_consec >= 100 ? 'SUPERADO' : 'EN CURSO'}</span></td>
+                  <td class="text-right" style="color:${(k.desv_uds || 0) >= 0 ? '#34d399' : '#f87171'}">${((k.desv_uds || 0) >= 0 ? '+' : '')}${fmtNum(k.desv_uds, 2)}</td>
+                  <td class="text-right" style="color:#34d399; font-size:1rem">${fmtPct(k.pct_consec)}</td>
+                  <td class="text-right" style="color:${cAccColor}; font-size:0.95rem; font-weight:800">${fmtAcc(cAcc)}</td>
+                  <td class="text-center"><span class="tab-badge ${pctBadge}">${(k.pct_consec || 0) >= 100 ? 'SUPERADO' : 'EN CURSO'}</span></td>
                 </tr>
               </tfoot>
             </table>

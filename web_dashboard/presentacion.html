@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Presentación Presupuesto 2027 | Codiagro Dirección General</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="chart.umd.min.js"></script>
+  <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
+  <style>
+    :root {
+      --bg: #090d16;
+      --surface: #111827;
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(51, 65, 85, 0.6);
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.25);
+      --primary: #3b82f6;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR CONTROLS */
+    .top-nav {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.75rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-logo {
+      height: 32px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    }
+
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #fff;
+    }
+
+    .brand-badge {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: var(--accent);
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .slide-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .btn-nav {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: var(--ink);
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-nav:hover {
+      background: #334155;
+      border-color: #475569;
+      transform: translateY(-1px);
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-color: #059669;
+      color: #fff;
+    }
+
+    .btn-accent:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      border-color: #047857;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .slide-indicator {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--muted);
+      min-width: 85px;
+      text-align: center;
+    }
+
+    .slide-select {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #fff;
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* SLIDE STAGE */
+    .stage {
+      flex: 1;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 3rem;
+      position: relative;
+    }
+
+    .slide-view {
+      display: none;
+      animation: fadeInSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .slide-view.active {
+      display: block;
+    }
+
+    @keyframes fadeInSlide {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.995);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* SLIDE HEADER */
+    .slide-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .slide-category {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+    }
+
+    .slide-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.95rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .slide-subtitle {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+    }
+
+    /* CARDS & GRIDS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.1rem;
+    }
+
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 1.35rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+      position: relative;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px rgba(0,0,0,0.4);
+    }
+
+    .card-accent {
+      border-left: 4px solid var(--accent);
+    }
+
+    .card-primary {
+      border-left: 4px solid var(--primary);
+    }
+
+    .card-header-sm {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+
+    .card-title-sm {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    .card-val-lg {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 0.35rem;
+    }
+
+    .card-tag {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .tag-green {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .tag-blue {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--primary);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .tag-yellow {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warn);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.45;
+      margin-top: 0.5rem;
+    }
+
+    /* TABLES */
+    .table-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    th {
+      background: #0f172a;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.35);
+      color: #cbd5e1;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(51, 65, 85, 0.2);
+    }
+
+    .row-highlight td {
+      background: rgba(16, 185, 129, 0.08) !important;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .row-total td {
+      background: #0f172a !important;
+      font-weight: 800;
+      color: #fff;
+      border-top: 2px solid var(--card-border);
+    }
+
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .val-positive { color: var(--accent); font-weight: 700; }
+    .val-negative { color: var(--danger); font-weight: 700; }
+
+    /* CHARTS */
+    .chart-box {
+      position: relative;
+      height: 320px;
+      width: 100%;
+    }
+
+    /* COVER SLIDE SPECIAL */
+    .cover-hero {
+      background: radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.12) 0%, rgba(11, 17, 32, 0) 70%),
+                  linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 3.5rem 3rem;
+      margin-top: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover-hero::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      bottom: -80px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cover-kicker {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.8rem;
+    }
+
+    .cover-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .cover-desc {
+      font-size: 1.15rem;
+      color: #cbd5e1;
+      max-width: 820px;
+      line-height: 1.55;
+      margin-bottom: 2rem;
+    }
+
+    .cover-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .cm-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .cm-lbl {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-top: 0.2rem;
+    }
+
+    /* KEYBOARD SHORTCUT BADGES */
+    .kbd-tip {
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    kbd {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 4px;
+      padding: 0.1rem 0.35rem;
+      font-size: 0.7rem;
+      font-family: monospace;
+      color: #fff;
+    }
+
+    @media print {
+      .top-nav { display: none !important; }
+      body { background: #fff !important; color: #000 !important; }
+      .slide-view { display: block !important; page-break-after: always; margin-bottom: 3rem; }
+      .card, .table-container { border: 1px solid #ccc !important; box-shadow: none !important; background: #fff !important; }
+      th { background: #eee !important; color: #000 !important; }
+      td { color: #000 !important; }
+      .slide-title, .cover-title { color: #000 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAV CONTROLS -->
+  <header class="top-nav">
+    <div class="brand-group">
+      <img src="codiagro_logo.png" alt="Codiagro" class="brand-logo" onerror="this.style.display='none'">
+      <span class="brand-title">Presupuesto 2027</span>
+      <span class="brand-badge">Dirección General</span>
+    </div>
+
+    <div class="slide-controls">
+      <button class="btn-nav" id="btnPrev" onclick="navigateSlide(-1)">◀ Anterior</button>
+      <span class="slide-indicator" id="slideIndicator">1 / 10</span>
+      <button class="btn-nav btn-accent" id="btnNext" onclick="navigateSlide(1)">Siguiente ▶</button>
+      
+      <select class="slide-select" id="slideSelect" onchange="goToSlide(parseInt(this.value))">
+        <option value="1">1. Portada Estratégica</option>
+        <option value="2">2. Resumen Ejecutivo (5 Pilares)</option>
+        <option value="3">3. Cuenta P&L (2026 FC vs 2027 B)</option>
+        <option value="4">4. Desglose Ventas por Comercial</option>
+        <option value="5">5. Margen Bruto y COGS</option>
+        <option value="6">6. Estructura de Personal y OPEX</option>
+        <option value="7">7. Conciliación Departamental</option>
+        <option value="8">8. Validación Real (Cierre Sep-26)</option>
+        <option value="9">9. Escenarios y Sensibilidad</option>
+        <option value="10">10. Conclusiones y Acuerdos</option>
+      </select>
+    </div>
+
+    <div class="brand-group">
+      <a href="index.html" class="btn-nav">🔍 Explorador Analítico</a>
+      <button class="btn-nav" onclick="window.print()">🖨️ PDF / Imprimir</button>
+      <div class="kbd-tip">
+        <kbd>◀</kbd><kbd>▶</kbd> para navegar
+      </div>
+    </div>
+  </header>
+
+  <!-- STAGE CONTAINER -->
+  <main class="stage">
+
+    <!-- ============================================== -->
+    <!-- SLIDE 1: PORTADA -->
+    <!-- ============================================== -->
+    <section class="slide-view active" id="slide-1">
+      <div class="cover-hero">
+        <div class="cover-kicker">Codiagro Agroquímica S.L. · Plan Estratégico 2027</div>
+        <h1 class="cover-title">PRESUPUESTO GENERAL 2027<br>& CIERRE FORECAST 2026</h1>
+        <p class="cover-desc">
+          Plan Financiero y Operativo integral: escalada de Cifra Neta de Negocios a 17,74 M€ (+16,9%), récord de EBITDA de 7,40 M€ (+15,1%), preservación del Margen Bruto al 63,9% y validación con el cierre real de pedidos de Septiembre.
+        </p>
+
+        <div class="cover-metrics">
+          <div>
+            <div class="cm-val" style="color: #60a5fa;">17,74 M€</div>
+            <div class="cm-lbl">Cifra de Negocios (+16,9%)</div>
+          </div>
+          <div>
+            <div class="cm-val" style="color: #34d399;">7,40 M€</div>
+            <div class="cm-lbl">EBITDA Ajustado (41,7%)</div>
+          </div>
+          <div>
+            <div class="cm-val" style="color: #fbbf24;">11,33 M€</div>
+            <div class="cm-lbl">Margen Bruto (63,9%)</div>
+          </div>
+          <div>
+            <div class="cm-val" style="color: #a78bfa;">129,8%</div>
+            <div class="cm-lbl">Consecución Sep-26</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 2: RESUMEN EJECUTIVO (LOS 5 PILARES) -->
+    <!-- ============================================== -->
+    <section class="slide-view" id="slide-2">
+      <div class="slide-header">
+        <div class="slide-category">Visión Ejecutiva</div>
+        <h2 class="slide-title">Los 5 Pilares Estratégicos del Presupuesto 2027</h2>
+        <p class="slide-subtitle">Fundamentos del plan sometido a revisión y aprobación de Dirección General.</p>
+      </div>
+
+      <div class="grid-5">
+        <div class="card card-primary">
+          <div class="card-header-sm">
+            <span class="card-title-sm">1. Expansión Top-Line</span>
+          </div>
+          <div class="card-val-lg" style="color: #60a5fa;">17,74 M€</div>
+          <span class="card-tag tag-blue">+16,9% (+2,56 M€)</span>
+          <p class="card-desc">
+            Crecimiento impulsado por mayor volumen (+10,3% en unidades) y actualización del mix hacia bioestimulantes y especialidades de mayor valor.
+          </p>
+        </div>
+
+        <div class="card card-accent">
+          <div class="card-header-sm">
+            <span class="card-title-sm">2. EBITDA Récord</span>
+          </div>
+          <div class="card-val-lg" style="color: #34d399;">7,40 M€</div>
+          <span class="card-tag tag-green">41,7% Margen</span>
+          <p class="card-desc">
+            El resultado operativo supera por primera vez los 7,4 millones (+15,1% vs 2026), blindando un margen operativo superior al 41% de ventas.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-header-sm">
+            <span class="card-title-sm">3. Margen Bruto</span>
+          </div>
+          <div class="card-val-lg" style="color: #fbbf24;">63,9%</div>
+          <span class="card-tag tag-yellow">11,33 M€ Bruto</span>
+          <p class="card-desc">
+            Absorción completa de la inflación de materias primas (+4,5%) gracias a economías de escala fabriles y optimización en compras estratégicas.
+          </p>
+        </div>
+
+        <div class="card card-primary">
+          <div class="card-header-sm">
+            <span class="card-title-sm">4. Eficiencia OPEX</span>
+          </div>
+          <div class="card-val-lg">12,6%</div>
+          <span class="card-tag tag-blue">Personal/Ventas</span>
+          <p class="card-desc">
+            Masa salarial (2,23 M€) con refuerzo técnico y comercial, mejorando su productividad y reduciendo su peso relativo del 13,2% (2026) al 12,6%.
+          </p>
+        </div>
+
+        <div class="card card-accent">
+          <div class="card-header-sm">
+            <span class="card-title-sm">5. Tracción Real</span>
+          </div>
+          <div class="card-val-lg" style="color: #34d399;">129,8%</div>
+          <span class="card-tag tag-green">Cierre Sep-26</span>
+          <p class="card-desc">
+            Septiembre cierra con 236.105 unidades pedidas frente a 181.966 presupuestadas (+29,8%), certificando la solidez de la cartera de pedidos.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 3: CUADRO GENERAL P&L -->
+    <!-- ============================================== -->
+    <section class="slide-view" id="slide-3">
+      <div class="slide-header">
+        <div class="slide-category">Estados Financieros Previsionales</div>
+        <h2 class="slide-title">Cuenta de Resultados: Cierre 2026 FC vs Presupuesto 2027</h2>
+        <p class="slide-subtitle">Comparativa detallada según criterios del Plan General de Contabilidad.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Línea P&L (miles de €)</th>
+                <th class="text-right">2026 FC</th>
+                <th class="text-right">2027 B</th>
+                <th class="text-right">Var (€)</th>
+                <th class="text-right">Var (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-highlight">
+                <td>1. Cifra Neta de Negocios (Ventas)</td>
+                <td class="text-right">15.180</td>
+                <td class="text-right">17.738</td>
+                <td class="text-right val-positive">+2.558</td>
+                <td class="text-right val-positive">+16,9%</td>
+              </tr>
+              <tr>
+                <td>2. Coste de las Ventas (COGS)</td>
+                <td class="text-right">-5.234</td>
+                <td class="text-right">-6.407</td>
+                <td class="text-right val-negative">-1.174</td>
+                <td class="text-right val-negative">+22,4%</td>
+              </tr>
+              <tr class="row-highlight">
+                <td>3. Margen Bruto (Gross Profit)</td>
+                <td class="text-right">9.946 (65,5%)</td>
+                <td class="text-right">11.331 (63,9%)</td>
+                <td class="text-right val-positive">+1.384</td>
+                <td class="text-right val-positive">+13,9%</td>
+              </tr>
+              <tr>
+                <td>4. Gastos de Personal</td>
+                <td class="text-right">-2.007</td>
+                <td class="text-right">-2.229</td>
+                <td class="text-right val-negative">-222</td>
+                <td class="text-right">+11,1%</td>
+              </tr>
+              <tr>
+                <td>5. Otros Ingresos Operativos (Export Transp)</td>
+                <td class="text-right">+169</td>
+                <td class="text-right">+305</td>
+                <td class="text-right val-positive">+137</td>
+                <td class="text-right">+81,1%</td>
+              </tr>
+              <tr>
+                <td>6. Otros Gastos Operativos (Opex)</td>
+                <td class="text-right">-1.684</td>
+                <td class="text-right">-2.011</td>
+                <td class="text-right val-negative">-326</td>
+                <td class="text-right">+19,4%</td>
+              </tr>
+              <tr>
+                <td>7. Total Gastos Fijos (OPEX Neto)</td>
+                <td class="text-right">-3.522</td>
+                <td class="text-right">-3.934</td>
+                <td class="text-right val-negative">-412</td>
+                <td class="text-right">+11,7%</td>
+              </tr>
+              <tr class="row-highlight">
+                <td>8. EBITDA Ajustado</td>
+                <td class="text-right">6.424 (42,3%)</td>
+                <td class="text-right">7.397 (41,7%)</td>
+                <td class="text-right val-positive">+973</td>
+                <td class="text-right val-positive">+15,1%</td>
+              </tr>
+              <tr>
+                <td>9. Amortizaciones y Depreciaciones (D&A)</td>
+                <td class="text-right">-230</td>
+                <td class="text-right">-231</td>
+                <td class="text-right">-1</td>
+                <td class="text-right">+0,4%</td>
+              </tr>
+              <tr class="row-total">
+                <td>10. EBIT Ajustado (Resultado Operativo)</td>
+                <td class="text-right">6.201 (40,8%)</td>
+                <td class="text-right">7.166 (40,4%)</td>
+                <td class="text-right val-positive">+965</td>
+                <td class="text-right val-positive">+15,6%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title-sm" style="margin-bottom: 1rem;">Comparativa de Magnitudes Clave (€ '000)</div>
+          <div class="chart-box">
+            <canvas id="chartPnl"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 4: VENTAS POR COMERCIAL -->
+    <!-- ============================================== -->
+    <section class="slide-view" id="slide-4">
+      <div class="slide-header">
+        <div class="slide-category">Desempeño Comercial</div>
+        <h2 class="slide-title">Desglose de Ventas por Comercial (2026 vs 2027)</h2>
+        <p class="slide-subtitle">Aportación de cada gestor al objetivo global de 17,74 M€.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Comercial</th>
+                <th class="text-right">2026 (€)</th>
+                <th class="text-right">2027 (€)</th>
+                <th class="text-right">Var (€)</th>
+                <th class="text-right">Var (Uds)</th>
+                <th class="text-right">Cuota '27</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>García</strong></td>
+                <td class="text-right">5.852.629</td>
+                <td class="text-right"><strong>6.723.769</strong></td>
+                <td class="text-right val-positive">+14,9%</td>
+                <td class="text-right">+9,9%</td>
+                <td class="text-right">37,9%</td>
+              </tr>
+              <tr>
+                <td><strong>Ricardo</strong></td>
+                <td class="text-right">3.821.151</td>
+                <td class="text-right"><strong>4.401.918</strong></td>
+                <td class="text-right val-positive">+15,2%</td>
+                <td class="text-right">+10,9%</td>
+                <td class="text-right">24,8%</td>
+              </tr>
+              <tr>
+                <td><strong>Mehmet</strong> (Export)</td>
+                <td class="text-right">1.828.039</td>
+                <td class="text-right"><strong>2.167.769</strong></td>
+                <td class="text-right val-positive">+18,6%</td>
+                <td class="text-right">+13,8%</td>
+                <td class="text-right">12,2%</td>
+              </tr>
+              <tr>
+                <td><strong>Pedro</strong></td>
+                <td class="text-right">1.245.386</td>
+                <td class="text-right"><strong>1.413.541</strong></td>
+                <td class="text-right val-positive">+13,5%</td>
+                <td class="text-right">+8,3%</td>
+                <td class="text-right">8,0%</td>
+              </tr>
+              <tr>
+                <td><strong>Irene</strong></td>
+                <td class="text-right">1.092.517</td>
+                <td class="text-right"><strong>1.251.434</strong></td>
+                <td class="text-right val-positive">+14,5%</td>
+                <td class="text-right">+9,0%</td>
+                <td class="text-right">7,1%</td>
+              </tr>
+              <tr>
+                <td><strong>Javier</strong></td>
+                <td class="text-right">1.009.061</td>
+                <td class="text-right"><strong>1.142.039</strong></td>
+                <td class="text-right val-positive">+13,2%</td>
+                <td class="text-right">+9,0%</td>
+                <td class="text-right">6,4%</td>
+              </tr>
+              <tr>
+                <td><strong>Alfonso</strong></td>
+                <td class="text-right">535.366</td>
+                <td class="text-right"><strong>637.691</strong></td>
+                <td class="text-right val-positive">+19,1%</td>
+                <td class="text-right">+12,5%</td>
+                <td class="text-right">3,6%</td>
+              </tr>
+              <tr class="row-total">
+                <td>TOTAL VENTAS</td>
+                <td class="text-right">15.384.149</td>
+                <td class="text-right">17.738.160</td>
+                <td class="text-right val-positive">+15,3%</td>
+                <td class="text-right">+10,3%</td>
+                <td class="text-right">100,0%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title-sm" style="margin-bottom: 1rem;">Distribución de Cuota Comercial 2027</div>
+          <div class="chart-box">
+            <canvas id="chartComerciales"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 5: MARGEN BRUTO Y COGS -->
+    <!-- ============================================== -->
+    <section class="slide-view" id="slide-5">
+      <div class="slide-header">
+        <div class="slide-category">Costes Industriales y Aprovisionamientos</div>
+        <h2 class="slide-title">Estructura de COGS y Absorción de Márgenes</h2>
+        <p class="slide-subtitle">Generación de 11,33 M€ de Gross Profit frente al impacto inflacionario en insumos químicos.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="grid-2" style="grid-column: span 1;">
+          <div class="card card-primary">
+            <div class="card-title-sm">Materias Primas (601)</div>
+            <div class="card-val-lg" style="color: #60a5fa;">4,59 M€</div>
+            <span class="card-tag tag-blue">25,85% de ventas</span>
+            <p class="card-desc">Contempla un incremento previsional del +4,5% en precios de insumos en 2027.</p>
+          </div>
+
+          <div class="card card-accent">
+            <div class="card-title-sm">Envases y Embalajes (602)</div>
+            <div class="card-val-lg" style="color: #34d399;">0,96 M€</div>
+            <span class="card-tag tag-green">5,39% de ventas</span>
+            <p class="card-desc">Unificación de compras de bidones y garrafas optimizando volumen de lote.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title-sm">Etiquetas y Palets (602002/3)</div>
+            <div class="card-val-lg">0,32 M€</div>
+            <span class="card-tag tag-blue">1,80% de ventas</span>
+            <p class="card-desc">Material auxiliar de acondicionamiento logístico en planta.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-title-sm">Subcontratación Fabril (607)</div>
+            <div class="card-val-lg">0,55 M€</div>
+            <span class="card-tag tag-yellow">3,08% de ventas</span>
+            <p class="card-desc">Flexibilidad productiva para absorber picos en campaña de primavera.</p>
+          </div>
+        </div>
+
+        <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+          <div class="card-title-sm" style="margin-bottom: 0.8rem;">Composición del Coste de Ventas 2027</div>
+          <div class="chart-box">
+            <canvas id="chartCogs"></canvas>
+          </div>
+          <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3);">
+            <strong style="color: var(--accent);">Conclusión Gross Margin:</strong> A pesar de la subida de costes unitarios, el Margen Bruto absoluto aumenta en <strong>+1,38 M€ (+13,9%)</strong> por el mayor volumen fabricado y vendido.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 6: PERSONAL Y OPEX -->
+    <!-- ============================================== -->
+    <section class="slide-view" id="slide-6">
+      <div class="slide-header">
+        <div class="slide-category">Estructura Operativa</div>
+        <h2 class="slide-title">Gastos de Personal y OPEX de Estructura</h2>
+        <p class="slide-subtitle">Racionalización y mejora de productividad sobre la cifra de ingresos.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card card-primary">
+          <div class="card-title-sm">Gastos de Personal</div>
+          <div class="card-val-lg" style="color: #60a5fa;">2,23 M€</div>
+          <span class="card-tag tag-blue">12,56% s/ventas</span>
+          <p class="card-desc" style="margin-top: 0.75rem;">
+            • Actualización de tablas según convenio de la industria química.<br>
+            • Refuerzo de asistencia agronómica a distribuidores.<br>
+            • Nueva posición en envasado para responder al volumen de 2027.<br>
+            • <strong>Eficiencia:</strong> El peso sobre ventas mejora del 13,2% al 12,6%.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title-sm">Otros Gastos Operativos (OPEX)</div>
+          <div class="card-val-lg" style="color: #fbbf24;">2,01 M€</div>
+          <span class="card-tag tag-yellow">11,33% s/ventas</span>
+          <p class="card-desc" style="margin-top: 0.75rem;">
+            • Marketing y Ferias internacionales: 266 k€.<br>
+            • Transporte nacional neto (Campillo / Sealine): 246 k€.<br>
+            • Registros y tasas Regulatory: 234 k€.<br>
+            • Mantenimiento y consumibles fábrica: 91 k€.<br>
+            • Servicios profesionales, seguros y suministros.
+          </p>
+        </div>
+
+        <div class="card card-accent">
+          <div class="card-title-sm">Salvedad Transporte Export</div>
+          <div class="card-val-lg" style="color: #34d399;">305 k€</div>
+          <span class="card-tag tag-green">Impacto Neto Neutro</span>
+          <p class="card-desc" style="margin-top: 0.75rem;">
+            • Los fletes marítimos/aéreos de exportación se facturan íntegramente al cliente (cta. 700001624).<br>
+            • Aparecen como 'Otros Ingresos' compensando exactamente el gasto logístico.<br>
+            • <strong>Efecto en EBITDA: 0,00 €</strong> (Garantía de transparencia PGC).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 7: CONCILIACIÓN DEPARTAMENTAL -->
+    <!-- ============================================== -->
+    <section class="slide-view" id="slide-7">
+      <div class="slide-header">
+        <div class="slide-category">Control Presupuestario</div>
+        <h2 class="slide-title">Conciliación de Departamentos vs Criterio PGC</h2>
+        <p class="slide-subtitle">Alineación de presupuestos funcionales con los estados contables anuales.</p>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Departamento / Área</th>
+              <th class="text-right">Presupuesto Depto (€)</th>
+              <th class="text-right">Previsión P&L Contable (€)</th>
+              <th class="text-right">Diferencia (€)</th>
+              <th>Justificación Técnica / Criterio PGC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Compras y Aprovisionamientos</strong></td>
+              <td class="text-right">6.254.129</td>
+              <td class="text-right">6.036.996</td>
+              <td class="text-right val-positive">+217.133</td>
+              <td>Ajuste por consumo real estimado vs volumen de compras con colchón de stock.</td>
+            </tr>
+            <tr>
+              <td><strong>Transportes (Gasto Neto Codiagro)</strong></td>
+              <td class="text-right">245.670</td>
+              <td class="text-right">301.549</td>
+              <td class="text-right val-negative">-55.879</td>
+              <td>Transporte exportación (305 k€) excluido del gasto neto al ser repercutido al cliente.</td>
+            </tr>
+            <tr>
+              <td><strong>Marketing y Comunicación</strong></td>
+              <td class="text-right">266.072</td>
+              <td class="text-right">49.697</td>
+              <td class="text-right val-positive">+216.375</td>
+              <td>Reclasificación de campañas comerciales directas y ferias internacionales.</td>
+            </tr>
+            <tr>
+              <td><strong>Regulatory (Marcas y Registros)</strong></td>
+              <td class="text-right">233.918</td>
+              <td class="text-right">105.551</td>
+              <td class="text-right val-positive">+128.367</td>
+              <td>Inmovilización técnica de marcas de la UE (cuenta 203) según normativa contable.</td>
+            </tr>
+            <tr>
+              <td><strong>Mantenimiento de Fábrica</strong></td>
+              <td class="text-right">91.234</td>
+              <td class="text-right">197.422</td>
+              <td class="text-right val-negative">-106.188</td>
+              <td>Subcontratación y repuestos integrados en el plan global de planta.</td>
+            </tr>
+            <tr class="row-total">
+              <td>TOTAL GASTOS CONCILIADOS</td>
+              <td class="text-right">7.091.023</td>
+              <td class="text-right">6.691.215</td>
+              <td class="text-right val-positive">+399.808</td>
+              <td>Totalmente conciliado con los estados financieros oficiales.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 8: VALIDACIÓN REAL (SEPTIEMBRE 2026) -->
+    <!-- ============================================== -->
+    <section class="slide-view" id="slide-8">
+      <div class="slide-header">
+        <div class="slide-category">Tracción Operativa Inmediata</div>
+        <h2 class="slide-title">Validación Empírica: Cierre Real de Septiembre 2026</h2>
+        <p class="slide-subtitle">Datos consolidados a fecha de corte 01/10/2026 demuestran la viabilidad comercial del plan.</p>
+      </div>
+
+      <div class="grid-4" style="margin-bottom: 1.5rem;">
+        <div class="card">
+          <div class="card-title-sm">Presupuesto Objetivo</div>
+          <div class="card-val-lg">181.966</div>
+          <span class="card-tag tag-blue">Unidades Objetivo</span>
+          <p class="card-desc">Previsión original sin sesgos de cálculo.</p>
+        </div>
+
+        <div class="card card-accent">
+          <div class="card-title-sm">Pedidos Totales</div>
+          <div class="card-val-lg" style="color: #34d399;">236.105</div>
+          <span class="card-tag tag-green">+129,8% Consecución</span>
+          <p class="card-desc">+54.139 uds sobre el objetivo mensual.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title-sm">Servidas en Fábrica</div>
+          <div class="card-val-lg" style="color: #60a5fa;">200.331</div>
+          <span class="card-tag tag-blue">84,8% Servido</span>
+          <p class="card-desc">35.774 uds en expedición inmediata.</p>
+        </div>
+
+        <div class="card card-accent">
+          <div class="card-title-sm">Importe Facturado</div>
+          <div class="card-val-lg" style="color: #34d399;">735.161 €</div>
+          <span class="card-tag tag-green">Neto Septiembre</span>
+          <p class="card-desc">Facturación consolidada del periodo.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title-sm" style="margin-bottom: 0.8rem;">Consecución de Septiembre por Comercial (Uds Pedidas vs Budget)</div>
+        <div class="chart-box">
+          <canvas id="chartSep"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 9: ESCENARIOS Y SENSIBILIDAD -->
+    <!-- ============================================== -->
+    <section class="slide-view" id="slide-9">
+      <div class="slide-header">
+        <div class="slide-category">Gestión de Riesgos</div>
+        <h2 class="slide-title">Análisis de Sensibilidad y Medidas de Mitigación</h2>
+        <p class="slide-subtitle">Evaluación de escenarios macro y medidas de contingencia.</p>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 1.5rem;">
+        <div class="card card-accent">
+          <div class="card-title-sm">Escenario Optimista (+5% Ventas)</div>
+          <div class="card-val-lg" style="color: #34d399;">18,63 M€</div>
+          <span class="card-tag tag-green">EBITDA: 7,95 M€ (42,7%)</span>
+          <p class="card-desc" style="margin-top: 0.5rem;">
+            Aceleración de pedidos en el primer trimestre y mayor tracción en clientes internacionales de Mehmet.
+          </p>
+        </div>
+
+        <div class="card card-primary">
+          <div class="card-title-sm">Escenario Base (Presupuestado)</div>
+          <div class="card-val-lg" style="color: #60a5fa;">17,74 M€</div>
+          <span class="card-tag tag-blue">EBITDA: 7,40 M€ (41,7%)</span>
+          <p class="card-desc" style="margin-top: 0.5rem;">
+            Plan central aprobado con crecimiento sostenible (+16,9%) y estricto control de costes de estructura.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title-sm">Escenario Conservador (-5% Ventas)</div>
+          <div class="card-val-lg" style="color: #fbbf24;">16,85 M€</div>
+          <span class="card-tag tag-yellow">EBITDA: 6,85 M€ (40,7%)</span>
+          <p class="card-desc" style="margin-top: 0.5rem;">
+            Retraso estacional en tratamientos agrícolas; el margen operativo resiste por encima de los 6,8 M€.
+          </p>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Riesgo Identificado</th>
+              <th>Severidad</th>
+              <th>Medida Preventiva / Plan de Mitigación Codiagro</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Precios de Materias Primas</strong></td>
+              <td><span class="card-tag tag-yellow">Media-Alta</span></td>
+              <td>Contratos de cobertura anticipada con proveedores clave para el primer semestre.</td>
+            </tr>
+            <tr>
+              <td><strong>Calendario Regulatorio</strong></td>
+              <td><span class="card-tag tag-blue">Media</span></td>
+              <td>Dotación específica de 234 k€ en Regulatory priorizando expedientes de alto margen.</td>
+            </tr>
+            <tr>
+              <td><strong>Fletes Marítimos de Exportación</strong></td>
+              <td><span class="card-tag tag-green">Baja (Neutro)</span></td>
+              <td>Blindaje contractual: repercusión del 100% de los costes logísticos al cliente final.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 10: CONCLUSIONES Y ACUERDOS -->
+    <!-- ============================================== -->
+    <section class="slide-view" id="slide-10">
+      <div class="slide-header">
+        <div class="slide-category">Gobernanza</div>
+        <h2 class="slide-title">Decisiones Solicitadas a Dirección General</h2>
+        <p class="slide-subtitle">Acuerdos clave requeridos para la ejecución oficial del ejercicio 2027.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card card-accent">
+          <div class="card-title-sm" style="color: var(--accent);">1. Marco Financiero</div>
+          <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0.5rem 0;">Aprobación P&L 2027</h3>
+          <p class="card-desc">
+            • Aprobación de la meta de <strong>17,74 M€</strong> de Cifra Neta de Negocios.<br><br>
+            • Ratificación del objetivo de <strong>7,40 M€</strong> de EBITDA Ajustado (41,7%).<br><br>
+            • Fijación del techo de gasto en compras de materias primas en <strong>6,41 M€</strong>.
+          </p>
+        </div>
+
+        <div class="card card-primary">
+          <div class="card-title-sm" style="color: var(--primary);">2. Recursos y Estructura</div>
+          <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0.5rem 0;">Validación de Partidas</h3>
+          <p class="card-desc">
+            • Autorización del presupuesto de personal de <strong>2,23 M€</strong> con refuerzo técnico.<br><br>
+            • Dotación de <strong>266 k€</strong> para Marketing, ferias y fidelización.<br><br>
+            • Validación de <strong>234 k€</strong> para Regulatory y registros internacionales.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title-sm" style="color: #cbd5e1;">3. Control y Seguimiento</div>
+          <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0.5rem 0;">Reporting Oficial</h3>
+          <p class="card-desc">
+            • Implantación del <strong>Dashboard Web</strong> para seguimiento diario automatizado.<br><br>
+            • Revisiones trimestrales con el equipo comercial (Rolling Forecast).<br><br>
+            • Mantenimiento del criterio neutro de transporte exterior repercutido.
+          </p>
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem; text-align: center;">
+        <button class="btn-nav btn-accent" style="padding: 0.8rem 2rem; font-size: 1rem;" onclick="goToSlide(1)">
+          🔄 Reiniciar Presentación
+        </button>
+        <a href="index.html" class="btn-nav" style="padding: 0.8rem 2rem; font-size: 1rem; margin-left: 0.8rem;">
+          📊 Acceder al Cuadro de Mando Detallado
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 10;
+    const initializedCharts = {};
+
+    function updateNav() {
+      document.getElementById('slideIndicator').innerText = `${currentSlide} / ${totalSlides}`;
+      document.getElementById('slideSelect').value = currentSlide;
+      document.getElementById('btnPrev').disabled = (currentSlide === 1);
+      document.getElementById('btnNext').innerText = (currentSlide === totalSlides) ? 'Finalizar 🏁' : 'Siguiente ▶';
+    }
+
+    function goToSlide(n) {
+      if (n < 1 || n > totalSlides) return;
+      document.querySelectorAll('.slide-view').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(`slide-${n}`);
+      if (target) {
+        target.classList.add('active');
+        currentSlide = n;
+        updateNav();
+        renderSlideCharts(n);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function navigateSlide(delta) {
+      let next = currentSlide + delta;
+      if (next >= 1 && next <= totalSlides) {
+        goToSlide(next);
+      }
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        navigateSlide(1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        navigateSlide(-1);
+      } else if (e.key === 'f' || e.key === 'F') {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    });
+
+    // CHARTS RENDERING
+    function renderSlideCharts(slideNum) {
+      if (slideNum === 3 && !initializedCharts['pnl']) {
+        const ctx = document.getElementById('chartPnl');
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['Ventas', 'COGS', 'Gross Profit', 'Gastos Fijos', 'EBITDA'],
+              datasets: [
+                {
+                  label: '2026 Forecast',
+                  data: [15180, 5234, 9946, 3522, 6424],
+                  backgroundColor: 'rgba(100, 116, 139, 0.7)',
+                  borderColor: '#64748b',
+                  borderWidth: 1
+                },
+                {
+                  label: '2027 Budget',
+                  data: [17738, 6407, 11331, 3934, 7397],
+                  backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                  borderColor: '#10b981',
+                  borderWidth: 1
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { labels: { color: '#cbd5e1' } }
+              },
+              scales: {
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(51,65,85,0.3)' } },
+                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(51,65,85,0.3)' } }
+              }
+            }
+          });
+          initializedCharts['pnl'] = true;
+        }
+      }
+
+      if (slideNum === 4 && !initializedCharts['comerciales']) {
+        const ctx = document.getElementById('chartComerciales');
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: ['García (37,9%)', 'Ricardo (24,8%)', 'Mehmet (12,2%)', 'Pedro (8,0%)', 'Irene (7,1%)', 'Javier (6,4%)', 'Alfonso (3,6%)'],
+              datasets: [{
+                data: [6723.8, 4401.9, 2167.8, 1413.5, 1251.4, 1142.0, 637.7],
+                backgroundColor: [
+                  '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'
+                ],
+                borderWidth: 2,
+                borderColor: '#0f172a'
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'right', labels: { color: '#cbd5e1', font: { size: 11 } } }
+              }
+            }
+          });
+          initializedCharts['comerciales'] = true;
+        }
+      }
+
+      if (slideNum === 5 && !initializedCharts['cogs']) {
+        const ctx = document.getElementById('chartCogs');
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'pie',
+            data: {
+              labels: ['Materias Primas (71,5%)', 'Envases y Embalajes (14,9%)', 'Subcontratación Fabril (8,5%)', 'Etiquetas y Palets (5,0%)'],
+              datasets: [{
+                data: [4585, 956, 546, 320],
+                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#64748b'],
+                borderColor: '#0f172a',
+                borderWidth: 2
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'bottom', labels: { color: '#cbd5e1' } }
+              }
+            }
+          });
+          initializedCharts['cogs'] = true;
+        }
+      }
+
+      if (slideNum === 8 && !initializedCharts['sep']) {
+        const ctx = document.getElementById('chartSep');
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['García', 'Ricardo', 'Mehmet', 'Pedro', 'Irene', 'Javier', 'Alfonso'],
+              datasets: [
+                {
+                  label: 'Budget Sep (Uds)',
+                  data: [19782, 116310, 20387, 8560, 5267, 7258, 4402],
+                  backgroundColor: 'rgba(100, 116, 139, 0.7)'
+                },
+                {
+                  label: 'Pedidos Reales Sep (Uds)',
+                  data: [25324, 150000, 29910, 10210, 6800, 8500, 5361],
+                  backgroundColor: 'rgba(16, 185, 129, 0.85)'
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { labels: { color: '#cbd5e1' } }
+              },
+              scales: {
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(51,65,85,0.3)' } },
+                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(51,65,85,0.3)' } }
+              }
+            }
+          });
+          initializedCharts['sep'] = true;
+        }
+      }
+    }
+
+    // Initialize
+    updateNav();
+  </script>
+</body>
+</html>

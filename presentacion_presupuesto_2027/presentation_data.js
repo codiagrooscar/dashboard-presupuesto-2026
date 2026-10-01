@@ -16,11 +16,11 @@ window.PRESENTATION_DATA = {
     gross_margin_pct_2026: 65.52,
     gross_margin_pct_2027: 63.88,
     ebitda_2026: 6424499.87,
-    ebitda_2027: 7397019.76,
-    ebitda_crecimiento_eur: 972519.89,
-    ebitda_crecimiento_pct: 15.14,
+    ebitda_2027: 7369038.36,
+    ebitda_crecimiento_eur: 944538.49,
+    ebitda_crecimiento_pct: 14.70,
     ebitda_margin_pct_2026: 42.32,
-    ebitda_margin_pct_2027: 41.70,
+    ebitda_margin_pct_2027: 41.54,
     personal_2026: 2006502.59,
     personal_2027: 2228609.60,
     personal_pct_ventas_2026: 13.22,
@@ -38,12 +38,12 @@ window.PRESENTATION_DATA = {
     { concepto: "4. Gastos de Personal", fc_2026: -2006.5, bud_2027: -2228.6, var_eur: -222.1, var_pct: 11.1, is_bold: false, highlight: "" },
     { concepto: "   % Personal s/Ventas", fc_2026: "13,2%", bud_2027: "12,6%", var_eur: "-", var_pct: "-0,6 pp (Mejora)", is_bold: false, highlight: "" },
     { concepto: "5. Otros Ingresos Operativos (Export Repercutido)", fc_2026: 168.6, bud_2027: 305.2, var_eur: 136.7, var_pct: 81.1, is_bold: false, highlight: "" },
-    { concepto: "6. Otros Gastos Operativos (Opex Estructura)", fc_2026: -1684.0, bud_2027: -2010.5, var_eur: -326.5, var_pct: 19.4, is_bold: false, highlight: "" },
-    { concepto: "7. Total Gastos Fijos (OPEX Neto)", fc_2026: -3522.0, bud_2027: -3933.9, var_eur: -411.9, var_pct: 11.7, is_bold: true, highlight: "" },
-    { concepto: "8. EBITDA Ajustado", fc_2026: 6424.5, bud_2027: 7397.0, var_eur: 972.5, var_pct: 15.1, is_bold: true, highlight: "emerald" },
-    { concepto: "   % Margen EBITDA", fc_2026: "42,3%", bud_2027: "41,7%", var_eur: "-", var_pct: "-0,6 pp", is_bold: true, highlight: "emerald" },
+    { concepto: "6. Otros Gastos Operativos (Opex Estructura)", fc_2026: -1684.0, bud_2027: -2038.5, var_eur: -354.5, var_pct: 21.0, is_bold: false, highlight: "" },
+    { concepto: "7. Total Gastos Fijos (OPEX Neto)", fc_2026: -3522.0, bud_2027: -3961.9, var_eur: -439.9, var_pct: 12.5, is_bold: true, highlight: "" },
+    { concepto: "8. EBITDA Ajustado", fc_2026: 6424.5, bud_2027: 7369.0, var_eur: 944.5, var_pct: 14.7, is_bold: true, highlight: "emerald" },
+    { concepto: "   % Margen EBITDA", fc_2026: "42,3%", bud_2027: "41,5%", var_eur: "-", var_pct: "-0,8 pp", is_bold: true, highlight: "emerald" },
     { concepto: "9. Amortizaciones y Depreciaciones (D&A)", fc_2026: -229.7, bud_2027: -230.7, var_eur: -1.0, var_pct: 0.4, is_bold: false, highlight: "" },
-    { concepto: "10. EBIT Ajustado (Resultado de Explotación)", fc_2026: 6200.8, bud_2027: 7166.3, var_eur: 965.5, var_pct: 15.6, is_bold: true, highlight: "blue" }
+    { concepto: "10. EBIT Ajustado (Resultado de Explotación)", fc_2026: 6200.8, bud_2027: 7138.3, var_eur: 937.5, var_pct: 15.1, is_bold: true, highlight: "blue" }
   ],
   comerciales: [
     { nombre: "García", v26: 5852629, v27: 6723769, u26: 1543714, u27: 1697193, cuota: 37.9, var_eur: 14.9, var_uds: 9.9, zona: "Centro-Sur / Clientes A" },
@@ -59,6 +59,17 @@ window.PRESENTATION_DATA = {
     { concepto: "Envases y Embalajes (602)", importe: 956087, pct_cogs: 14.92, pct_ventas: 5.39, detalle: "Garrafas, bidones y contenedores IBC unificados." },
     { concepto: "Subcontratación Fabril (607)", importe: 545935, pct_cogs: 8.52, pct_ventas: 3.08, detalle: "Apoyo en puntas de envasado estacional en primavera." },
     { concepto: "Etiquetas y Palets (602002/3)", importe: 319890, pct_cogs: 5.00, pct_ventas: 1.80, detalle: "Consumibles auxiliares y suministros logísticos de planta." }
+  ],
+  gastos_comerciales_formacion: [
+    { cta: "629000013", concepto: "Formación no Bonificada", ppto_anual: 53215.0, mensual_base: 4434.58, dic: 4434.62, criterio: "Reparto mensual homogéneo a razón de 4.434,58 €/mes." },
+    { cta: "629100001", concepto: "Gastos Pere Porta", ppto_anual: 22000.0, mensual_base: 2000.0, criterio: "2.000 €/mes (Agosto 1.000 €, Enero y Diciembre 1.500 €)." },
+    { cta: "629100002", concepto: "Gastos Ricardo Pérez", ppto_anual: 22000.0, mensual_base: 2000.0, criterio: "2.000 €/mes (Agosto 1.000 €, Enero y Diciembre 1.500 €)." },
+    { cta: "629100004", concepto: "Gastos García", ppto_anual: 22000.0, mensual_base: 2000.0, criterio: "2.000 €/mes (Agosto 1.000 €, Enero y Diciembre 1.500 €)." },
+    { cta: "629100003", concepto: "Gastos Javier Paredes", ppto_anual: 13200.0, mensual_base: 1200.0, criterio: "1.200 €/mes (Agosto 600 €, Enero y Diciembre 900 €)." },
+    { cta: "629100005", concepto: "Gastos Irene", ppto_anual: 6600.0, mensual_base: 600.0, criterio: "600 €/mes (Agosto 300 €, Enero y Diciembre 450 €)." },
+    { cta: "629100008", concepto: "Gastos Pedro Medina", ppto_anual: 6600.0, mensual_base: 600.0, criterio: "600 €/mes (Agosto 300 €, Enero y Diciembre 450 €)." },
+    { cta: "629100006", concepto: "Gastos Antonio Andreu", ppto_anual: 2429.28, mensual_base: 202.44, criterio: "Sin cambios. 202,44 €/mes constantes." },
+    { cta: "629100007", concepto: "Gastos Curro", ppto_anual: 1092.60, mensual_base: 91.05, criterio: "Sin cambios. 91,05 €/mes constantes." }
   ],
   departamentos: [
     { depto: "Compras y Aprovisionamientos", ppto_depto: 6254129, ppto_pnl: 6036996, diff: 217133, justif: "Diferencia de consumo vs stock de seguridad de campaña." },
@@ -86,8 +97,8 @@ window.PRESENTATION_DATA = {
     ]
   },
   escenarios: [
-    { nombre: "Escenario Optimista (+5% Ventas)", ventas: 18.63, ebitda: 7.95, margen_ebitda: 42.7, desc: "Aceleración en penetración exterior y clima favorable en primavera." },
-    { nombre: "Escenario Base Presupuestado", ventas: 17.74, ebitda: 7.40, margen_ebitda: 41.7, desc: "Plan central con estricta disciplina presupuestaria en OPEX y compras." },
-    { nombre: "Escenario Conservador (-5% Ventas)", ventas: 16.85, ebitda: 6.85, margen_ebitda: 40.7, desc: "Retraso estacional de tratamientos; margen resistente por encima de 6,8 M€." }
+    { nombre: "Escenario Optimista (+5% Ventas)", ventas: 18.63, ebitda: 7.92, margen_ebitda: 42.5, desc: "Aceleración en penetración exterior y clima favorable en primavera." },
+    { nombre: "Escenario Base Presupuestado", ventas: 17.74, ebitda: 7.37, margen_ebitda: 41.5, desc: "Plan central con estricta disciplina presupuestaria en OPEX y compras." },
+    { nombre: "Escenario Conservador (-5% Ventas)", ventas: 16.85, ebitda: 6.82, margen_ebitda: 40.5, desc: "Retraso estacional de tratamientos; margen resistente por encima de 6,8 M€." }
   ]
 };

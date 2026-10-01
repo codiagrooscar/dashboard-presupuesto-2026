@@ -139,7 +139,7 @@ def create_presentation():
 
     pillars = [
         ("1. Crecimiento Sostenido", "17,74 M€", "+16,9% (+2,56 M€)", "Incremento del volumen comercial (+9,9% en unidades) y mejora de precios medios y mix por productos de alta tecnología nutricional.", NAVY_LIGHT),
-        ("2. EBITDA Récord", "7,40 M€", "41,7% Margen", "El beneficio operativo crece +972 k€ (+15,1% vs 2026), preservando un margen de rentabilidad superior al 41% sobre ingresos.", GREEN),
+        ("2. EBITDA Récord", "7,37 M€", "41,5% Margen", "El beneficio operativo crece +945 k€ (+14,7% vs 2026), preservando un margen de rentabilidad superior al 41,5% sobre ingresos.", GREEN),
         ("3. Margen Bruto Fuerte", "63,9%", "11,33 M€ Bruto", "Absorción íntegra de la inflación de materias primas (+4,5%) gracias a economías de escala fabriles y optimización en compras.", NAVY_LIGHT),
         ("4. Eficiencia de OPEX", "12,6%", "Coste Personal/Vtas", "Gastos de estructura bajo control. La masa salarial (2,23 M€) baja su peso relativo en ventas del 13,2% (2026) al 12,6% (2027).", NAVY_LIGHT),
         ("5. Tracción Inmediata", "129,8%", "Cierre Sep-26", "La demanda actual valida la ambición del plan: Septiembre 2026 cierra con 236.105 uds pedidas vs 181.966 presupuestadas (+29,8%).", GREEN),
@@ -218,11 +218,11 @@ def create_presentation():
         ("3. Margen Bruto (Gross Profit)", "9.946", "65,5%", "11.331", "63,9%", "+1.384 (+13,9%)"),
         ("4. Gastos de Personal", "-2.007", "13,2%", "-2.229", "12,6%", "-222 (+11,1%)"),
         ("5. Otros Ingresos Operativos (Export Transp)", "+169", "1,1%", "+305", "1,7%", "+137 (+81,1%)"),
-        ("6. Otros Gastos Operativos (Opex)", "-1.684", "11,1%", "-2.011", "11,3%", "-326 (+19,4%)"),
-        ("7. Total Gastos Fijos (OPEX Neto)", "-3.522", "23,2%", "-3.934", "22,2%", "-412 (+11,7%)"),
-        ("8. EBITDA Ajustado", "6.424", "42,3%", "7.397", "41,7%", "+973 (+15,1%)"),
+        ("6. Otros Gastos Operativos (Opex)", "-1.684", "11,1%", "-2.038", "11,5%", "-355 (+21,0%)"),
+        ("7. Total Gastos Fijos (OPEX Neto)", "-3.522", "23,2%", "-3.962", "22,3%", "-440 (+12,5%)"),
+        ("8. EBITDA Ajustado", "6.424", "42,3%", "7.369", "41,5%", "+945 (+14,7%)"),
         ("9. Amortizaciones y Depreciaciones (D&A)", "-230", "1,5%", "-231", "1,3%", "-1 (+0,4%)"),
-        ("10. EBIT Ajustado (Resultado Operativo)", "6.201", "40,8%", "7.166", "40,4%", "+965 (+15,6%)"),
+        ("10. EBIT Ajustado (Resultado Operativo)", "6.201", "40,8%", "7.138", "40,2%", "+938 (+15,1%)"),
     ]
 
     for r_idx, row in enumerate(pnl_data):
@@ -264,12 +264,12 @@ def create_presentation():
     p.font.bold = True
     p.font.color.rgb = GREEN_ACCENT
     p1 = tf1.add_paragraph()
-    p1.text = "7,40 M€"
+    p1.text = "7,37 M€"
     p1.font.size = Pt(28)
     p1.font.bold = True
     p1.font.color.rgb = NAVY
     p2 = tf1.add_paragraph()
-    p2.text = "EBITDA récord en la historia de la compañía (+15,1% vs 2026), manteniendo un margen excelente del 41,7% a pesar del impacto inflacionario en costes."
+    p2.text = "EBITDA récord en la historia de la compañía (+14,7% vs 2026), manteniendo un margen excelente del 41,5% a pesar del impacto inflacionario y el refuerzo en formación."
     p2.font.size = Pt(10)
     p2.font.color.rgb = DARK_TEXT
 
@@ -458,7 +458,7 @@ def create_presentation():
     # 3 Cards horizontal
     cards_opex = [
         ("Gastos de Personal", "2.228.610 €", "12,56% de Ventas", "Incremento de +222 k€ (+11,1% vs 2026) motivado por:\n• Actualización salarial convenio químico y antigüedad.\n• Refuerzo del equipo técnico de desarrollo agronómico en campo.\n• Nueva incorporación en planta para absorber mayor ritmo de envasado.\n• Mejora de eficiencia: el peso s/ventas se reduce del 13,2% al 12,6%."),
-        ("Otros Gastos Operativos", "2.010.508 €", "11,33% de Ventas", "Partidas de funcionamiento diario:\n• Marketing y Campañas: 266 k€ (+54 k€).\n• Transporte nacional neto: 246 k€.\n• Registros y Regulatory: 234 k€.\n• Mantenimiento y consumibles fábrica: 91 k€.\n• Servicios profesionales, suministros y seguros generales."),
+        ("Otros Gastos Operativos", "2.038.489 €", "11,49% de Ventas", "Partidas de funcionamiento diario y red comercial:\n• Formación no bonificada: 53.215 € (4.435 €/mes).\n• Gastos comerciales: 92.400 € (Pere, Ricardo y García a 2.000 €/m; Javier 1.200 €/m; Irene y Pedro 600 €/m; Ago 50%, Ene/Dic 75%).\n• Marketing y Ferias: 266 k€ | Regulatory: 234 k€ | Transporte neto: 246 k€."),
         ("Otros Ingresos Operativos", "305.223 €", "Compensación Export", "Salvedad contable de transporte:\n• Los fletes marítimos y aéreos de exportación se facturan íntegramente al cliente exterior en factura de venta (700001624).\n• Impacto en EBITDA: Totalmente neutro.\n• Transparencia y rigor normativo PGC.")
     ]
 

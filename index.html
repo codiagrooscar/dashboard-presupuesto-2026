@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script src="chart.umd.min.js"></script>
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
-  <script src="dashboard_data.js?v=20261001_1120"></script>
+  <script src="dashboard_data.js?v=20261001_1145"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -116,6 +116,70 @@
       display: flex;
       align-items: center;
       gap: 1rem;
+    }
+
+    /* PERIOD SWITCHER */
+    .period-switcher {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(15, 23, 42, 0.65);
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--card-border);
+      flex-wrap: wrap;
+    }
+
+    .period-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-left: 0.25rem;
+      margin-right: 0.25rem;
+    }
+
+    .period-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.38rem 0.85rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .period-btn:hover {
+      color: var(--ink);
+      border-color: #475569;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .period-btn.active {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+    }
+
+    .period-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      display: inline-block;
+    }
+
+    .period-dot.active {
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
     }
 
     .btn-download {
@@ -551,6 +615,13 @@
         width: 100%;
         justify-content: flex-start;
       }
+      .period-switcher {
+        width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.25rem;
+      }
       .tabs-wrapper {
         top: 0;
       }
@@ -595,11 +666,31 @@
         <img class="brand-logo" src="codiagro_logo.png" alt="Codiagro">
         <div class="brand-titles">
           <h1>
-            Controller Presupuesto Septiembre 2026
-            <span class="badge-live">En Tiempo Real</span>
+            <span id="headerTitle">Controller Presupuesto Ventas 2026</span>
+            <span class="badge-live" id="headerLiveBadge">En Tiempo Real</span>
           </h1>
-          <p>Seguimiento Diario de Previsión vs Pedidos a Fecha <strong id="headerFechaCorte" style="color:#f8fafc">30/09/2026</strong> | Codiagro S.L.</p>
+          <p id="headerSubtitle">Seguimiento Diario de Previsión vs Pedidos a Fecha <strong id="headerFechaCorte" style="color:#f8fafc">01/10/2026</strong> | Codiagro S.L.</p>
         </div>
+      </div>
+
+      <!-- PERIOD SELECTOR -->
+      <div class="period-switcher" id="periodSwitcher">
+        <span class="period-label">PERÍODO:</span>
+        <button class="period-btn active" id="pbtn-2026-10" onclick="switchPeriod('2026-10')">
+          <span class="period-dot active"></span>
+          <span>Octubre 2026</span>
+          <span class="tab-badge badge-success" style="font-size:0.65rem">En Curso</span>
+        </button>
+        <button class="period-btn" id="pbtn-2026-09" onclick="switchPeriod('2026-09')">
+          <span class="period-dot"></span>
+          <span>Septiembre 2026</span>
+          <span class="tab-badge badge-neutral" style="font-size:0.65rem">Cerrado</span>
+        </button>
+        <button class="period-btn" id="pbtn-acumulado" onclick="switchPeriod('acumulado')">
+          <span class="period-dot"></span>
+          <span>📊 Acumulado Sep + Oct</span>
+          <span class="tab-badge badge-info" style="font-size:0.65rem">Consolidado</span>
+        </button>
       </div>
     </div>
   </header>
@@ -655,6 +746,8 @@
   </footer>
 
   <script>
+    let allPeriodsData = null;
+    let currentPeriod = '2026-10'; // Por defecto Octubre 2026
     let appData = null;
     let currentTab = 'resumen';
     let currentFilter = 'ALL';
@@ -772,8 +865,10 @@
 
     async function loadData() {
       try {
-        if (window.DASHBOARD_DATA && window.DASHBOARD_DATA.global_kpis) {
-          appData = window.DASHBOARD_DATA;
+        if (window.DASHBOARD_PERIODS_DATA && window.DASHBOARD_PERIODS_DATA.periods) {
+          allPeriodsData = window.DASHBOARD_PERIODS_DATA;
+        } else if (window.DASHBOARD_DATA && window.DASHBOARD_DATA.periods) {
+          allPeriodsData = window.DASHBOARD_DATA;
         } else {
           let resp = null;
           const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
@@ -795,17 +890,42 @@
               } catch (e) {}
             }
           }
-          if (!resp) throw new Error('No se pudo descargar el archivo de datos');
-          appData = await resp.json();
+          if (resp) {
+            const fetched = await resp.json();
+            if (fetched.periods) {
+              allPeriodsData = fetched;
+            } else {
+              allPeriodsData = {
+                default_period: '2026-10',
+                periods: { '2026-10': fetched }
+              };
+            }
+          }
         }
 
-        // Asegurar que todos los campos de accuracy y error existen aunque provengan de caché antigua
-        ensureAccuracyFields(appData);
-
-        if (appData && appData.global_kpis && appData.global_kpis.fecha_corte) {
-          const elDate = document.getElementById('headerFechaCorte');
-          if (elDate) elDate.innerText = appData.global_kpis.fecha_corte;
+        if (!allPeriodsData) {
+          if (window.DASHBOARD_DATA) {
+            allPeriodsData = {
+              default_period: '2026-10',
+              periods: { '2026-10': window.DASHBOARD_DATA }
+            };
+          } else {
+            throw new Error('No se pudo descargar el archivo de datos');
+          }
         }
+
+        // Asegurar auto-reparación en todos los períodos cargados
+        Object.keys(allPeriodsData.periods).forEach(pid => {
+          ensureAccuracyFields(allPeriodsData.periods[pid]);
+        });
+
+        if (!allPeriodsData.periods[currentPeriod]) {
+          currentPeriod = allPeriodsData.default_period || Object.keys(allPeriodsData.periods)[0];
+        }
+        appData = allPeriodsData.periods[currentPeriod];
+
+        updatePeriodSwitcherUI();
+        updateHeaderInfo();
         updateNavBadges();
         renderCurrentTab();
       } catch (err) {
@@ -817,6 +937,52 @@
             <button onclick="location.reload()" style="margin-top:1.5rem; background:#10b981; color:#fff; border:none; padding:0.6rem 1.4rem; border-radius:8px; cursor:pointer; font-weight:600">Reintentar</button>
           </div>
         `;
+      }
+    }
+
+    function switchPeriod(periodId) {
+      if (!allPeriodsData || !allPeriodsData.periods[periodId]) return;
+      currentPeriod = periodId;
+      appData = allPeriodsData.periods[periodId];
+      updatePeriodSwitcherUI();
+      updateHeaderInfo();
+      updateNavBadges();
+      renderCurrentTab();
+    }
+
+    function updatePeriodSwitcherUI() {
+      const btns = document.querySelectorAll('.period-btn');
+      btns.forEach(btn => {
+        const isMatch = btn.id === ('pbtn-' + currentPeriod);
+        btn.classList.toggle('active', isMatch);
+        const dot = btn.querySelector('.period-dot');
+        if (dot) dot.classList.toggle('active', isMatch);
+      });
+    }
+
+    function updateHeaderInfo() {
+      if (!appData) return;
+      const elDate = document.getElementById('headerFechaCorte');
+      if (elDate && appData.global_kpis && appData.global_kpis.fecha_corte) {
+        elDate.innerText = appData.global_kpis.fecha_corte;
+      }
+      const elSub = document.getElementById('headerSubtitle');
+      if (elSub) {
+        const periodNote = appData.subtitulo || (appData.nombre + ' &bull; ' + appData.estado_periodo);
+        elSub.innerHTML = `Período: <strong style="color:#34d399">${appData.nombre || currentPeriod}</strong> &bull; ${periodNote} &bull; Corte: <strong style="color:#f8fafc">${appData.global_kpis ? appData.global_kpis.fecha_corte : '01/10/2026'}</strong>`;
+      }
+      const elLive = document.getElementById('headerLiveBadge');
+      if (elLive) {
+        if (currentPeriod === '2026-09') {
+          elLive.innerText = 'Mes Cerrado';
+          elLive.className = 'tab-badge badge-neutral';
+        } else if (currentPeriod === 'acumulado') {
+          elLive.innerText = 'Consolidado';
+          elLive.className = 'tab-badge badge-info';
+        } else {
+          elLive.innerText = 'En Tiempo Real';
+          elLive.className = 'badge-live';
+        }
       }
     }
 
@@ -853,7 +1019,9 @@
       });
 
       renderCurrentTab();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (typeof window.scrollTo === 'function') {
+        try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e){}
+      }
     }
 
     function renderCurrentTab() {
@@ -872,19 +1040,19 @@
     function renderResumenTab(container) {
       const g = appData.global_kpis;
       const resList = appData.resumen_comerciales;
-
-      const pctGlobalClass = g.pct_consec >= 100 ? 'badge-success' : 'badge-warning';
+      const periodLabel = appData.nombre || 'Período';
+      const pctGlobalClass = (g.pct_consec || 0) >= 100 ? 'badge-success' : 'badge-warning';
 
       let html = `
         <!-- KPI GRID -->
         <div class="kpi-grid">
           <div class="kpi-card accent-blue">
             <div class="kpi-header">
-              <span class="kpi-title">Estimación Septiembre</span>
+              <span class="kpi-title">Estimación ${periodLabel}</span>
               <span class="tab-badge badge-neutral">Previsión Base</span>
             </div>
             <div class="kpi-value">${fmtNum(g.budget_uds)} <span style="font-size:1rem;font-weight:600;color:var(--muted)">u</span></div>
-            <div class="kpi-subtext">Total planificado para el mes</div>
+            <div class="kpi-subtext">Total planificado (${periodLabel})</div>
           </div>
 
           <div class="kpi-card accent-emerald">
@@ -935,7 +1103,7 @@
           <div class="chart-panel">
             <div class="panel-header">
               <div class="panel-title">Comparativa Estimación vs Pedidos por Comercial (Unidades)</div>
-              <span class="panel-badge">Septiembre 2026</span>
+              <span class="panel-badge">${periodLabel}</span>
             </div>
             <div class="chart-container">
               <canvas id="chartBudgetVsPedidos"></canvas>
@@ -1079,7 +1247,7 @@
             labels: labels,
             datasets: [
               {
-                label: 'Estimación Sep (u)',
+                label: 'Estimación ' + (appData.nombre || 'Período') + ' (u)',
                 data: dataBudget,
                 backgroundColor: 'rgba(59, 130, 246, 0.75)',
                 borderColor: '#3b82f6',
@@ -1087,7 +1255,7 @@
                 borderRadius: 4
               },
               {
-                label: 'Pedidos Sep (u)',
+                label: 'Pedidos ' + (appData.nombre || 'Período') + ' (u)',
                 data: dataPedidos,
                 backgroundColor: 'rgba(16, 185, 129, 0.85)',
                 borderColor: '#10b981',
@@ -1249,16 +1417,18 @@
         }
       }
 
+      const periodLabel = appData.nombre || 'Período';
+
       let html = `
         <!-- KPI GRID -->
         <div class="kpi-grid">
           <div class="kpi-card accent-blue">
             <div class="kpi-header">
-              <span class="kpi-title">Estimación Septiembre</span>
+              <span class="kpi-title">Estimación ${periodLabel}</span>
               <span class="tab-badge badge-neutral">Previsión Base</span>
             </div>
             <div class="kpi-value">${fmtNum(k.budget_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
-            <div class="kpi-subtext">Objetivo asignado a ${comName}</div>
+            <div class="kpi-subtext">Objetivo asignado a ${comName} (${periodLabel})</div>
           </div>
 
           <div class="kpi-card accent-emerald">

@@ -766,6 +766,15 @@
             <div class="kpi-value">${fmtNum(g.pendientes_uds)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
             <div class="kpi-subtext">Servidas acumuladas: <strong style="color:#34d399">${fmtNum(g.servidas_uds)} u</strong></div>
           </div>
+
+          <div class="kpi-card accent-blue">
+            <div class="kpi-header">
+              <span class="kpi-title">Forecast Accuracy</span>
+              <span class="tab-badge badge-neutral" title="Fórmula oficial Dirección: 1 - SUM(|Ventas + Pendientes - Estimación|) / SUM(Estimación)">Fórmula Dirección</span>
+            </div>
+            <div class="kpi-value" style="color: ${g.forecast_accuracy >= 0 ? '#34d399' : '#f87171'}">${g.forecast_accuracy > 0 ? '+' : ''}${g.forecast_accuracy.toFixed(1)}%</div>
+            <div class="kpi-subtext">Error Absoluto Total: <strong>${fmtNum(g.error_abs_uds, 2)} u</strong></div>
+          </div>
         </div>
 
         <!-- CHARTS SECTION -->
@@ -794,24 +803,25 @@
         <!-- SUMMARY TABLE -->
         <div class="table-panel">
           <div class="panel-header">
-            <div class="panel-title">Desglose de Consecución y Desviación por Comercial</div>
+            <div class="panel-title">Desglose de Consecución, Exactitud y Desviación por Comercial</div>
             <span class="panel-badge">7 Comerciales Oficiales</span>
           </div>
 
           <div class="table-wrapper">
             <table>
               <colgroup>
-                <col style="width: 14%">
-                <col style="width: 7%">
-                <col style="width: 10%">
-                <col style="width: 10%">
+                <col style="width: 13%">
+                <col style="width: 6%">
                 <col style="width: 9%">
                 <col style="width: 9%">
-                <col style="width: 9%">
-                <col style="width: 9%">
+                <col style="width: 8.5%">
+                <col style="width: 8.5%">
                 <col style="width: 8%">
                 <col style="width: 8%">
-                <col style="width: 7%">
+                <col style="width: 8%">
+                <col style="width: 8.5%">
+                <col style="width: 7.5%">
+                <col style="width: 6%">
               </colgroup>
               <thead>
                 <tr>
@@ -823,7 +833,8 @@
                   <th class="text-right">Pendientes</th>
                   <th class="text-right">Falta</th>
                   <th class="text-right">Desv.</th>
-                  <th class="text-right">%</th>
+                  <th class="text-right">% Consec.</th>
+                  <th class="text-right" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Accuracy</th>
                   <th class="text-center">Estado</th>
                   <th class="text-center">Ver</th>
                 </tr>
@@ -835,6 +846,9 @@
         const pctBadge = r.pct_consec >= 100 ? 'badge-success' : (r.pct_consec >= 50 ? 'badge-warning' : 'badge-danger');
         const desvColor = r.desv_uds >= 0 ? '#34d399' : '#f87171';
         const desvPrefix = r.desv_uds > 0 ? '+' : '';
+        const accVal = r.forecast_accuracy;
+        const accColor = accVal >= 80 ? '#34d399' : (accVal >= 50 ? '#fbbf24' : (accVal >= 0 ? '#38bdf8' : '#f87171'));
+        const accSign = accVal > 0 ? '+' : '';
 
         html += `
           <tr>
@@ -854,6 +868,7 @@
                 <strong>${r.pct_consec.toFixed(1)}%</strong>
               </div>
             </td>
+            <td class="text-right"><strong style="color: ${accColor}">${accSign}${accVal.toFixed(1)}%</strong></td>
             <td class="text-center"><span class="tab-badge ${pctBadge}">${r.estado}</span></td>
             <td class="text-center">
               <button class="btn-table-action" onclick="switchTab('${r.comercial}')">Ver Detalle &rarr;</button>
@@ -861,6 +876,9 @@
           </tr>
         `;
       });
+
+      const gAcc = g.forecast_accuracy;
+      const gAccColor = gAcc >= 80 ? '#34d399' : (gAcc >= 0 ? '#38bdf8' : '#f87171');
 
       html += `
               </tbody>
@@ -875,6 +893,7 @@
                   <td class="text-right" style="color:#fbbf24">${fmtNum(g.gap_uds, 2)}</td>
                   <td class="text-right" style="color:#34d399">${(g.pedidos_uds - g.budget_uds >= 0 ? '+' : '')}${fmtNum(g.pedidos_uds - g.budget_uds, 2)}</td>
                   <td class="text-right" style="color:#34d399; font-size:1rem">${g.pct_consec.toFixed(1)}%</td>
+                  <td class="text-right" style="color:${gAccColor}; font-size:0.95rem; font-weight:800">${gAcc > 0 ? '+' : ''}${gAcc.toFixed(1)}%</td>
                   <td class="text-center"><span class="tab-badge badge-success">EN OBJETIVO</span></td>
                   <td></td>
                 </tr>
@@ -1117,6 +1136,15 @@
             <div class="kpi-value">${fmtNum(k.pendientes_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
             <div class="kpi-subtext">Servidas acumuladas: <strong style="color:#34d399">${fmtNum(k.servidas_uds, 2)} u</strong></div>
           </div>
+
+          <div class="kpi-card accent-blue">
+            <div class="kpi-header">
+              <span class="kpi-title">Forecast Accuracy</span>
+              <span class="tab-badge badge-neutral" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Fórmula Dirección</span>
+            </div>
+            <div class="kpi-value" style="color: ${k.forecast_accuracy >= 0 ? '#34d399' : '#f87171'}">${k.forecast_accuracy > 0 ? '+' : ''}${k.forecast_accuracy.toFixed(1)}%</div>
+            <div class="kpi-subtext">Error Absoluto: <strong>${fmtNum(k.error_abs_uds, 2)} u</strong></div>
+          </div>
         </div>
 
         <!-- TABLE SECTION -->
@@ -1142,18 +1170,24 @@
               <strong style="color: #f8fafc; font-size: 1.05rem; letter-spacing: -0.01em;">${subtotalLabel}</strong>
               <span style="color: var(--muted); font-size: 0.82rem;">(${filtered.length} partida${filtered.length > 1 ? 's' : ''})</span>
             </div>
-            <div style="display:flex; align-items:center; gap:1.35rem; font-size: 0.85rem; flex-wrap: wrap;">
+            <div style="display:flex; align-items:center; gap:1.2rem; font-size: 0.85rem; flex-wrap: wrap;">
               <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Estimación:</span> <strong style="color: #f8fafc; font-size: 0.95rem;">${fmtNum(subBudget, 2)} u</strong></div>
               <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Pedidos:</span> <strong style="color: #34d399; font-size: 0.95rem;">${fmtNum(subPedidos, 2)} u</strong></div>
               <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Servidas:</span> <strong style="color: #f8fafc; font-size: 0.95rem;">${fmtNum(subServidas, 2)} u</strong></div>
               <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Pendientes:</span> <strong style="color: ${subPendientes > 0 ? '#fbbf24' : 'var(--muted)'}; font-size: 0.95rem;">${fmtNum(subPendientes, 2)} u</strong></div>
               <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Falta:</span> <strong style="color: ${subGap > 0 ? '#fbbf24' : 'var(--muted)'}; font-size: 0.95rem;">${fmtNum(subGap, 2)} u</strong></div>
               <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Desv:</span> <strong style="color: ${subDesv >= 0 ? '#34d399' : '#f87171'}; font-size: 0.95rem;">${(subDesv >= 0 ? '+' : '')}${fmtNum(subDesv, 2)} u</strong></div>
-              <div style="display:flex; align-items:center; gap: 0.4rem;">
-                <span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">%:</span>
-                <strong style="color: #34d399; font-size: 1.05rem; font-weight: 800;">${subPct.toFixed(1)}%</strong>
-                <span class="tab-badge ${subBadge}" style="font-size: 0.68rem; padding: 0.15rem 0.45rem;">${subBadgeText}</span>
+              <div style="display:flex; align-items:center; gap: 0.35rem;">
+                <span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Consec:</span>
+                <strong style="color: #34d399; font-size: 1rem; font-weight: 800;">${subPct.toFixed(1)}%</strong>
               </div>
+              <div style="display:flex; align-items:center; gap: 0.35rem;">
+                <span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Accuracy:</span>
+                <strong style="color: ${subBudget > 0 && (1.0 - filtered.reduce((acc, l) => acc + (l.error_abs_uds || 0), 0)/subBudget) >= 0 ? '#34d399' : '#f87171'}; font-size: 1rem; font-weight: 800;">
+                  ${subBudget > 0 ? ((1.0 - filtered.reduce((acc, l) => acc + (l.error_abs_uds || 0), 0)/subBudget) * 100 > 0 ? '+' : '') + ((1.0 - filtered.reduce((acc, l) => acc + (l.error_abs_uds || 0), 0)/subBudget) * 100).toFixed(1) + '%' : '0.0%'}
+                </strong>
+              </div>
+              <span class="tab-badge ${subBadge}" style="font-size: 0.68rem; padding: 0.15rem 0.45rem;">${subBadgeText}</span>
             </div>
           </div>
           ` : ''}
@@ -1161,17 +1195,18 @@
           <div class="table-wrapper">
             <table>
               <colgroup>
-                <col style="width: 18%">
-                <col style="width: 7.5%">
-                <col style="width: 14.5%">
-                <col style="width: 7%">
-                <col style="width: 7%">
-                <col style="width: 6.5%">
-                <col style="width: 6.5%">
-                <col style="width: 6.5%">
-                <col style="width: 6.5%">
+                <col style="width: 16%">
                 <col style="width: 7%">
                 <col style="width: 13%">
+                <col style="width: 6.5%">
+                <col style="width: 6.5%">
+                <col style="width: 6%">
+                <col style="width: 6%">
+                <col style="width: 6%">
+                <col style="width: 6%">
+                <col style="width: 7%">
+                <col style="width: 7.5%">
+                <col style="width: 12.5%">
               </colgroup>
               <thead>
                 <tr>
@@ -1184,7 +1219,8 @@
                   <th class="text-right">Pendientes</th>
                   <th class="text-right">Falta</th>
                   <th class="text-right">Desv.</th>
-                  <th class="text-right">%</th>
+                  <th class="text-right">% Consec.</th>
+                  <th class="text-right" title="Forecast Accuracy: 1 - |Pedidos - Estimación| / Estimación">Accuracy</th>
                   <th class="text-center">Estado</th>
                 </tr>
               </thead>
@@ -1192,7 +1228,7 @@
       `;
 
       if (filtered.length === 0) {
-        html += `<tr><td colspan="11" style="text-align:center; padding: 2.5rem; color: var(--muted)">No se encontraron líneas que coincidan con la búsqueda/filtro.</td></tr>`;
+        html += `<tr><td colspan="12" style="text-align:center; padding: 2.5rem; color: var(--muted)">No se encontraron líneas que coincidan con la búsqueda/filtro.</td></tr>`;
       } else {
         filtered.forEach(l => {
           const isExtraLine = isExtra(l.estado);
@@ -1204,6 +1240,8 @@
 
           const desvCol = l.desv_uds >= 0 ? '#34d399' : '#f87171';
           const desvPref = l.desv_uds > 0 ? '+' : '';
+          const lAcc = l.forecast_accuracy;
+          const lAccColor = lAcc >= 80 ? '#34d399' : (lAcc >= 50 ? '#fbbf24' : (lAcc >= 0 ? '#38bdf8' : '#f87171'));
 
           html += `
             <tr>
@@ -1224,11 +1262,17 @@
                   <strong>${l.pct_consec.toFixed(1)}%</strong>
                 </div>
               </td>
+              <td class="text-right"><strong style="color:${lAccColor}">${lAcc > 0 ? '+' : ''}${lAcc.toFixed(1)}%</strong></td>
               <td class="text-center"><span class="tab-badge ${stBadge}">${estadoDisplay}</span></td>
             </tr>
           `;
         });
       }
+
+      const subFilteredError = filtered.reduce((acc, l) => acc + (l.error_abs_uds || 0), 0);
+      const subFilteredAcc = subBudget > 0 ? ((1.0 - subFilteredError / subBudget) * 100) : 0;
+      const cAcc = k.forecast_accuracy;
+      const cAccColor = cAcc >= 80 ? '#34d399' : (cAcc >= 0 ? '#38bdf8' : '#f87171');
 
       html += `
               </tbody>
@@ -1246,6 +1290,7 @@
                   <td class="text-right" style="color: ${subGap > 0 ? '#fbbf24' : 'var(--muted)'}; font-weight: 700;">${fmtNum(subGap, 2)}</td>
                   <td class="text-right" style="color: ${subDesv >= 0 ? '#34d399' : '#f87171'}; font-weight: 700;">${(subDesv >= 0 ? '+' : '')}${fmtNum(subDesv, 2)}</td>
                   <td class="text-right" style="color: #34d399; font-size: 1rem; font-weight: 800;">${subPct.toFixed(1)}%</td>
+                  <td class="text-right" style="color: ${subFilteredAcc >= 0 ? '#34d399' : '#f87171'}; font-size: 0.95rem; font-weight: 800;">${subFilteredAcc > 0 ? '+' : ''}${subFilteredAcc.toFixed(1)}%</td>
                   <td class="text-center"><span class="tab-badge ${subBadge}">${subBadgeText}</span></td>
                 </tr>
                 ` : ''}
@@ -1259,6 +1304,7 @@
                   <td class="text-right" style="color:#fbbf24">${fmtNum(k.gap_uds, 2)}</td>
                   <td class="text-right" style="color:${k.desv_uds >= 0 ? '#34d399' : '#f87171'}">${(k.desv_uds >= 0 ? '+' : '')}${fmtNum(k.desv_uds, 2)}</td>
                   <td class="text-right" style="color:#34d399; font-size:1rem">${k.pct_consec.toFixed(1)}%</td>
+                  <td class="text-right" style="color:${cAccColor}; font-size:0.95rem; font-weight:800">${cAcc > 0 ? '+' : ''}${cAcc.toFixed(1)}%</td>
                   <td class="text-center"><span class="tab-badge ${pctBadge}">${k.pct_consec >= 100 ? 'SUPERADO' : 'EN CURSO'}</span></td>
                 </tr>
               </tfoot>

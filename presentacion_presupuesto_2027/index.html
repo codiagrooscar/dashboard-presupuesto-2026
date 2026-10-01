@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Codiagro · Presentación Presupuesto Estratégico 2027</title>
+  <title>Codiagro · Presentación Interactiva Presupuesto 2027</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 </head>
 <body>
 
-  <!-- TOP NAVIGATION BAR -->
+  <!-- TOP BRAND NAVBAR -->
   <header class="navbar">
     <div class="nav-brand">
       <img src="codiagro_logo.png" alt="Codiagro" class="nav-logo" onerror="this.style.display='none'">
@@ -23,32 +23,52 @@
       </div>
     </div>
 
-    <!-- SLIDE NAVIGATION CONTROLS -->
+    <!-- CONTROLS -->
     <div class="nav-controls">
       <button class="btn-ctrl" id="btnPrev" onclick="navigateSlide(-1)">◀ Anterior</button>
-      <span class="slide-counter" id="slideCounter">1 / 10</span>
+      <span class="slide-counter" id="slideCounter">1 / 13</span>
       <button class="btn-ctrl btn-ctrl-accent" id="btnNext" onclick="navigateSlide(1)">Siguiente ▶</button>
 
       <select class="select-jump" id="selectSlide" onchange="goToSlide(parseInt(this.value))">
         <option value="1">1. Portada Estratégica</option>
         <option value="2">2. Resumen Ejecutivo (5 Pilares)</option>
-        <option value="3">3. Cuadro P&L (2026 FC vs 2027 B)</option>
-        <option value="4">4. Ventas por Comercial</option>
-        <option value="5">5. Margen Bruto y COGS</option>
-        <option value="6">6. Estructura Personal y OPEX</option>
-        <option value="7">7. Conciliación Departamental</option>
-        <option value="8">8. Validación Real (Cierre Sep-26)</option>
-        <option value="9">9. Simulador de Sensibilidad</option>
-        <option value="10">10. Conclusiones y Acuerdos</option>
+        <option value="3">3. Cuenta de Resultados P&L (Interactiva)</option>
+        <option value="4">4. Área 1: Ventas y Red Comercial</option>
+        <option value="5">5. Área 2: Compras y Aprovisionamientos</option>
+        <option value="6">6. Área 3: Transporte y Logística (Salvedad)</option>
+        <option value="7">7. Área 4: Marketing y Comunicación</option>
+        <option value="8">8. Área 5: Regulatory, Registros y Marcas</option>
+        <option value="9">9. Área 6: Mantenimiento y Fábrica</option>
+        <option value="10">10. Área 7: Personal y Formación (53k€)</option>
+        <option value="11">11. Validación Real: Cierre Sep-26</option>
+        <option value="12">12. Simulador Dinámico de Sensibilidad</option>
+        <option value="13">13. Conclusiones y Acuerdos</option>
       </select>
     </div>
 
     <!-- ACTIONS -->
     <div class="nav-actions">
       <button class="btn-action" onclick="toggleFullscreen()" title="Pantalla Completa (F)">⛶ Pantalla Completa</button>
-      <button class="btn-action" onclick="window.print()" title="Imprimir / Guardar en PDF">🖨️ Exportar PDF</button>
+      <button class="btn-action" onclick="window.print()" title="Imprimir / Exportar a PDF">🖨️ Exportar PDF</button>
     </div>
   </header>
+
+  <!-- SUBNAV AREA DIRECT LINKS BAR -->
+  <nav class="area-subnav">
+    <button class="area-tab active" data-slide="1" onclick="goToSlide(1)">🏠 Portada</button>
+    <button class="area-tab" data-slide="2" onclick="goToSlide(2)">⭐ Resumen 5 Pilares</button>
+    <button class="area-tab" data-slide="3" onclick="goToSlide(3)">📊 P&L General</button>
+    <button class="area-tab" data-slide="4" onclick="goToSlide(4)">💼 Ventas & Comercial</button>
+    <button class="area-tab" data-slide="5" onclick="goToSlide(5)">🛒 Compras (6,25 M€)</button>
+    <button class="area-tab" data-slide="6" onclick="goToSlide(6)">🚚 Transporte (Salvedad Export)</button>
+    <button class="area-tab" data-slide="7" onclick="goToSlide(7)">📢 Marketing (266 k€)</button>
+    <button class="area-tab" data-slide="8" onclick="goToSlide(8)">📋 Regulatory (234 k€)</button>
+    <button class="area-tab" data-slide="9" onclick="goToSlide(9)">🔧 Mantenimiento (91 k€)</button>
+    <button class="area-tab" data-slide="10" onclick="goToSlide(10)">👥 Personal & Formación</button>
+    <button class="area-tab" data-slide="11" onclick="goToSlide(11)">⏱️ Cierre Sep-26</button>
+    <button class="area-tab" data-slide="12" onclick="goToSlide(12)">🎛️ Simulador</button>
+    <button class="area-tab" data-slide="13" onclick="goToSlide(13)">⚖️ Acuerdos</button>
+  </nav>
 
   <!-- PRESENTATION MAIN STAGE -->
   <main class="presentation-container">
@@ -58,28 +78,28 @@
     <!-- ============================================== -->
     <section class="slide active" id="slide-1">
       <div class="hero-card">
-        <div class="hero-kicker">Codiagro Agroquímica S.L. · Plan Financiero y Comercial</div>
+        <div class="hero-kicker">Codiagro Agroquímica S.L. · Presentación Ejecutiva a Dirección</div>
         <h1 class="hero-title">PRESUPUESTO GENERAL 2027<br>& CIERRE FORECAST 2026</h1>
         <p class="hero-lead">
-          Plan Estratégico y Cuadro de Mando Integral: Cifra de Negocios de 17,74 M€ (+16,9%), EBITDA récord de 7,37 M€ (+14,7%), preservación del Margen Bruto al 63,9% y validación con el cierre real de Septiembre (129,8% de consecución).
+          Plan Estratégico Integral: Cifra Neta de Negocios de 17,74 M€ (+16,9%), EBITDA récord de 7,37 M€ (+14,7%), Margen Bruto del 63,9% y análisis detallado con criterios técnicos para cada una de las áreas funcionales de la compañía.
         </p>
 
         <div class="hero-stats">
-          <div>
+          <div class="card-clickable" onclick="goToSlide(4)">
             <div class="stat-val" style="color: #60a5fa;">17,74 M€</div>
             <div class="stat-lbl">Cifra Neta Negocios (+16,9%)</div>
           </div>
-          <div>
+          <div class="card-clickable" onclick="goToSlide(3)">
             <div class="stat-val" style="color: #34d399;">7,37 M€</div>
             <div class="stat-lbl">EBITDA Ajustado (41,5%)</div>
           </div>
-          <div>
+          <div class="card-clickable" onclick="goToSlide(5)">
             <div class="stat-val" style="color: #fbbf24;">11,33 M€</div>
             <div class="stat-lbl">Margen Bruto (63,9%)</div>
           </div>
-          <div>
+          <div class="card-clickable" onclick="goToSlide(11)">
             <div class="stat-val" style="color: #a78bfa;">129,8%</div>
-            <div class="stat-lbl">Consecución Sep-26 (236k uds)</div>
+            <div class="stat-lbl">Demanda Sep-26 (236k uds)</div>
           </div>
         </div>
       </div>
@@ -90,64 +110,66 @@
     <!-- ============================================== -->
     <section class="slide" id="slide-2">
       <div class="slide-header">
-        <div class="slide-tagline">Síntesis Estratégica</div>
-        <h2 class="slide-title">Los 5 Pilares del Presupuesto 2027</h2>
-        <p class="slide-subtitle">Fundamentos del plan sometido a revisión y ratificación de Dirección General.</p>
+        <div>
+          <div class="slide-tagline">Síntesis Estratégica</div>
+          <h2 class="slide-title">Los 5 Pilares del Presupuesto 2027</h2>
+          <p class="slide-subtitle">Pinche en cualquier tarjeta para profundizar directamente en el presupuesto del área correspondiente.</p>
+        </div>
       </div>
 
       <div class="grid-5">
-        <div class="card highlight-blue">
+        <div class="card highlight-blue card-clickable" onclick="goToSlide(4)">
           <div class="card-top">
-            <span class="card-kicker">1. Crecimiento Top-Line</span>
+            <span class="card-kicker">1. Ventas & Comercial</span>
           </div>
           <div class="card-number" style="color: #60a5fa;">17,74 M€</div>
           <span class="card-badge badge-blue">+16,9% (+2,56 M€)</span>
           <p class="card-text">
-            Impulsado por mayor volumen (+10,3% en unidades) y mejora del mix hacia formulaciones bioestimulantes de alto valor añadido.
+            Crecimiento en volumen (+10,3% uds) y consolidación del mix bioestimulante de alto margen unitario.
           </p>
         </div>
 
-        <div class="card highlight-green">
+        <div class="card highlight-green card-clickable" onclick="goToSlide(3)">
           <div class="card-top">
             <span class="card-kicker">2. EBITDA Récord</span>
           </div>
           <div class="card-number" style="color: #34d399;">7,37 M€</div>
           <span class="card-badge badge-green">41,5% Margen</span>
           <p class="card-text">
-            Beneficio operativo récord (+945 k€ vs 2026), blindando un margen operativo superior al 41,5% de ventas a pesar del contexto inflacionario y el refuerzo en formación.
+            Crecimiento de +945 k€ en EBITDA, absorbiendo costes inflacionarios e inversión récord en formación técnica.
           </p>
         </div>
 
-        <div class="card highlight-amber">
+        <div class="card highlight-amber card-clickable" onclick="goToSlide(5)">
           <div class="card-top">
             <span class="card-kicker">3. Margen Bruto Fuerte</span>
           </div>
           <div class="card-number" style="color: #fbbf24;">63,9%</div>
           <span class="card-badge badge-yellow">11,33 M€ Bruto</span>
           <p class="card-text">
-            Absorción íntegra de la inflación de materias primas químicas (+4,5%) gracias a economías de escala y contratos marco de aprovisionamiento.
+            Absorción íntegra de la inflación de materias primas (+4,5%) por economías de escala y contratos marco de aprovisionamiento.
           </p>
         </div>
 
-        <div class="card highlight-blue">
+        <div class="card highlight-blue card-clickable" onclick="goToSlide(10)">
           <div class="card-top">
-            <span class="card-kicker">4. Eficiencia Salarial</span>
+            <span class="card-kicker">4. Eficiencia OPEX</span>
           </div>
           <div class="card-number">12,6%</div>
           <span class="card-badge badge-blue">Personal/Ventas</span>
           <p class="card-text">
-            Masa salarial (2,23 M€) con refuerzo comercial y fabril, mejorando su productividad al reducir su peso s/ventas del 13,2% (2026) al 12,6%.
+            La masa salarial (2,23 M€) baja su peso s/ventas del 13,2% al 12,6%. Dotación de 53.215 € en formación técnica.
           </p>
         </div>
 
-        <div class="card highlight-green">
+        <div class="card highlight-green card-clickable" onclick="goToSlide(11)">
           <div class="card-top">
             <span class="card-kicker">5. Tracción Inmediata</span>
           </div>
           <div class="card-number" style="color: #34d399;">129,8%</div>
           <span class="card-badge badge-green">Cierre Sep-26</span>
           <p class="card-text">
-            Septiembre cierra con 236.105 unidades pedidas frente a 181.966 presupuestadas (+29,8%), certificando la aceptación de mercado de las nuevas tarifas.
+            Cierre real de Septiembre con 236.105 unidades (+29,8% sobre previsión), validando empíricamente la demanda.
           </p>
         </div>
       </div>
@@ -158,9 +180,17 @@
     <!-- ============================================== -->
     <section class="slide" id="slide-3">
       <div class="slide-header">
-        <div class="slide-tagline">Estados Financieros Previsionales</div>
-        <h2 class="slide-title">Cuenta de Resultados: Cierre 2026 Forecast vs Presupuesto 2027</h2>
-        <p class="slide-subtitle">Comparativa completa de magnitudes clave según criterios del PGC.</p>
+        <div>
+          <div class="slide-tagline">Estados Financieros Previsionales PGC</div>
+          <h2 class="slide-title">Cuenta de Resultados: Cierre 2026 Forecast vs Presupuesto 2027</h2>
+          <p class="slide-subtitle">Pinche en las líneas destacadas en azul para saltar al presupuesto detallado de cada área.</p>
+        </div>
+        <div class="slide-toolbar">
+          <button class="btn-pill-sm" onclick="goToSlide(4)">Ver Ventas</button>
+          <button class="btn-pill-sm" onclick="goToSlide(5)">Ver Compras</button>
+          <button class="btn-pill-sm" onclick="goToSlide(6)">Ver Transporte</button>
+          <button class="btn-pill-sm" onclick="goToSlide(10)">Ver Personal</button>
+        </div>
       </div>
 
       <div class="grid-2">
@@ -176,7 +206,7 @@
               </tr>
             </thead>
             <tbody>
-              <!-- Injected by app.js -->
+              <!-- Dynamic Rows with links -->
             </tbody>
           </table>
         </div>
@@ -191,13 +221,49 @@
     </section>
 
     <!-- ============================================== -->
-    <!-- SLIDE 4: VENTAS POR COMERCIAL -->
+    <!-- SLIDE 4: ÁREA 1 - VENTAS Y RED COMERCIAL -->
     <!-- ============================================== -->
     <section class="slide" id="slide-4">
       <div class="slide-header">
-        <div class="slide-tagline">Desempeño Comercial y Red de Ventas</div>
-        <h2 class="slide-title">Objetivos Comerciales 2027: Desglose por Gestor y Zona</h2>
-        <p class="slide-subtitle">Distribución del objetivo de 17,74 M€ entre los 7 gestores comerciales.</p>
+        <div>
+          <div class="slide-tagline">Área 1 · Dirección Comercial</div>
+          <h2 class="slide-title">Presupuesto de Ventas y Desempeño Comercial</h2>
+          <p class="slide-subtitle">Plan de 17,74 M€ (+16,9% en facturación, +10,3% en unidades) y dotación de gastos comerciales.</p>
+        </div>
+        <div class="slide-toolbar">
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-4', true)">Expandir Todo</button>
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-4', false)">Plegar Todo</button>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom: 1.25rem;">
+        <div class="card highlight-blue card-clickable" onclick="openDrilldownModal('comercial', 'García')">
+          <div class="card-kicker">García (Centro-Sur)</div>
+          <div class="card-number" style="color: #60a5fa;">6,72 M€</div>
+          <span class="card-badge badge-blue">37,9% Cuota · +14,9%</span>
+          <p class="card-text">Gastos comerciales asignados: 22.000 € anuales (2.000 €/m base).</p>
+        </div>
+
+        <div class="card highlight-green card-clickable" onclick="openDrilldownModal('comercial', 'Ricardo')">
+          <div class="card-kicker">Ricardo (Levante)</div>
+          <div class="card-number" style="color: #34d399;">4,40 M€</div>
+          <span class="card-badge badge-green">24,8% Cuota · +15,2%</span>
+          <p class="card-text">Gastos comerciales asignados: 22.000 € anuales (2.000 €/m base).</p>
+        </div>
+
+        <div class="card highlight-amber card-clickable" onclick="openDrilldownModal('comercial', 'Mehmet')">
+          <div class="card-kicker">Mehmet (Exportación)</div>
+          <div class="card-number" style="color: #fbbf24;">2,17 M€</div>
+          <span class="card-badge badge-yellow">12,2% Cuota · +18,6%</span>
+          <p class="card-text">Mayor aceleración relativa internacional (+13,8% en volumen de uds).</p>
+        </div>
+
+        <div class="card highlight-purple card-clickable" onclick="openDrilldownModal('comercial', 'Resto')">
+          <div class="card-kicker">Red Comercial Resto</div>
+          <div class="card-number" style="color: #a78bfa;">4,45 M€</div>
+          <span class="card-badge badge-blue">Pedro, Irene, Javier, Alfonso</span>
+          <p class="card-text">Gastos asignados: Javier (13,2k€), Irene (6,6k€), Pedro (6,6k€).</p>
+        </div>
       </div>
 
       <div class="grid-2">
@@ -205,181 +271,648 @@
           <table id="tableComerciales">
             <thead>
               <tr>
-                <th>Comercial</th>
+                <th>Comercial / Zona</th>
                 <th class="text-right">2026 (€)</th>
                 <th class="text-right">2027 (€)</th>
                 <th class="text-right">Var (€)</th>
-                <th class="text-right">Var (Uds)</th>
-                <th class="text-right">Cuota '27</th>
+                <th class="text-right">Gastos Red</th>
               </tr>
             </thead>
             <tbody>
-              <!-- Injected by app.js -->
+              <!-- Dynamic rows -->
             </tbody>
           </table>
         </div>
 
         <div class="card">
-          <div class="card-kicker" style="margin-bottom: 0.8rem;">Distribución de Cuota de Ventas 2027</div>
+          <div class="card-kicker" style="margin-bottom: 0.8rem;">Reparto de Cuota Comercial 2027</div>
           <div class="chart-container">
             <canvas id="chartComerciales"></canvas>
           </div>
         </div>
       </div>
+
+      <!-- ACCORDION CRITERIA -->
+      <div class="accordion-group">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>📌 Criterios Técnicos y Normas Aplicadas en Ventas y Gastos de Red</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>1. Sin sesgos de aplanamiento:</strong> El presupuesto de unidades respeta la previsión agronómica original (+5,2% en unidades originales sin factores reductores).<br>
+              <strong>2. Efecto Mix de Precios:</strong> El crecimiento en valor (+16,9%) supera al de unidades (+10,3%) por mayor tracción de bioestimulantes y especialidades formuladas.<br>
+              <strong>3. Regla Estacional de Gastos Comerciales:</strong> Cantidades mensuales exactas: Pere Porta, Ricardo Pérez y García a 2.000 €/m; Javier Paredes a 1.200 €/m; Irene y Pedro Medina a 600 €/m. <strong>Excepciones aplicadas:</strong> Agosto al 50%, Enero y Diciembre al 75% (equivalente a 11 meses exactos; coste total de red: 95.922 €).
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>🎯 Estrategia Comercial 2027: Mix de Bioestimulación y Foco de Exportación</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Mix de Alto Valor Añadido:</strong> Crecimiento focalizado en bioestimulantes y formulaciones de residuo cero con mayor margen unitario, superando el crecimiento en volumen físico (+16,9% valor vs +10,3% unidades).<br>
+              <strong>• Expansión Internacional:</strong> Liderada por Mehmet con incremento proyectado del +18,6% en facturación exterior (2,17 M€), consolidando cuota en Turquía, LATAM y Norte de África.<br>
+              <strong>• Concentración de Cuota:</strong> García (6,72 M€) y Ricardo (4,40 M€) representan conjuntamente el 62,7% de la cifra global de ventas.
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ============================================== -->
-    <!-- SLIDE 5: MARGEN BRUTO Y COGS -->
+    <!-- SLIDE 5: ÁREA 2 - COMPRAS Y APROVISIONAMIENTOS -->
     <!-- ============================================== -->
     <section class="slide" id="slide-5">
       <div class="slide-header">
-        <div class="slide-tagline">Costes Industriales y Aprovisionamientos</div>
-        <h2 class="slide-title">Estructura de COGS y Absorción de Costes Fabriles</h2>
-        <p class="slide-subtitle">Generación de 11,33 M€ de Gross Profit frente al impacto inflacionario en materias primas.</p>
+        <div>
+          <div class="slide-tagline">Área 2 · Dirección de Compras e Industrial</div>
+          <h2 class="slide-title">Presupuesto de Compras y Aprovisionamientos</h2>
+          <p class="slide-subtitle">Presupuesto departamental de 6,25 M€ (6,04 M€ en P&L tras regularización de stocks).</p>
+        </div>
+        <div class="slide-toolbar">
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-5', true)">Expandir Todo</button>
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-5', false)">Plegar Todo</button>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom: 1.25rem;">
+        <div class="card highlight-blue card-clickable" onclick="openDrilldownModal('compras', 'Materias Primas')">
+          <div class="card-kicker">Materias Primas Formuladas</div>
+          <div class="card-number" style="color: #60a5fa;">4,59 M€</div>
+          <span class="card-badge badge-blue">73,3% Compras · 25,85% s/vtas</span>
+          <p class="card-text">Hipótesis de inflación del +4,5% incluida para formulaciones químicas.</p>
+        </div>
+
+        <div class="card highlight-green card-clickable" onclick="openDrilldownModal('compras', 'Envases')">
+          <div class="card-kicker">Envases y Embalajes</div>
+          <div class="card-number" style="color: #34d399;">0,96 M€</div>
+          <span class="card-badge badge-green">15,3% Compras · 5,39% s/vtas</span>
+          <p class="card-text">Bidones, garrafas y contenedores IBC unificados.</p>
+        </div>
+
+        <div class="card highlight-amber card-clickable" onclick="openDrilldownModal('compras', 'Subcontratacion')">
+          <div class="card-kicker">Subcontratación Fabril</div>
+          <div class="card-number" style="color: #fbbf24;">0,55 M€</div>
+          <span class="card-badge badge-yellow">8,7% Compras</span>
+          <p class="card-text">Apoyo exterior en envasado para absorber picos en primavera.</p>
+        </div>
+
+        <div class="card highlight-purple card-clickable" onclick="openDrilldownModal('compras', 'Etiquetas')">
+          <div class="card-kicker">Etiquetas y Palets</div>
+          <div class="card-number" style="color: #a78bfa;">0,17 M€</div>
+          <span class="card-badge badge-blue">2,7% Compras</span>
+          <p class="card-text">Consumibles auxiliares y palets homologados exportación.</p>
+        </div>
       </div>
 
       <div class="grid-2">
-        <div class="grid-2" style="grid-column: span 1;">
-          <div class="card highlight-blue">
-            <div class="card-kicker">Materias Primas (601)</div>
-            <div class="card-number" style="color: #60a5fa;">4,59 M€</div>
-            <span class="card-badge badge-blue">25,85% de ventas</span>
-            <p class="card-text">Formulaciones químicas y bioactivos (+4,5% inflación asumida en 2027).</p>
-          </div>
-
-          <div class="card highlight-green">
-            <div class="card-kicker">Envases y Embalajes (602)</div>
-            <div class="card-number" style="color: #34d399;">0,96 M€</div>
-            <span class="card-badge badge-green">5,39% de ventas</span>
-            <p class="card-text">Unificación de compras de bidones, garrafas y contenedores IBC.</p>
-          </div>
-
-          <div class="card">
-            <div class="card-kicker">Etiquetas y Palets (602002/3)</div>
-            <div class="card-number">0,32 M€</div>
-            <span class="card-badge badge-blue">1,80% de ventas</span>
-            <p class="card-text">Suministros auxiliares y consumibles logísticos en fábrica.</p>
-          </div>
-
-          <div class="card highlight-amber">
-            <div class="card-kicker">Subcontratación Fabril (607)</div>
-            <div class="card-number">0,55 M€</div>
-            <span class="card-badge badge-yellow">3,08% de ventas</span>
-            <p class="card-text">Refuerzo para absorber picos de envasado estacional en primavera.</p>
+        <div class="card">
+          <div class="card-kicker" style="margin-bottom: 0.8rem;">Curva Mensual de Aprovisionamientos 2027 (€)</div>
+          <div class="chart-container">
+            <canvas id="chartComprasMensual"></canvas>
           </div>
         </div>
 
-        <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
-          <div class="card-kicker" style="margin-bottom: 0.8rem;">Composición del Coste de Ventas 2027</div>
+        <div class="card">
+          <div class="card-kicker" style="margin-bottom: 0.8rem;">Distribución de Coste de Aprovisionamientos</div>
           <div class="chart-container">
             <canvas id="chartCogs"></canvas>
           </div>
-          <div style="margin-top: 1rem; padding: 0.85rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3);">
-            <strong style="color: var(--accent);">Palanca de Rentabilidad:</strong> A pesar de la subida de costes unitarios, el Margen Bruto absoluto aumenta en <strong>+1,38 M€ (+13,9%)</strong> por el mayor volumen fabricado y vendido.
+        </div>
+      </div>
+
+      <!-- ACCORDION CRITERIA -->
+      <div class="accordion-group">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>📌 Criterios de Aprovisionamiento y Conciliación con Cuenta P&L</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Stock de Seguridad:</strong> Compras netas planificadas deduciendo el stock inicial disponible; la subpartida FILM incorpora las necesidades mensuales de FILMPR.<br>
+              <strong>• Conciliación PGC (+217 k€):</strong> El departamento presupuesta 6.254.129 € en compras mientras que la cuenta de resultados refleja un consumo de 6.036.996 €; la diferencia de 217.133 € corresponde al colchón de inventarios de seguridad para garantizar suministro continuo en campaña.<br>
+              <strong>• Contratos marco:</strong> Coberturas anticipadas en materias primas para blindar el primer semestre contra oscilaciones de mercado.
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>📦 Coberturas Financieras de Materias Primas y Acuerdos de Suministro</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Cláusulas de Cobertura en Formulación:</strong> Cierre de contratos marco anuales con proveedores clave de micronutrientes y quelatos para fijar precios en el primer semestre y amortiguar la inflación del +4,5%.<br>
+              <strong>• Unificación de Envases (956 k€):</strong> Licitación conjunta de garrafas de 5L/20L y bidones de 200L, reduciendo el coste unitario por palet.<br>
+              <strong>• Colchón de Existencias (217 k€):</strong> Mantenimiento de un stock de seguridad estratégico equivalente a 30 días de producción para prevenir roturas de suministro en campaña agrícola.
+            </p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ============================================== -->
-    <!-- SLIDE 6: PERSONAL Y OPEX -->
+    <!-- SLIDE 6: ÁREA 3 - TRANSPORTE Y LOGÍSTICA -->
     <!-- ============================================== -->
     <section class="slide" id="slide-6">
       <div class="slide-header">
-        <div class="slide-tagline">Estructura Operativa y Eficiencia</div>
-        <h2 class="slide-title">Gastos de Personal y OPEX de Estructura</h2>
-        <p class="slide-subtitle">Racionalización y mejora de productividad sobre la cifra de ingresos.</p>
+        <div>
+          <div class="slide-tagline">Área 3 · Logística y Distribución</div>
+          <h2 class="slide-title">Presupuesto de Transportes: Salvedad de Neutralidad</h2>
+          <p class="slide-subtitle">Gasto neto asumido por Codiagro de 245.670 € (Exportación de 305 k€ 100% repercutida).</p>
+        </div>
+        <div class="slide-toolbar">
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-6', true)">Expandir Todo</button>
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-6', false)">Plegar Todo</button>
+        </div>
       </div>
 
-      <div class="grid-3">
-        <div class="card highlight-blue">
-          <div class="card-kicker">Gastos de Personal</div>
-          <div class="card-number" style="color: #60a5fa;">2,23 M€</div>
-          <span class="card-badge badge-blue">12,56% s/ventas</span>
-          <p class="card-text" style="margin-top: 0.85rem;">
-            • Actualización de tablas según convenio de la industria química.<br>
-            • Refuerzo de asistencia agronómica técnica a distribuidores.<br>
-            • Nueva posición en envasado para absorber mayor cadencia fabril.<br>
-            • <strong>Eficiencia:</strong> El peso sobre ventas mejora del 13,2% al 12,6%.
-          </p>
+      <div class="grid-3" style="margin-bottom: 1.25rem;">
+        <div class="card highlight-blue card-clickable" onclick="openDrilldownModal('transporte', 'Nacional')">
+          <div class="card-kicker">Transporte Nacional (Península)</div>
+          <div class="card-number" style="color: #60a5fa;">166,47 k€</div>
+          <span class="card-badge badge-blue">Operador: Campillo Palmera</span>
+          <p class="card-text">Rutas optimizadas agrupadas con entregas en 24/48h.</p>
         </div>
 
-        <div class="card highlight-amber">
-          <div class="card-kicker">Otros Gastos Operativos (OPEX)</div>
-          <div class="card-number" style="color: #fbbf24;">2,04 M€</div>
-          <span class="card-badge badge-yellow">11,49% s/ventas</span>
-          <p class="card-text" style="margin-top: 0.85rem;">
-            • Formación no bonificada: 53.215 € (4.435 €/mes lineales).<br>
-            • Gastos comerciales: 92.400 € (Pere, Ricardo y García 2.000 €/m; Javier 1.200 €/m; Irene y Pedro 600 €/m; Ago 50%, Ene/Dic 75%).<br>
-            • Marketing y Ferias: 266 k€ | Regulatory: 234 k€ | Transporte neto: 246 k€.<br>
-            • Mantenimiento y consumibles fábrica: 91 k€.
-          </p>
+        <div class="card highlight-amber card-clickable" onclick="openDrilldownModal('transporte', 'Canarias')">
+          <div class="card-kicker">Transporte Insular (Canarias)</div>
+          <div class="card-number" style="color: #fbbf24;">79,20 k€</div>
+          <span class="card-badge badge-yellow">Operador: Sealine</span>
+          <p class="card-text">Fletes marítimos con salidas semanales programadas.</p>
         </div>
 
-        <div class="card highlight-green">
-          <div class="card-kicker">Salvedad Transporte Exportación</div>
-          <div class="card-number" style="color: #34d399;">305 k€</div>
-          <span class="card-badge badge-green">Impacto Neto Neutro</span>
-          <p class="card-text" style="margin-top: 0.85rem;">
-            • Los fletes marítimos/aéreos de exportación se facturan íntegramente al cliente (cta. 700001624).<br>
-            • Aparecen como 'Otros Ingresos' compensando exactamente el gasto logístico.<br>
-            • <strong>Efecto en EBITDA: 0,00 €</strong> (Garantía de transparencia PGC).
-          </p>
+        <div class="card highlight-green card-clickable" onclick="openDrilldownModal('transporte', 'Export')">
+          <div class="card-kicker">Salvedad Exportación Repercutida</div>
+          <div class="card-number" style="color: #34d399;">305,22 k€</div>
+          <span class="card-badge badge-green">Impacto EBITDA: 0,00 €</span>
+          <p class="card-text">Facturado íntegramente al cliente exterior en factura 700001624.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-kicker" style="margin-bottom: 0.8rem;">Calendario Mensual de Transporte: Gasto Asumido vs Repercutido (€)</div>
+        <div class="chart-container">
+          <canvas id="chartTransporte"></canvas>
+        </div>
+      </div>
+
+      <!-- ACCORDION CRITERIA -->
+      <div class="accordion-group">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>📌 Justificación Contable y Dictamen de Auditoría en Transportes</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Neutralidad de Fletes Internacionales:</strong> Los 305.223,30 € presupuestados para fletes marítimos/aéreos hacia mercados exteriores no constituyen coste neto para Codiagro; se cobran al importador en la misma factura de venta comercial. Por tanto, su efecto en EBITDA es nulo.<br>
+              <strong>• Techo de Gasto Operativo Real:</strong> El único gasto logístico operativo de Codiagro asciende a <strong>245.670,44 €</strong>.<br>
+              <strong>• Picos de distribución:</strong> Mayor intensidad en mayo (32,7 k€) y noviembre (26,3 k€) coincidiendo con tratamientos de pre-cosecha.
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>🚢 Convenios con Operadores Logísticos y Rutas Marítimas</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Campillo Palmera (Península, 166,5 k€):</strong> Envíos consolidados con entrega garantizada en 24/48 horas para distribución peninsular y Portugal.<br>
+              <strong>• Sealine (Canarias, 79,2 k€):</strong> Salidas marítimas semanales regulares desde puertos levantinos y andaluces con tarifas pactadas por contenedor paletizado.<br>
+              <strong>• Repercusión Comercial 100% Export (305,2 k€):</strong> Facturación directa al cliente en factura 700001624, garantizando que el coste de flete internacional no diluya el margen neto de la empresa.
+            </p>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ============================================== -->
-    <!-- SLIDE 7: CONCILIACIÓN DEPARTAMENTAL -->
+    <!-- SLIDE 7: ÁREA 4 - MARKETING Y COMUNICACIÓN -->
     <!-- ============================================== -->
     <section class="slide" id="slide-7">
       <div class="slide-header">
-        <div class="slide-tagline">Control Presupuestario y Auditoría</div>
-        <h2 class="slide-title">Conciliación de Departamentos vs Criterio Contable PGC</h2>
-        <p class="slide-subtitle">Alineación rigurosa de presupuestos funcionales con los estados contables anuales.</p>
+        <div>
+          <div class="slide-tagline">Área 4 · Marketing y Posicionamiento</div>
+          <h2 class="slide-title">Presupuesto de Marketing y Comunicación</h2>
+          <p class="slide-subtitle">Plan estratégico de 266.072 € enfocado en bioestimulación, ferias y apoyo a distribuidores.</p>
+        </div>
+        <div class="slide-toolbar">
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-7', true)">Expandir Todo</button>
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-7', false)">Plegar Todo</button>
+        </div>
       </div>
 
-      <div class="table-wrapper">
-        <table id="tableDeptos">
-          <thead>
-            <tr>
-              <th>Departamento / Área</th>
-              <th class="text-right">Presupuesto Depto (€)</th>
-              <th class="text-right">Previsión P&L Contable (€)</th>
-              <th class="text-right">Diferencia (€)</th>
-              <th>Justificación Técnica / Criterio PGC</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Injected by app.js -->
-          </tbody>
-        </table>
+      <div class="grid-4" style="margin-bottom: 1.25rem;">
+        <div class="card highlight-blue card-clickable" onclick="openDrilldownModal('marketing', 'Ferias y Congresos Internacionales')">
+          <div class="card-kicker">Ferias y Congresos</div>
+          <div class="card-number" style="color: #60a5fa;">78,5 k€</div>
+          <span class="card-badge badge-blue">Stand propio Fruit Attraction</span>
+          <p class="card-text">Presencia de marca de primer nivel y foros internacionales.</p>
+        </div>
+
+        <div class="card highlight-green card-clickable" onclick="openDrilldownModal('marketing', 'Campañas Comerciales Clientes A y B')">
+          <div class="card-kicker">Campañas Clientes A / B</div>
+          <div class="card-number" style="color: #34d399;">94,2 k€</div>
+          <span class="card-badge badge-green">Co-marketing y fidelización</span>
+          <p class="card-text">Incentivos y jornadas de campo conjuntas con distribución.</p>
+        </div>
+
+        <div class="card highlight-amber card-clickable" onclick="openDrilldownModal('marketing', 'Material Promocional y Catálogos Técnicos')">
+          <div class="card-kicker">Material Promocional y Guías</div>
+          <div class="card-number" style="color: #fbbf24;">48,4 k€</div>
+          <span class="card-badge badge-yellow">Catálogos Técnicos</span>
+          <p class="card-text">Publicaciones agronómicas, fichas de cultivo y merchandising.</p>
+        </div>
+
+        <div class="card highlight-purple card-clickable" onclick="openDrilldownModal('marketing', 'Publicidad Digital y Medios Sectoriales')">
+          <div class="card-kicker">Publicidad y Medios</div>
+          <div class="card-number" style="color: #a78bfa;">45,0 k€</div>
+          <span class="card-badge badge-blue">Prensa y Digital</span>
+          <p class="card-text">Campañas en revistas agrícolas y posicionamiento digital.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="table-wrapper">
+          <table id="tableMarketing">
+            <thead>
+              <tr>
+                <th>Cta Contable</th>
+                <th>Partida de Marketing</th>
+                <th class="text-right">Importe (€)</th>
+                <th class="text-right">% Cuota</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dynamic rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-kicker" style="margin-bottom: 0.8rem;">Reparto de Inversión en Marketing 2027</div>
+          <div class="chart-container">
+            <canvas id="chartMarketing"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCORDION CRITERIA -->
+      <div class="accordion-group">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>📌 Criterio de Reclasificación Contable y Centralización en Marketing</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Unificación de Partidas Dispersas:</strong> Históricamente parte de los costes de eventos, material comercial y promociones se imputaban en subcuentas varias de servicios generales (49,7 k€ en P&L previo).<br>
+              <strong>• Dirección de Marketing Centralizada:</strong> El presupuesto de 266.072 € consolida de forma transparente todas las partidas destinadas a construir marca y traccionar ventas para los 7 comerciales.<br>
+              <strong>• Estacionalidad de Ejecución:</strong> Foco de inversión en Q1 (lanzamientos de primavera) y Q3 (preparación y reserva de espacio en Fruit Attraction Madrid).
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>📢 Plan de Ferias (Fruit Attraction Madrid) y Co-Marketing Clientes A/B</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Fruit Attraction Madrid (65 k€):</strong> Stand corporativo propio de diseño en pabellón de nutrición vegetal, punto neurálgico para reuniones con importadores internacionales y grandes distribuidores nacionales.<br>
+              <strong>• Planes de Co-Marketing (94,2 k€):</strong> Financiación compartida de jornadas de campo, charlas formativas para agricultores y campañas en puntos de venta para distribuidores estratégicos.<br>
+              <strong>• Publicaciones Técnicas (48,4 k€):</strong> Guías agronómicas de abonado por cultivo, dosieres de bioestimulación y merchandising técnico para la red de ventas.
+            </p>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- ============================================== -->
-    <!-- SLIDE 8: VALIDACIÓN REAL (SEPTIEMBRE 2026) -->
+    <!-- SLIDE 8: ÁREA 5 - REGULATORY, REGISTROS Y MARCAS -->
     <!-- ============================================== -->
     <section class="slide" id="slide-8">
       <div class="slide-header">
-        <div class="slide-tagline">Tracción Operativa Inmediata</div>
-        <h2 class="slide-title">Validación Empírica: Cierre Real de Septiembre 2026</h2>
-        <p class="slide-subtitle">Datos consolidados a fecha de corte 01/10/2026 demuestran la solidez de la demanda.</p>
+        <div>
+          <div class="slide-tagline">Área 5 · Cumplimiento Normativo y Registros</div>
+          <h2 class="slide-title">Presupuesto de Regulatory: Marcas y Medio Ambiente</h2>
+          <p class="slide-subtitle">Presupuesto de 233.918 € con 16.300 € activables en Balance (Inmovilizado Intangible).</p>
+        </div>
+        <div class="slide-toolbar">
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-8', true)">Expandir Todo</button>
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-8', false)">Plegar Todo</button>
+        </div>
       </div>
 
-      <div class="grid-4" style="margin-bottom: 1.5rem;">
+      <div class="grid-3" style="margin-bottom: 1.25rem;">
+        <div class="card highlight-blue card-clickable" onclick="openDrilldownModal('regulatory', 'Retirada y Gestión de Residuos')">
+          <div class="card-kicker">Retirada y Gestión de Residuos</div>
+          <div class="card-number" style="color: #60a5fa;">34,0 k€</div>
+          <span class="card-badge badge-blue">Cta 629000007</span>
+          <p class="card-text">Gestores autorizados de residuos químicos peligrosos y no peligrosos.</p>
+        </div>
+
+        <div class="card highlight-green card-clickable" onclick="openDrilldownModal('regulatory', 'Registro Marcas UE / Int. Capitalizable')">
+          <div class="card-kicker">Marcas UE e Internacionales</div>
+          <div class="card-number" style="color: #34d399;">82,5 k€</div>
+          <span class="card-badge badge-green">16,3 k€ en Cta 203 (Balance)</span>
+          <p class="card-text">Protección de patentes, fórmulas exclusivas y marcas comunitarias.</p>
+        </div>
+
+        <div class="card highlight-amber card-clickable" onclick="openDrilldownModal('regulatory', 'Certificaciones Ecológicas (BCS ÖKO)')">
+          <div class="card-kicker">Certificaciones Eco y AEVAE</div>
+          <div class="card-number" style="color: #fbbf24;">26,6 k€</div>
+          <span class="card-badge badge-yellow">BCS ÖKO + Reciclaje</span>
+          <p class="card-text">Habilitación anual de la gama BIO y economía circular.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="table-wrapper">
+          <table id="tableRegulatory">
+            <thead>
+              <tr>
+                <th>Cta Contable</th>
+                <th>Concepto Normativo</th>
+                <th class="text-right">Importe (€)</th>
+                <th>Tratamiento PGC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dynamic rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-kicker" style="margin-bottom: 0.8rem;">Estructura de Gasto Regulatory 2027</div>
+          <div class="chart-container">
+            <canvas id="chartRegulatory"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCORDION CRITERIA -->
+      <div class="accordion-group">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>📌 Criterios PGC: Activación de Inmovilizado Intangible (Mejora de EBITDA)</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Cumplimiento NRV 5ª y 6ª del PGC:</strong> Los registros de nuevas marcas en la UE y países de exportación (como Codiorgan en Guatemala y Biorad en Europa) generan derechos legales de exclusividad de explotación comercial plurianual. Por tanto, <strong>16.300 €</strong> se capitalizan en la cuenta 203000000 (Inmovilizado Intangible), amortizándose linealmente a 10 años.<br>
+              <strong>• Impacto Contable Positivo:</strong> Esta activación libera gasto operativo corriente, mejorando directamente el EBITDA de la compañía en 16.300 €.<br>
+              <strong>• Gastos Corrientes Obligatorios:</strong> Se mantienen como gasto en el ejercicio las tasas anuales de AEVAE (11,4 k€), analíticas externas de laboratorio y las inspecciones de certificación ecológica BCS.
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>🌱 Normativa Medioambiental AEVAE, Certificaciones BCS ÖKO y Ensayos EBE</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Sistema Integrado AEVAE (11.380 €):</strong> Garantiza la recogida y valorización agronómica de envases de fertilizantes según el Real Decreto 1055/2022 de envases y residuos.<br>
+              <strong>• Certificación Ecológica BCS ÖKO (15.254 €):</strong> Permite comercializar los productos bioestimulantes bajo el sello europeo de agricultura ecológica.<br>
+              <strong>• Ensayos Oficiales EBE (90.784 €):</strong> Ensayos agronómicos de eficacia y fitotoxicidad con centros acreditados EBE para la obtención de registros fitosanitarios y fertilizantes CE.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 9: ÁREA 6 - MANTENIMIENTO Y SEGURIDAD FABRIL -->
+    <!-- ============================================== -->
+    <section class="slide" id="slide-9">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tagline">Área 6 · Operaciones y Seguridad Industrial</div>
+          <h2 class="slide-title">Presupuesto de Mantenimiento de Fábrica</h2>
+          <p class="slide-subtitle">Presupuesto de 91.234 € enfocado en disponibilidad de líneas y paradas programadas.</p>
+        </div>
+        <div class="slide-toolbar">
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-9', true)">Expandir Todo</button>
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-9', false)">Plegar Todo</button>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 1.25rem;">
+        <div class="card highlight-blue card-clickable" onclick="openDrilldownModal('mantenimiento', 'Línea Alcaplant (Reactores & Molienda)')">
+          <div class="card-kicker">Línea Alcaplant</div>
+          <div class="card-number" style="color: #60a5fa;">30,3 k€</div>
+          <span class="card-badge badge-blue">Reactores y Molienda</span>
+          <p class="card-text">Mantenimiento de reactores químicos y bombas de alta presión.</p>
+        </div>
+
+        <div class="card highlight-amber card-clickable" onclick="openDrilldownModal('mantenimiento', 'Línea de Envasado Sólidos y Polvos')">
+          <div class="card-kicker">Líneas Sólidos y Líquidos</div>
+          <div class="card-number" style="color: #fbbf24;">39,5 k€</div>
+          <span class="card-badge badge-yellow">Envasado Automático</span>
+          <p class="card-text">Calibración de dosificadoras y líneas de llenado de garrafas.</p>
+        </div>
+
+        <div class="card highlight-green card-clickable" onclick="openDrilldownModal('mantenimiento', 'Repuestos Críticos y Stock de Emergencia')">
+          <div class="card-kicker">Seguridad Industrial y Repuestos</div>
+          <div class="card-number" style="color: #34d399;">21,4 k€</div>
+          <span class="card-badge badge-green">Inspecciones Reglamentarias</span>
+          <p class="card-text">OCAS, sistemas contraincendios y stock de repuestos de emergencia.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="table-wrapper">
+          <table id="tableMantenimiento">
+            <thead>
+              <tr>
+                <th>Cta Contable</th>
+                <th>Línea Fabril / Instalación</th>
+                <th class="text-right">Importe (€)</th>
+                <th class="text-right">% Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dynamic rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-kicker" style="margin-bottom: 0.8rem;">Distribución de Mantenimiento por Instalación</div>
+          <div class="chart-container">
+            <canvas id="chartMantenimiento"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCORDION CRITERIA -->
+      <div class="accordion-group">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>📌 Calendario de Paradas Técnicas y Conciliación PGC</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Paradas Técnicas Programadas:</strong> Concentradas en enero y agosto para no interrumpir el servicio durante el pico de campaña (marzo a junio).<br>
+              <strong>• Capitalización Material (9.410 €):</strong> Mejoras que prolongan la vida útil de los reactores se activan en la cuenta 213 (Maquinaria e Instalaciones Técnicas), amortizándose a 8 años.<br>
+              <strong>• Conciliación Contable:</strong> En la previsión P&L global la cuenta 622 absorbe revisiones de talleres autorizados y mantenimiento general de naves.
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>🔧 Plan de Mantenimiento Predictivo y Stock de Repuestos de Emergencia</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Mantenimiento Predictivo de Reactores:</strong> Análisis termográfico y de vibraciones en bombas lobulares y agitadores Alcaplant para anticipar fatigas mecánicas.<br>
+              <strong>• Stock Crítico de Emergencia (15,4 k€):</strong> Almacén de repuestos estratégicos (electroválvulas Festo, presostatos, retenes de teflón y dosificadores) para resolver cualquier paro en menos de 2 horas en plena campaña.<br>
+              <strong>• Cumplimiento OCA y Seguridad:</strong> Revisiones anuales obligatorias de aparatos a presión, recipientes criogénicos e instalaciones contraincendios.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 10: ÁREA 7 - PERSONAL, FORMACIÓN Y RED -->
+    <!-- ============================================== -->
+    <section class="slide" id="slide-10">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tagline">Área 7 · Recursos Humanos y Estructura</div>
+          <h2 class="slide-title">Presupuesto de Personal, Formación y Gastos de Red</h2>
+          <p class="slide-subtitle">Masa salarial de 2,23 M€, Formación de 53.215 € (4.435 €/m) y Gastos comerciales con estacionalidad.</p>
+        </div>
+        <div class="slide-toolbar">
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-10', true)">Expandir Todo</button>
+          <button class="btn-pill-sm" onclick="toggleAllAccordions('slide-10', false)">Plegar Todo</button>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 1.25rem;">
+        <div class="card highlight-blue card-clickable" onclick="openDrilldownModal('personal', 'Masa Salarial')">
+          <div class="card-kicker">Masa Salarial y Cargas (640 / 642)</div>
+          <div class="card-number" style="color: #60a5fa;">2,23 M€</div>
+          <span class="card-badge badge-blue">12,56% s/ventas (Mejora)</span>
+          <p class="card-text">Sueldos brutos (1,72 M€) + Seguridad Social patronal (0,51 M€).</p>
+        </div>
+
+        <div class="card highlight-green card-clickable" onclick="openDrilldownModal('personal', 'Formacion')">
+          <div class="card-kicker">Formación no Bonificada (629000013)</div>
+          <div class="card-number" style="color: #34d399;">53.215 €</div>
+          <span class="card-badge badge-green">4.434,58 € / mes</span>
+          <p class="card-text">Reparto mensual exacto de 4.434,58 € (Dic 4.434,62 €) para planes técnicos.</p>
+        </div>
+
+        <div class="card highlight-amber card-clickable" onclick="openDrilldownModal('personal', 'Gastos Red')">
+          <div class="card-kicker">Gastos Comerciales de Red (62910)</div>
+          <div class="card-number" style="color: #fbbf24;">95.922 €</div>
+          <span class="card-badge badge-yellow">Estacionalidad Mensual</span>
+          <p class="card-text">Pere, Ricardo y García (2.000€); Javier (1.200€); Irene y Pedro (600€). Ago 50%, Ene/Dic 75%.</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="table-wrapper">
+          <table id="tablePersonal">
+            <thead>
+              <tr>
+                <th>Cta Contable</th>
+                <th>Partida de RRHH / Red</th>
+                <th class="text-right">Importe Anual</th>
+                <th>Detalle Operativo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dynamic rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-kicker" style="margin-bottom: 0.8rem;">Calendario Mensual: Formación y Gastos Comerciales (€)</div>
+          <div class="chart-container">
+            <canvas id="chartPersonal"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCORDION CRITERIA -->
+      <div class="accordion-group">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>📌 Detalle de Criterios Aplicados en Recursos Humanos y Red de Ventas</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Productividad Salarial:</strong> El ratio sobre facturación mejora del 13,2% al 12,6%, demostrando apalancamiento operativo al absorber mayor volumen con un crecimiento salarial contenido (+11,1%).<br>
+              <strong>• Cuenta 629000013 (Formación No Bonificada):</strong> Saldo anual cerrado en <strong>53.215,00 €</strong> repartido linealmente para programas de cualificación agronómica, fitotécnica y seguridad de planta.<br>
+              <strong>• Gastos de Comerciales:</strong> Regla estacional aplicada con total rigor: Agosto al 50% por periodo vacacional, y Enero/Diciembre al 75% por menor intensidad de viajes. Genera un ahorro neto de 3.078 € frente al borrador anterior.
+            </p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span>🚗 Matriz Detallada de Gastos Comerciales por Delegado y Reglas de Estacionalidad</span>
+            <span class="accordion-icon">▶</span>
+          </div>
+          <div class="accordion-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">
+              <strong>• Delegados Senior (2.000 €/m base):</strong> Pere Porta, Ricardo Pérez y García reciben 2.000 €/mes en los meses estándar (Feb a Jul, Sep a Nov), 1.000 € en Agosto (50%) y 1.500 € en Enero y Diciembre (75%), totalizando 22.000 € anuales cada uno.<br>
+              <strong>• Delegado Técnico Leñosos (1.200 €/m base):</strong> Javier Paredes recibe 1.200 €/mes estándar, 600 € en Agosto, y 900 € en Enero/Diciembre, totalizando 13.200 € anuales.<br>
+              <strong>• Delegados de Zona (600 €/m base):</strong> Irene y Pedro Medina reciben 600 €/mes estándar, 300 € en Agosto, y 450 € en Enero/Diciembre, totalizando 6.600 € anuales cada uno.<br>
+              <strong>• Comerciales con Convenio Específico:</strong> Andreu (2.429,28 € anuales) y Curro (1.092,60 € anuales) conservan sus condiciones históricas.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SLIDE 11: VALIDACIÓN REAL (SEPTIEMBRE 2026) -->
+    <!-- ============================================== -->
+    <section class="slide" id="slide-11">
+      <div class="slide-header">
+        <div>
+          <div class="slide-tagline">Evidencia Empírica Inmediata</div>
+          <h2 class="slide-title">Validación con el Cierre Real de Septiembre 2026</h2>
+          <p class="slide-subtitle">Corte definitivo a 01/10/2026 certifica la fortaleza de la cartera de pedidos.</p>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-bottom: 1.25rem;">
         <div class="card">
           <div class="card-kicker">Presupuesto Objetivo</div>
           <div class="card-number">181.966</div>
           <span class="card-badge badge-blue">Unidades Objetivo</span>
-          <p class="card-text">Previsión original calculada sin sesgos.</p>
+          <p class="card-text">Previsión sin factores reductores.</p>
         </div>
 
         <div class="card highlight-green">
-          <div class="card-kicker">Pedidos Totales</div>
+          <div class="card-kicker">Pedidos Registrados</div>
           <div class="card-number" style="color: #34d399;">236.105</div>
           <span class="card-badge badge-green">+129,8% Consecución</span>
-          <p class="card-text">+54.139 uds sobre el objetivo mensual.</p>
+          <p class="card-text">+54.139 unidades sobre objetivo.</p>
         </div>
 
         <div class="card highlight-blue">
@@ -406,13 +939,15 @@
     </section>
 
     <!-- ============================================== -->
-    <!-- SLIDE 9: SIMULADOR DE SENSIBILIDAD -->
+    <!-- SLIDE 12: SIMULADOR DE SENSIBILIDAD -->
     <!-- ============================================== -->
-    <section class="slide" id="slide-9">
+    <section class="slide" id="slide-12">
       <div class="slide-header">
-        <div class="slide-tagline">Gestión de Riesgos y Escenarios</div>
-        <h2 class="slide-title">Simulador de Sensibilidad en Tiempo Real</h2>
-        <p class="slide-subtitle">Ajuste la variación de ingresos para observar el impacto dinámico en EBITDA y margen.</p>
+        <div>
+          <div class="slide-tagline">Gestión de Riesgos y Modelización</div>
+          <h2 class="slide-title">Simulador Dinámico de Sensibilidad en Tiempo Real</h2>
+          <p class="slide-subtitle">Mueva el control deslizante para simular desviaciones en ventas y verificar la resistencia del EBITDA.</p>
+        </div>
       </div>
 
       <div class="sim-box">
@@ -427,7 +962,7 @@
         <input type="range" min="-15" max="15" step="1" value="0" id="simSlider" class="sim-slider" oninput="updateScenarioSim(this.value)">
       </div>
 
-      <div class="grid-3" style="margin-top: 1.5rem;">
+      <div class="grid-3" style="margin-top: 1.25rem;">
         <div class="card highlight-blue">
           <div class="card-kicker">Cifra Neta de Ventas</div>
           <div class="card-number" id="simVentas" style="color: #60a5fa;">17,74 M€</div>
@@ -452,13 +987,15 @@
     </section>
 
     <!-- ============================================== -->
-    <!-- SLIDE 10: CONCLUSIONES Y ACUERDOS -->
+    <!-- SLIDE 13: CONCLUSIONES Y ACUERDOS -->
     <!-- ============================================== -->
-    <section class="slide" id="slide-10">
+    <section class="slide" id="slide-13">
       <div class="slide-header">
-        <div class="slide-tagline">Gobernanza y Aprobación</div>
-        <h2 class="slide-title">Decisiones Solicitadas a Dirección General</h2>
-        <p class="slide-subtitle">Acuerdos clave requeridos para la ejecución oficial del ejercicio 2027.</p>
+        <div>
+          <div class="slide-tagline">Gobernanza y Aprobación</div>
+          <h2 class="slide-title">Decisiones Solicitadas a Dirección General</h2>
+          <p class="slide-subtitle">Acuerdos clave requeridos para la ejecución oficial del ejercicio 2027.</p>
+        </div>
       </div>
 
       <div class="grid-3">
@@ -468,7 +1005,7 @@
           <p class="card-text">
             • Aprobación de la meta de <strong>17,74 M€</strong> de Cifra Neta de Negocios.<br><br>
             • Ratificación del objetivo de <strong>7,37 M€</strong> de EBITDA Ajustado (41,5%).<br><br>
-            • Fijación del techo de gasto en compras de materias primas en <strong>6,41 M€</strong>.
+            • Fijación del techo de gasto en compras de materias primas en <strong>6,25 M€</strong>.
           </p>
         </div>
 
@@ -476,9 +1013,9 @@
           <div class="card-kicker" style="color: var(--primary);">2. Recursos y Estructura</div>
           <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0.5rem 0;">Validación de Partidas</h3>
           <p class="card-text">
-            • Autorización del presupuesto de personal de <strong>2,23 M€</strong> con refuerzo técnico.<br><br>
-            • Dotación de <strong>266 k€</strong> para Marketing, ferias y fidelización.<br><br>
-            • Validación de <strong>234 k€</strong> para Regulatory y registros internacionales.
+            • Autorización de la masa salarial de <strong>2,23 M€</strong> con refuerzo técnico.<br><br>
+            • Dotación de <strong>53.215 €</strong> para Formación no bonificada.<br><br>
+            • Validación de <strong>266 k€</strong> en Marketing y <strong>234 k€</strong> en Regulatory.
           </p>
         </div>
 
@@ -488,7 +1025,7 @@
           <p class="card-text">
             • Implantación del sistema automatizado de seguimiento diario.<br><br>
             • Revisiones trimestrales con el equipo comercial (Rolling Forecast).<br><br>
-            • Mantenimiento del criterio neutro de transporte exterior repercutido.
+            • Mantenimiento del criterio neutro de transporte exterior repercutido (305 k€).
           </p>
         </div>
       </div>
@@ -502,13 +1039,23 @@
 
   </main>
 
+  <!-- INTERACTIVE MODAL / DRAWER FOR DRILLDOWN -->
+  <div class="modal-overlay" id="drilldownModal" onclick="closeDrilldownModal(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeDrilldownModal()">✕</button>
+      <div id="modalContent">
+        <!-- Dynamically injected -->
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <footer class="deck-footer">
     <div>
-      Codiagro Agroquímica S.L. · Documento Confidencial para Dirección General · Presupuesto 2027
+      Codiagro Agroquímica S.L. · Presentación Interactiva Presupuesto 2027 · Documento Confidencial
     </div>
     <div>
-      Navegación: <kbd>◀</kbd> <kbd>▶</kbd> <kbd>Espacio</kbd> | Pantalla Completa: <kbd>F</kbd>
+      Navegación: <kbd>◀</kbd> <kbd>▶</kbd> <kbd>Espacio</kbd> | Pantalla Completa: <kbd>F</kbd> | Desplegar: Clic en tarjetas
     </div>
   </footer>
 

@@ -101,19 +101,6 @@ def build_dataset():
         desv_tot = float(p_tot - b_tot)
         pct_tot = float((p_tot / b_tot * 100) if b_tot > 0 else (100.0 if p_tot > 0 else 0.0))
 
-        summary_list.append({
-            'comercial': c,
-            'clientes_activos': cli_cnt,
-            'budget_uds': b_tot,
-            'pedidos_uds': p_tot,
-            'servidas_uds': s_tot,
-            'pendientes_uds': pend_tot,
-            'gap_uds': gap_tot,
-            'desv_uds': desv_tot,
-            'pct_consec': pct_tot,
-            'importe_neto': imp_tot,
-            'estado': 'Superado' if pct_tot >= 100 else ('En Curso' if pct_tot >= 50 else 'Rezagado')
-        })
 
         # Detalle de líneas
         keys_set = set()
@@ -148,6 +135,10 @@ def build_dataset():
             gap_u = float(max(0.0, b_u - p_u))
             desv_u = float(p_u - b_u)
             pct_u = float((p_u / b_u * 100) if b_u > 0 else (100.0 if p_u > 0 else 0.0))
+            
+            # Fórmula oficial Forecast Accuracy: 1 - |(Ventas + Pendientes) - Estimación| / Estimación
+            err_abs_u = float(abs(p_u - b_u))
+            acc_u = float((1.0 - err_abs_u / b_u) * 100 if b_u > 0 else (100.0 if p_u == 0 else 0.0))
 
             if b_u == 0 and p_u > 0:
                 est = "Extra Estimación"
@@ -170,10 +161,33 @@ def build_dataset():
                 'pendientes_uds': pend_u,
                 'gap_uds': gap_u,
                 'desv_uds': desv_u,
+                'error_abs_uds': err_abs_u,
                 'pct_consec': pct_u,
+                'forecast_accuracy': acc_u,
                 'importe_neto': imp,
                 'estado': est
             })
+
+        # Totales comercial con la fórmula oficial del jefe:
+        # Forecast Accuracy = 1 - SUM(|Ventas + Pedidos Pendientes - Estimación|) / SUM(Estimación)
+        com_err_tot = float(sum(l['error_abs_uds'] for l in lines))
+        com_acc_tot = float((1.0 - com_err_tot / b_tot) * 100 if b_tot > 0 else 0.0)
+
+        summary_list.append({
+            'comercial': c,
+            'clientes_activos': cli_cnt,
+            'budget_uds': b_tot,
+            'pedidos_uds': p_tot,
+            'servidas_uds': s_tot,
+            'pendientes_uds': pend_tot,
+            'gap_uds': gap_tot,
+            'desv_uds': desv_tot,
+            'error_abs_uds': com_err_tot,
+            'pct_consec': pct_tot,
+            'forecast_accuracy': com_acc_tot,
+            'importe_neto': imp_tot,
+            'estado': 'Superado' if pct_tot >= 100 else ('En Curso' if pct_tot >= 50 else 'Rezagado')
+        })
 
         comerciales_data[c] = {
             'comercial': c,
@@ -184,7 +198,9 @@ def build_dataset():
                 'pendientes_uds': pend_tot,
                 'gap_uds': gap_tot,
                 'desv_uds': desv_tot,
+                'error_abs_uds': com_err_tot,
                 'pct_consec': pct_tot,
+                'forecast_accuracy': com_acc_tot,
                 'importe_neto': imp_tot
             },
             'lineas': lines
@@ -200,13 +216,21 @@ def build_dataset():
     else:
         fecha_corte = datetime.now().strftime('%d/%m/%Y')
 
+    tot_budget_all = float(df_bud['Sep-26 (u)'].sum())
+    tot_pedidos_all = float(df_ped['Pedidas'].sum())
+    tot_error_all = float(sum(item['error_abs_uds'] for item in summary_list))
+    global_accuracy = float((1.0 - tot_error_all / tot_budget_all) * 100 if tot_budget_all > 0 else 0.0)
+
     global_kpis = {
-        'budget_uds': float(df_bud['Sep-26 (u)'].sum()),
-        'pedidos_uds': float(df_ped['Pedidas'].sum()),
+        'budget_uds': tot_budget_all,
+        'pedidos_uds': tot_pedidos_all,
         'servidas_uds': float(df_ped['Servidas'].sum()),
         'pendientes_uds': float(df_ped['Pendientes'].sum()),
         'gap_uds': float(sum(item['gap_uds'] for item in summary_list)),
-        'pct_consec': float((df_ped['Pedidas'].sum() / df_bud['Sep-26 (u)'].sum() * 100)),
+        'desv_uds': float(tot_pedidos_all - tot_budget_all),
+        'error_abs_uds': tot_error_all,
+        'pct_consec': float((tot_pedidos_all / tot_budget_all * 100) if tot_budget_all > 0 else 0.0),
+        'forecast_accuracy': global_accuracy,
         'importe_neto': float(df_ped['ImporteNeto'].sum()),
         'fecha_corte': fecha_corte,
         'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M')

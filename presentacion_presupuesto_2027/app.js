@@ -798,17 +798,17 @@ function renderCharts(slideNum) {
       chartInstances['sep'] = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Alfonso', 'Javier', 'García', 'Ricardo', 'Irene', 'Mehmet', 'Pedro'],
+          labels: ['Alfonso', 'García', 'Irene', 'Javier', 'Mehmet', 'Pedro', 'Ricardo'],
           datasets: [
             {
               label: 'Previsión Sep (Uds)',
-              data: [4402, 7258, 19782, 116310, 5267, 20387, 8560],
+              data: [2320, 37832, 21914, 17100, 39460, 17340, 46000],
               backgroundColor: 'rgba(100, 116, 139, 0.75)',
               borderRadius: 4
             },
             {
               label: 'Pedidos Reales Sep (Uds)',
-              data: [22530, 19385, 29398, 142100, 5690, 16902, 0],
+              data: [11874, 57312, 23674, 47049, 32728, 8560, 54908],
               backgroundColor: 'rgba(16, 185, 129, 0.9)',
               borderRadius: 4
             }
@@ -817,10 +817,25 @@ function renderCharts(slideNum) {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#cbd5e1' } } },
+          plugins: { 
+            legend: { labels: { color: '#cbd5e1' } },
+            tooltip: {
+              callbacks: {
+                label: function(c) {
+                  return c.dataset.label + ': ' + Number(c.raw).toLocaleString('es-ES') + ' u';
+                }
+              }
+            }
+          },
           scales: {
             x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(51,65,85,0.3)' } },
-            y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(51,65,85,0.3)' } }
+            y: { 
+              ticks: { 
+                color: '#94a3b8',
+                callback: function(v) { return Number(v).toLocaleString('es-ES') + ' u'; }
+              }, 
+              grid: { color: 'rgba(51,65,85,0.3)' } 
+            }
           }
         }
       });

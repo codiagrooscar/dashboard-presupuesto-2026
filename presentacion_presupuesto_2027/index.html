@@ -930,10 +930,31 @@
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-kicker" style="margin-bottom: 0.8rem;">Cumplimiento por Comercial en Septiembre (Uds Pedidas vs Previsión)</div>
-        <div class="chart-container">
-          <canvas id="chartSep"></canvas>
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem;">
+        <div class="card">
+          <div class="card-kicker" style="margin-bottom: 0.8rem;">Cumplimiento por Comercial en Septiembre (Uds Pedidas vs Previsión)</div>
+          <div class="chart-container">
+            <canvas id="chartSep"></canvas>
+          </div>
+        </div>
+
+        <div class="card highlight-blue" style="display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div class="card-kicker">Fórmula Oficial de Dirección</div>
+            <div style="font-family:'Outfit',sans-serif; font-size:1.15rem; font-weight:700; color:#f8fafc; margin-top:0.4rem; margin-bottom:0.6rem;">
+              Forecast Accuracy
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; padding: 0.75rem 1rem; font-family: monospace; font-size: 0.82rem; color: #93c5fd; margin-bottom: 0.8rem; line-height: 1.5;">
+              1 - [ &sum; |Ventas + Pendientes - Estimación| ] / [ &sum; Estimación ]
+            </div>
+            <p class="card-text" style="font-size:0.82rem; line-height:1.45; color: #cbd5e1;">
+              Auditoría granular línea a línea: evalúa la desviación real de cada producto sin que los excesos de un cliente enmascaren la falta de pedidos en otro.
+            </p>
+          </div>
+          <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.78rem; color:var(--muted); text-transform:uppercase;">Error Absoluto Acumulado:</span>
+            <strong style="color:#f8fafc; font-size:0.95rem;">288.275 u</strong>
+          </div>
         </div>
       </div>
     </section>

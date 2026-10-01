@@ -5,10 +5,13 @@
     "servidas_uds": 200331.0,
     "pendientes_uds": 35774.0,
     "gap_uds": 15512.0,
+    "desv_uds": 54139.0,
+    "error_abs_uds": 288275.0,
     "pct_consec": 129.75226141147246,
+    "forecast_accuracy": -58.42245254608003,
     "importe_neto": 735161.03,
     "fecha_corte": "01/10/2026",
-    "fecha_generacion": "01/10/2026 07:26"
+    "fecha_generacion": "01/10/2026 10:43"
   },
   "resumen_comerciales": [
     {
@@ -20,7 +23,9 @@
       "pendientes_uds": 0.0,
       "gap_uds": 0.0,
       "desv_uds": 9554.0,
+      "error_abs_uds": 9714.0,
       "pct_consec": 511.8103448275862,
+      "forecast_accuracy": -318.7068965517241,
       "importe_neto": 33059.2,
       "estado": "Superado"
     },
@@ -33,7 +38,9 @@
       "pendientes_uds": 0.0,
       "gap_uds": 0.0,
       "desv_uds": 19480.0,
+      "error_abs_uds": 42040.0,
       "pct_consec": 151.49080143793614,
+      "forecast_accuracy": -11.122858955381698,
       "importe_neto": 232360.59999999998,
       "estado": "Superado"
     },
@@ -46,7 +53,9 @@
       "pendientes_uds": 0.0,
       "gap_uds": 0.0,
       "desv_uds": 1760.0,
+      "error_abs_uds": 29456.0,
       "pct_consec": 108.0313954549603,
+      "forecast_accuracy": -34.41635484165373,
       "importe_neto": 86319.13,
       "estado": "Superado"
     },
@@ -59,7 +68,9 @@
       "pendientes_uds": 4530.0,
       "gap_uds": 0.0,
       "desv_uds": 29949.0,
+      "error_abs_uds": 32509.0,
       "pct_consec": 275.140350877193,
+      "forecast_accuracy": -90.11111111111111,
       "importe_neto": 123400.8,
       "estado": "Superado"
     },
@@ -72,7 +83,9 @@
       "pendientes_uds": 21060.0,
       "gap_uds": 6732.0,
       "desv_uds": -6732.0,
+      "error_abs_uds": 57268.0,
       "pct_consec": 82.93968575772934,
+      "forecast_accuracy": -45.129244804865685,
       "importe_neto": 82474.0,
       "estado": "En Curso"
     },
@@ -85,7 +98,9 @@
       "pendientes_uds": 0.0,
       "gap_uds": 8780.0,
       "desv_uds": -8780.0,
+      "error_abs_uds": 16380.0,
       "pct_consec": 49.36562860438293,
+      "forecast_accuracy": 5.536332179930792,
       "importe_neto": 23770.399999999998,
       "estado": "Rezagado"
     },
@@ -98,7 +113,9 @@
       "pendientes_uds": 10184.0,
       "gap_uds": 0.0,
       "desv_uds": 8908.0,
+      "error_abs_uds": 100908.0,
       "pct_consec": 119.36521739130434,
+      "forecast_accuracy": -119.36521739130437,
       "importe_neto": 153776.90000000002,
       "estado": "Superado"
     }
@@ -113,7 +130,9 @@
         "pendientes_uds": 0.0,
         "gap_uds": 0.0,
         "desv_uds": 9554.0,
+        "error_abs_uds": 9714.0,
         "pct_consec": 511.8103448275862,
+        "forecast_accuracy": -318.7068965517241,
         "importe_neto": 33059.2
       },
       "lineas": [
@@ -127,7 +146,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 320.0,
+          "error_abs_uds": 320.0,
           "pct_consec": 133.33333333333331,
+          "forecast_accuracy": 66.66666666666667,
           "importe_neto": 3033.6,
           "estado": "Superado"
         },
@@ -141,7 +162,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 960.0,
+          "error_abs_uds": 960.0,
           "pct_consec": 200.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 5606.4,
           "estado": "Superado"
         },
@@ -155,7 +178,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 387.0,
           "estado": "Extra Estimación"
         },
@@ -169,7 +194,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 868.0,
           "estado": "Extra Estimación"
         },
@@ -183,7 +210,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 500.0,
+          "error_abs_uds": 500.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2430.0,
           "estado": "Extra Estimación"
         },
@@ -197,7 +226,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1014.0,
           "estado": "Extra Estimación"
         },
@@ -211,7 +242,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 400.0,
+          "error_abs_uds": 400.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1408.0,
           "estado": "Extra Estimación"
         },
@@ -225,7 +258,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 400.0,
+          "error_abs_uds": 400.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1944.0,
           "estado": "Extra Estimación"
         },
@@ -239,7 +274,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 80.0,
           "desv_uds": -80.0,
+          "error_abs_uds": 80.0,
           "pct_consec": 80.0,
+          "forecast_accuracy": 80.0,
           "importe_neto": 758.4,
           "estado": "En Curso"
         },
@@ -253,7 +290,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 50.0,
+          "error_abs_uds": 50.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 270.0,
           "estado": "Extra Estimación"
         },
@@ -267,7 +306,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 558.0,
           "estado": "Extra Estimación"
         },
@@ -281,7 +322,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 20.0,
+          "error_abs_uds": 20.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 89.4,
           "estado": "Extra Estimación"
         },
@@ -295,7 +338,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 40.0,
+          "error_abs_uds": 40.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 96.0,
           "estado": "Extra Estimación"
         },
@@ -309,7 +354,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1014.0,
           "estado": "Extra Estimación"
         },
@@ -323,7 +370,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1056.0,
           "estado": "Extra Estimación"
         },
@@ -337,7 +386,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 40.0,
+          "error_abs_uds": 40.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 195.6,
           "estado": "Extra Estimación"
         },
@@ -351,7 +402,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 20.0,
+          "error_abs_uds": 20.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 40.4,
           "estado": "Extra Estimación"
         },
@@ -365,7 +418,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 60.0,
+          "error_abs_uds": 60.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 144.6,
           "estado": "Extra Estimación"
         },
@@ -379,7 +434,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 20.0,
+          "error_abs_uds": 20.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 61.4,
           "estado": "Extra Estimación"
         },
@@ -393,7 +450,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 20.0,
+          "error_abs_uds": 20.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 83.0,
           "estado": "Extra Estimación"
         },
@@ -407,7 +466,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 20.0,
+          "error_abs_uds": 20.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 68.0,
           "estado": "Extra Estimación"
         },
@@ -421,7 +482,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 40.0,
+          "error_abs_uds": 40.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 89.2,
           "estado": "Extra Estimación"
         },
@@ -435,7 +498,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 20.0,
+          "error_abs_uds": 20.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
@@ -449,7 +514,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 40.0,
+          "error_abs_uds": 40.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 107.6,
           "estado": "Extra Estimación"
         },
@@ -463,7 +530,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 24.0,
+          "error_abs_uds": 24.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 108.0,
           "estado": "Extra Estimación"
         },
@@ -477,7 +546,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 80.0,
+          "error_abs_uds": 80.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 276.0,
           "estado": "Extra Estimación"
         },
@@ -491,7 +562,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 60.0,
+          "error_abs_uds": 60.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 191.4,
           "estado": "Extra Estimación"
         },
@@ -505,7 +578,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1836.8,
           "estado": "Extra Estimación"
         },
@@ -519,7 +594,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 600.0,
+          "error_abs_uds": 600.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1086.0,
           "estado": "Extra Estimación"
         },
@@ -533,7 +610,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 500.0,
+          "error_abs_uds": 500.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2045.0,
           "estado": "Extra Estimación"
         },
@@ -547,7 +626,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 3460.0,
+          "error_abs_uds": 3460.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 6193.4,
           "estado": "Extra Estimación"
         }
@@ -562,7 +643,9 @@
         "pendientes_uds": 0.0,
         "gap_uds": 0.0,
         "desv_uds": 19480.0,
+        "error_abs_uds": 42040.0,
         "pct_consec": 151.49080143793614,
+        "forecast_accuracy": -11.122858955381698,
         "importe_neto": 232360.59999999998
       },
       "lineas": [
@@ -576,7 +659,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 700.0,
           "desv_uds": -700.0,
+          "error_abs_uds": 700.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -590,7 +675,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 2000.0,
           "desv_uds": -2000.0,
+          "error_abs_uds": 2000.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -604,7 +691,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 300.0,
           "desv_uds": -300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -618,7 +707,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 723.0,
           "estado": "Extra Estimación"
         },
@@ -632,7 +723,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 1100.0,
           "desv_uds": -1100.0,
+          "error_abs_uds": 1100.0,
           "pct_consec": 50.0,
+          "forecast_accuracy": 50.0,
           "importe_neto": 1848.0,
           "estado": "En Curso"
         },
@@ -646,7 +739,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 640.0,
           "desv_uds": -640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 66.66666666666666,
+          "forecast_accuracy": 66.66666666666667,
           "importe_neto": 3884.8,
           "estado": "En Curso"
         },
@@ -660,7 +755,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 4000.0,
           "desv_uds": -4000.0,
+          "error_abs_uds": 4000.0,
           "pct_consec": 20.0,
+          "forecast_accuracy": 19.999999999999996,
           "importe_neto": 1720.0,
           "estado": "Rezagado"
         },
@@ -674,7 +771,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 500.0,
           "desv_uds": -500.0,
+          "error_abs_uds": 500.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -688,7 +787,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 1903.0,
           "estado": "Superado"
         },
@@ -702,7 +803,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 200.0,
           "desv_uds": -200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -716,7 +819,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 300.0,
           "desv_uds": -300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -730,7 +835,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 348.0,
           "estado": "Superado"
         },
@@ -744,7 +851,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 1698.0,
           "estado": "Superado"
         },
@@ -758,7 +867,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 1066.0,
           "estado": "Superado"
         },
@@ -772,7 +883,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 200.0,
           "desv_uds": -200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -786,7 +899,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1000.0,
+          "error_abs_uds": 1000.0,
           "pct_consec": 105.0,
+          "forecast_accuracy": 95.0,
           "importe_neto": 81270.0,
           "estado": "Superado"
         },
@@ -800,7 +915,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 400.0,
+          "error_abs_uds": 400.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 3952.0,
           "estado": "Extra Estimación"
         },
@@ -814,7 +931,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 504.0,
+          "error_abs_uds": 504.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 3094.56,
           "estado": "Extra Estimación"
         },
@@ -828,7 +947,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 800.0,
+          "error_abs_uds": 800.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2096.0,
           "estado": "Extra Estimación"
         },
@@ -842,7 +963,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1080.0,
+          "error_abs_uds": 1080.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 13554.0,
           "estado": "Extra Estimación"
         },
@@ -856,7 +979,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 17500.0,
+          "error_abs_uds": 17500.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 65800.0,
           "estado": "Extra Estimación"
         },
@@ -870,7 +995,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1100.0,
+          "error_abs_uds": 1100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2409.0,
           "estado": "Extra Estimación"
         },
@@ -884,7 +1011,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 640.0,
           "desv_uds": -640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -898,7 +1027,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 60.0,
           "desv_uds": -60.0,
+          "error_abs_uds": 60.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -912,7 +1043,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1056.0,
+          "error_abs_uds": 1056.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 5712.96,
           "estado": "Extra Estimación"
         },
@@ -926,7 +1059,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 528.0,
+          "error_abs_uds": 528.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2993.76,
           "estado": "Extra Estimación"
         },
@@ -940,7 +1075,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 396.0,
+          "error_abs_uds": 396.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1948.32,
           "estado": "Extra Estimación"
         },
@@ -954,7 +1091,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 792.0,
+          "error_abs_uds": 792.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2645.28,
           "estado": "Extra Estimación"
         },
@@ -968,7 +1107,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 600.0,
+          "error_abs_uds": 600.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1530.0,
           "estado": "Extra Estimación"
         },
@@ -982,7 +1123,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1472.0,
           "estado": "Extra Estimación"
         },
@@ -996,7 +1139,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 792.0,
+          "error_abs_uds": 792.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 4284.72,
           "estado": "Extra Estimación"
         },
@@ -1010,7 +1155,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1638.4,
           "estado": "Extra Estimación"
         },
@@ -1024,7 +1171,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 792.0,
+          "error_abs_uds": 792.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 9543.6,
           "estado": "Extra Estimación"
         },
@@ -1038,7 +1187,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 6790.4,
           "estado": "Extra Estimación"
         },
@@ -1052,7 +1203,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1056.0,
+          "error_abs_uds": 1056.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 4878.72,
           "estado": "Extra Estimación"
         },
@@ -1066,7 +1219,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 200.0,
           "desv_uds": -200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1080,7 +1235,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 120.0,
+          "error_abs_uds": 120.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
@@ -1094,7 +1251,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 20.0,
+          "error_abs_uds": 20.0,
           "pct_consec": 120.0,
+          "forecast_accuracy": 80.0,
           "importe_neto": 0.0,
           "estado": "Superado"
         },
@@ -1108,7 +1267,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 0.0,
           "estado": "Superado"
         },
@@ -1122,7 +1283,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 300.0,
           "desv_uds": -300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1136,7 +1299,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 24.0,
+          "error_abs_uds": 24.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 110.88,
           "estado": "Extra Estimación"
         },
@@ -1150,7 +1315,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 331.0,
           "estado": "Extra Estimación"
         },
@@ -1164,7 +1331,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 140.0,
           "desv_uds": -140.0,
+          "error_abs_uds": 140.0,
           "pct_consec": 53.333333333333336,
+          "forecast_accuracy": 53.333333333333336,
           "importe_neto": 443.2,
           "estado": "En Curso"
         },
@@ -1178,7 +1347,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 20.0,
+          "error_abs_uds": 20.0,
           "pct_consec": 120.0,
+          "forecast_accuracy": 80.0,
           "importe_neto": 351.6,
           "estado": "Superado"
         },
@@ -1192,7 +1363,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 60.0,
+          "error_abs_uds": 60.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 284.4,
           "estado": "Extra Estimación"
         },
@@ -1206,7 +1379,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 2035.0,
           "estado": "Superado"
         }
@@ -1221,7 +1396,9 @@
         "pendientes_uds": 0.0,
         "gap_uds": 0.0,
         "desv_uds": 1760.0,
+        "error_abs_uds": 29456.0,
         "pct_consec": 108.0313954549603,
+        "forecast_accuracy": -34.41635484165373,
         "importe_neto": 86319.13
       },
       "lineas": [
@@ -1235,7 +1412,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 100.0,
           "desv_uds": -100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 50.0,
+          "forecast_accuracy": 50.0,
           "importe_neto": 524.0,
           "estado": "En Curso"
         },
@@ -1249,7 +1428,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 20.0,
+          "error_abs_uds": 20.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
@@ -1263,7 +1444,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 1280.0,
           "desv_uds": -1280.0,
+          "error_abs_uds": 1280.0,
           "pct_consec": 33.33333333333333,
+          "forecast_accuracy": 33.333333333333336,
           "importe_neto": 2131.2,
           "estado": "Rezagado"
         },
@@ -1277,7 +1460,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 300.0,
           "desv_uds": -300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1291,7 +1476,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1600.0,
+          "error_abs_uds": 1600.0,
           "pct_consec": 266.66666666666663,
+          "forecast_accuracy": -66.66666666666667,
           "importe_neto": 13081.6,
           "estado": "Superado"
         },
@@ -1305,7 +1492,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 1472.0,
           "estado": "Superado"
         },
@@ -1319,7 +1508,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 60.0,
           "desv_uds": -60.0,
+          "error_abs_uds": 60.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1333,7 +1524,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 300.0,
           "desv_uds": -300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1347,7 +1540,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 12.0,
           "desv_uds": -12.0,
+          "error_abs_uds": 12.0,
           "pct_consec": 75.0,
+          "forecast_accuracy": 75.0,
           "importe_neto": 375.12,
           "estado": "En Curso"
         },
@@ -1361,7 +1556,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 900.0,
+          "error_abs_uds": 900.0,
           "pct_consec": 325.0,
+          "forecast_accuracy": -125.0,
           "importe_neto": 11820.0,
           "estado": "Superado"
         },
@@ -1375,7 +1572,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 800.0,
+          "error_abs_uds": 800.0,
           "pct_consec": 200.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 6688.0,
           "estado": "Superado"
         },
@@ -1389,7 +1588,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 3200.0,
+          "error_abs_uds": 3200.0,
           "pct_consec": 350.0,
+          "forecast_accuracy": -150.0,
           "importe_neto": 10124.800000000001,
           "estado": "Superado"
         },
@@ -1403,7 +1604,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 48.0,
+          "error_abs_uds": 48.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 274.56,
           "estado": "Extra Estimación"
         },
@@ -1417,7 +1620,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 300.0,
+          "forecast_accuracy": -100.0,
           "importe_neto": 1224.0,
           "estado": "Superado"
         },
@@ -1431,7 +1636,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 2560.0,
           "desv_uds": -2560.0,
+          "error_abs_uds": 2560.0,
           "pct_consec": 20.0,
+          "forecast_accuracy": 19.999999999999996,
           "importe_neto": 2406.4,
           "estado": "Rezagado"
         },
@@ -1445,7 +1652,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 640.0,
           "desv_uds": -640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1459,7 +1668,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 1057.0,
           "estado": "Superado"
         },
@@ -1473,7 +1684,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 3200.0,
           "desv_uds": -3200.0,
+          "error_abs_uds": 3200.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1487,7 +1700,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 400.0,
           "desv_uds": -400.0,
+          "error_abs_uds": 400.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1501,7 +1716,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 1200.0,
           "desv_uds": -1200.0,
+          "error_abs_uds": 1200.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1515,7 +1732,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 200.0,
           "desv_uds": -200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1529,7 +1748,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 300.0,
           "desv_uds": -300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1543,7 +1764,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 640.0,
           "desv_uds": -640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1557,7 +1780,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 1280.0,
           "desv_uds": -1280.0,
+          "error_abs_uds": 1280.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1571,7 +1796,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 100.0,
           "desv_uds": -100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1585,7 +1812,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 1240.0,
           "desv_uds": -1240.0,
+          "error_abs_uds": 1240.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1599,7 +1828,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 8000.0,
+          "error_abs_uds": 8000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 20560.0,
           "estado": "Extra Estimación"
         },
@@ -1613,7 +1844,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 360.05,
           "estado": "Superado"
         },
@@ -1627,7 +1860,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 2746.0,
           "estado": "Superado"
         },
@@ -1641,7 +1876,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 3411.2,
           "estado": "Superado"
         },
@@ -1655,7 +1892,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 315.4,
           "estado": "Superado"
         },
@@ -1669,7 +1908,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 2063.4,
           "estado": "Superado"
         },
@@ -1683,7 +1924,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 36.0,
           "desv_uds": -36.0,
+          "error_abs_uds": 36.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -1697,7 +1940,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 2295.2,
           "estado": "Superado"
         },
@@ -1711,7 +1956,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2227.2,
           "estado": "Extra Estimación"
         },
@@ -1725,7 +1972,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1162.0,
           "estado": "Extra Estimación"
         }
@@ -1740,7 +1989,9 @@
         "pendientes_uds": 4530.0,
         "gap_uds": 0.0,
         "desv_uds": 29949.0,
+        "error_abs_uds": 32509.0,
         "pct_consec": 275.140350877193,
+        "forecast_accuracy": -90.11111111111111,
         "importe_neto": 123400.8
       },
       "lineas": [
@@ -1754,7 +2005,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1600.0,
+          "error_abs_uds": 1600.0,
           "pct_consec": 200.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 9028.8,
           "estado": "Superado"
         },
@@ -1768,7 +2021,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1000.0,
+          "error_abs_uds": 1000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2700.0,
           "estado": "Extra Estimación"
         },
@@ -1782,7 +2037,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 1804.0,
           "estado": "Superado"
         },
@@ -1796,7 +2053,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 40.0,
+          "error_abs_uds": 40.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 130.0,
           "estado": "Extra Estimación"
         },
@@ -1810,7 +2069,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 292.0,
           "estado": "Extra Estimación"
         },
@@ -1824,7 +2085,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 60.0,
+          "error_abs_uds": 60.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 219.6,
           "estado": "Extra Estimación"
         },
@@ -1838,7 +2101,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 60.0,
+          "error_abs_uds": 60.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 241.2,
           "estado": "Extra Estimación"
         },
@@ -1852,7 +2117,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 460.0,
           "estado": "Extra Estimación"
         },
@@ -1866,7 +2133,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 40.0,
+          "error_abs_uds": 40.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 105.6,
           "estado": "Extra Estimación"
         },
@@ -1880,7 +2149,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1280.0,
+          "error_abs_uds": 1280.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2873.09,
           "estado": "Extra Estimación"
         },
@@ -1894,7 +2165,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 40.0,
+          "error_abs_uds": 40.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 148.8,
           "estado": "Extra Estimación"
         },
@@ -1908,7 +2181,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1280.0,
+          "error_abs_uds": 1280.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2294.02,
           "estado": "Extra Estimación"
         },
@@ -1922,7 +2197,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1100.0,
+          "error_abs_uds": 1100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1958.0,
           "estado": "Extra Estimación"
         },
@@ -1936,7 +2213,9 @@
           "pendientes_uds": 250.0,
           "gap_uds": 0.0,
           "desv_uds": 625.0,
+          "error_abs_uds": 625.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 3037.5,
           "estado": "Extra Estimación"
         },
@@ -1950,7 +2229,9 @@
           "pendientes_uds": 100.0,
           "gap_uds": 0.0,
           "desv_uds": 100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 474.0,
           "estado": "Extra Estimación"
         },
@@ -1964,7 +2245,9 @@
           "pendientes_uds": 2200.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 11682.0,
           "estado": "Superado"
         },
@@ -1978,7 +2261,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 600.0,
+          "error_abs_uds": 600.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1272.0,
           "estado": "Extra Estimación"
         },
@@ -1992,7 +2277,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1280.0,
+          "error_abs_uds": 1280.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2585.6,
           "estado": "Extra Estimación"
         },
@@ -2006,7 +2293,9 @@
           "pendientes_uds": 200.0,
           "gap_uds": 0.0,
           "desv_uds": 400.0,
+          "error_abs_uds": 400.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1736.0,
           "estado": "Extra Estimación"
         },
@@ -2020,7 +2309,9 @@
           "pendientes_uds": 200.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 538.0,
           "estado": "Extra Estimación"
         },
@@ -2034,7 +2325,9 @@
           "pendientes_uds": 200.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 474.0,
           "estado": "Extra Estimación"
         },
@@ -2048,7 +2341,9 @@
           "pendientes_uds": 640.0,
           "gap_uds": 0.0,
           "desv_uds": 640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1446.4,
           "estado": "Extra Estimación"
         },
@@ -2062,7 +2357,9 @@
           "pendientes_uds": 320.0,
           "gap_uds": 0.0,
           "desv_uds": 320.0,
+          "error_abs_uds": 320.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1116.8,
           "estado": "Extra Estimación"
         },
@@ -2076,7 +2373,9 @@
           "pendientes_uds": 100.0,
           "gap_uds": 0.0,
           "desv_uds": 100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 150.0,
+          "forecast_accuracy": 50.0,
           "importe_neto": 1284.0,
           "estado": "Superado"
         },
@@ -2090,7 +2389,9 @@
           "pendientes_uds": 320.0,
           "gap_uds": 0.0,
           "desv_uds": 320.0,
+          "error_abs_uds": 320.0,
           "pct_consec": 150.0,
+          "forecast_accuracy": 50.0,
           "importe_neto": 3868.7999999999997,
           "estado": "Superado"
         },
@@ -2104,7 +2405,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 314.0,
           "estado": "Extra Estimación"
         },
@@ -2118,7 +2421,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 604.0,
           "estado": "Extra Estimación"
         },
@@ -2132,7 +2437,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 320.0,
+          "error_abs_uds": 320.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 3241.6000000000004,
           "estado": "Extra Estimación"
         },
@@ -2146,7 +2453,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 120.0,
+          "error_abs_uds": 120.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 613.2,
           "estado": "Extra Estimación"
         },
@@ -2160,7 +2469,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1000.0,
+          "error_abs_uds": 1000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 3600.0,
           "estado": "Extra Estimación"
         },
@@ -2174,7 +2485,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 393.0,
           "estado": "Extra Estimación"
         },
@@ -2188,7 +2501,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1014.0,
           "estado": "Extra Estimación"
         },
@@ -2202,7 +2517,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 100.0,
+          "error_abs_uds": 100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 630.0,
           "estado": "Extra Estimación"
         },
@@ -2216,7 +2533,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 600.0,
+          "error_abs_uds": 600.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2052.0,
           "estado": "Extra Estimación"
         },
@@ -2230,7 +2549,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1920.0,
+          "error_abs_uds": 1920.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 6067.200000000001,
           "estado": "Extra Estimación"
         },
@@ -2244,7 +2565,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1600.0,
+          "error_abs_uds": 1600.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 4276.8,
           "estado": "Extra Estimación"
         },
@@ -2258,7 +2581,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 10000.0,
+          "error_abs_uds": 10000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 24840.0,
           "estado": "Extra Estimación"
         },
@@ -2272,7 +2597,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 24.0,
+          "error_abs_uds": 24.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 121.44,
           "estado": "Extra Estimación"
         },
@@ -2286,7 +2613,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1280.0,
+          "error_abs_uds": 1280.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2873.09,
           "estado": "Extra Estimación"
         },
@@ -2300,7 +2629,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 400.0,
+          "error_abs_uds": 400.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1383.84,
           "estado": "Extra Estimación"
         },
@@ -2314,7 +2645,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2035.58,
           "estado": "Extra Estimación"
         },
@@ -2328,7 +2661,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 800.0,
+          "error_abs_uds": 800.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1378.08,
           "estado": "Extra Estimación"
         },
@@ -2342,7 +2677,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 40.0,
+          "error_abs_uds": 40.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 148.8,
           "estado": "Extra Estimación"
         },
@@ -2356,7 +2693,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 11616.0,
           "estado": "Superado"
         },
@@ -2370,7 +2709,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 1280.0,
           "desv_uds": -1280.0,
+          "error_abs_uds": 1280.0,
           "pct_consec": 50.0,
+          "forecast_accuracy": 50.0,
           "importe_neto": 4044.8,
           "estado": "En Curso"
         },
@@ -2384,7 +2725,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 383.16,
           "estado": "Extra Estimación"
         }
@@ -2399,7 +2742,9 @@
         "pendientes_uds": 21060.0,
         "gap_uds": 6732.0,
         "desv_uds": -6732.0,
+        "error_abs_uds": 57268.0,
         "pct_consec": 82.93968575772934,
+        "forecast_accuracy": -45.129244804865685,
         "importe_neto": 82474.0
       },
       "lineas": [
@@ -2413,7 +2758,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 2200.0,
+          "error_abs_uds": 2200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 4510.0,
           "estado": "Extra Estimación"
         },
@@ -2427,7 +2774,9 @@
           "pendientes_uds": 10060.0,
           "gap_uds": 0.0,
           "desv_uds": 10060.0,
+          "error_abs_uds": 10060.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 21000.0,
           "estado": "Extra Estimación"
         },
@@ -2441,7 +2790,9 @@
           "pendientes_uds": 11000.0,
           "gap_uds": 0.0,
           "desv_uds": 11000.0,
+          "error_abs_uds": 11000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 19800.0,
           "estado": "Extra Estimación"
         },
@@ -2455,7 +2806,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1000.0,
+          "error_abs_uds": 1000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 3520.0,
           "estado": "Extra Estimación"
         },
@@ -2469,7 +2822,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 4500.0,
           "desv_uds": -4500.0,
+          "error_abs_uds": 4500.0,
           "pct_consec": 55.00000000000001,
+          "forecast_accuracy": 55.00000000000001,
           "importe_neto": 15400.0,
           "estado": "En Curso"
         },
@@ -2483,7 +2838,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1000.0,
+          "error_abs_uds": 1000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2500.0,
           "estado": "Extra Estimación"
         },
@@ -2497,7 +2854,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 8.0,
+          "error_abs_uds": 8.0,
           "pct_consec": 100.40816326530613,
+          "forecast_accuracy": 99.59183673469387,
           "importe_neto": 15744.0,
           "estado": "Superado"
         },
@@ -2511,7 +2870,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 5500.0,
           "desv_uds": -5500.0,
+          "error_abs_uds": 5500.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2525,7 +2886,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 10000.0,
           "desv_uds": -10000.0,
+          "error_abs_uds": 10000.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2539,7 +2902,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 10000.0,
           "desv_uds": -10000.0,
+          "error_abs_uds": 10000.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2553,7 +2918,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 2000.0,
           "desv_uds": -2000.0,
+          "error_abs_uds": 2000.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         }
@@ -2568,7 +2935,9 @@
         "pendientes_uds": 0.0,
         "gap_uds": 8780.0,
         "desv_uds": -8780.0,
+        "error_abs_uds": 16380.0,
         "pct_consec": 49.36562860438293,
+        "forecast_accuracy": 5.536332179930792,
         "importe_neto": 23770.399999999998
       },
       "lineas": [
@@ -2582,7 +2951,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 640.0,
           "desv_uds": -640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2596,7 +2967,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 300.0,
           "desv_uds": -300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2610,7 +2983,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 1280.0,
           "desv_uds": -1280.0,
+          "error_abs_uds": 1280.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2624,7 +2999,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 1280.0,
           "desv_uds": -1280.0,
+          "error_abs_uds": 1280.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2638,7 +3015,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 640.0,
           "desv_uds": -640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 75.0,
+          "forecast_accuracy": 75.0,
           "importe_neto": 6124.8,
           "estado": "En Curso"
         },
@@ -2652,7 +3031,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 400.0,
           "desv_uds": -400.0,
+          "error_abs_uds": 400.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2666,7 +3047,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 2000.0,
           "desv_uds": -2000.0,
+          "error_abs_uds": 2000.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2680,7 +3063,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 3630.0,
           "estado": "Superado"
         },
@@ -2694,7 +3079,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2258.0,
           "estado": "Extra Estimación"
         },
@@ -2708,7 +3095,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 468.0,
           "estado": "Extra Estimación"
         },
@@ -2722,7 +3111,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 600.0,
+          "error_abs_uds": 600.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1896.0,
           "estado": "Extra Estimación"
         },
@@ -2736,7 +3127,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1000.0,
+          "error_abs_uds": 1000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2890.0,
           "estado": "Extra Estimación"
         },
@@ -2750,7 +3143,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 0.0,
+          "error_abs_uds": 0.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 100.0,
           "importe_neto": 1344.0,
           "estado": "Superado"
         },
@@ -2764,7 +3159,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 400.0,
           "desv_uds": -400.0,
+          "error_abs_uds": 400.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2778,7 +3175,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 5000.0,
           "desv_uds": -5000.0,
+          "error_abs_uds": 5000.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2792,7 +3191,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 640.0,
           "desv_uds": -640.0,
+          "error_abs_uds": 640.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -2806,7 +3207,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 400.0,
+          "error_abs_uds": 400.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1528.0,
           "estado": "Extra Estimación"
         },
@@ -2820,7 +3223,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1264.0,
           "estado": "Extra Estimación"
         },
@@ -2834,7 +3239,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 320.0,
+          "error_abs_uds": 320.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1257.6,
           "estado": "Extra Estimación"
         },
@@ -2848,7 +3255,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 60.0,
+          "error_abs_uds": 60.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
@@ -2862,7 +3271,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 320.0,
+          "error_abs_uds": 320.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
@@ -2876,7 +3287,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 200.0,
+          "error_abs_uds": 200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
@@ -2890,7 +3303,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1110.0,
           "estado": "Extra Estimación"
         }
@@ -2905,7 +3320,9 @@
         "pendientes_uds": 10184.0,
         "gap_uds": 0.0,
         "desv_uds": 8908.0,
+        "error_abs_uds": 100908.0,
         "pct_consec": 119.36521739130434,
+        "forecast_accuracy": -119.36521739130437,
         "importe_neto": 153776.90000000002
       },
       "lineas": [
@@ -2919,7 +3336,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 3000.0,
+          "error_abs_uds": 3000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 12000.0,
           "estado": "Extra Estimación"
         },
@@ -2933,7 +3352,9 @@
           "pendientes_uds": 840.0,
           "gap_uds": 0.0,
           "desv_uds": 840.0,
+          "error_abs_uds": 840.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
@@ -2947,7 +3368,9 @@
           "pendientes_uds": 2000.0,
           "gap_uds": 0.0,
           "desv_uds": 2000.0,
+          "error_abs_uds": 2000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 5800.0,
           "estado": "Extra Estimación"
         },
@@ -2961,7 +3384,9 @@
           "pendientes_uds": 4000.0,
           "gap_uds": 0.0,
           "desv_uds": 4000.0,
+          "error_abs_uds": 4000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 6600.0,
           "estado": "Extra Estimación"
         },
@@ -2975,7 +3400,9 @@
           "pendientes_uds": 240.0,
           "gap_uds": 0.0,
           "desv_uds": 240.0,
+          "error_abs_uds": 240.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
@@ -2989,7 +3416,9 @@
           "pendientes_uds": 324.0,
           "gap_uds": 0.0,
           "desv_uds": 324.0,
+          "error_abs_uds": 324.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
@@ -3003,7 +3432,9 @@
           "pendientes_uds": 480.0,
           "gap_uds": 0.0,
           "desv_uds": 480.0,
+          "error_abs_uds": 480.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1608.0,
           "estado": "Extra Estimación"
         },
@@ -3017,7 +3448,9 @@
           "pendientes_uds": 1200.0,
           "gap_uds": 0.0,
           "desv_uds": 1200.0,
+          "error_abs_uds": 1200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Extra Estimación"
         },
@@ -3031,7 +3464,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 2200.0,
+          "error_abs_uds": 2200.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 4026.0,
           "estado": "Extra Estimación"
         },
@@ -3045,7 +3480,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 6600.0,
+          "error_abs_uds": 6600.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 10890.0,
           "estado": "Extra Estimación"
         },
@@ -3059,7 +3496,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 2000.0,
           "desv_uds": -2000.0,
+          "error_abs_uds": 2000.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -3073,7 +3512,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 3000.0,
+          "error_abs_uds": 3000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 8760.0,
           "estado": "Extra Estimación"
         },
@@ -3087,7 +3528,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 3300.0,
+          "error_abs_uds": 3300.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 6072.0,
           "estado": "Extra Estimación"
         },
@@ -3101,7 +3544,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 4400.0,
+          "error_abs_uds": 4400.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 7260.0,
           "estado": "Extra Estimación"
         },
@@ -3115,7 +3560,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 2000.0,
+          "error_abs_uds": 2000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 5760.0,
           "estado": "Extra Estimación"
         },
@@ -3129,7 +3576,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1000.0,
+          "error_abs_uds": 1000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 3370.0,
           "estado": "Extra Estimación"
         },
@@ -3143,7 +3592,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1000.0,
+          "error_abs_uds": 1000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2920.0,
           "estado": "Extra Estimación"
         },
@@ -3157,7 +3608,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 750.0,
+          "error_abs_uds": 750.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1897.5,
           "estado": "Extra Estimación"
         },
@@ -3171,7 +3624,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1000.0,
+          "error_abs_uds": 1000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 4020.0,
           "estado": "Extra Estimación"
         },
@@ -3185,7 +3640,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 2000.0,
+          "error_abs_uds": 2000.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 12200.0,
           "estado": "Extra Estimación"
         },
@@ -3199,7 +3656,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1600.0,
+          "error_abs_uds": 1600.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 5952.0,
           "estado": "Extra Estimación"
         },
@@ -3213,7 +3672,9 @@
           "pendientes_uds": 1100.0,
           "gap_uds": 0.0,
           "desv_uds": 1100.0,
+          "error_abs_uds": 1100.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1892.0,
           "estado": "Extra Estimación"
         },
@@ -3227,7 +3688,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 44000.0,
           "desv_uds": -44000.0,
+          "error_abs_uds": 44000.0,
           "pct_consec": 0.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 0.0,
           "estado": "Sin Pedido"
         },
@@ -3241,7 +3704,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 368.0,
+          "error_abs_uds": 368.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2428.8,
           "estado": "Extra Estimación"
         },
@@ -3255,7 +3720,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 540.0,
+          "error_abs_uds": 540.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 3213.0,
           "estado": "Extra Estimación"
         },
@@ -3269,7 +3736,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 300.0,
+          "error_abs_uds": 300.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 1395.0,
           "estado": "Extra Estimación"
         },
@@ -3283,7 +3752,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 7920.0,
+          "error_abs_uds": 7920.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 17424.0,
           "estado": "Extra Estimación"
         },
@@ -3297,7 +3768,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 540.0,
+          "error_abs_uds": 540.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 4665.6,
           "estado": "Extra Estimación"
         },
@@ -3311,7 +3784,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 840.0,
+          "error_abs_uds": 840.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 5124.0,
           "estado": "Extra Estimación"
         },
@@ -3325,7 +3800,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 600.0,
+          "error_abs_uds": 600.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2820.0,
           "estado": "Extra Estimación"
         },
@@ -3339,7 +3816,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1.0,
+          "error_abs_uds": 1.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 4014.0,
           "estado": "Extra Estimación"
         },
@@ -3353,7 +3832,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1.0,
+          "error_abs_uds": 1.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 289.0,
           "estado": "Extra Estimación"
         },
@@ -3367,7 +3848,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 180.0,
+          "error_abs_uds": 180.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 2664.0,
           "estado": "Extra Estimación"
         },
@@ -3381,7 +3864,9 @@
           "pendientes_uds": 0.0,
           "gap_uds": 0.0,
           "desv_uds": 1584.0,
+          "error_abs_uds": 1584.0,
           "pct_consec": 100.0,
+          "forecast_accuracy": 0.0,
           "importe_neto": 8712.0,
           "estado": "Extra Estimación"
         }

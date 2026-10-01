@@ -218,7 +218,7 @@ ws_res['B8'].font = Font(name='Segoe UI', size=12, bold=True, color='0F172A')
 headers_res = [
     'Comercial', 'Clientes Activos', 'Estimación Sep (u)', 'Pedidos Sep (u)',
     'Servidas (u)', 'Pendientes (u)', 'Falta Conseguir (u)', 'Desviación (u)',
-    '% Consecución'
+    'Error Abs. (u)', '% Consecución', 'Forecast Accuracy'
 ]
 
 start_row_res = 9
@@ -243,6 +243,20 @@ for c in comerciales:
     pend_uds = sub_ped['Pendientes'].sum()
     cli_cnt = sub_ped['Cliente'].nunique()
     
+    # Calcular cuántas líneas válidas tiene el comercial para saber la fila de total
+    keys_c = set()
+    for _, r in sub_bud.iterrows(): keys_c.add((r['Cliente'], r['SKU_CLEAN']))
+    for _, r in sub_ped.iterrows(): keys_c.add((r['Cliente'], r['SKU_CLEAN']))
+    cnt_valid = 0
+    for cli, sku in keys_c:
+        bm = sub_bud[(sub_bud['Cliente'] == cli) & (sub_bud['SKU_CLEAN'] == sku)]
+        pm = sub_ped[(sub_ped['Cliente'] == cli) & (sub_ped['SKU_CLEAN'] == sku)]
+        bu = bm['Sep-26 (u)'].sum() if len(bm) > 0 else 0
+        pu = pm['Pedidas'].sum() if len(pm) > 0 else 0
+        if bu > 0 or pu > 0:
+            cnt_valid += 1
+    tot_row_sheet = 10 + cnt_valid
+    
     ws_res.cell(cur_row, 2, c).font = font_bold
     ws_res.cell(cur_row, 3, cli_cnt).font = font_regular
     ws_res.cell(cur_row, 4, b_uds).font = font_regular
@@ -251,23 +265,27 @@ for c in comerciales:
     ws_res.cell(cur_row, 7, pend_uds).font = font_regular
     ws_res.cell(cur_row, 8, f"=MAX(0, D{cur_row}-E{cur_row})").font = font_regular
     ws_res.cell(cur_row, 9, f"=E{cur_row}-D{cur_row}").font = font_regular
-    ws_res.cell(cur_row, 10, f"=IF(D{cur_row}>0, E{cur_row}/D{cur_row}, IF(E{cur_row}>0, 1, 0))").font = font_bold
+    ws_res.cell(cur_row, 10, f"='{c}'!K{tot_row_sheet}").font = font_regular
+    ws_res.cell(cur_row, 11, f"=IF(D{cur_row}>0, E{cur_row}/D{cur_row}, IF(E{cur_row}>0, 1, 0))").font = font_bold
+    ws_res.cell(cur_row, 12, f"=IF(D{cur_row}>0, 1.0 - (J{cur_row}/D{cur_row}), 0)").font = font_bold
     
     ws_res.cell(cur_row, 2).alignment = align_left
     ws_res.cell(cur_row, 3).alignment = align_center
-    for col_i in range(4, 10):
+    for col_i in range(4, 11):
         c_cell = ws_res.cell(cur_row, col_i)
         c_cell.alignment = align_right
         c_cell.number_format = '#,##0.00'
     
-    ws_res.cell(cur_row, 10).alignment = align_center
-    ws_res.cell(cur_row, 10).number_format = '0.0%'
+    ws_res.cell(cur_row, 11).alignment = align_center
+    ws_res.cell(cur_row, 11).number_format = '0.0%'
+    ws_res.cell(cur_row, 12).alignment = align_center
+    ws_res.cell(cur_row, 12).number_format = '0.0%'
     
     if cur_row % 2 == 1:
-        for c_i in range(2, 11):
+        for c_i in range(2, 13):
             ws_res.cell(cur_row, c_i).fill = fill_zebra
             
-    for c_i in range(2, 11):
+    for c_i in range(2, 13):
         ws_res.cell(cur_row, c_i).border = border_thin
         
     cur_row += 1
@@ -281,17 +299,21 @@ ws_res.cell(cur_row, 6, f"=SUM(F10:F{cur_row-1})").font = font_bold
 ws_res.cell(cur_row, 7, f"=SUM(G10:G{cur_row-1})").font = font_bold
 ws_res.cell(cur_row, 8, f"=SUM(H10:H{cur_row-1})").font = font_bold
 ws_res.cell(cur_row, 9, f"=SUM(I10:I{cur_row-1})").font = font_bold
-ws_res.cell(cur_row, 10, f"=IF(D{cur_row}>0, E{cur_row}/D{cur_row}, 0)").font = font_bold
+ws_res.cell(cur_row, 10, f"=SUM(J10:J{cur_row-1})").font = font_bold
+ws_res.cell(cur_row, 11, f"=IF(D{cur_row}>0, E{cur_row}/D{cur_row}, 0)").font = font_bold
+ws_res.cell(cur_row, 12, f"=IF(D{cur_row}>0, 1.0 - (J{cur_row}/D{cur_row}), 0)").font = font_bold
 
 ws_res.cell(cur_row, 2).alignment = align_left
 ws_res.cell(cur_row, 3).alignment = align_center
-for col_i in range(4, 10):
+for col_i in range(4, 11):
     ws_res.cell(cur_row, col_i).alignment = align_right
     ws_res.cell(cur_row, col_i).number_format = '#,##0.00'
-ws_res.cell(cur_row, 10).alignment = align_center
-ws_res.cell(cur_row, 10).number_format = '0.0%'
+ws_res.cell(cur_row, 11).alignment = align_center
+ws_res.cell(cur_row, 11).number_format = '0.0%'
+ws_res.cell(cur_row, 12).alignment = align_center
+ws_res.cell(cur_row, 12).number_format = '0.0%'
 
-for c_i in range(2, 11):
+for c_i in range(2, 13):
     ws_res.cell(cur_row, c_i).fill = fill_subtotal
     ws_res.cell(cur_row, c_i).border = border_double
 ws_res.row_dimensions[cur_row].height = 24
@@ -312,7 +334,7 @@ chart1.add_data(data_ref, titles_from_data=True)
 chart1.set_categories(cats_ref)
 ws_res.add_chart(chart1, "B19")
 
-col_widths_res = {'B': 18, 'C': 16, 'D': 16, 'E': 16, 'F': 15, 'G': 15, 'H': 18, 'I': 16, 'J': 15}
+col_widths_res = {'B': 18, 'C': 16, 'D': 16, 'E': 16, 'F': 15, 'G': 15, 'H': 18, 'I': 16, 'J': 16, 'K': 15, 'L': 16}
 for c_l, w in col_widths_res.items():
     ws_res.column_dimensions[c_l].width = w
 ws_res.column_dimensions['A'].width = 3
@@ -382,7 +404,7 @@ for c in comerciales:
     det_headers = [
         'Cliente', 'Cód. Artículo', 'Descripción Artículo', 'Estimación Sep (u)',
         'Pedidos Sep (u)', 'Servidas (u)', 'Pendientes (u)', 'Falta (u)',
-        'Desv. (u)', '% Consec.', 'Estado'
+        'Desv. (u)', 'Error Abs. (u)', '% Consec.', 'Forecast Accuracy', 'Estado'
     ]
     start_r = 9
     for c_idx, h in enumerate(det_headers, start=2):
@@ -431,10 +453,12 @@ for c in comerciales:
         ws.cell(row_num, 8, pend_u).font = font_regular
         ws.cell(row_num, 9, f"=MAX(0, E{row_num}-F{row_num})").font = font_regular
         ws.cell(row_num, 10, f"=F{row_num}-E{row_num}").font = font_regular
-        ws.cell(row_num, 11, f"=IF(E{row_num}>0, F{row_num}/E{row_num}, IF(F{row_num}>0, 1, 0))").font = font_bold
+        ws.cell(row_num, 11, f"=ABS(F{row_num}-E{row_num})").font = font_regular
+        ws.cell(row_num, 12, f"=IF(E{row_num}>0, F{row_num}/E{row_num}, IF(F{row_num}>0, 1, 0))").font = font_bold
+        ws.cell(row_num, 13, f"=IF(E{row_num}>0, 1.0 - (K{row_num}/E{row_num}), IF(F{row_num}=0, 1, 0))").font = font_bold
         
         pct_val = (p_u / b_u * 100) if b_u > 0 else (100.0 if p_u > 0 else 0.0)
-        status_cell = ws.cell(row_num, 12)
+        status_cell = ws.cell(row_num, 14)
         if b_u == 0 and p_u > 0:
             status_cell.value = "Extra Estimación"
             status_cell.fill = fill_success
@@ -461,17 +485,19 @@ for c in comerciales:
         ws.cell(row_num, 2).alignment = align_left
         ws.cell(row_num, 3).alignment = align_center
         ws.cell(row_num, 4).alignment = align_left
-        for ci in range(5, 11):
+        for ci in range(5, 12):
             ws.cell(row_num, ci).alignment = align_right
             ws.cell(row_num, ci).number_format = '#,##0.00'
-        ws.cell(row_num, 11).alignment = align_center
-        ws.cell(row_num, 11).number_format = '0.0%'
+        ws.cell(row_num, 12).alignment = align_center
+        ws.cell(row_num, 12).number_format = '0.0%'
+        ws.cell(row_num, 13).alignment = align_center
+        ws.cell(row_num, 13).number_format = '0.0%'
         
         if row_num % 2 == 1:
-            for ci in range(2, 12):
+            for ci in range(2, 14):
                 ws.cell(row_num, ci).fill = fill_zebra
                 
-        for ci in range(2, 13):
+        for ci in range(2, 15):
             ws.cell(row_num, ci).border = border_thin
             
         row_num += 1
@@ -486,26 +512,30 @@ for c in comerciales:
     ws.cell(row_num, 8, f"=SUM(H10:H{row_num-1})").font = font_bold
     ws.cell(row_num, 9, f"=SUM(I10:I{row_num-1})").font = font_bold
     ws.cell(row_num, 10, f"=SUM(J10:J{row_num-1})").font = font_bold
-    ws.cell(row_num, 11, f"=IF(E{row_num}>0, F{row_num}/E{row_num}, 0)").font = font_bold
-    ws.cell(row_num, 12, f"=IF(K{row_num}>=1, \"SUPERADO\", \"EN CURSO\")").font = font_bold
+    ws.cell(row_num, 11, f"=SUM(K10:K{row_num-1})").font = font_bold
+    ws.cell(row_num, 12, f"=IF(E{row_num}>0, F{row_num}/E{row_num}, 0)").font = font_bold
+    ws.cell(row_num, 13, f"=IF(E{row_num}>0, 1.0 - (K{row_num}/E{row_num}), 0)").font = font_bold
+    ws.cell(row_num, 14, f"=IF(L{row_num}>=1, \"SUPERADO\", \"EN CURSO\")").font = font_bold
     
     ws.cell(row_num, 2).alignment = align_left
     ws.cell(row_num, 3).alignment = align_center
-    for ci in range(5, 11):
+    for ci in range(5, 12):
         ws.cell(row_num, ci).alignment = align_right
         ws.cell(row_num, ci).number_format = '#,##0.00'
-    ws.cell(row_num, 11).alignment = align_center
-    ws.cell(row_num, 11).number_format = '0.0%'
     ws.cell(row_num, 12).alignment = align_center
+    ws.cell(row_num, 12).number_format = '0.0%'
+    ws.cell(row_num, 13).alignment = align_center
+    ws.cell(row_num, 13).number_format = '0.0%'
+    ws.cell(row_num, 14).alignment = align_center
     
-    for ci in range(2, 13):
+    for ci in range(2, 15):
         ws.cell(row_num, ci).fill = fill_subtotal
         ws.cell(row_num, ci).border = border_double
     ws.row_dimensions[row_num].height = 24
     
     col_w_com = {
         'B': 30, 'C': 14, 'D': 28, 'E': 14, 'F': 14, 'G': 13,
-        'H': 13, 'I': 13, 'J': 13, 'K': 11, 'L': 13
+        'H': 13, 'I': 13, 'J': 13, 'K': 14, 'L': 11, 'M': 16, 'N': 13
     }
     for col_l, w in col_w_com.items():
         ws.column_dimensions[col_l].width = w

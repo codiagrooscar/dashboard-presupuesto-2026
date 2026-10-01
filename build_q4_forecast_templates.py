@@ -149,14 +149,14 @@ def populate_sheet_commercial(ws, c, is_individual=False):
     sub_bud = df_bud[df_bud['Comercial'] == c]
     
     # 1. Título y Banner
-    ws.merge_cells('B2:U2')
+    ws.merge_cells('B2:T2')
     ws['B2'] = f"CODIAGRO · ACTUALIZACIÓN DE PREVISIONES COMERCIALES Q4 2026 (OCTUBRE - DICIEMBRE)"
     ws['B2'].font = font_title
     ws['B2'].fill = fill_dark
     ws['B2'].alignment = Alignment(horizontal='left', vertical='center', indent=1)
     ws.row_dimensions[2].height = 36
     
-    ws.merge_cells('B3:U3')
+    ws.merge_cells('B3:T3')
     ws['B3'] = f"DELEGADO COMERCIAL: {c.upper()} | Cierre Septiembre Oficial (01/10/2026) vs Previsiones a Final de Año | Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
     ws['B3'].font = font_subtitle
     ws['B3'].fill = fill_subbanner
@@ -164,8 +164,8 @@ def populate_sheet_commercial(ws, c, is_individual=False):
     ws.row_dimensions[3].height = 20
     
     # 2. Caja de Instrucciones
-    ws.merge_cells('B4:U4')
-    ws['B4'] = "📌 INSTRUCCIONES: 1) Revise el bloque de SEPTIEMBRE (Previsto, Real, Desviación en Valor Absoluto y Forecast Accuracy) e indique en col. K el motivo de la desviación (adelanto, atraso, extra). 2) En las columnas verdes (M, O, Q), revise y actualice las cantidades estimadas de Octubre, Noviembre y Diciembre si prevé cambios. 3) Comente en col. U cualquier nota de campaña."
+    ws.merge_cells('B4:T4')
+    ws['B4'] = "📌 INSTRUCCIONES: 1) Revise el bloque de SEPTIEMBRE (Previsto, Real, Desviación en Valor Absoluto y % Consecución) e indique en col. J el motivo de la desviación (adelanto, atraso, extra). 2) En las columnas verdes (L, N, P), revise y actualice las cantidades estimadas de Octubre, Noviembre y Diciembre si prevé cambios. 3) Comente en col. T cualquier nota de campaña."
     ws['B4'].font = font_instructions
     ws['B4'].fill = fill_instructions
     ws['B4'].alignment = Alignment(horizontal='left', vertical='center', indent=1, wrap_text=True)
@@ -190,23 +190,23 @@ def populate_sheet_commercial(ws, c, is_individual=False):
     ws['B8'].fill = fill_grp_info
     ws['B8'].alignment = align_center
     
-    ws.merge_cells('F8:K8')
-    ws['F8'] = "CIERRE SEPTIEMBRE 2026 (CALIBRACIÓN Y ANÁLISIS DE EXACTITUD)"
+    ws.merge_cells('F8:J8')
+    ws['F8'] = "CIERRE SEPTIEMBRE 2026 (CALIBRACIÓN Y ANÁLISIS)"
     ws['F8'].font = font_group_hdr
     ws['F8'].fill = fill_grp_sep
     ws['F8'].alignment = align_center
     
-    ws.merge_cells('L8:Q8')
-    ws['L8'] = "REVISIÓN PREVISIONES MES A MES (HASTA FINAL DE AÑO 2026)"
-    ws['L8'].font = font_group_hdr
-    ws['L8'].fill = fill_grp_q4
-    ws['L8'].alignment = align_center
+    ws.merge_cells('K8:P8')
+    ws['K8'] = "REVISIÓN PREVISIONES MES A MES (HASTA FINAL DE AÑO 2026)"
+    ws['K8'].font = font_group_hdr
+    ws['K8'].fill = fill_grp_q4
+    ws['K8'].alignment = align_center
     
-    ws.merge_cells('R8:U8')
-    ws['R8'] = "IMPACTO Q4 Y JUSTIFICACIÓN"
-    ws['R8'].font = font_group_hdr
-    ws['R8'].fill = fill_grp_tot
-    ws['R8'].alignment = align_center
+    ws.merge_cells('Q8:T8')
+    ws['Q8'] = "IMPACTO Q4 Y JUSTIFICACIÓN"
+    ws['Q8'].font = font_group_hdr
+    ws['Q8'].fill = fill_grp_tot
+    ws['Q8'].alignment = align_center
     
     ws.row_dimensions[8].height = 22
     
@@ -220,18 +220,17 @@ def populate_sheet_commercial(ws, c, is_individual=False):
         ('G', 'Sep Real (u)', fill_col_sep),
         ('H', 'Desv. Sep (u)', fill_col_sep),
         ('I', '% Consec.', fill_col_sep),
-        ('J', 'Forecast Accuracy', fill_col_sep),
-        ('K', 'Comentario Sep (¿Adelanto/Atraso/Extra?)', fill_col_sep),
-        ('L', 'Oct Anterior (u)', fill_col_q4),
-        ('M', 'Oct Revisado (u)', fill_col_q4),
-        ('N', 'Nov Anterior (u)', fill_col_q4),
-        ('O', 'Nov Revisado (u)', fill_col_q4),
-        ('P', 'Dic Anterior (u)', fill_col_q4),
-        ('Q', 'Dic Revisado (u)', fill_col_q4),
-        ('R', 'Total Q4 Ant (u)', fill_col_hdr),
-        ('S', 'Total Q4 Rev (u)', fill_col_hdr),
-        ('T', 'Dif Q4 (u)', fill_col_hdr),
-        ('U', 'Comentarios / Justificación Q4', fill_col_hdr)
+        ('J', 'Comentario Sep (¿Adelanto/Atraso/Extra?)', fill_col_sep),
+        ('K', 'Oct Anterior (u)', fill_col_q4),
+        ('L', 'Oct Revisado (u)', fill_col_q4),
+        ('M', 'Nov Anterior (u)', fill_col_q4),
+        ('N', 'Nov Revisado (u)', fill_col_q4),
+        ('O', 'Dic Anterior (u)', fill_col_q4),
+        ('P', 'Dic Revisado (u)', fill_col_q4),
+        ('Q', 'Total Q4 Ant (u)', fill_col_hdr),
+        ('R', 'Total Q4 Rev (u)', fill_col_hdr),
+        ('S', 'Dif Q4 (u)', fill_col_hdr),
+        ('T', 'Comentarios / Justificación Q4', fill_col_hdr)
     ]
     
     for c_letter, h_text, fill_c in col_headers:
@@ -323,95 +322,88 @@ def populate_sheet_commercial(ws, c, is_individual=False):
         ws[f"I{r_str}"].number_format = '0.0%'
         ws[f"I{r_str}"].border = border_thin
         
-        # J: Forecast Accuracy = 1 - Desv / Previsto
-        ws[f"J{r_str}"] = f'=IF(F{r_str}>0, 1.0 - (H{r_str}/F{r_str}), IF(G{r_str}=0, 1.0, 0.0))'
-        ws[f"J{r_str}"].font = font_bold
-        ws[f"J{r_str}"].alignment = align_right
-        ws[f"J{r_str}"].number_format = '0.0%'
+        # J: Comentario Sep
+        ws[f"J{r_str}"] = "Pedido extra no previsto" if (s_b == 0 and s_r > 0) else ""
+        ws[f"J{r_str}"].font = font_regular
+        ws[f"J{r_str}"].fill = fill_comment_sep
+        ws[f"J{r_str}"].alignment = align_left
         ws[f"J{r_str}"].border = border_thin
         
-        # K: Comentario Sep
-        ws[f"K{r_str}"] = "Pedido extra no previsto" if (s_b == 0 and s_r > 0) else ""
+        # K: Oct Ant
+        ws[f"K{r_str}"] = oct_ant
         ws[f"K{r_str}"].font = font_regular
-        ws[f"K{r_str}"].fill = fill_comment_sep
-        ws[f"K{r_str}"].alignment = align_left
+        ws[f"K{r_str}"].fill = fill_prev_hist
+        ws[f"K{r_str}"].alignment = align_right
+        ws[f"K{r_str}"].number_format = '#,##0'
         ws[f"K{r_str}"].border = border_thin
         
-        # L: Oct Ant
+        # L: Oct Rev (precargado con oct_ant)
         ws[f"L{r_str}"] = oct_ant
-        ws[f"L{r_str}"].font = font_regular
-        ws[f"L{r_str}"].fill = fill_prev_hist
+        ws[f"L{r_str}"].font = font_editable
+        ws[f"L{r_str}"].fill = fill_editable
         ws[f"L{r_str}"].alignment = align_right
         ws[f"L{r_str}"].number_format = '#,##0'
-        ws[f"L{r_str}"].border = border_thin
+        ws[f"L{r_str}"].border = border_editable
         
-        # M: Oct Rev (precargado con oct_ant)
-        ws[f"M{r_str}"] = oct_ant
-        ws[f"M{r_str}"].font = font_editable
-        ws[f"M{r_str}"].fill = fill_editable
+        # M: Nov Ant
+        ws[f"M{r_str}"] = nov_ant
+        ws[f"M{r_str}"].font = font_regular
+        ws[f"M{r_str}"].fill = fill_prev_hist
         ws[f"M{r_str}"].alignment = align_right
         ws[f"M{r_str}"].number_format = '#,##0'
-        ws[f"M{r_str}"].border = border_editable
+        ws[f"M{r_str}"].border = border_thin
         
-        # N: Nov Ant
+        # N: Nov Rev
         ws[f"N{r_str}"] = nov_ant
-        ws[f"N{r_str}"].font = font_regular
-        ws[f"N{r_str}"].fill = fill_prev_hist
+        ws[f"N{r_str}"].font = font_editable
+        ws[f"N{r_str}"].fill = fill_editable
         ws[f"N{r_str}"].alignment = align_right
         ws[f"N{r_str}"].number_format = '#,##0'
-        ws[f"N{r_str}"].border = border_thin
+        ws[f"N{r_str}"].border = border_editable
         
-        # O: Nov Rev
-        ws[f"O{r_str}"] = nov_ant
-        ws[f"O{r_str}"].font = font_editable
-        ws[f"O{r_str}"].fill = fill_editable
+        # O: Dic Ant
+        ws[f"O{r_str}"] = dic_ant
+        ws[f"O{r_str}"].font = font_regular
+        ws[f"O{r_str}"].fill = fill_prev_hist
         ws[f"O{r_str}"].alignment = align_right
         ws[f"O{r_str}"].number_format = '#,##0'
-        ws[f"O{r_str}"].border = border_editable
+        ws[f"O{r_str}"].border = border_thin
         
-        # P: Dic Ant
+        # P: Dic Rev
         ws[f"P{r_str}"] = dic_ant
-        ws[f"P{r_str}"].font = font_regular
-        ws[f"P{r_str}"].fill = fill_prev_hist
+        ws[f"P{r_str}"].font = font_editable
+        ws[f"P{r_str}"].fill = fill_editable
         ws[f"P{r_str}"].alignment = align_right
         ws[f"P{r_str}"].number_format = '#,##0'
-        ws[f"P{r_str}"].border = border_thin
+        ws[f"P{r_str}"].border = border_editable
         
-        # Q: Dic Rev
-        ws[f"Q{r_str}"] = dic_ant
-        ws[f"Q{r_str}"].font = font_editable
-        ws[f"Q{r_str}"].fill = fill_editable
+        # Q: Total Q4 Ant = K + M + O
+        ws[f"Q{r_str}"] = f"=K{r_str}+M{r_str}+O{r_str}"
+        ws[f"Q{r_str}"].font = font_regular
         ws[f"Q{r_str}"].alignment = align_right
         ws[f"Q{r_str}"].number_format = '#,##0'
-        ws[f"Q{r_str}"].border = border_editable
+        ws[f"Q{r_str}"].border = border_thin
         
-        # R: Total Q4 Ant = L + N + P
+        # R: Total Q4 Rev = L + N + P
         ws[f"R{r_str}"] = f"=L{r_str}+N{r_str}+P{r_str}"
-        ws[f"R{r_str}"].font = font_regular
+        ws[f"R{r_str}"].font = font_bold
         ws[f"R{r_str}"].alignment = align_right
         ws[f"R{r_str}"].number_format = '#,##0'
         ws[f"R{r_str}"].border = border_thin
         
-        # S: Total Q4 Rev = M + O + Q
-        ws[f"S{r_str}"] = f"=M{r_str}+O{r_str}+Q{r_str}"
-        ws[f"S{r_str}"].font = font_bold
+        # S: Dif Q4 = R - Q
+        ws[f"S{r_str}"] = f"=R{r_str}-Q{r_str}"
+        ws[f"S{r_str}"].font = font_regular
         ws[f"S{r_str}"].alignment = align_right
-        ws[f"S{r_str}"].number_format = '#,##0'
+        ws[f"S{r_str}"].number_format = '+#,##0;-#,##0;0'
         ws[f"S{r_str}"].border = border_thin
         
-        # T: Dif Q4 = S - R
-        ws[f"T{r_str}"] = f"=S{r_str}-R{r_str}"
+        # T: Comentario Q4
+        ws[f"T{r_str}"] = ""
         ws[f"T{r_str}"].font = font_regular
-        ws[f"T{r_str}"].alignment = align_right
-        ws[f"T{r_str}"].number_format = '+#,##0;-#,##0;0'
+        ws[f"T{r_str}"].fill = fill_comment_q4
+        ws[f"T{r_str}"].alignment = align_left
         ws[f"T{r_str}"].border = border_thin
-        
-        # U: Comentario Q4
-        ws[f"U{r_str}"] = ""
-        ws[f"U{r_str}"].font = font_regular
-        ws[f"U{r_str}"].fill = fill_comment_q4
-        ws[f"U{r_str}"].alignment = align_left
-        ws[f"U{r_str}"].border = border_thin
         
         ws.row_dimensions[row_num].height = 20
         row_num += 1
@@ -431,14 +423,14 @@ def populate_sheet_commercial(ws, c, is_individual=False):
     for c_let in ['B', 'C', 'D', 'E']:
         ws[f"{c_let}{tr_str}"].border = border_double
         
-    # Sumas de cantidades (F: Prev, G: Real, H: Desv en valor absoluto, L, M, N, O, P, Q, R, S, T)
-    for c_let in ['F', 'G', 'H', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']:
+    # Sumas de cantidades (F: Prev, G: Real, H: Desv en valor absoluto, K, L, M, N, O, P, Q, R, S)
+    for c_let in ['F', 'G', 'H', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S']:
         ws[f"{c_let}{tr_str}"] = f"=SUM({c_let}{start_data_row}:{c_let}{last_data_row})"
         ws[f"{c_let}{tr_str}"].font = font_total
         ws[f"{c_let}{tr_str}"].fill = fill_total_row
         ws[f"{c_let}{tr_str}"].alignment = align_right
         ws[f"{c_let}{tr_str}"].border = border_double
-        ws[f"{c_let}{tr_str}"].number_format = '+#,##0;-#,##0;0' if c_let == 'T' else '#,##0'
+        ws[f"{c_let}{tr_str}"].number_format = '+#,##0;-#,##0;0' if c_let == 'S' else '#,##0'
         
     # Consecución Total
     ws[f"I{tr_str}"] = f'=IF(F{tr_str}>0, G{tr_str}/F{tr_str}, 1.0)'
@@ -448,17 +440,8 @@ def populate_sheet_commercial(ws, c, is_individual=False):
     ws[f"I{tr_str}"].number_format = '0.0%'
     ws[f"I{tr_str}"].border = border_double
     
-    # FÓRMULA OFICIAL DEL JEFE: 1 - SUM(|Ventas + Pendientes - Estimación|) / SUM(Estimación)
-    # H_tot es SUM(Desviaciones en valor absoluto), F_tot es SUM(Estimación)
-    ws[f"J{tr_str}"] = f'=IF(F{tr_str}>0, 1.0 - (H{tr_str}/F{tr_str}), 1.0)'
-    ws[f"J{tr_str}"].font = font_total
-    ws[f"J{tr_str}"].fill = fill_total_row
-    ws[f"J{tr_str}"].alignment = align_right
-    ws[f"J{tr_str}"].number_format = '0.0%'
-    ws[f"J{tr_str}"].border = border_double
-    
     # Vacíos para comentarios en total
-    for c_let in ['K', 'U']:
+    for c_let in ['J', 'T']:
         ws[f"{c_let}{tr_str}"].border = border_double
         ws[f"{c_let}{tr_str}"].fill = fill_total_row
         
@@ -491,9 +474,9 @@ def populate_sheet_commercial(ws, c, is_individual=False):
     ws['E6'].alignment = align_center
     ws['E6'].number_format = '#,##0 "u"'
     
-    # H:I -> I_tot (% Consecución)
-    ws.merge_cells("H5:I5")
-    ws.merge_cells("H6:I6")
+    # H:J -> I_tot (% Consecución)
+    ws.merge_cells("H5:J5")
+    ws.merge_cells("H6:J6")
     ws['H5'] = "% CONSECUCIÓN SEP"
     ws['H5'].font = font_kpi_lbl
     ws['H5'].fill = fill_card_kpi
@@ -504,59 +487,46 @@ def populate_sheet_commercial(ws, c, is_individual=False):
     ws['H6'].alignment = align_center
     ws['H6'].number_format = '0.0%'
     
-    # J:K -> J_tot (Forecast Accuracy Oficial Dirección)
-    ws.merge_cells("J5:K5")
-    ws.merge_cells("J6:K6")
-    ws['J5'] = "FORECAST ACCURACY SEP (OFICIAL)"
-    ws['J5'].font = font_kpi_lbl
-    ws['J5'].fill = fill_card_kpi
-    ws['J5'].alignment = align_center
-    ws['J6'] = f"=J{tr_str}"
-    ws['J6'].font = Font(name='Segoe UI', size=13, bold=True, color='0F172A')
-    ws['J6'].fill = fill_card_kpi
-    ws['J6'].alignment = align_center
-    ws['J6'].number_format = '0.0%'
+    # K:M -> Q_tot (Total Q4 Ant)
+    ws.merge_cells("K5:M5")
+    ws.merge_cells("K6:M6")
+    ws['K5'] = "PREVISIÓN INICIAL Q4 (U)"
+    ws['K5'].font = font_kpi_lbl
+    ws['K5'].fill = fill_card_blue
+    ws['K5'].alignment = align_center
+    ws['K6'] = f"=Q{tr_str}"
+    ws['K6'].font = Font(name='Segoe UI', size=13, bold=True, color='1D4ED8')
+    ws['K6'].fill = fill_card_blue
+    ws['K6'].alignment = align_center
+    ws['K6'].number_format = '#,##0 "u"'
     
-    # L:N -> R_tot (Total Q4 Ant)
-    ws.merge_cells("L5:N5")
-    ws.merge_cells("L6:N6")
-    ws['L5'] = "PREVISIÓN INICIAL Q4 (U)"
-    ws['L5'].font = font_kpi_lbl
-    ws['L5'].fill = fill_card_blue
-    ws['L5'].alignment = align_center
-    ws['L6'] = f"=R{tr_str}"
-    ws['L6'].font = Font(name='Segoe UI', size=13, bold=True, color='1D4ED8')
-    ws['L6'].fill = fill_card_blue
-    ws['L6'].alignment = align_center
-    ws['L6'].number_format = '#,##0 "u"'
+    # N:P -> R_tot (Total Q4 Rev)
+    ws.merge_cells("N5:P5")
+    ws.merge_cells("N6:P6")
+    ws['N5'] = "PREVISIÓN REVISADA Q4 (U)"
+    ws['N5'].font = font_kpi_lbl
+    ws['N5'].fill = fill_card_accent
+    ws['N5'].alignment = align_center
+    ws['N6'] = f"=R{tr_str}"
+    ws['N6'].font = Font(name='Segoe UI', size=13, bold=True, color='047857')
+    ws['N6'].fill = fill_card_accent
+    ws['N6'].alignment = align_center
+    ws['N6'].number_format = '#,##0 "u"'
     
-    # O:Q -> S_tot (Total Q4 Rev)
-    ws.merge_cells("O5:Q5")
-    ws.merge_cells("O6:Q6")
-    ws['O5'] = "PREVISIÓN REVISADA Q4 (U)"
-    ws['O5'].font = font_kpi_lbl
-    ws['O5'].fill = fill_card_accent
-    ws['O5'].alignment = align_center
-    ws['O6'] = f"=S{tr_str}"
-    ws['O6'].font = Font(name='Segoe UI', size=13, bold=True, color='047857')
-    ws['O6'].fill = fill_card_accent
-    ws['O6'].alignment = align_center
-    ws['O6'].number_format = '#,##0 "u"'
+    # Q:T -> S_tot (Diferencia Q4)
+    ws.merge_cells("Q5:T5")
+    ws.merge_cells("Q6:T6")
+    ws['Q5'] = "VARIACIÓN NETA Q4 (U)"
+    ws['Q5'].font = font_kpi_lbl
+    ws['Q5'].fill = fill_card_warn
+    ws['Q5'].alignment = align_center
+    ws['Q6'] = f"=S{tr_str}"
+    ws['Q6'].font = Font(name='Segoe UI', size=13, bold=True, color='B45309')
+    ws['Q6'].fill = fill_card_warn
+    ws['Q6'].alignment = align_center
+    ws['Q6'].number_format = '+#,##0 "u";-#,##0 "u";0 "u"'
     
-    # R:U -> T_tot (Diferencia Q4)
-    ws.merge_cells("R5:U5")
-    ws.merge_cells("R6:U6")
-    ws['R5'] = "VARIACIÓN NETA Q4 (U)"
-    ws['R5'].font = font_kpi_lbl
-    ws['R5'].fill = fill_card_warn
-    ws['R5'].alignment = align_center
-    ws['R6'] = f"=T{tr_str}"
-    ws['R6'].font = Font(name='Segoe UI', size=13, bold=True, color='B45309')
-    ws['R6'].fill = fill_card_warn
-    ws['R6'].alignment = align_center
-    ws['R6'].number_format = '+#,##0 "u";-#,##0 "u";0 "u"'
-    
-    for c1, c2 in [('B','D'), ('E','G'), ('H','I'), ('J','K'), ('L','N'), ('O','Q'), ('R','U')]:
+    for c1, c2 in [('B','D'), ('E','G'), ('H','J'), ('K','M'), ('N','P'), ('Q','T')]:
         start_c = ord(c1)
         end_c = ord(c2)
         for cc in range(start_c, end_c + 1):
@@ -564,9 +534,9 @@ def populate_sheet_commercial(ws, c, is_individual=False):
             ws[f"{letter}5"].border = border_thin
             ws[f"{letter}6"].border = border_thin
             
-    # Añadir Data Validation a columna K (Comentario Sep)
+    # Añadir Data Validation a columna J (Comentario Sep)
     ws.add_data_validation(dv_coment_sep)
-    dv_coment_sep.add(f"K{start_data_row}:K{last_data_row}")
+    dv_coment_sep.add(f"J{start_data_row}:J{last_data_row}")
     
     # Anchos de columna optimizados para visualización perfecta
     col_widths = {
@@ -579,18 +549,17 @@ def populate_sheet_commercial(ws, c, is_individual=False):
         'G': 15, # Sep Real
         'H': 14, # Desv Sep
         'I': 13, # % Consec
-        'J': 17, # Accuracy Oficial
-        'K': 32, # Coment Sep
-        'L': 15, # Oct Ant
-        'M': 16, # Oct Rev
-        'N': 15, # Nov Ant
-        'O': 16, # Nov Rev
-        'P': 15, # Dic Ant
-        'Q': 16, # Dic Rev
-        'R': 17, # Total Q4 Ant
-        'S': 17, # Total Q4 Rev
-        'T': 15, # Dif Q4
-        'U': 34  # Coment Q4
+        'J': 32, # Coment Sep
+        'K': 15, # Oct Ant
+        'L': 16, # Oct Rev
+        'M': 15, # Nov Ant
+        'N': 16, # Nov Rev
+        'O': 15, # Dic Ant
+        'P': 16, # Dic Rev
+        'Q': 17, # Total Q4 Ant
+        'R': 17, # Total Q4 Rev
+        'S': 15, # Dif Q4
+        'T': 34  # Coment Q4
     }
     for col_l, w in col_widths.items():
         ws.column_dimensions[col_l].width = w
@@ -624,14 +593,21 @@ ws_resumen['B2'].fill = fill_dark
 ws_resumen['B2'].alignment = Alignment(horizontal='left', vertical='center', indent=1)
 ws_resumen.row_dimensions[2].height = 36
 
-ws_resumen.merge_cells('B3:M3')
-ws_resumen['B3'] = f"Consolidado de Desviaciones de Septiembre (en valor absoluto) y Previsiones hasta Final de Año (Octubre a Diciembre) | Cierre Sep: 01/10/2026"
+ws_resumen.merge_cells('B2:L2')
+ws_resumen['B2'] = "CODIAGRO · RESUMEN DIRECCIÓN: REVISIÓN DE PREVISIONES Q4 2026"
+ws_resumen['B2'].font = font_title
+ws_resumen['B2'].fill = fill_dark
+ws_resumen['B2'].alignment = Alignment(horizontal='left', vertical='center', indent=1)
+ws_resumen.row_dimensions[2].height = 36
+
+ws_resumen.merge_cells('B3:L3')
+ws_resumen['B3'] = f"Consolidado de Desviaciones de Septiembre y Previsiones hasta Final de Año (Octubre a Diciembre) | Cierre Sep: 01/10/2026"
 ws_resumen['B3'].font = font_subtitle
 ws_resumen['B3'].fill = fill_subbanner
 ws_resumen['B3'].alignment = Alignment(horizontal='left', vertical='center', indent=1)
 ws_resumen.row_dimensions[3].height = 20
 
-# Resumen tabla cabeceras (12 columnas: B a M)
+# Resumen tabla cabeceras (11 columnas: B a L)
 res_headers = [
     ('B', 'Comercial', fill_col_hdr),
     ('C', 'Clientes Activos', fill_col_hdr),
@@ -639,12 +615,11 @@ res_headers = [
     ('E', 'Sep Real (u)', fill_col_sep),
     ('F', 'Desv. Sep (u)', fill_col_sep),
     ('G', '% Consec.', fill_col_sep),
-    ('H', 'Forecast Accuracy', fill_col_sep),
-    ('I', 'Oct Previsto (u)', fill_col_q4),
-    ('J', 'Nov Previsto (u)', fill_col_q4),
-    ('K', 'Dic Previsto (u)', fill_col_q4),
-    ('L', 'Total Q4 Previsto (u)', fill_col_q4),
-    ('M', 'Estado Cierre Sep', fill_col_hdr)
+    ('H', 'Oct Previsto (u)', fill_col_q4),
+    ('I', 'Nov Previsto (u)', fill_col_q4),
+    ('J', 'Dic Previsto (u)', fill_col_q4),
+    ('K', 'Total Q4 Previsto (u)', fill_col_q4),
+    ('L', 'Estado Cierre Sep', fill_col_hdr)
 ]
 
 ws_resumen.merge_cells('B5:C5')
@@ -653,22 +628,22 @@ ws_resumen['B5'].font = font_group_hdr
 ws_resumen['B5'].fill = fill_grp_info
 ws_resumen['B5'].alignment = align_center
 
-ws_resumen.merge_cells('D5:H5')
-ws_resumen['D5'] = "CIERRE SEPTIEMBRE 2026 (REAL vs PREVISTO Y EXACTITUD)"
+ws_resumen.merge_cells('D5:G5')
+ws_resumen['D5'] = "CIERRE SEPTIEMBRE 2026 (REAL vs PREVISTO)"
 ws_resumen['D5'].font = font_group_hdr
 ws_resumen['D5'].fill = fill_grp_sep
 ws_resumen['D5'].alignment = align_center
 
-ws_resumen.merge_cells('I5:L5')
-ws_resumen['I5'] = "PREVISIÓN CARTERA HASTA FINAL DE AÑO (Q4 2026)"
-ws_resumen['I5'].font = font_group_hdr
-ws_resumen['I5'].fill = fill_grp_q4
-ws_resumen['I5'].alignment = align_center
+ws_resumen.merge_cells('H5:K5')
+ws_resumen['H5'] = "PREVISIÓN CARTERA HASTA FINAL DE AÑO (Q4 2026)"
+ws_resumen['H5'].font = font_group_hdr
+ws_resumen['H5'].fill = fill_grp_q4
+ws_resumen['H5'].alignment = align_center
 
-ws_resumen.cell(5, 13).value = "VALIDACIÓN"
-ws_resumen.cell(5, 13).font = font_group_hdr
-ws_resumen.cell(5, 13).fill = fill_grp_tot
-ws_resumen.cell(5, 13).alignment = align_center
+ws_resumen.cell(5, 12).value = "VALIDACIÓN"
+ws_resumen.cell(5, 12).font = font_group_hdr
+ws_resumen.cell(5, 12).fill = fill_grp_tot
+ws_resumen.cell(5, 12).alignment = align_center
 ws_resumen.row_dimensions[5].height = 22
 
 for c_l, h_t, f_c in res_headers:
@@ -744,46 +719,39 @@ for c in comerciales:
     ws_resumen[f"G{r_str}"].number_format = '0.0%'
     ws_resumen[f"G{r_str}"].border = border_thin
     
-    # H: Accuracy Oficial Dirección (col J en hoja individual)
-    ws_resumen[f"H{r_str}"] = f"{s_c}J{t_row_sheet}"
-    ws_resumen[f"H{r_str}"].font = font_bold
+    # H: Oct Previsto (col L en hoja individual)
+    ws_resumen[f"H{r_str}"] = f"{s_c}L{t_row_sheet}"
+    ws_resumen[f"H{r_str}"].font = font_editable
     ws_resumen[f"H{r_str}"].alignment = align_right
-    ws_resumen[f"H{r_str}"].number_format = '0.0%'
+    ws_resumen[f"H{r_str}"].number_format = '#,##0'
     ws_resumen[f"H{r_str}"].border = border_thin
     
-    # I: Oct Previsto (col M en hoja individual)
-    ws_resumen[f"I{r_str}"] = f"{s_c}M{t_row_sheet}"
+    # I: Nov Previsto (col N en hoja individual)
+    ws_resumen[f"I{r_str}"] = f"{s_c}N{t_row_sheet}"
     ws_resumen[f"I{r_str}"].font = font_editable
     ws_resumen[f"I{r_str}"].alignment = align_right
     ws_resumen[f"I{r_str}"].number_format = '#,##0'
     ws_resumen[f"I{r_str}"].border = border_thin
     
-    # J: Nov Previsto (col O en hoja individual)
-    ws_resumen[f"J{r_str}"] = f"{s_c}O{t_row_sheet}"
+    # J: Dic Previsto (col P en hoja individual)
+    ws_resumen[f"J{r_str}"] = f"{s_c}P{t_row_sheet}"
     ws_resumen[f"J{r_str}"].font = font_editable
     ws_resumen[f"J{r_str}"].alignment = align_right
     ws_resumen[f"J{r_str}"].number_format = '#,##0'
     ws_resumen[f"J{r_str}"].border = border_thin
     
-    # K: Dic Previsto (col Q en hoja individual)
-    ws_resumen[f"K{r_str}"] = f"{s_c}Q{t_row_sheet}"
-    ws_resumen[f"K{r_str}"].font = font_editable
+    # K: Total Q4 Previsto (col R en hoja individual)
+    ws_resumen[f"K{r_str}"] = f"{s_c}R{t_row_sheet}"
+    ws_resumen[f"K{r_str}"].font = font_bold
     ws_resumen[f"K{r_str}"].alignment = align_right
     ws_resumen[f"K{r_str}"].number_format = '#,##0'
     ws_resumen[f"K{r_str}"].border = border_thin
     
-    # L: Total Q4 Previsto (col S en hoja individual)
-    ws_resumen[f"L{r_str}"] = f"{s_c}S{t_row_sheet}"
+    # L: Estado
+    ws_resumen[f"L{r_str}"] = f'=IF(G{r_str}>=1.0, "Superado (+)", IF(G{r_str}>=0.7, "En Rango", "Revisar"))'
     ws_resumen[f"L{r_str}"].font = font_bold
-    ws_resumen[f"L{r_str}"].alignment = align_right
-    ws_resumen[f"L{r_str}"].number_format = '#,##0'
+    ws_resumen[f"L{r_str}"].alignment = align_center
     ws_resumen[f"L{r_str}"].border = border_thin
-    
-    # M: Estado
-    ws_resumen[f"M{r_str}"] = f'=IF(G{r_str}>=1.0, "Superado (+)", IF(G{r_str}>=0.7, "En Rango", "Revisar"))'
-    ws_resumen[f"M{r_str}"].font = font_bold
-    ws_resumen[f"M{r_str}"].alignment = align_center
-    ws_resumen[f"M{r_str}"].border = border_thin
     
     ws_resumen.row_dimensions[r_res].height = 22
     r_res += 1
@@ -800,8 +768,8 @@ ws_resumen[f"C{tot_r_res}"].fill = fill_total_row
 ws_resumen[f"C{tot_r_res}"].alignment = align_center
 ws_resumen[f"C{tot_r_res}"].border = border_double
 
-# Sumas de Previsto (D), Real (E), Desv (F), Oct (I), Nov (J), Dic (K), Total Q4 (L)
-for cl in ['D', 'E', 'F', 'I', 'J', 'K', 'L']:
+# Sumas de Previsto (D), Real (E), Desv (F), Oct (H), Nov (I), Dic (J), Total Q4 (K)
+for cl in ['D', 'E', 'F', 'H', 'I', 'J', 'K']:
     ws_resumen[f"{cl}{tot_r_res}"] = f"=SUM({cl}7:{cl}{r_res-1})"
     ws_resumen[f"{cl}{tot_r_res}"].font = font_total
     ws_resumen[f"{cl}{tot_r_res}"].fill = fill_total_row
@@ -817,25 +785,16 @@ ws_resumen[f"G{tot_r_res}"].alignment = align_right
 ws_resumen[f"G{tot_r_res}"].border = border_double
 ws_resumen[f"G{tot_r_res}"].number_format = '0.0%'
 
-# Total Accuracy Oficial Dirección: 1 - SUM(Desviación en valor absoluto) / SUM(Estimación)
-# F{tot_r_res} es la suma de las desviaciones en valor absoluto de todos los comerciales, D{tot_r_res} es la suma de la estimación
-ws_resumen[f"H{tot_r_res}"] = f'=1.0 - (F{tot_r_res}/D{tot_r_res})'
-ws_resumen[f"H{tot_r_res}"].font = font_total
-ws_resumen[f"H{tot_r_res}"].fill = fill_total_row
-ws_resumen[f"H{tot_r_res}"].alignment = align_right
-ws_resumen[f"H{tot_r_res}"].border = border_double
-ws_resumen[f"H{tot_r_res}"].number_format = '0.0%'
-
-ws_resumen[f"M{tot_r_res}"] = "CONSOLIDADO"
-ws_resumen[f"M{tot_r_res}"].font = font_total
-ws_resumen[f"M{tot_r_res}"].fill = fill_total_row
-ws_resumen[f"M{tot_r_res}"].alignment = align_center
-ws_resumen[f"M{tot_r_res}"].border = border_double
+ws_resumen[f"L{tot_r_res}"] = "CONSOLIDADO"
+ws_resumen[f"L{tot_r_res}"].font = font_total
+ws_resumen[f"L{tot_r_res}"].fill = fill_total_row
+ws_resumen[f"L{tot_r_res}"].alignment = align_center
+ws_resumen[f"L{tot_r_res}"].border = border_double
 ws_resumen[f"B{tot_r_res}"].border = border_double
 
 ws_resumen.row_dimensions[r_res].height = 25
 
-res_widths = {'A': 3, 'B': 18, 'C': 16, 'D': 17, 'E': 17, 'F': 16, 'G': 14, 'H': 17, 'I': 16, 'J': 16, 'K': 16, 'L': 19, 'M': 18}
+res_widths = {'A': 3, 'B': 18, 'C': 16, 'D': 17, 'E': 17, 'F': 16, 'G': 14, 'H': 16, 'I': 16, 'J': 16, 'K': 19, 'L': 18}
 for c_l, w in res_widths.items():
     ws_resumen.column_dimensions[c_l].width = w
 

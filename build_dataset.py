@@ -133,12 +133,12 @@ def build_dataset():
                 continue
 
             gap_u = float(max(0.0, b_u - p_u))
-            desv_u = float(p_u - b_u)
+            desv_u = float(abs(p_u - b_u))
             pct_u = float((p_u / b_u * 100) if b_u > 0 else (100.0 if p_u > 0 else 0.0))
             
-            # Fórmula oficial Forecast Accuracy: 1 - |(Ventas + Pendientes) - Estimación| / Estimación
-            err_abs_u = float(abs(p_u - b_u))
-            acc_u = float((1.0 - err_abs_u / b_u) * 100 if b_u > 0 else (100.0 if p_u == 0 else 0.0))
+            # Fórmula oficial Forecast Accuracy: 1 - Desviación / Estimación (Desviación en valor absoluto)
+            err_abs_u = desv_u
+            acc_u = float((1.0 - desv_u / b_u) * 100 if b_u > 0 else (100.0 if p_u == 0 else 0.0))
 
             if b_u == 0 and p_u > 0:
                 est = "Extra Estimación"
@@ -161,7 +161,7 @@ def build_dataset():
                 'pendientes_uds': pend_u,
                 'gap_uds': gap_u,
                 'desv_uds': desv_u,
-                'error_abs_uds': err_abs_u,
+                'error_abs_uds': desv_u,
                 'pct_consec': pct_u,
                 'forecast_accuracy': acc_u,
                 'importe_neto': imp,
@@ -170,8 +170,9 @@ def build_dataset():
 
         # Totales comercial con la fórmula oficial del jefe:
         # Forecast Accuracy = 1 - SUM(|Ventas + Pedidos Pendientes - Estimación|) / SUM(Estimación)
-        com_err_tot = float(sum(l['error_abs_uds'] for l in lines))
-        com_acc_tot = float((1.0 - com_err_tot / b_tot) * 100 if b_tot > 0 else 0.0)
+        # Desviación es en valor absoluto
+        com_desv_tot = float(sum(l['desv_uds'] for l in lines))
+        com_acc_tot = float((1.0 - com_desv_tot / b_tot) * 100 if b_tot > 0 else 0.0)
 
         summary_list.append({
             'comercial': c,
@@ -181,8 +182,8 @@ def build_dataset():
             'servidas_uds': s_tot,
             'pendientes_uds': pend_tot,
             'gap_uds': gap_tot,
-            'desv_uds': desv_tot,
-            'error_abs_uds': com_err_tot,
+            'desv_uds': com_desv_tot,
+            'error_abs_uds': com_desv_tot,
             'pct_consec': pct_tot,
             'forecast_accuracy': com_acc_tot,
             'importe_neto': imp_tot,
@@ -197,8 +198,8 @@ def build_dataset():
                 'servidas_uds': s_tot,
                 'pendientes_uds': pend_tot,
                 'gap_uds': gap_tot,
-                'desv_uds': desv_tot,
-                'error_abs_uds': com_err_tot,
+                'desv_uds': com_desv_tot,
+                'error_abs_uds': com_desv_tot,
                 'pct_consec': pct_tot,
                 'forecast_accuracy': com_acc_tot,
                 'importe_neto': imp_tot
@@ -218,8 +219,8 @@ def build_dataset():
 
     tot_budget_all = float(df_bud['Sep-26 (u)'].sum())
     tot_pedidos_all = float(df_ped['Pedidas'].sum())
-    tot_error_all = float(sum(item['error_abs_uds'] for item in summary_list))
-    global_accuracy = float((1.0 - tot_error_all / tot_budget_all) * 100 if tot_budget_all > 0 else 0.0)
+    tot_desv_all = float(sum(item['desv_uds'] for item in summary_list))
+    global_accuracy = float((1.0 - tot_desv_all / tot_budget_all) * 100 if tot_budget_all > 0 else 0.0)
 
     global_kpis = {
         'budget_uds': tot_budget_all,
@@ -227,8 +228,8 @@ def build_dataset():
         'servidas_uds': float(df_ped['Servidas'].sum()),
         'pendientes_uds': float(df_ped['Pendientes'].sum()),
         'gap_uds': float(sum(item['gap_uds'] for item in summary_list)),
-        'desv_uds': float(tot_pedidos_all - tot_budget_all),
-        'error_abs_uds': tot_error_all,
+        'desv_uds': tot_desv_all,
+        'error_abs_uds': tot_desv_all,
         'pct_consec': float((tot_pedidos_all / tot_budget_all * 100) if tot_budget_all > 0 else 0.0),
         'forecast_accuracy': global_accuracy,
         'importe_neto': float(df_ped['ImporteNeto'].sum()),

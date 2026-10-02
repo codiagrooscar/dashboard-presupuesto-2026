@@ -784,6 +784,9 @@
       let totalPendientes = 0;
       let totalGap = 0;
       let totalErrorAbs = 0;
+      let totalBudgetNac = 0;
+      let totalPedidosNac = 0;
+      let totalErrorAbsNac = 0;
 
       if (data.comerciales) {
         Object.keys(data.comerciales).forEach(com => {
@@ -796,6 +799,9 @@
           let comPendientes = 0;
           let comGap = 0;
           let comError = 0;
+          let comBudNac = 0;
+          let comPedNac = 0;
+          let comErrNac = 0;
 
           lines.forEach(l => {
             l.budget_uds = Number(l.budget_uds) || 0;
@@ -813,12 +819,22 @@
               l.forecast_accuracy = 0;
             }
 
+            if (l.is_nacional === undefined) {
+              l.is_nacional = (l.origen === 'Nacional') || (!['Mehmet', 'Ricardo'].includes(com) && l.origen !== 'Exportación');
+            }
+
             comBudget += l.budget_uds;
             comPedidos += l.pedidos_uds;
             comServidas += l.servidas_uds;
             comPendientes += l.pendientes_uds;
             comGap += l.gap_uds;
             comError += l.desv_uds;
+
+            if (l.is_nacional) {
+              comBudNac += l.budget_uds;
+              comPedNac += l.pedidos_uds;
+              comErrNac += l.desv_uds;
+            }
           });
 
           if (typeof k.desv_uds !== 'number') k.desv_uds = comError;
@@ -831,6 +847,16 @@
           if (typeof k.pct_consec !== 'number') {
             k.pct_consec = (k.budget_uds || comBudget) > 0 ? ((k.pedidos_uds || comPedidos) / (k.budget_uds || comBudget) * 100) : 0;
           }
+
+          k.budget_uds_nacional = k.budget_uds_nacional !== undefined ? k.budget_uds_nacional : comBudNac;
+          k.pedidos_uds_nacional = k.pedidos_uds_nacional !== undefined ? k.pedidos_uds_nacional : comPedNac;
+          k.desv_uds_nacional = k.desv_uds_nacional !== undefined ? k.desv_uds_nacional : comErrNac;
+          if (typeof k.forecast_accuracy_nacional !== 'number') {
+            k.forecast_accuracy_nacional = k.budget_uds_nacional > 0 ? Math.max(0, ((1.0 - (k.desv_uds_nacional / k.budget_uds_nacional)) * 100)) : 0;
+          } else if (k.forecast_accuracy_nacional < 0) {
+            k.forecast_accuracy_nacional = 0;
+          }
+          k.tiene_nacional = k.budget_uds_nacional > 0 || k.pedidos_uds_nacional > 0;
         });
       }
 
@@ -847,12 +873,32 @@
           if (typeof r.pct_consec !== 'number') {
             r.pct_consec = (r.budget_uds || 0) > 0 ? ((r.pedidos_uds || 0) / r.budget_uds * 100) : 0;
           }
+
+          if (k) {
+            r.budget_uds_nacional = k.budget_uds_nacional;
+            r.pedidos_uds_nacional = k.pedidos_uds_nacional;
+            r.desv_uds_nacional = k.desv_uds_nacional;
+            r.forecast_accuracy_nacional = k.forecast_accuracy_nacional;
+            r.tiene_nacional = k.tiene_nacional;
+          } else {
+            if (typeof r.forecast_accuracy_nacional !== 'number') {
+              r.forecast_accuracy_nacional = (r.budget_uds_nacional || 0) > 0 ? Math.max(0, ((1.0 - ((r.desv_uds_nacional || 0) / r.budget_uds_nacional)) * 100)) : 0;
+            } else if (r.forecast_accuracy_nacional < 0) {
+              r.forecast_accuracy_nacional = 0;
+            }
+            r.tiene_nacional = (r.budget_uds_nacional || 0) > 0 || (r.pedidos_uds_nacional || 0) > 0;
+          }
+
           totalBudget += r.budget_uds || 0;
           totalPedidos += r.pedidos_uds || 0;
           totalServidas += r.servidas_uds || 0;
           totalPendientes += r.pendientes_uds || 0;
           totalGap += r.gap_uds || 0;
           totalErrorAbs += r.desv_uds || 0;
+
+          totalBudgetNac += r.budget_uds_nacional || 0;
+          totalPedidosNac += r.pedidos_uds_nacional || 0;
+          totalErrorAbsNac += r.desv_uds_nacional || 0;
         });
       }
 
@@ -867,6 +913,15 @@
         }
         if (typeof g.pct_consec !== 'number') {
           g.pct_consec = (g.budget_uds || 0) > 0 ? ((g.pedidos_uds || 0) / g.budget_uds * 100) : 0;
+        }
+
+        g.budget_uds_nacional = g.budget_uds_nacional !== undefined ? g.budget_uds_nacional : totalBudgetNac;
+        g.pedidos_uds_nacional = g.pedidos_uds_nacional !== undefined ? g.pedidos_uds_nacional : totalPedidosNac;
+        g.desv_uds_nacional = g.desv_uds_nacional !== undefined ? g.desv_uds_nacional : totalErrorAbsNac;
+        if (typeof g.forecast_accuracy_nacional !== 'number') {
+          g.forecast_accuracy_nacional = (g.budget_uds_nacional || 0) > 0 ? Math.max(0, ((1.0 - (g.desv_uds_nacional / g.budget_uds_nacional)) * 100)) : 0;
+        } else if (g.forecast_accuracy_nacional < 0) {
+          g.forecast_accuracy_nacional = 0;
         }
       }
     }
@@ -1098,11 +1153,20 @@
 
           <div class="kpi-card accent-blue">
             <div class="kpi-header">
-              <span class="kpi-title">Forecast Accuracy</span>
-              <span class="tab-badge badge-neutral" title="Fórmula oficial Dirección: 1 - SUM(|Ventas + Pendientes - Estimación|) / SUM(Estimación)">Fórmula Dirección</span>
+              <span class="kpi-title">Forecast Accuracy Global</span>
+              <span class="tab-badge badge-neutral" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Total Cartera</span>
             </div>
             <div class="kpi-value" style="color: ${(g.forecast_accuracy || 0) >= 80 ? '#34d399' : ((g.forecast_accuracy || 0) >= 50 ? '#fbbf24' : ((g.forecast_accuracy || 0) > 0 ? '#38bdf8' : '#f87171'))}">${fmtAcc(g.forecast_accuracy)}</div>
-            <div class="kpi-subtext">Desviación Absoluta Total: <strong>${fmtNum(g.desv_uds, 2)} u</strong></div>
+            <div class="kpi-subtext">Total planificado: <strong>${fmtNum(g.budget_uds)} u</strong> &bull; Desv: <strong>${fmtNum(g.desv_uds, 2)} u</strong></div>
+          </div>
+
+          <div class="kpi-card accent-emerald">
+            <div class="kpi-header">
+              <span class="kpi-title">Accuracy Prod. Nacionales</span>
+              <span class="tab-badge badge-success" title="Productos sin siglas de país en el SKU (Mercado Nacional)">Sin Siglas País</span>
+            </div>
+            <div class="kpi-value" style="color: ${(g.forecast_accuracy_nacional || 0) >= 80 ? '#34d399' : ((g.forecast_accuracy_nacional || 0) >= 50 ? '#fbbf24' : ((g.forecast_accuracy_nacional || 0) > 0 ? '#38bdf8' : '#f87171'))}">${fmtAcc(g.forecast_accuracy_nacional)}</div>
+            <div class="kpi-subtext">Budget Nac: <strong>${fmtNum(g.budget_uds_nacional)} u</strong> &bull; Desv: <strong>${fmtNum(g.desv_uds_nacional, 2)} u</strong></div>
           </div>
         </div>
 
@@ -1139,18 +1203,19 @@
           <div class="table-wrapper">
             <table>
               <colgroup>
-                <col style="width: 13%">
-                <col style="width: 6%">
-                <col style="width: 9%">
-                <col style="width: 9%">
+                <col style="width: 12%">
+                <col style="width: 5%">
                 <col style="width: 8.5%">
                 <col style="width: 8.5%">
                 <col style="width: 8%">
                 <col style="width: 8%">
-                <col style="width: 8%">
-                <col style="width: 8.5%">
                 <col style="width: 7.5%">
-                <col style="width: 6%">
+                <col style="width: 7.5%">
+                <col style="width: 7.5%">
+                <col style="width: 8.5%">
+                <col style="width: 8.5%">
+                <col style="width: 8%">
+                <col style="width: 6.5%">
               </colgroup>
               <thead>
                 <tr>
@@ -1163,7 +1228,8 @@
                   <th class="text-right">Falta</th>
                   <th class="text-right" title="Desviación en valor absoluto |Pedidos - Estimación|">Desv. Abs. (u)</th>
                   <th class="text-right">% Consec.</th>
-                  <th class="text-right" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Accuracy</th>
+                  <th class="text-right" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Accuracy Global</th>
+                  <th class="text-right" title="Forecast Accuracy solo productos nacionales (sin siglas de país en el SKU)">Accuracy Nac.</th>
                   <th class="text-center">Estado</th>
                   <th class="text-center">Ver</th>
                 </tr>
@@ -1175,6 +1241,12 @@
         const pctBadge = r.pct_consec >= 100 ? 'badge-success' : (r.pct_consec >= 50 ? 'badge-warning' : 'badge-danger');
         const accVal = r.forecast_accuracy;
         const accColor = accVal >= 80 ? '#34d399' : (accVal >= 50 ? '#fbbf24' : (accVal > 0 ? '#38bdf8' : '#f87171'));
+
+        const accNacVal = r.forecast_accuracy_nacional;
+        const accNacColor = (accNacVal || 0) >= 80 ? '#34d399' : ((accNacVal || 0) >= 50 ? '#fbbf24' : ((accNacVal || 0) > 0 ? '#38bdf8' : '#f87171'));
+        const accNacDisplay = r.tiene_nacional 
+          ? `<strong style="color: ${accNacColor}">${fmtAcc(accNacVal)}</strong>` 
+          : `<span style="color:var(--muted); font-size:0.75rem" title="Cartera 100% Exportación">Exportación</span>`;
 
         html += `
           <tr>
@@ -1195,6 +1267,7 @@
               </div>
             </td>
             <td class="text-right"><strong style="color: ${accColor}">${fmtAcc(accVal)}</strong></td>
+            <td class="text-right">${accNacDisplay}</td>
             <td class="text-center"><span class="tab-badge ${pctBadge}">${r.estado}</span></td>
             <td class="text-center">
               <button class="btn-table-action" onclick="switchTab('${r.comercial}')">Ver Detalle &rarr;</button>
@@ -1205,6 +1278,8 @@
 
       const gAcc = g.forecast_accuracy;
       const gAccColor = (gAcc || 0) >= 80 ? '#34d399' : ((gAcc || 0) >= 50 ? '#fbbf24' : ((gAcc || 0) > 0 ? '#38bdf8' : '#f87171'));
+      const gAccNac = g.forecast_accuracy_nacional;
+      const gAccNacColor = (gAccNac || 0) >= 80 ? '#34d399' : ((gAccNac || 0) >= 50 ? '#fbbf24' : ((gAccNac || 0) > 0 ? '#38bdf8' : '#f87171'));
 
       html += `
               </tbody>
@@ -1220,6 +1295,7 @@
                   <td class="text-right" style="color:#cbd5e1; font-weight:700">${fmtNum(g.desv_uds, 2)}</td>
                   <td class="text-right" style="color:#34d399; font-size:1rem">${fmtPct(g.pct_consec)}</td>
                   <td class="text-right" style="color:${gAccColor}; font-size:0.95rem; font-weight:800">${fmtAcc(gAcc)}</td>
+                  <td class="text-right" style="color:${gAccNacColor}; font-size:0.95rem; font-weight:800">${fmtAcc(gAccNac)}</td>
                   <td class="text-center"><span class="tab-badge badge-success">EN OBJETIVO</span></td>
                   <td></td>
                 </tr>
@@ -1356,13 +1432,20 @@
       const pctBadge = k.pct_consec >= 100 ? 'badge-success' : (k.pct_consec >= 50 ? 'badge-warning' : 'badge-danger');
       const isExtra = (st) => st === 'Extra Budget' || st === 'Extra Estimación';
       const extraCount = lines.filter(l => isExtra(l.estado)).length;
+      const nacCount = lines.filter(l => l.is_nacional).length;
+      const expCount = lines.filter(l => !l.is_nacional).length;
+      const hasOriginSplit = (nacCount > 0 && expCount > 0);
 
       // Filtrado previo para poder computar subtotales de la partida filtrada
       const filtered = lines.filter(l => {
-        // Filtro por estado
+        // Filtro por estado u origen
         if (currentFilter !== 'ALL') {
           if (currentFilter === 'Extra Estimación' || currentFilter === 'Extra Budget') {
             if (!isExtra(l.estado)) return false;
+          } else if (currentFilter === 'Nacional') {
+            if (!l.is_nacional) return false;
+          } else if (currentFilter === 'Exportación') {
+            if (l.is_nacional) return false;
           } else if (l.estado !== currentFilter) {
             return false;
           }
@@ -1415,6 +1498,10 @@
           subtotalLabel = `TOTAL ${uniqueClients[0].toUpperCase()}`;
         } else if (searchQuery.trim() !== '') {
           subtotalLabel = `SUBTOTAL "${searchQuery.trim().toUpperCase()}"`;
+        } else if (currentFilter === 'Nacional') {
+          subtotalLabel = `SUBTOTAL PRODUCTOS NACIONALES`;
+        } else if (currentFilter === 'Exportación') {
+          subtotalLabel = `SUBTOTAL PRODUCTOS EXPORTACIÓN`;
         } else if (currentFilter !== 'ALL') {
           subtotalLabel = `SUBTOTAL ${currentFilter.toUpperCase()}`;
         } else {
@@ -1471,11 +1558,24 @@
 
           <div class="kpi-card accent-blue">
             <div class="kpi-header">
-              <span class="kpi-title">Forecast Accuracy</span>
-              <span class="tab-badge badge-neutral" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Fórmula Dirección</span>
+              <span class="kpi-title">Accuracy Global</span>
+              <span class="tab-badge badge-neutral" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Todos los Productos</span>
             </div>
             <div class="kpi-value" style="color: ${(k.forecast_accuracy || 0) >= 80 ? '#34d399' : ((k.forecast_accuracy || 0) >= 50 ? '#fbbf24' : ((k.forecast_accuracy || 0) > 0 ? '#38bdf8' : '#f87171'))}">${fmtAcc(k.forecast_accuracy)}</div>
-            <div class="kpi-subtext">Desviación Absoluta Total: <strong>${fmtNum(k.desv_uds, 2)} u</strong></div>
+            <div class="kpi-subtext">Desviación: <strong>${fmtNum(k.desv_uds, 2)} u</strong></div>
+          </div>
+
+          <div class="kpi-card accent-emerald">
+            <div class="kpi-header">
+              <span class="kpi-title">Accuracy Prod. Nacionales</span>
+              <span class="tab-badge badge-success" title="Productos sin siglas de país en el SKU (Mercado Nacional)">Sin Siglas País</span>
+            </div>
+            <div class="kpi-value" style="color: ${k.tiene_nacional ? ((k.forecast_accuracy_nacional || 0) >= 80 ? '#34d399' : ((k.forecast_accuracy_nacional || 0) >= 50 ? '#fbbf24' : ((k.forecast_accuracy_nacional || 0) > 0 ? '#38bdf8' : '#f87171'))) : 'var(--muted)'}">
+              ${k.tiene_nacional ? fmtAcc(k.forecast_accuracy_nacional) : 'N/A'}
+            </div>
+            <div class="kpi-subtext">
+              ${k.tiene_nacional ? `Budget Nac: <strong>${fmtNum(k.budget_uds_nacional, 2)} u</strong> &bull; Desv: <strong>${fmtNum(k.desv_uds_nacional, 2)} u</strong>` : 'Cartera 100% Exportación'}
+            </div>
           </div>
         </div>
 
@@ -1492,6 +1592,10 @@
               <button class="pill-btn ${currentFilter === 'Rezagado' ? 'active' : ''}" onclick="setFilter('Rezagado')">Rezagados (${lines.filter(l => l.estado==='Rezagado').length})</button>
               <button class="pill-btn ${currentFilter === 'Sin Pedido' ? 'active' : ''}" onclick="setFilter('Sin Pedido')">Sin Pedido (${lines.filter(l => l.estado==='Sin Pedido').length})</button>
               <button class="pill-btn ${currentFilter === 'Extra Estimación' ? 'active' : ''}" onclick="setFilter('Extra Estimación')">Extra Estimación (${extraCount})</button>
+              ${hasOriginSplit ? `
+                <button class="pill-btn ${currentFilter === 'Nacional' ? 'active' : ''}" onclick="setFilter('Nacional')" style="border-color: rgba(16, 185, 129, 0.45);"><span style="margin-right:3px">🇪🇸</span>Nacionales (${nacCount})</button>
+                <button class="pill-btn ${currentFilter === 'Exportación' ? 'active' : ''}" onclick="setFilter('Exportación')" style="border-color: rgba(59, 130, 246, 0.45);"><span style="margin-right:3px">🌍</span>Exportación (${expCount})</button>
+              ` : ''}
             </div>
           </div>
 
@@ -1528,8 +1632,8 @@
             <table>
               <colgroup>
                 <col style="width: 16%">
-                <col style="width: 7%">
-                <col style="width: 13%">
+                <col style="width: 9%">
+                <col style="width: 12%">
                 <col style="width: 6.5%">
                 <col style="width: 6.5%">
                 <col style="width: 6%">
@@ -1537,8 +1641,8 @@
                 <col style="width: 6%">
                 <col style="width: 6%">
                 <col style="width: 7%">
-                <col style="width: 7.5%">
-                <col style="width: 12.5%">
+                <col style="width: 6.5%">
+                <col style="width: 11.5%">
               </colgroup>
               <thead>
                 <tr>
@@ -1576,7 +1680,10 @@
           html += `
             <tr>
               <td><strong>${l.cliente}</strong></td>
-              <td><span style="font-family:monospace; background:rgba(255,255,255,0.06); padding:0.15rem 0.4rem; border-radius:4px; font-weight:600">${l.sku}</span></td>
+              <td>
+                <span style="font-family:monospace; background:rgba(255,255,255,0.06); padding:0.15rem 0.4rem; border-radius:4px; font-weight:600">${l.sku}</span>
+                <span class="tab-badge ${l.is_nacional ? 'badge-success' : 'badge-info'}" style="font-size:0.62rem; padding:0.1rem 0.35rem; margin-left:4px" title="${l.is_nacional ? 'Producto Nacional (sin siglas de país)' : 'Producto Exportación (con siglas de país)'}">${l.is_nacional ? '🇪🇸 Nac' : '🌍 Exp'}</span>
+              </td>
               <td><span style="color:#cbd5e1" title="${l.descripcion}">${l.descripcion || '—'}</span></td>
               <td class="text-right">${fmtNum(l.budget_uds, 2)}</td>
               <td class="text-right" style="font-weight:700; color:${l.pedidos_uds > 0 ? '#f8fafc' : 'var(--muted)'}">${fmtNum(l.pedidos_uds, 2)}</td>

@@ -109,6 +109,22 @@ def load_data_sources():
 
     return df_ped_sep, df_ped_oct, df_bud, sep_file, oct_file
 
+def is_line_nacional(cli, sku, b_match, com, df_bud):
+    if len(b_match) > 0:
+        return (str(b_match['País'].iloc[0]).strip().upper() == 'ESPAÑA')
+    if com in ['Alfonso', 'Irene', 'Javier', 'Pedro']:
+        return True
+    if com in ['Mehmet', 'Ricardo']:
+        return False
+    # Para García o clientes sin budget
+    m = df_bud[df_bud['Cliente'] == cli]
+    if len(m) > 0:
+        return (str(m['País'].iloc[0]).strip().upper() == 'ESPAÑA')
+    sku_clean = str(sku).strip().upper()
+    if len(sku_clean) >= 2 and sku_clean[-2:].isalpha():
+        return False
+    return True
+
 def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, period_subtitle, period_status, badge_class, fecha_corte='01/10/2026', is_active=False):
     comerciales = ['Alfonso', 'García', 'Irene', 'Javier', 'Mehmet', 'Pedro', 'Ricardo']
     summary_list = []
@@ -178,6 +194,8 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
             else:
                 est = "Sin Pedido"
 
+            is_nac = is_line_nacional(cli, sku, b_match, c, df_bud)
+
             lines.append({
                 'cliente': cli,
                 'sku': sku,
@@ -192,12 +210,25 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
                 'pct_consec': pct_u,
                 'forecast_accuracy': acc_u,
                 'importe_neto': imp,
-                'estado': est
+                'estado': est,
+                'is_nacional': is_nac,
+                'origen': 'Nacional' if is_nac else 'Exportación'
             })
 
         com_desv_tot = float(sum(l['desv_uds'] for l in lines))
         # Si es negativo, pon 0%
         com_acc_tot = float(max(0.0, (1.0 - com_desv_tot / b_tot) * 100) if b_tot > 0 else 0.0)
+
+        # Métricas Productos Nacionales (sin siglas de país)
+        com_bud_nac = float(sum(l['budget_uds'] for l in lines if l['is_nacional']))
+        com_ped_nac = float(sum(l['pedidos_uds'] for l in lines if l['is_nacional']))
+        com_serv_nac = float(sum(l['servidas_uds'] for l in lines if l['is_nacional']))
+        com_pend_nac = float(sum(l['pendientes_uds'] for l in lines if l['is_nacional']))
+        com_gap_nac = float(sum(l['gap_uds'] for l in lines if l['is_nacional']))
+        com_desv_nac = float(sum(l['desv_uds'] for l in lines if l['is_nacional']))
+        com_acc_nac = float(max(0.0, (1.0 - com_desv_nac / com_bud_nac) * 100) if com_bud_nac > 0 else 0.0)
+        com_pct_nac = float((com_ped_nac / com_bud_nac * 100) if com_bud_nac > 0 else (100.0 if com_ped_nac > 0 else 0.0))
+        tiene_nac = bool(com_bud_nac > 0 or com_ped_nac > 0)
 
         summary_list.append({
             'comercial': c,
@@ -211,6 +242,15 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
             'error_abs_uds': com_desv_tot,
             'pct_consec': pct_tot,
             'forecast_accuracy': com_acc_tot,
+            'budget_uds_nacional': com_bud_nac,
+            'pedidos_uds_nacional': com_ped_nac,
+            'servidas_uds_nacional': com_serv_nac,
+            'pendientes_uds_nacional': com_pend_nac,
+            'gap_uds_nacional': com_gap_nac,
+            'desv_uds_nacional': com_desv_nac,
+            'pct_consec_nacional': com_pct_nac,
+            'forecast_accuracy_nacional': com_acc_nac,
+            'tiene_nacional': tiene_nac,
             'importe_neto': imp_tot,
             'estado': 'Superado' if pct_tot >= 100 else ('En Curso' if pct_tot >= 50 else 'Rezagado')
         })
@@ -227,6 +267,15 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
                 'error_abs_uds': com_desv_tot,
                 'pct_consec': pct_tot,
                 'forecast_accuracy': com_acc_tot,
+                'budget_uds_nacional': com_bud_nac,
+                'pedidos_uds_nacional': com_ped_nac,
+                'servidas_uds_nacional': com_serv_nac,
+                'pendientes_uds_nacional': com_pend_nac,
+                'gap_uds_nacional': com_gap_nac,
+                'desv_uds_nacional': com_desv_nac,
+                'pct_consec_nacional': com_pct_nac,
+                'forecast_accuracy_nacional': com_acc_nac,
+                'tiene_nacional': tiene_nac,
                 'importe_neto': imp_tot
             },
             'lineas': lines
@@ -238,6 +287,15 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
     # Si es negativo, pon 0%
     global_accuracy = float(max(0.0, (1.0 - tot_desv_all / tot_budget_all) * 100) if tot_budget_all > 0 else 0.0)
 
+    tot_bud_nac = float(sum(item['budget_uds_nacional'] for item in summary_list))
+    tot_ped_nac = float(sum(item['pedidos_uds_nacional'] for item in summary_list))
+    tot_serv_nac = float(sum(item['servidas_uds_nacional'] for item in summary_list))
+    tot_pend_nac = float(sum(item['pendientes_uds_nacional'] for item in summary_list))
+    tot_gap_nac = float(sum(item['gap_uds_nacional'] for item in summary_list))
+    tot_desv_nac = float(sum(item['desv_uds_nacional'] for item in summary_list))
+    global_accuracy_nac = float(max(0.0, (1.0 - tot_desv_nac / tot_bud_nac) * 100) if tot_bud_nac > 0 else 0.0)
+    global_pct_nac = float((tot_ped_nac / tot_bud_nac * 100) if tot_bud_nac > 0 else (100.0 if tot_ped_nac > 0 else 0.0))
+
     global_kpis = {
         'budget_uds': tot_budget_all,
         'pedidos_uds': tot_pedidos_all,
@@ -248,6 +306,14 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
         'error_abs_uds': tot_desv_all,
         'pct_consec': float((tot_pedidos_all / tot_budget_all * 100) if tot_budget_all > 0 else 0.0),
         'forecast_accuracy': global_accuracy,
+        'budget_uds_nacional': tot_bud_nac,
+        'pedidos_uds_nacional': tot_ped_nac,
+        'servidas_uds_nacional': tot_serv_nac,
+        'pendientes_uds_nacional': tot_pend_nac,
+        'gap_uds_nacional': tot_gap_nac,
+        'desv_uds_nacional': tot_desv_nac,
+        'pct_consec_nacional': global_pct_nac,
+        'forecast_accuracy_nacional': global_accuracy_nac,
         'importe_neto': float(df_ped['ImporteNeto'].sum()),
         'fecha_corte': fecha_corte,
         'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M')
@@ -293,7 +359,9 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
                 'pedidos_uds': l['pedidos_uds'],
                 'servidas_uds': l['servidas_uds'],
                 'pendientes_uds': l['pendientes_uds'],
-                'importe_neto': l['importe_neto']
+                'importe_neto': l['importe_neto'],
+                'is_nacional': l.get('is_nacional', True),
+                'origen': l.get('origen', 'Nacional')
             }
         for l in c_oct['lineas']:
             k = (l['cliente'], l['sku'])
@@ -314,7 +382,9 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
                     'pedidos_uds': l['pedidos_uds'],
                     'servidas_uds': l['servidas_uds'],
                     'pendientes_uds': l['pendientes_uds'],
-                    'importe_neto': l['importe_neto']
+                    'importe_neto': l['importe_neto'],
+                    'is_nacional': l.get('is_nacional', True),
+                    'origen': l.get('origen', 'Nacional')
                 }
 
         lines = []
@@ -356,6 +426,17 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
         gap_tot = float(sum(l['gap_uds'] for l in lines))
         pct_tot = float((p_tot / b_tot * 100) if b_tot > 0 else 0.0)
 
+        # Métricas Nacionales Acumulado
+        com_bud_nac = float(sum(l['budget_uds'] for l in lines if l.get('is_nacional', True)))
+        com_ped_nac = float(sum(l['pedidos_uds'] for l in lines if l.get('is_nacional', True)))
+        com_serv_nac = float(sum(l['servidas_uds'] for l in lines if l.get('is_nacional', True)))
+        com_pend_nac = float(sum(l['pendientes_uds'] for l in lines if l.get('is_nacional', True)))
+        com_gap_nac = float(sum(l['gap_uds'] for l in lines if l.get('is_nacional', True)))
+        com_desv_nac = float(sum(l['desv_uds'] for l in lines if l.get('is_nacional', True)))
+        com_acc_nac = float(max(0.0, (1.0 - com_desv_nac / com_bud_nac) * 100) if com_bud_nac > 0 else 0.0)
+        com_pct_nac = float((com_ped_nac / com_bud_nac * 100) if com_bud_nac > 0 else 0.0)
+        tiene_nac = bool(com_bud_nac > 0 or com_ped_nac > 0)
+
         summary_list.append({
             'comercial': c,
             'clientes_activos': cli_cnt,
@@ -368,6 +449,15 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
             'error_abs_uds': com_desv_tot,
             'pct_consec': pct_tot,
             'forecast_accuracy': com_acc_tot,
+            'budget_uds_nacional': com_bud_nac,
+            'pedidos_uds_nacional': com_ped_nac,
+            'servidas_uds_nacional': com_serv_nac,
+            'pendientes_uds_nacional': com_pend_nac,
+            'gap_uds_nacional': com_gap_nac,
+            'desv_uds_nacional': com_desv_nac,
+            'pct_consec_nacional': com_pct_nac,
+            'forecast_accuracy_nacional': com_acc_nac,
+            'tiene_nacional': tiene_nac,
             'importe_neto': imp_tot,
             'estado': 'Superado' if pct_tot >= 100 else ('En Curso' if pct_tot >= 50 else 'Rezagado')
         })
@@ -384,6 +474,15 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
                 'error_abs_uds': com_desv_tot,
                 'pct_consec': pct_tot,
                 'forecast_accuracy': com_acc_tot,
+                'budget_uds_nacional': com_bud_nac,
+                'pedidos_uds_nacional': com_ped_nac,
+                'servidas_uds_nacional': com_serv_nac,
+                'pendientes_uds_nacional': com_pend_nac,
+                'gap_uds_nacional': com_gap_nac,
+                'desv_uds_nacional': com_desv_nac,
+                'pct_consec_nacional': com_pct_nac,
+                'forecast_accuracy_nacional': com_acc_nac,
+                'tiene_nacional': tiene_nac,
                 'importe_neto': imp_tot
             },
             'lineas': lines
@@ -397,6 +496,15 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
     tot_gap_all = float(sum(item['gap_uds'] for item in summary_list))
     global_accuracy = float(max(0.0, (1.0 - tot_desv_all / tot_budget_all) * 100) if tot_budget_all > 0 else 0.0)
 
+    tot_bud_nac = float(sum(item['budget_uds_nacional'] for item in summary_list))
+    tot_ped_nac = float(sum(item['pedidos_uds_nacional'] for item in summary_list))
+    tot_serv_nac = float(sum(item['servidas_uds_nacional'] for item in summary_list))
+    tot_pend_nac = float(sum(item['pendientes_uds_nacional'] for item in summary_list))
+    tot_gap_nac = float(sum(item['gap_uds_nacional'] for item in summary_list))
+    tot_desv_nac = float(sum(item['desv_uds_nacional'] for item in summary_list))
+    global_accuracy_nac = float(max(0.0, (1.0 - tot_desv_nac / tot_bud_nac) * 100) if tot_bud_nac > 0 else 0.0)
+    global_pct_nac = float((tot_ped_nac / tot_bud_nac * 100) if tot_bud_nac > 0 else 0.0)
+
     global_kpis = {
         'budget_uds': tot_budget_all,
         'pedidos_uds': tot_pedidos_all,
@@ -407,6 +515,14 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
         'error_abs_uds': tot_desv_all,
         'pct_consec': float((tot_pedidos_all / tot_budget_all * 100) if tot_budget_all > 0 else 0.0),
         'forecast_accuracy': global_accuracy,
+        'budget_uds_nacional': tot_bud_nac,
+        'pedidos_uds_nacional': tot_ped_nac,
+        'servidas_uds_nacional': tot_serv_nac,
+        'pendientes_uds_nacional': tot_pend_nac,
+        'gap_uds_nacional': tot_gap_nac,
+        'desv_uds_nacional': tot_desv_nac,
+        'pct_consec_nacional': global_pct_nac,
+        'forecast_accuracy_nacional': global_accuracy_nac,
         'importe_neto': d_sep['global_kpis']['importe_neto'] + d_oct['global_kpis']['importe_neto'],
         'fecha_corte': fecha_corte,
         'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M')

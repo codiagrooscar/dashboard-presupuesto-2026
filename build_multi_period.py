@@ -25,33 +25,38 @@ def clean_budget_sku(row):
         return sku[:-2]
     return sku
 
-def get_latest_pedidos_file():
+def safe_read_excel(filepath, sheet_name=0):
+    try:
+        return pd.read_excel(filepath, sheet_name=sheet_name)
+    except Exception:
+        import subprocess
+        base_name = os.path.basename(filepath)
+        temp_file = f"temp_safe_{base_name}"
+        subprocess.run(['powershell', '-Command', f'Copy-Item "{filepath}" "{temp_file}" -Force'], check=True)
+        return pd.read_excel(temp_file, sheet_name=sheet_name)
+
+def get_latest_october_file():
     candidates = [
         f for f in os.listdir('.')
         if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
     ]
-    if not candidates:
-        return 'Pedidos 23.09 budget.xlsx'
-    def sort_key(f):
+    # October files have day 02 or higher of month 10
+    oct_candidates = []
+    for f in candidates:
         m = re.search(r'(\d{1,2})\.(\d{1,2})', f)
         if m:
-            return (int(m.group(2)), int(m.group(1)), os.path.getmtime(f))
-        return (0, 0, os.path.getmtime(f))
-    candidates.sort(key=sort_key, reverse=True)
-    return candidates[0]
+            day, month = int(m.group(1)), int(m.group(2))
+            if month == 10 and day >= 2:
+                oct_candidates.append((day, month, f))
+    if oct_candidates:
+        oct_candidates.sort(key=lambda x: (x[1], x[0]), reverse=True)
+        return oct_candidates[0][2]
+    return 'Pedidos 02.10 comerciales.xlsx' if os.path.exists('Pedidos 02.10 comerciales.xlsx') else None
 
 def load_data_sources():
-    pedidos_file = get_latest_pedidos_file()
-    shutil.copy2(pedidos_file, 'temp_pedidos_input.xlsx')
-    df_ped = pd.read_excel('temp_pedidos_input.xlsx')
-    df_ped['Cliente'] = df_ped['Cliente'].apply(map_client_name)
-    df_ped['CLIENTE_NORM'] = df_ped['Cliente'].apply(norm)
-    df_ped['SKU_CLEAN'] = df_ped['CodigoArticulo'].astype(str).str.strip().str.upper()
-    df_ped = df_ped[~df_ped['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
-
+    # 1. Budget
     src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx' if os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx') else 'Presupuesto_Ventas_2027.xlsx'
-    shutil.copy2(src_budget, 'temp_budget_input.xlsx')
-    df_bud = pd.read_excel('temp_budget_input.xlsx', sheet_name='Previsión Matriz Horizontal')
+    df_bud = safe_read_excel(src_budget, sheet_name='Previsión Matriz Horizontal')
     df_bud = df_bud[df_bud['Comercial'].notna() & (~df_bud['Comercial'].astype(str).str.contains('TOTAL', case=False))].copy()
 
     FACTOR = 0.9479961392983893
@@ -77,10 +82,34 @@ def load_data_sources():
     client_map[norm('ALMENDRALIA IBÉRICA, S.L.U.')] = 'Javier'
     client_map[norm('TÉCNICAS AGRÍCOLAS, S.A.')] = 'Ricardo'
 
-    df_ped['Comercial'] = df_ped['CLIENTE_NORM'].map(client_map).fillna('Sin Asignar')
-    return df_ped, df_bud, pedidos_file
+    # 2. Pedidos Septiembre (Cierre oficial Pedidos 01.10 comerciales.xlsx)
+    sep_file = 'Pedidos 01.10 comerciales.xlsx' if os.path.exists('Pedidos 01.10 comerciales.xlsx') else 'Pedidos 30.09 comerciales.xlsx'
+    df_ped_sep = safe_read_excel(sep_file)
+    df_ped_sep['Cliente'] = df_ped_sep['Cliente'].apply(map_client_name)
+    df_ped_sep['CLIENTE_NORM'] = df_ped_sep['Cliente'].apply(norm)
+    df_ped_sep['SKU_CLEAN'] = df_ped_sep['CodigoArticulo'].astype(str).str.strip().str.upper()
+    df_ped_sep = df_ped_sep[~df_ped_sep['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
+    if 'FechaPedido' in df_ped_sep.columns:
+        df_ped_sep = df_ped_sep[pd.to_datetime(df_ped_sep['FechaPedido']).dt.month == 9].copy()
+    df_ped_sep['Comercial'] = df_ped_sep['CLIENTE_NORM'].map(client_map).fillna('Sin Asignar')
 
-def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, period_subtitle, period_status, badge_class, is_active=False):
+    # 3. Pedidos Octubre (Pedidos 02.10 comerciales.xlsx y posteriores)
+    oct_file = get_latest_october_file()
+    if oct_file and os.path.exists(oct_file):
+        df_ped_oct = safe_read_excel(oct_file)
+        df_ped_oct['Cliente'] = df_ped_oct['Cliente'].apply(map_client_name)
+        df_ped_oct['CLIENTE_NORM'] = df_ped_oct['Cliente'].apply(norm)
+        df_ped_oct['SKU_CLEAN'] = df_ped_oct['CodigoArticulo'].astype(str).str.strip().str.upper()
+        df_ped_oct = df_ped_oct[~df_ped_oct['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
+        if 'FechaPedido' in df_ped_oct.columns:
+            df_ped_oct = df_ped_oct[pd.to_datetime(df_ped_oct['FechaPedido']).dt.month == 10].copy()
+        df_ped_oct['Comercial'] = df_ped_oct['CLIENTE_NORM'].map(client_map).fillna('Sin Asignar')
+    else:
+        df_ped_oct = df_ped_sep.iloc[0:0].copy()
+
+    return df_ped_sep, df_ped_oct, df_bud, sep_file, oct_file
+
+def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, period_subtitle, period_status, badge_class, fecha_corte='01/10/2026', is_active=False):
     comerciales = ['Alfonso', 'García', 'Irene', 'Javier', 'Mehmet', 'Pedro', 'Ricardo']
     summary_list = []
     comerciales_data = {}
@@ -99,7 +128,7 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
             cli_cnt = int(sub_bud['Cliente'].nunique())
 
         gap_tot = float(max(0.0, b_tot - p_tot))
-        desv_tot = float(p_tot - b_tot)
+        desv_tot = float(abs(p_tot - b_tot))
         pct_tot = float((p_tot / b_tot * 100) if b_tot > 0 else (100.0 if p_tot > 0 else 0.0))
 
         keys_set = set()
@@ -135,7 +164,8 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
             pct_u = float((p_u / b_u * 100) if b_u > 0 else (100.0 if p_u > 0 else 0.0))
             
             err_abs_u = desv_u
-            acc_u = float((1.0 - desv_u / b_u) * 100 if b_u > 0 else (100.0 if p_u == 0 else 0.0))
+            # Si el % de forecast accuracy es negativo, pon 0%
+            acc_u = float(max(0.0, (1.0 - desv_u / b_u) * 100)) if b_u > 0 else (100.0 if p_u == 0 else 0.0)
 
             if b_u == 0 and p_u > 0:
                 est = "Extra Estimación"
@@ -166,7 +196,8 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
             })
 
         com_desv_tot = float(sum(l['desv_uds'] for l in lines))
-        com_acc_tot = float((1.0 - com_desv_tot / b_tot) * 100 if b_tot > 0 else 0.0)
+        # Si es negativo, pon 0%
+        com_acc_tot = float(max(0.0, (1.0 - com_desv_tot / b_tot) * 100) if b_tot > 0 else 0.0)
 
         summary_list.append({
             'comercial': c,
@@ -204,7 +235,8 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
     tot_budget_all = float(df_bud[month_col].sum())
     tot_pedidos_all = float(df_ped['Pedidas'].sum())
     tot_desv_all = float(sum(item['desv_uds'] for item in summary_list))
-    global_accuracy = float((1.0 - tot_desv_all / tot_budget_all) * 100 if tot_budget_all > 0 else 0.0)
+    # Si es negativo, pon 0%
+    global_accuracy = float(max(0.0, (1.0 - tot_desv_all / tot_budget_all) * 100) if tot_budget_all > 0 else 0.0)
 
     global_kpis = {
         'budget_uds': tot_budget_all,
@@ -217,7 +249,7 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
         'pct_consec': float((tot_pedidos_all / tot_budget_all * 100) if tot_budget_all > 0 else 0.0),
         'forecast_accuracy': global_accuracy,
         'importe_neto': float(df_ped['ImporteNeto'].sum()),
-        'fecha_corte': '01/10/2026',
+        'fecha_corte': fecha_corte,
         'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M')
     }
 
@@ -233,7 +265,7 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
         'comerciales': comerciales_data
     }
 
-def build_accumulated_dataset(d_sep, d_oct):
+def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
     comerciales = ['Alfonso', 'García', 'Irene', 'Javier', 'Mehmet', 'Pedro', 'Ricardo']
     summary_list = []
     comerciales_data = {}
@@ -245,7 +277,7 @@ def build_accumulated_dataset(d_sep, d_oct):
         b_tot = c_sep['kpis']['budget_uds'] + c_oct['kpis']['budget_uds']
         p_tot = c_sep['kpis']['pedidos_uds'] + c_oct['kpis']['pedidos_uds']
         s_tot = c_sep['kpis']['servidas_uds'] + c_oct['kpis']['servidas_uds']
-        pend_tot = c_oct['kpis']['pendientes_uds'] if c_oct['kpis']['pendientes_uds'] > 0 else c_sep['kpis']['pendientes_uds']
+        pend_tot = c_oct['kpis']['pendientes_uds'] + c_sep['kpis']['pendientes_uds']
         imp_tot = c_sep['kpis']['importe_neto'] + c_oct['kpis']['importe_neto']
         cli_cnt = max(c_sep['kpis'].get('clientes_activos', 0), c_oct['kpis'].get('clientes_activos', 0))
 
@@ -269,7 +301,7 @@ def build_accumulated_dataset(d_sep, d_oct):
                 lines_dict[k]['budget_uds'] += l['budget_uds']
                 lines_dict[k]['pedidos_uds'] += l['pedidos_uds']
                 lines_dict[k]['servidas_uds'] += l['servidas_uds']
-                lines_dict[k]['pendientes_uds'] = max(lines_dict[k]['pendientes_uds'], l['pendientes_uds'])
+                lines_dict[k]['pendientes_uds'] += l['pendientes_uds']
                 lines_dict[k]['importe_neto'] += l['importe_neto']
                 if not lines_dict[k]['descripcion'] and l['descripcion']:
                     lines_dict[k]['descripcion'] = l['descripcion']
@@ -295,7 +327,8 @@ def build_accumulated_dataset(d_sep, d_oct):
             desv_u = abs(p_u - b_u)
             pct_u = (p_u / b_u * 100) if b_u > 0 else (100.0 if p_u > 0 else 0.0)
             err_abs_u = desv_u
-            acc_u = (1.0 - desv_u / b_u) * 100 if b_u > 0 else (100.0 if p_u == 0 else 0.0)
+            # Si el % de forecast accuracy es negativo, pon 0%
+            acc_u = float(max(0.0, (1.0 - desv_u / b_u) * 100)) if b_u > 0 else (100.0 if p_u == 0 else 0.0)
 
             if b_u == 0 and p_u > 0:
                 est = "Extra Estimación"
@@ -319,7 +352,7 @@ def build_accumulated_dataset(d_sep, d_oct):
             lines.append(v)
 
         com_desv_tot = float(sum(l['desv_uds'] for l in lines))
-        com_acc_tot = float((1.0 - com_desv_tot / b_tot) * 100 if b_tot > 0 else 0.0)
+        com_acc_tot = float(max(0.0, (1.0 - com_desv_tot / b_tot) * 100) if b_tot > 0 else 0.0)
         gap_tot = float(sum(l['gap_uds'] for l in lines))
         pct_tot = float((p_tot / b_tot * 100) if b_tot > 0 else 0.0)
 
@@ -359,10 +392,10 @@ def build_accumulated_dataset(d_sep, d_oct):
     tot_budget_all = d_sep['global_kpis']['budget_uds'] + d_oct['global_kpis']['budget_uds']
     tot_pedidos_all = d_sep['global_kpis']['pedidos_uds'] + d_oct['global_kpis']['pedidos_uds']
     tot_servidas_all = d_sep['global_kpis']['servidas_uds'] + d_oct['global_kpis']['servidas_uds']
-    tot_pendientes_all = d_oct['global_kpis']['pendientes_uds'] if d_oct['global_kpis']['pendientes_uds'] > 0 else d_sep['global_kpis']['pendientes_uds']
+    tot_pendientes_all = d_sep['global_kpis']['pendientes_uds'] + d_oct['global_kpis']['pendientes_uds']
     tot_desv_all = float(sum(item['desv_uds'] for item in summary_list))
     tot_gap_all = float(sum(item['gap_uds'] for item in summary_list))
-    global_accuracy = float((1.0 - tot_desv_all / tot_budget_all) * 100 if tot_budget_all > 0 else 0.0)
+    global_accuracy = float(max(0.0, (1.0 - tot_desv_all / tot_budget_all) * 100) if tot_budget_all > 0 else 0.0)
 
     global_kpis = {
         'budget_uds': tot_budget_all,
@@ -375,14 +408,14 @@ def build_accumulated_dataset(d_sep, d_oct):
         'pct_consec': float((tot_pedidos_all / tot_budget_all * 100) if tot_budget_all > 0 else 0.0),
         'forecast_accuracy': global_accuracy,
         'importe_neto': d_sep['global_kpis']['importe_neto'] + d_oct['global_kpis']['importe_neto'],
-        'fecha_corte': '01/10/2026',
+        'fecha_corte': fecha_corte,
         'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M')
     }
 
     return {
         'id': 'acumulado',
         'nombre': 'Acumulado Campaña (Sep + Oct)',
-        'subtitulo': 'Consolidado histórico bimestral 2026',
+        'subtitulo': f'Consolidado histórico bimestral 2026 (Corte a {fecha_corte})',
         'estado_periodo': 'Consolidado',
         'badge_class': 'badge-info',
         'is_active': False,
@@ -392,9 +425,9 @@ def build_accumulated_dataset(d_sep, d_oct):
     }
 
 def build_all():
-    df_ped_sep, df_bud, pedidos_file = load_data_sources()
+    df_ped_sep, df_ped_oct, df_bud, sep_file, oct_file = load_data_sources()
 
-    # Período Septiembre 2026 (Cerrado con pedidos hasta fin de mes)
+    # Período Septiembre 2026 (Cerrado oficial al 30/09/2026)
     d_sep = build_month_dataset(
         df_ped=df_ped_sep,
         df_bud=df_bud,
@@ -404,32 +437,29 @@ def build_all():
         period_subtitle='Mes Cerrado Oficialmente a 30/09/2026',
         period_status='Cerrado',
         badge_class='badge-neutral',
+        fecha_corte='30/09/2026',
         is_active=False
     )
 
-    # Período Octubre 2026 (Primer día de mes / previsión inicial + pedidos día 1)
-    # Por ahora en pedidos de octubre iniciales tomamos pedidos con fecha octubre si existen o vacíos
-    df_ped_oct = df_ped_sep.copy()
-    if 'FechaPedido' in df_ped_oct.columns:
-        df_ped_oct = df_ped_oct[pd.to_datetime(df_ped_oct['FechaPedido']).dt.month == 10].copy()
-    else:
-        df_ped_oct = df_ped_oct.iloc[0:0].copy()
+    # Período Octubre 2026 (En curso con pedidos actuales de octubre)
+    m_oct = re.search(r'(\d{1,2})\.(\d{1,2})', oct_file) if oct_file else None
+    oct_corte = f"{m_oct.group(1).zfill(2)}/{m_oct.group(2).zfill(2)}/2026" if m_oct else "02/10/2026"
 
-    # Si aún no han entrado pedidos de octubre, generamos dataset de octubre con la previsión base de Octubre
     d_oct = build_month_dataset(
         df_ped=df_ped_oct,
         df_bud=df_bud,
         month_col='Oct-26 (u)',
         period_id='2026-10',
         period_name='Octubre 2026',
-        period_subtitle='Previsión Base Oficial (Día 1 de Octubre)',
+        period_subtitle=f'En Curso (Corte a {oct_corte})',
         period_status='En Curso',
         badge_class='badge-success',
+        fecha_corte=oct_corte,
         is_active=True
     )
 
     # Período Acumulado Campaña (Sep + Oct)
-    d_acum = build_accumulated_dataset(d_sep, d_oct)
+    d_acum = build_accumulated_dataset(d_sep, d_oct, fecha_corte=oct_corte)
 
     periods_data = {
         'default_period': '2026-10',
@@ -451,13 +481,13 @@ def build_all():
 
     with open('web_dashboard/dashboard_data.js', 'w', encoding='utf-8') as f:
         f.write("window.DASHBOARD_PERIODS_DATA = " + json.dumps(periods_data, ensure_ascii=False) + ";\n")
-        # Mantener window.DASHBOARD_DATA apuntando por defecto al mes activo para retrocompatibilidad
+        # Mantener window.DASHBOARD_DATA apuntando por defecto a Octubre (período en curso)
         f.write("window.DASHBOARD_DATA = window.DASHBOARD_PERIODS_DATA.periods['2026-10'];\n")
 
     print("Multi-period dataset generado con éxito:")
-    print("- Sep budget:", d_sep['global_kpis']['budget_uds'], "pedidos:", d_sep['global_kpis']['pedidos_uds'])
-    print("- Oct budget:", d_oct['global_kpis']['budget_uds'], "pedidos:", d_oct['global_kpis']['pedidos_uds'])
-    print("- Acumulado budget:", d_acum['global_kpis']['budget_uds'], "pedidos:", d_acum['global_kpis']['pedidos_uds'])
+    print(f"- Sep (cierre {d_sep['global_kpis']['fecha_corte']}): budget={d_sep['global_kpis']['budget_uds']}, pedidos={d_sep['global_kpis']['pedidos_uds']}, accuracy={d_sep['global_kpis']['forecast_accuracy']:.1f}%")
+    print(f"- Oct (corte {d_oct['global_kpis']['fecha_corte']}): budget={d_oct['global_kpis']['budget_uds']}, pedidos={d_oct['global_kpis']['pedidos_uds']}, accuracy={d_oct['global_kpis']['forecast_accuracy']:.1f}%")
+    print(f"- Acumulado (corte {d_acum['global_kpis']['fecha_corte']}): budget={d_acum['global_kpis']['budget_uds']}, pedidos={d_acum['global_kpis']['pedidos_uds']}, accuracy={d_acum['global_kpis']['forecast_accuracy']:.1f}%")
 
 if __name__ == '__main__':
     build_all()

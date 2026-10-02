@@ -138,7 +138,8 @@ def build_dataset():
             
             # Fórmula oficial Forecast Accuracy: 1 - Desviación / Estimación (Desviación en valor absoluto)
             err_abs_u = desv_u
-            acc_u = float((1.0 - desv_u / b_u) * 100 if b_u > 0 else (100.0 if p_u == 0 else 0.0))
+            # Si el % de forecast accuracy es negativo, pon 0%
+            acc_u = float(max(0.0, (1.0 - desv_u / b_u) * 100)) if b_u > 0 else (100.0 if p_u == 0 else 0.0)
 
             if b_u == 0 and p_u > 0:
                 est = "Extra Estimación"
@@ -172,7 +173,7 @@ def build_dataset():
         # Forecast Accuracy = 1 - SUM(|Ventas + Pedidos Pendientes - Estimación|) / SUM(Estimación)
         # Desviación es en valor absoluto
         com_desv_tot = float(sum(l['desv_uds'] for l in lines))
-        com_acc_tot = float((1.0 - com_desv_tot / b_tot) * 100 if b_tot > 0 else 0.0)
+        com_acc_tot = float(max(0.0, (1.0 - com_desv_tot / b_tot) * 100) if b_tot > 0 else 0.0)
 
         summary_list.append({
             'comercial': c,
@@ -220,7 +221,7 @@ def build_dataset():
     tot_budget_all = float(df_bud['Sep-26 (u)'].sum())
     tot_pedidos_all = float(df_ped['Pedidas'].sum())
     tot_desv_all = float(sum(item['desv_uds'] for item in summary_list))
-    global_accuracy = float((1.0 - tot_desv_all / tot_budget_all) * 100 if tot_budget_all > 0 else 0.0)
+    global_accuracy = float(max(0.0, (1.0 - tot_desv_all / tot_budget_all) * 100) if tot_budget_all > 0 else 0.0)
 
     global_kpis = {
         'budget_uds': tot_budget_all,

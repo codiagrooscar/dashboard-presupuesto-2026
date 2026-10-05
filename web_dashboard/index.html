@@ -1684,6 +1684,26 @@
         mrp_kpi_critical_sub: "Cobertura < 25% o stock insuficiente",
         mrp_kpi_covered: "SKUs Cubiertos",
         mrp_kpi_covered_sub: "Cobertura ≥ 100% de la demanda",
+        mrp_kpi_nomover: "Stock NoMover (>6 Meses)",
+        mrp_kpi_nomover_sub: "Sin venta prevista en los próximos 6 meses (> Mar 27)",
+        mrp_kpi_slowmover: "Stock SlowMover (3 a 6 Meses)",
+        mrp_kpi_slowmover_sub: "Venta prevista entre mes 3 y 6 (Ene-Mar 27)",
+        mrp_kpi_fastmover: "Stock Alta Rotación (0 a 3 Meses)",
+        mrp_kpi_fastmover_sub: "Consumo previsto en próximo trimestre (Oct-Dic 26)",
+
+        mrp_rot_all: "Todos",
+        mrp_rot_nomover: "🔴 NoMovers",
+        mrp_rot_slowmover: "🟡 SlowMovers",
+        mrp_rot_both: "⚡ Ambos (NoMover + SlowMover)",
+        mrp_rot_fastmover: "🟢 Solo Alta Rotación N+2",
+
+        mrp_badge_nomover: "🔴 NoMover",
+        mrp_badge_slowmover: "🟡 SlowMover",
+        mrp_badge_fastmover: "⚡ Alta Rotación",
+        mrp_tooltip_nomover: "Stock sobrante tras cubrir los próximos 6 meses (Oct 26 - Mar 27)",
+        mrp_tooltip_slowmover: "Stock que se prevé vender entre el mes 3 y el mes 6 (Ene - Mar 27)",
+        mrp_tooltip_fastmover: "Stock que se prevé consumir en los próximos 3 meses (Oct - Dic 26)",
+        mrp_modal_rotation_title: "Análisis de Rotación de Stock (Criterio 3M / 6M):",
 
         mrp_view_base: "📦 Por Envase / Planta",
         mrp_view_detail: "🌍 Detallado por Destino",
@@ -1898,6 +1918,26 @@
         mrp_kpi_critical_sub: "Coverage < 25% or immediate shortage",
         mrp_kpi_covered: "Fully Covered SKUs",
         mrp_kpi_covered_sub: "Coverage ≥ 100% of demand",
+        mrp_kpi_nomover: "NoMover Stock (>6 Months)",
+        mrp_kpi_nomover_sub: "No sales expected in next 6 months (> Mar 27)",
+        mrp_kpi_slowmover: "SlowMover Stock (3-6 Months)",
+        mrp_kpi_slowmover_sub: "Sales expected between month 3 and 6 (Jan-Mar 27)",
+        mrp_kpi_fastmover: "FastMover Stock (0-3 Months)",
+        mrp_kpi_fastmover_sub: "Consumption expected within next quarter (Oct-Dec 26)",
+
+        mrp_rot_all: "All",
+        mrp_rot_nomover: "🔴 NoMovers",
+        mrp_rot_slowmover: "🟡 SlowMovers",
+        mrp_rot_both: "⚡ Both (NoMover + SlowMover)",
+        mrp_rot_fastmover: "🟢 Fast Movers N+2",
+
+        mrp_badge_nomover: "🔴 NoMover",
+        mrp_badge_slowmover: "🟡 SlowMover",
+        mrp_badge_fastmover: "⚡ Fast Mover",
+        mrp_tooltip_nomover: "Surplus stock after covering next 6 months (Oct 26 - Mar 27)",
+        mrp_tooltip_slowmover: "Stock expected to be sold between month 3 and 6 (Jan - Mar 27)",
+        mrp_tooltip_fastmover: "Stock expected to be consumed in next 3 months (Oct - Dec 26)",
+        mrp_modal_rotation_title: "Stock Turnover Classification (3M / 6M criteria):",
 
         mrp_view_base: "📦 By Package / Plant",
         mrp_view_detail: "🌍 Detailed by Destination",
@@ -2659,6 +2699,7 @@
     let prodViewMode = 'base'; // 'base' (Formulación/Envase Planta) o 'detail' (Por Destino)
     let prodStatusFilter = 'ALL'; // 'ALL', 'CRITICAL', 'WARNING', 'COVERED'
     let prodFormatFilter = 'ALL'; // 'ALL', '20', 'SMALL', 'BULK', 'SOLIDS', 'LIQUIDS'
+    let prodRotationFilter = 'ALL'; // 'ALL', 'NOMOVER', 'SLOWMOVER', 'BOTH', 'FASTMOVER'
     let prodBatchSize = 0; // 0 (Desactivado), 250, 500, 1000, 2500
     let prodSearchQuery = '';
     let prodSortField = 'falta_fabricar';
@@ -2760,6 +2801,11 @@
       renderCurrentTab();
     }
 
+    function setProdRotationFilter(rot) {
+      prodRotationFilter = rot;
+      renderCurrentTab();
+    }
+
     function setProdBatchSize(sz) {
       prodBatchSize = Number(sz) || 0;
       renderCurrentTab();
@@ -2825,6 +2871,22 @@
       const isBaseView = (prodViewMode === 'base');
       const rawItems = isBaseView ? productionData.base_skus : productionData.detailed_skus;
 
+      const n2Months = ['2026-10', '2026-11', '2026-12'];
+      const n5Months = ['2026-10', '2026-11', '2026-12', '2027-01', '2027-02', '2027-03'];
+
+      let all_skus_count = 0;
+      let all_critical_count = 0;
+      let all_warning_count = 0;
+      let all_covered_count = 0;
+      let all_nomover_count = 0;
+      let all_slowmover_count = 0;
+      let all_both_count = 0;
+      let all_fastmover_count = 0;
+      let all_stock_sum = 0;
+      let all_nomover_qty_sum = 0;
+      let all_slowmover_qty_sum = 0;
+      let all_fastmover_qty_sum = 0;
+
       let processed = [];
 
       rawItems.forEach(item => {
@@ -2885,11 +2947,6 @@
           }
         }
 
-        // Filtro de estado
-        if (prodStatusFilter !== 'ALL' && prodStatusFilter !== status) {
-          return;
-        }
-
         // 6. Proyección Cronológica del Mes de Agotamiento de Stock
         let runStock = stock - pending;
         let depletedMonth = null;
@@ -2924,6 +2981,57 @@
           sugFabricar = numBatches * prodBatchSize;
         }
 
+        // 8. Clasificación de Rotación de Stock (SlowMovers & NoMovers)
+        let d_n2 = pending;
+        n2Months.forEach(m => { d_n2 += (Number(item.monthly_forecast[m]) || 0); });
+
+        let d_n5 = pending;
+        n5Months.forEach(m => { d_n5 += (Number(item.monthly_forecast[m]) || 0); });
+
+        let no_mover_qty = 0;
+        let slow_mover_qty = 0;
+        let fast_mover_qty = 0;
+
+        if (stock > 0) {
+          no_mover_qty = Math.max(0, stock - d_n5);
+          const d_3_6 = Math.max(0, d_n5 - d_n2);
+          const s_rem_n2 = Math.max(0, stock - d_n2);
+          slow_mover_qty = Math.min(s_rem_n2, d_3_6);
+          fast_mover_qty = Math.min(stock, d_n2);
+        }
+
+        const is_nomover = no_mover_qty > 0;
+        const is_slowmover = slow_mover_qty > 0;
+        const is_both_movers = is_nomover && is_slowmover;
+        const is_fastmover = stock > 0 && !is_nomover && !is_slowmover;
+
+        // Acumulación de estadísticas globales para los filtros activos de ámbito/formato/búsqueda
+        all_skus_count++;
+        if (status === 'CRITICAL') all_critical_count++;
+        else if (status === 'WARNING') all_warning_count++;
+        else if (status === 'COVERED') all_covered_count++;
+
+        all_stock_sum += stock;
+        all_nomover_qty_sum += no_mover_qty;
+        all_slowmover_qty_sum += slow_mover_qty;
+        all_fastmover_qty_sum += fast_mover_qty;
+
+        if (is_nomover) all_nomover_count++;
+        if (is_slowmover) all_slowmover_count++;
+        if (is_both_movers) all_both_count++;
+        if (is_fastmover) all_fastmover_count++;
+
+        // Filtro de Estado
+        if (prodStatusFilter !== 'ALL' && prodStatusFilter !== status) {
+          return;
+        }
+
+        // Filtro de Rotación (SlowMover / NoMover)
+        if (prodRotationFilter === 'NOMOVER' && !is_nomover) return;
+        if (prodRotationFilter === 'SLOWMOVER' && !is_slowmover) return;
+        if (prodRotationFilter === 'BOTH' && !is_both_movers) return;
+        if (prodRotationFilter === 'FASTMOVER' && !is_fastmover) return;
+
         processed.push({
           rawItem: item,
           key: isBaseView ? item.base_sku : item.sku,
@@ -2945,7 +3053,16 @@
           coverage_pct: coveragePct,
           depleted_month: depletedMonth,
           depleted_idx: depletedIdx,
-          status: status
+          status: status,
+          d_n2: d_n2,
+          d_n5: d_n5,
+          no_mover_qty: no_mover_qty,
+          slow_mover_qty: slow_mover_qty,
+          fast_mover_qty: fast_mover_qty,
+          is_nomover: is_nomover,
+          is_slowmover: is_slowmover,
+          is_both_movers: is_both_movers,
+          is_fastmover: is_fastmover
         });
       });
 
@@ -2976,9 +3093,31 @@
         total_bulk_falta: processed.filter(r => r.pkg.category === 'BULK').reduce((acc, r) => acc + r.falta_fabricar, 0),
         total_solids_falta: processed.filter(r => r.pkg.isSolid).reduce((acc, r) => acc + r.falta_fabricar, 0),
         total_liquids_falta: processed.filter(r => r.pkg.isLiquid).reduce((acc, r) => acc + r.falta_fabricar, 0),
+
+        total_nomover_qty: processed.reduce((acc, r) => acc + r.no_mover_qty, 0),
+        total_slowmover_qty: processed.reduce((acc, r) => acc + r.slow_mover_qty, 0),
+        total_fastmover_qty: processed.reduce((acc, r) => acc + r.fast_mover_qty, 0),
+        nomover_count: processed.filter(r => r.is_nomover).length,
+        slowmover_count: processed.filter(r => r.is_slowmover).length,
+        both_count: processed.filter(r => r.is_both_movers).length,
+        fastmover_count: processed.filter(r => r.is_fastmover).length,
+
         critical_count: processed.filter(r => r.status === 'CRITICAL').length,
         warning_count: processed.filter(r => r.status === 'WARNING').length,
-        covered_count: processed.filter(r => r.status === 'COVERED').length
+        covered_count: processed.filter(r => r.status === 'COVERED').length,
+
+        all_skus_count: all_skus_count,
+        all_critical_count: all_critical_count,
+        all_warning_count: all_warning_count,
+        all_covered_count: all_covered_count,
+        all_nomover_count: all_nomover_count,
+        all_slowmover_count: all_slowmover_count,
+        all_both_count: all_both_count,
+        all_fastmover_count: all_fastmover_count,
+        all_stock_sum: all_stock_sum,
+        all_nomover_qty_sum: all_nomover_qty_sum,
+        all_slowmover_qty_sum: all_slowmover_qty_sum,
+        all_fastmover_qty_sum: all_fastmover_qty_sum
       };
 
       return { rows: processed, totals: totals };
@@ -3084,6 +3223,19 @@
             depletionBadge = `<span class="coverage-pill coverage-ok" style="font-size:0.75rem;opacity:0.9;">${r.depleted_month}</span>`;
           }
 
+          let rotationBadges = '';
+          if (r.stock > 0) {
+            if (r.is_nomover) {
+              rotationBadges += `<span class="tab-badge" style="background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.45);font-size:0.67rem;padding:0.1rem 0.35rem;font-weight:700;" title="${t('mrp_tooltip_nomover')}">🔴 NoMover: ${fmtNum(r.no_mover_qty)} u</span>`;
+            }
+            if (r.is_slowmover) {
+              rotationBadges += `<span class="tab-badge" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.45);font-size:0.67rem;padding:0.1rem 0.35rem;font-weight:700;" title="${t('mrp_tooltip_slowmover')}">🟡 SlowMover: ${fmtNum(r.slow_mover_qty)} u</span>`;
+            }
+            if (r.is_fastmover) {
+              rotationBadges += `<span class="tab-badge" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);font-size:0.67rem;padding:0.1rem 0.35rem;font-weight:600;" title="${t('mrp_tooltip_fastmover')}">⚡ Alta Rotación</span>`;
+            }
+          }
+
           return `
             <tr style="cursor:pointer;" data-sku="${r.key}" onclick="openProdSkuModal(this.getAttribute('data-sku'))" title="Click para ver desglose mensual y proyección de agotamiento">
               <td style="font-family:monospace;font-weight:700;color:#38bdf8;">
@@ -3095,6 +3247,7 @@
                   <span class="tab-badge badge-neutral" style="font-size:0.65rem;padding:0.1rem 0.35rem;border:1px solid rgba(255,255,255,0.15)">
                     ${r.pkg.badge}
                   </span>
+                  ${rotationBadges}
                 </div>
                 ${r.envase ? `<div style="font-size:0.72rem;color:var(--muted)">Formato: ${r.envase}</div>` : ''}
               </td>
@@ -3102,7 +3255,14 @@
                 ${scopeBadge}
               </td>
               <td class="text-right" style="font-weight:600;color:${r.stock > 0 ? '#6ee7b7' : 'var(--muted)'}">
-                ${fmtNum(r.stock)}
+                <div>${fmtNum(r.stock)}</div>
+                ${r.stock > 0 && (r.is_nomover || r.is_slowmover) ? `
+                  <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem;display:flex;justify-content:flex-end;gap:0.35rem;flex-wrap:wrap;">
+                    ${r.no_mover_qty > 0 ? `<span style="color:#f87171;font-weight:700;" title="NoMover: sin venta en 6 meses">🔴 ${fmtNum(r.no_mover_qty)}</span>` : ''}
+                    ${r.slow_mover_qty > 0 ? `<span style="color:#fbbf24;font-weight:700;" title="SlowMover: venta meses 3 a 6">🟡 ${fmtNum(r.slow_mover_qty)}</span>` : ''}
+                    ${r.fast_mover_qty > 0 ? `<span style="color:#34d399;font-weight:600;" title="Alta Rotación N+2: venta meses 0 a 3">⚡ ${fmtNum(r.fast_mover_qty)}</span>` : ''}
+                  </div>
+                ` : ''}
               </td>
               <td class="text-right" style="color:${r.pending > 0 ? '#fbbf24' : 'var(--muted)'};font-weight:${r.pending > 0 ? '700' : 'normal'}">
                 ${fmtNum(r.pending)}
@@ -3221,6 +3381,32 @@
               </div>
             </div>
 
+            <div class="mrp-kpi-card" style="border-left: 3px solid #ef4444; background: ${prodRotationFilter === 'NOMOVER' ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.06)'}; cursor:pointer;" onclick="setProdRotationFilter(prodRotationFilter === 'NOMOVER' ? 'ALL' : 'NOMOVER')" title="Click para filtrar artículos con Stock NoMover">
+              <div style="font-size:0.8rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.04em;display:flex;justify-content:space-between;align-items:center;">
+                <span>🔴 ${t('mrp_kpi_nomover')}</span>
+                ${prodRotationFilter === 'NOMOVER' ? '<span class="tab-badge badge-danger" style="font-size:0.6rem;padding:0.1rem 0.3rem;">FILTRADO</span>' : ''}
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#ef4444;line-height:1.2;">
+                ${fmtNum(totals.total_nomover_qty)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                ${totals.nomover_count} SKUs &bull; ${totals.total_stock > 0 ? ((totals.total_nomover_qty / totals.total_stock) * 100).toFixed(1) : 0}% del stock
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card" style="border-left: 3px solid #f59e0b; background: ${prodRotationFilter === 'SLOWMOVER' ? 'rgba(245,158,11,0.2)' : 'rgba(245,158,11,0.06)'}; cursor:pointer;" onclick="setProdRotationFilter(prodRotationFilter === 'SLOWMOVER' ? 'ALL' : 'SLOWMOVER')" title="Click para filtrar artículos con Stock SlowMover">
+              <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;display:flex;justify-content:space-between;align-items:center;">
+                <span>🟡 ${t('mrp_kpi_slowmover')}</span>
+                ${prodRotationFilter === 'SLOWMOVER' ? '<span class="tab-badge badge-warning" style="font-size:0.6rem;padding:0.1rem 0.3rem;">FILTRADO</span>' : ''}
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#f59e0b;line-height:1.2;">
+                ${fmtNum(totals.total_slowmover_qty)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                ${totals.slowmover_count} SKUs &bull; ${totals.total_stock > 0 ? ((totals.total_slowmover_qty / totals.total_stock) * 100).toFixed(1) : 0}% del stock
+              </div>
+            </div>
+
             <div class="mrp-kpi-card forecast">
               <div style="font-size:0.8rem;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:0.04em;">
                 ${t('mrp_kpi_forecast')}
@@ -3297,6 +3483,25 @@
                 </button>
               </div>
 
+              <!-- Filtro de Rotación (SlowMovers / NoMovers) -->
+              <div class="filter-pills" style="margin:0;">
+                <button class="pill-btn ${prodRotationFilter === 'ALL' ? 'active' : ''}" onclick="setProdRotationFilter('ALL')">
+                  ${t('mrp_rot_all')}
+                </button>
+                <button class="pill-btn ${prodRotationFilter === 'NOMOVER' ? 'active' : ''}" onclick="setProdRotationFilter('NOMOVER')" style="color:${prodRotationFilter === 'NOMOVER' ? '#fff' : '#f87171'}">
+                  ${t('mrp_rot_nomover')} (${totals.all_nomover_count})
+                </button>
+                <button class="pill-btn ${prodRotationFilter === 'SLOWMOVER' ? 'active' : ''}" onclick="setProdRotationFilter('SLOWMOVER')" style="color:${prodRotationFilter === 'SLOWMOVER' ? '#fff' : '#fbbf24'}">
+                  ${t('mrp_rot_slowmover')} (${totals.all_slowmover_count})
+                </button>
+                <button class="pill-btn ${prodRotationFilter === 'BOTH' ? 'active' : ''}" onclick="setProdRotationFilter('BOTH')" style="color:${prodRotationFilter === 'BOTH' ? '#fff' : '#c084fc'}">
+                  ${t('mrp_rot_both')} (${totals.all_both_count})
+                </button>
+                <button class="pill-btn ${prodRotationFilter === 'FASTMOVER' ? 'active' : ''}" onclick="setProdRotationFilter('FASTMOVER')" style="color:${prodRotationFilter === 'FASTMOVER' ? '#fff' : '#34d399'}">
+                  ${t('mrp_rot_fastmover')} (${totals.all_fastmover_count})
+                </button>
+              </div>
+
               <!-- Filtro de Formato de Envase -->
               <div class="filter-pills" style="margin:0;">
                 <button class="pill-btn ${prodFormatFilter === 'ALL' ? 'active' : ''}" onclick="setProdFormatFilter('ALL')">
@@ -3322,16 +3527,16 @@
               <!-- Filtro de Estado -->
               <div class="filter-pills" style="margin:0;">
                 <button class="pill-btn ${prodStatusFilter === 'ALL' ? 'active' : ''}" onclick="setProdStatusFilter('ALL')">
-                  ${t('mrp_status_all')} (${totals.total_skus})
+                  ${t('mrp_status_all')} (${totals.all_skus_count})
                 </button>
                 <button class="pill-btn ${prodStatusFilter === 'CRITICAL' ? 'active' : ''}" onclick="setProdStatusFilter('CRITICAL')" style="color:${prodStatusFilter === 'CRITICAL' ? '#fff' : '#f87171'}">
-                  ${t('mrp_status_critical')} (${totals.critical_count})
+                  ${t('mrp_status_critical')} (${totals.all_critical_count})
                 </button>
                 <button class="pill-btn ${prodStatusFilter === 'WARNING' ? 'active' : ''}" onclick="setProdStatusFilter('WARNING')" style="color:${prodStatusFilter === 'WARNING' ? '#fff' : '#fbbf24'}">
-                  ${t('mrp_status_warning')} (${totals.warning_count})
+                  ${t('mrp_status_warning')} (${totals.all_warning_count})
                 </button>
                 <button class="pill-btn ${prodStatusFilter === 'COVERED' ? 'active' : ''}" onclick="setProdStatusFilter('COVERED')" style="color:${prodStatusFilter === 'COVERED' ? '#fff' : '#34d399'}">
-                  ${t('mrp_status_covered')} (${totals.covered_count})
+                  ${t('mrp_status_covered')} (${totals.all_covered_count})
                 </button>
               </div>
 
@@ -3546,6 +3751,55 @@
         `;
       }
 
+      // Análisis de Rotación SlowMover / NoMover
+      let rotationAnalysisHtml = '';
+      if (stockInitial > 0) {
+        const n2Months = ['2026-10', '2026-11', '2026-12'];
+        const n5Months = ['2026-10', '2026-11', '2026-12', '2027-01', '2027-02', '2027-03'];
+        let d_n2 = pendingUnits;
+        n2Months.forEach(m => { d_n2 += (Number(item.monthly_forecast[m]) || 0); });
+        let d_n5 = pendingUnits;
+        n5Months.forEach(m => { d_n5 += (Number(item.monthly_forecast[m]) || 0); });
+
+        const no_mover_qty = Math.max(0, stockInitial - d_n5);
+        const d_3_6 = Math.max(0, d_n5 - d_n2);
+        const s_rem_n2 = Math.max(0, stockInitial - d_n2);
+        const slow_mover_qty = Math.min(s_rem_n2, d_3_6);
+        const fast_mover_qty = Math.min(stockInitial, d_n2);
+
+        rotationAnalysisHtml = `
+          <div style="background:rgba(15,23,42,0.7);border:1px solid #334155;border-radius:var(--radius-sm);padding:0.75rem 1rem;margin:0.85rem 0;">
+            <div style="font-size:0.78rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:0.6rem;letter-spacing:0.04em;">
+              ${t('mrp_modal_rotation_title')}
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:0.6rem;">
+              <div style="background:rgba(16,185,129,0.08);padding:0.6rem;border-radius:4px;border:1px solid rgba(16,185,129,0.25);">
+                <div style="font-size:0.72rem;color:#6ee7b7;font-weight:700;">⚡ ${t('mrp_badge_fastmover')} (0-3M)</div>
+                <div style="font-size:1.15rem;font-weight:800;color:#34d399;margin-top:0.15rem;">${fmtNum(fast_mover_qty)} u</div>
+                <div style="font-size:0.68rem;color:var(--muted);">${stockInitial > 0 ? ((fast_mover_qty/stockInitial)*100).toFixed(0) : 0}% stock (Oct-Dic 26)</div>
+              </div>
+              <div style="background:rgba(245,158,11,0.08);padding:0.6rem;border-radius:4px;border:1px solid rgba(245,158,11,0.25);">
+                <div style="font-size:0.72rem;color:#fbbf24;font-weight:700;">🟡 ${t('mrp_badge_slowmover')} (3-6M)</div>
+                <div style="font-size:1.15rem;font-weight:800;color:#f59e0b;margin-top:0.15rem;">${fmtNum(slow_mover_qty)} u</div>
+                <div style="font-size:0.68rem;color:var(--muted);">${stockInitial > 0 ? ((slow_mover_qty/stockInitial)*100).toFixed(0) : 0}% stock (Ene-Mar 27)</div>
+              </div>
+              <div style="background:rgba(239,68,68,0.08);padding:0.6rem;border-radius:4px;border:1px solid rgba(239,68,68,0.25);">
+                <div style="font-size:0.72rem;color:#f87171;font-weight:700;">🔴 ${t('mrp_badge_nomover')} (>6M)</div>
+                <div style="font-size:1.15rem;font-weight:800;color:#ef4444;margin-top:0.15rem;">${fmtNum(no_mover_qty)} u</div>
+                <div style="font-size:0.68rem;color:var(--muted);">${stockInitial > 0 ? ((no_mover_qty/stockInitial)*100).toFixed(0) : 0}% sin venta prevista en 6M</div>
+              </div>
+              <div style="background:rgba(99,102,241,0.08);padding:0.6rem;border-radius:4px;border:1px solid rgba(99,102,241,0.25);">
+                <div style="font-size:0.72rem;color:#a5b4fc;font-weight:700;">📊 Previsión Ventas N+2 / N+5</div>
+                <div style="font-size:0.8rem;color:#f8fafc;margin-top:0.25rem;line-height:1.4;">
+                  N+2 (3M): <strong>${fmtNum(d_n2)} u</strong><br>
+                  N+5 (6M): <strong>${fmtNum(d_n5)} u</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
       bodyEl.innerHTML = `
         <!-- KPI Strip dentro del modal -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:0.75rem;">
@@ -3564,6 +3818,8 @@
             </div>
           </div>
         </div>
+
+        ${rotationAnalysisHtml}
 
         <!-- Tabla mensual -->
         <div style="max-height:360px;overflow-y:auto;border:1px solid #334155;border-radius:var(--radius-sm);">
@@ -3617,7 +3873,7 @@
       csv += `Fecha Generacion:;${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n`;
       csv += `Ambito Mercado:;${currentScope};Formato Filtro:;${prodFormatFilter};Lote Minimo MOQ:;${prodBatchSize > 0 ? prodBatchSize + ' u' : 'Exacto'}\n\n`;
 
-      csv += `SKU_Codigo;Descripcion_Articulo;Envase;Formato_Clasificacion;Mercado;Stock_Actual_Uds;Pedidos_Pendientes_Uds;Prevision_Periodo_Uds;Demanda_Total_Uds;Balance_Neto_Uds;FALTA_FABRICAR_UDS;Lotes_Sugeridos;SUGERENCIA_CON_LOTES_UDS;Cobertura_Pct;Mes_Agotamiento;Accion_Requerida\n`;
+      csv += `SKU_Codigo;Descripcion_Articulo;Envase;Formato_Clasificacion;Mercado;Stock_Actual_Uds;Pedidos_Pendientes_Uds;Prevision_Periodo_Uds;Demanda_Total_Uds;Balance_Neto_Uds;FALTA_FABRICAR_UDS;Lotes_Sugeridos;SUGERENCIA_CON_LOTES_UDS;Cobertura_Pct;Mes_Agotamiento;Accion_Requerida;Stock_Alta_Rotacion_N2;Es_SlowMover;Stock_SlowMover_Uds;Es_NoMover;Stock_NoMover_Uds\n`;
 
       rows.forEach(r => {
         const sku = (r.sku || '').replace(/;/g, ',');
@@ -3639,7 +3895,13 @@
         const agot = (r.depleted_month || '').replace(/;/g, ',');
         const acc = r.status === 'CRITICAL' ? 'FABRICACION URGENTE' : (r.status === 'WARNING' ? 'PROGRAMAR LOTE' : 'CUBIERTO');
 
-        csv += `"${sku}";"${desc}";"${env}";"${fmt}";"${scope}";${stock};${pend};${prev};${dem};${bal};${falta};${lotes};${sug};${cob};"${agot}";"${acc}"\n`;
+        const fsm = String(r.fast_mover_qty || 0).replace('.', dec);
+        const is_sm = r.is_slowmover ? 'SI' : 'NO';
+        const sm_qty = String(r.slow_mover_qty || 0).replace('.', dec);
+        const is_nm = r.is_nomover ? 'SI' : 'NO';
+        const nm_qty = String(r.no_mover_qty || 0).replace('.', dec);
+
+        csv += `"${sku}";"${desc}";"${env}";"${fmt}";"${scope}";${stock};${pend};${prev};${dem};${bal};${falta};${lotes};${sug};${cob};"${agot}";"${acc}";${fsm};"${is_sm}";${sm_qty};"${is_nm}";${nm_qty}\n`;
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

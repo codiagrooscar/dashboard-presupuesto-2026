@@ -1,7 +1,7 @@
 import openpyxl, os, sys
 sys.stdout.reconfigure(encoding='utf-8')
 
-comerciales = ['Alfonso', 'Garcia', 'Javier', 'Pedro', 'Ricardo']
+comerciales = ['Alfonso', 'Garcia', 'Irene', 'Javier', 'Pedro', 'Ricardo']
 folder = 'Revision_Previsiones_Q4_2026'
 
 all_changes = {}

@@ -1,7 +1,7 @@
 import openpyxl, os, sys
 sys.stdout.reconfigure(encoding='utf-8')
 
-comerciales = ['Alfonso', 'Garcia', 'Javier', 'Pedro', 'Ricardo']
+comerciales = ['Alfonso', 'Garcia', 'Irene', 'Javier', 'Pedro', 'Ricardo']
 folder = 'Revision_Previsiones_Q4_2026'
 
 print(f"{'Comercial':10s} | {'Modif Q4':8s} | {'Coment':8s} | {'Oct Ant':10s} | {'Oct Rev':10s} | {'Nov Ant':10s} | {'Nov Rev':10s} | {'Dic Ant':10s} | {'Dic Rev':10s} | {'Total Q4 Ant':12s} | {'Total Q4 Rev':12s} | {'Dif Q4':12s}")

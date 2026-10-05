@@ -124,7 +124,7 @@ con_file = 'Revision_Previsiones_Q4_2026/Revision_Previsiones_Q4_2026_CONSOLIDAD
 if os.path.exists(con_file):
     wb_con = openpyxl.load_workbook(con_file, data_only=False)
     
-    for com in ['Alfonso', 'Garcia', 'Javier', 'Pedro', 'Ricardo']:
+    for com in ['Alfonso', 'Garcia', 'Irene', 'Javier', 'Pedro', 'Ricardo']:
         copy_com_path = f'Revision_Previsiones_Q4_2026/Copia de Revision_Previsiones_Q4_2026_{com}.xlsx'
         if not os.path.exists(copy_com_path): continue
         

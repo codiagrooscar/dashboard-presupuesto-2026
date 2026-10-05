@@ -25,7 +25,7 @@ if os.path.exists('Consolidado_Ventas_y_Previsiones_2026.xlsx'):
 
 # 2. Cargar datos de los archivos originales y copias
 folder = 'Revision_Previsiones_Q4_2026'
-comerciales = ['Alfonso', 'Garcia', 'Javier', 'Pedro', 'Ricardo']
+comerciales = ['Alfonso', 'Garcia', 'Irene', 'Javier', 'Pedro', 'Ricardo']
 
 data_by_com = {}
 all_modified_lines = []
@@ -375,6 +375,7 @@ for idx, h in enumerate(headers_s1, start=2):
 com_descriptions = {
     'Alfonso': 'Ajuste fino en La Veguilla (-1.560 u en Biorad y Brotamec) por adelanto de pedidos al cierre de Septiembre.',
     'Garcia': 'Dotra Chemicals reduce 8.000 u en Noviembre (+1.000 u en Oct); Marcoser sustituye formatos. Aporta 24 notas de campo.',
+    'Irene': 'Reajustes por adelanto de compras y auditorías en Campoejido y CASI; refuerzo en Floramec Avance 20L (+320 u), PGR IV (+1.920 u) y Brotamec (+600 u). Aporta 27 comentarios de campo.',
     'Javier': 'Reducción en Octubre por pedidos adelantados a Septiembre en Fitosur y Cabrera Morales; Drago traslada 5.840 u a Diciembre.',
     'Pedro': 'Adelanto e incremento en Asesoramiento Técnico (+1.580 u en Octubre); ajuste a la baja en Fitocarthago (-3.400 u).',
     'Ricardo': 'Fuerte incremento en Lekkerbio (+22.000 u en Octubre). Trasvase masivo de Noviembre a Diciembre en El Llano y Campo Abierto.'

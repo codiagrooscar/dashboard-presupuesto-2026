@@ -57,21 +57,31 @@ wb_stock = safe_load_workbook(stock_path, data_only=True)
 ws_stock = wb_stock.active
 
 stock_map = {}
+granel_map = {}
+envasado_map = {}
+
 for row in ws_stock.iter_rows(min_row=4, values_only=True):
+    fam = row[2]
     code = row[3]
     desc = row[4]
     qty = row[5]
     price = row[6]
     if code:
         c_clean = str(code).strip().upper()
-        stock_map[c_clean] = {
+        item_info = {
             'codigo': c_clean,
             'desc': str(desc or '').strip(),
             'stock': float(qty or 0),
-            'precio': float(price or 0)
+            'precio': float(price or 0),
+            'familia': int(fam) if fam is not None else None
         }
+        stock_map[c_clean] = item_info
+        if fam in [38, 39, 40]:
+            granel_map[c_clean] = item_info
+        else:
+            envasado_map[c_clean] = item_info
 
-print(f"Loaded {len(stock_map)} stock items from warehouse. Total units in stock: {sum(x['stock'] for x in stock_map.values()):,.0f}")
+print(f"Loaded {len(stock_map)} stock items ({len(granel_map)} Graneles = {sum(x['stock'] for x in granel_map.values()):,.0f} L/Kg, {len(envasado_map)} Envasados = {sum(x['stock'] for x in envasado_map.values()):,.0f} Uds).")
 
 # 2. Load Pending Orders from dashboard_data.json (period 2026-09) and latest October orders
 with open('web_dashboard/dashboard_data.json', 'r', encoding='utf-8') as f:
@@ -234,23 +244,57 @@ for sku, data in detailed_skus.items():
     data['clientes'] = sorted(list(data['clientes']))
     data['comerciales'] = sorted(list(data['comerciales']))
 
-# 5. Resolve Stock Mapping
-# Priority:
-# 1. Exact match in stock
-# 2. Base SKU match (e.g. AN0020CO -> AN0020)
-# 3. Prefix product family match (e.g. AGMG0005 -> AGMG)
-def resolve_stock(base_sku, sku):
-    if sku in stock_map:
+# 5. Resolve Stock Mapping and Granel Formulations
+def resolve_envasado_stock(base_sku, sku):
+    if sku in envasado_map:
+        return envasado_map[sku]['stock'], envasado_map[sku]['desc'], 'exact_envasado'
+    if base_sku in envasado_map:
+        return envasado_map[base_sku]['stock'], envasado_map[base_sku]['desc'], 'base_envasado'
+    if sku in stock_map and stock_map[sku].get('familia') not in [38, 39, 40]:
         return stock_map[sku]['stock'], stock_map[sku]['desc'], 'exact'
-    if base_sku in stock_map:
+    if base_sku in stock_map and stock_map[base_sku].get('familia') not in [38, 39, 40]:
         return stock_map[base_sku]['stock'], stock_map[base_sku]['desc'], 'base'
-    # try prefix before 4-digit package
-    m = re.match(r'^([A-Z0-9\-\(\)]+?)(\d{4})$', base_sku)
-    if m:
-        pfx = m.group(1)
-        if pfx in stock_map:
-            return stock_map[pfx]['stock'], stock_map[pfx]['desc'], 'family'
     return 0.0, '', 'none'
+
+def find_granel_smart(base_sku, desc=''):
+    sku = base_sku.strip().upper()
+    m = re.match(r'^(.+?)(0001|0005|0020|0200|1000|0008)(\S*)$', sku)
+    if m:
+        root, pkg, sfx = m.group(1), m.group(2), m.group(3)
+        if root in granel_map:
+            return granel_map[root]
+        if root + sfx in granel_map:
+            return granel_map[root + sfx]
+        # Specific known brand rules in Codiagro:
+        # Alcaplant (AN0020, ANAE0020, AO0020 -> Granel A)
+        if root.startswith('AN') or root == 'A' or root == 'AO':
+            if 'A' in granel_map:
+                return granel_map['A']
+        # Salwax Star (S0020, S1000 -> Granel S)
+        if root == 'S' and 'S' in granel_map:
+            return granel_map['S']
+        # Salwax Ca (SS0005, SSAE0005 -> Granel SS / SSAE)
+        if root == 'SS' and 'SS' in granel_map:
+            return granel_map['SS']
+        if root == 'PHD' and 'PHD00' in granel_map:
+            return granel_map['PHD00']
+        if root == 'GRE1' and 'GRE1' in granel_map:
+            return granel_map['GRE1']
+
+        # Suffix stripping: AE, EG, CR, CO, TR, P
+        for end_sfx in ['AE', 'EG', 'CR', 'CO', 'TR', 'P']:
+            if root.endswith(end_sfx) and root[:-len(end_sfx)] in granel_map:
+                return granel_map[root[:-len(end_sfx)]]
+
+        # Normalized matching
+        r_norm = re.sub(r'[\-\(\)\s]', '', root)
+        for g_cod, g in granel_map.items():
+            g_norm = re.sub(r'[\-\(\)\s]', '', g_cod)
+            if r_norm == g_norm:
+                return g
+    elif sku in granel_map:
+        return granel_map[sku]
+    return None
 
 # 6. Build Aggregated Physical Base SKUs (Plant Formulation / Packaging level)
 base_skus_dict = {}
@@ -258,13 +302,24 @@ base_skus_dict = {}
 for sku, d in detailed_skus.items():
     b_sku = d['base_sku']
     if b_sku not in base_skus_dict:
-        stock_qty, stock_desc, match_type = resolve_stock(b_sku, sku)
+        stock_qty, stock_desc, match_type = resolve_envasado_stock(b_sku, sku)
+        g_info = find_granel_smart(b_sku, d['desc'])
+        g_cod = g_info['codigo'] if g_info else None
+        g_desc = g_info['desc'] if g_info else None
+        g_stock = g_info['stock'] if g_info else 0.0
+        g_fam = g_info['familia'] if g_info else None
+
         base_skus_dict[b_sku] = {
             'base_sku': b_sku,
             'desc': d['desc'] or stock_desc,
             'envase': d['envase'],
-            'stock_actual': stock_qty,
+            'stock_actual': stock_qty,            # Stock envasado en este formato
+            'stock_envasado': stock_qty,
             'stock_match_type': match_type,
+            'granel_code': g_cod,
+            'granel_desc': g_desc,
+            'granel_stock': g_stock,              # Bolsa común de semielaborado disponible
+            'granel_family': g_fam,
             'pedidos_pendientes': 0.0,
             'monthly_forecast': {m: 0.0 for m in month_keys},
             'destinos': [],
@@ -291,12 +346,17 @@ for sku, d in detailed_skus.items():
         'monthly_forecast': d['monthly_forecast']
     })
 
-# Also assign stock to detailed items
+# Also assign stock and granel to detailed items
 for sku, d in detailed_skus.items():
     b_sku = d['base_sku']
     b_item = base_skus_dict[b_sku]
     d['stock_actual'] = b_item['stock_actual']
+    d['stock_envasado'] = b_item['stock_envasado']
     d['stock_match_type'] = b_item['stock_match_type']
+    d['granel_code'] = b_item['granel_code']
+    d['granel_desc'] = b_item['granel_desc']
+    d['granel_stock'] = b_item['granel_stock']
+    d['granel_family'] = b_item['granel_family']
 
 print(f"Consolidated into {len(base_skus_dict)} Physical Base SKUs and {len(detailed_skus)} Detailed SKUs.")
 
@@ -331,6 +391,30 @@ presets = {
     "ALL_15": month_keys
 }
 
+# Build Graneles Summary (Semielaborados / Formulaciones comunes en tanque)
+graneles_summary = []
+for g_code, g in sorted(granel_map.items()):
+    linked_items = [b for b in base_skus_dict.values() if b.get('granel_code') == g_code]
+    linked_skus = [b['base_sku'] for b in linked_items]
+    total_envasado = sum(b.get('stock_envasado', 0.0) for b in linked_items)
+    total_pending = sum(b.get('pedidos_pendientes', 0.0) for b in linked_items)
+    
+    monthly_dem = {m: 0.0 for m in month_keys}
+    for b in linked_items:
+        for m in month_keys:
+            monthly_dem[m] += b.get('monthly_forecast', {}).get(m, 0.0)
+            
+    graneles_summary.append({
+        'granel_code': g_code,
+        'granel_desc': g['desc'],
+        'granel_stock': g['stock'],
+        'granel_family': g['familia'],
+        'formatos': linked_skus,
+        'stock_envasado_total': total_envasado,
+        'pedidos_pendientes_total': total_pending,
+        'monthly_forecast_total': monthly_dem
+    })
+
 output_data = {
     "metadata": {
         "generated_at": datetime.now().isoformat(),
@@ -340,8 +424,11 @@ output_data = {
         "current_month": "2026-10",
         "months": months_metadata,
         "presets": presets,
-        "default_preset": "N2"
+        "default_preset": "N2",
+        "total_graneles_stock": sum(x['granel_stock'] for x in graneles_summary),
+        "total_envasado_stock": sum(b['stock_actual'] for b in base_skus_dict.values())
     },
+    "graneles": graneles_summary,
     "base_skus": list(base_skus_dict.values()),
     "detailed_skus": list(detailed_skus.values())
 }

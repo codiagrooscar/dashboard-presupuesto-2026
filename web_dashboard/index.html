@@ -2679,6 +2679,10 @@
               el.innerText = 'Nac';
               el.className = 'tab-badge badge-neutral';
               el.title = 'Comercial exclusivo de Nacional';
+            } else if (item.budget_uds === 0 && item.pedidos_uds === 0) {
+              el.innerText = '—';
+              el.className = 'tab-badge badge-neutral';
+              el.title = currentLang === 'en' ? 'No activity scheduled in this period' : 'Sin actividad prevista en este periodo';
             } else {
               el.innerText = fmtPct(item.pct_consec);
               el.className = 'tab-badge ' + badgeClass(item.pct_consec);
@@ -4343,6 +4347,52 @@
       const expCount = rawLines.filter(l => !l.is_nacional).length;
       const hasOriginSplit = (nacCount > 0 && expCount > 0);
 
+      // CASO 1: El comercial NO tiene líneas registradas en este periodo (ni presupuesto ni pedidos)
+      if (rawLines.length === 0) {
+        const isExportOnly = (comName === 'Mehmet' || comName === 'Ricardo');
+        const isMixed = (comName === 'García' || comName === 'Pedro');
+        const marketIcon = isExportOnly ? '🌍' : (isMixed ? '🌐' : '🇪🇸');
+        const marketLabel = comName === 'Mehmet' ? 'Exportación (Turquía)' : (comName === 'Ricardo' ? 'Exportación (América Latina)' : (isMixed ? 'Nacional + Exportación' : 'Nacional (España)'));
+
+        let explainText = '';
+        if (comName === 'Mehmet') {
+          explainText = currentLang === 'en'
+            ? 'Mehmet operates exclusively in the Export Market (Turkey). In the Official 2026-2027 Budget, he has 0 units budgeted for October 2026 (his demand is concentrated in September with 39,460 u and December with 103,520 u), and no orders have been registered yet this month.'
+            : 'Mehmet opera exclusivamente en el <strong>Mercado de Exportación (Turquía)</strong>. En el Presupuesto Oficial 2026-2027 tiene 0 unidades presupuestadas para Octubre 2026 (su campaña exterior está presupuestada en Septiembre con 39.460 u y Diciembre con 103.520 u), y todavía no han entrado pedidos en este mes.';
+        } else {
+          explainText = currentLang === 'en'
+            ? `No budget lines or orders registered for ${comName} in ${appData.nombre || currentPeriod}.`
+            : `No constan líneas de presupuesto ni pedidos registrados para ${comName} en ${appData.nombre || currentPeriod}.`;
+        }
+
+        container.innerHTML = `
+          <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 3rem 2rem; text-align: center; margin-top: 1rem;">
+            <div style="font-size: 2.8rem; margin-bottom: 0.8rem;">${marketIcon}</div>
+            <h3 style="font-size: 1.35rem; color: #ffffff; margin-bottom: 0.5rem;">
+              ${comName} — ${currentLang === 'en' ? 'No Activity Scheduled in ' + (appData.nombre || currentPeriod) : 'Sin Actividad Prevista en ' + (appData.nombre || currentPeriod)}
+            </h3>
+            <div style="display:inline-block; background:rgba(99,102,241,0.18); color:#a5b4fc; border:1px solid rgba(99,102,241,0.35); border-radius:999px; padding:0.25rem 0.85rem; font-size:0.8rem; font-weight:700; margin-bottom:1.2rem;">
+              ${currentLang === 'en' ? 'Primary Market' : 'Mercado Habitual'}: ${marketLabel}
+            </div>
+            <p style="color: var(--muted); max-width: 680px; margin: 0 auto 1.75rem auto; line-height: 1.6; font-size: 0.95rem;">
+              ${explainText}
+            </p>
+            <div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
+              <button class="pill-btn active" onclick="switchPeriod('2026-09')">
+                👉 ${currentLang === 'en' ? 'View September 2026 (Closed: 39,460 u)' : 'Ver Septiembre 2026 (Cerrado: 39.460 u)'}
+              </button>
+              <button class="pill-btn" onclick="switchPeriod('acumulado')">
+                ${currentLang === 'en' ? 'View Cumulative Sep + Oct' : 'Ver Acumulado Sep + Oct'}
+              </button>
+              <button class="pill-btn" onclick="switchTab('produccion')">
+                🏭 ${currentLang === 'en' ? 'Production Planning (MRP)' : 'Planificación Producción (MRP)'}
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
       // Filtrado por ámbito activo si no es ALL
       let lines = rawLines;
       if (currentScope === 'NACIONAL') {
@@ -4351,9 +4401,9 @@
         lines = rawLines.filter(l => !l.is_nacional);
       }
 
-      // Si el comercial no tiene actividad en este ámbito
+      // CASO 2: El comercial SÍ tiene líneas, pero ninguna coincide con el ámbito seleccionado
       if (lines.length === 0) {
-        const isNacScope = currentScope === 'NACIONAL';
+        const isNacScope = (currentScope === 'NACIONAL');
         const warnText = isNacScope ? t('exclusive_export_warning') : t('exclusive_nac_warning');
         const altScopeKey = isNacScope ? 'EXPORTACION' : 'NACIONAL';
         const altScopeName = isNacScope ? (currentLang === 'en' ? 'Export' : 'Exportación') : (currentLang === 'en' ? 'Domestic' : 'Nacional');
@@ -4361,7 +4411,7 @@
 
         container.innerHTML = `
           <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 3rem 2rem; text-align: center; margin-top: 1rem;">
-            <div style="font-size: 2.2rem; margin-bottom: 0.8rem;">${isNacScope ? '🌍' : '🇪🇸'}</div>
+            <div style="font-size: 2.5rem; margin-bottom: 0.8rem;">${isNacScope ? '🌍' : '🇪🇸'}</div>
             <h3 style="font-size: 1.25rem; color: #ffffff; margin-bottom: 0.5rem;">${comName} ${warnText}</h3>
             <p style="color: var(--muted); max-width: 600px; margin: 0 auto 1.5rem auto;">
               ${currentLang === 'en' ? 'No lines registered in this market for ' + comName + ' in ' + (appData.nombre || currentPeriod) + '.' : 'No constan líneas registradas en este mercado para este comercial en ' + (appData.nombre || currentPeriod) + '.'}

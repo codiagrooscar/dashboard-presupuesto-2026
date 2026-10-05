@@ -2817,7 +2817,46 @@
 
     function handleProdSearch(query) {
       prodSearchQuery = (query || '').toLowerCase().trim();
-      renderCurrentTab();
+      const tb = document.getElementById('mrpTableBody');
+      if (tb) {
+        updateProdTableOnly();
+      } else {
+        renderCurrentTab();
+      }
+    }
+
+    function updateProdTableOnly() {
+      const tb = document.getElementById('mrpTableBody');
+      if (!tb) {
+        renderCurrentTab();
+        return;
+      }
+      const { rows, totals } = computeProductionTableData();
+      if (rows.length === 0) {
+        tb.innerHTML = `
+          <tr>
+            <td colspan="14" style="text-align:center;padding:3rem;color:var(--muted)">
+              No se han encontrado artículos que coincidan con los filtros aplicados.
+            </td>
+          </tr>
+        `;
+      } else {
+        tb.innerHTML = rows.map(r => generateProdTableRowHtml(r)).join('');
+      }
+
+      // Actualizar contadores sin recrear el DOM ni mover el scroll
+      const updateText = (id, txt) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = txt;
+      };
+      updateText('mrpCountAll', `(${totals.all_skus_count})`);
+      updateText('mrpCountCritical', `(${totals.all_critical_count})`);
+      updateText('mrpCountWarning', `(${totals.all_warning_count})`);
+      updateText('mrpCountCovered', `(${totals.all_covered_count})`);
+      updateText('mrpCountNomover', `(${totals.all_nomover_count})`);
+      updateText('mrpCountSlowmover', `(${totals.all_slowmover_count})`);
+      updateText('mrpCountBoth', `(${totals.all_both_count})`);
+      updateText('mrpCountFastmover', `(${totals.all_fastmover_count})`);
     }
 
     function sortProdTable(field) {
@@ -2827,7 +2866,12 @@
         prodSortField = field;
         prodSortOrder = 'desc';
       }
-      renderCurrentTab();
+      const tb = document.getElementById('mrpTableBody');
+      if (tb) {
+        updateProdTableOnly();
+      } else {
+        renderCurrentTab();
+      }
     }
 
     // Clasificación de formato y tipo de formulación de cada artículo
@@ -2928,26 +2972,41 @@
           forecastPeriod += (item.monthly_forecast[m] || 0);
         });
 
-        const stock = Number(item.stock_actual) || 0;
+        const stock = Number(item.stock_actual) || 0; // Stock envasado en este formato
+        const granelCode = item.granel_code || '';
+        const granelDesc = item.granel_desc || '';
+        const granelStock = Number(item.granel_stock) || 0; // Bolsa de granel en planta
+        const granelFamily = item.granel_family || null;
+
         const pending = Number(item.pedidos_pendientes || item.pendientes_uds) || 0;
         const totalDemand = pending + forecastPeriod;
         const netBalance = stock - totalDemand;
-        const faltaFabricar = Math.max(0, -netBalance);
+        const faltaEnvasar = Math.max(0, -netBalance);
         
+        // Comparación con granel
+        let faltaFabricarGranel = 0;
+        if (faltaEnvasar > 0) {
+          if (granelStock >= faltaEnvasar) {
+            faltaFabricarGranel = 0; // Cubierto 100% por el tanque
+          } else {
+            faltaFabricarGranel = faltaEnvasar - granelStock; // El tanque se agota
+          }
+        }
+
         let coveragePct = 100;
         if (totalDemand > 0) {
-          coveragePct = (stock / totalDemand) * 100;
-        } else if (stock === 0) {
+          coveragePct = ((stock + Math.min(granelStock, faltaEnvasar)) / totalDemand) * 100;
+        } else if (stock === 0 && granelStock === 0) {
           coveragePct = 0;
         }
 
         // 5. Estado del semáforo
         let status = 'COVERED'; // 🟢
-        if (faltaFabricar > 0) {
-          if (coveragePct < 25 || stock === 0) {
-            status = 'CRITICAL'; // 🔴
+        if (faltaEnvasar > 0) {
+          if (faltaFabricarGranel === 0) {
+            status = 'WARNING'; // 🟡 Solo Envasar (Granel disponible en tanque)
           } else {
-            status = 'WARNING'; // 🟡
+            status = 'CRITICAL'; // 🔴 Fabricar Granel (Déficit de formulación química)
           }
         }
 
@@ -2979,9 +3038,10 @@
 
         // 7. Cálculo con Lote Mínimo (MOQ / Batch Sizing)
         let numBatches = 0;
-        let sugFabricar = faltaFabricar;
-        if (prodBatchSize > 0 && faltaFabricar > 0) {
-          numBatches = Math.ceil(faltaFabricar / prodBatchSize);
+        let faltaParaLote = faltaFabricarGranel > 0 ? faltaFabricarGranel : faltaEnvasar;
+        let sugFabricar = faltaParaLote;
+        if (prodBatchSize > 0 && faltaParaLote > 0) {
+          numBatches = Math.ceil(faltaParaLote / prodBatchSize);
           sugFabricar = numBatches * prodBatchSize;
         }
 
@@ -3047,11 +3107,17 @@
           is_nacional: isBaseView ? (item.has_nacional && !item.has_export) : item.is_nacional,
           is_mixed: isBaseView ? (item.has_nacional && item.has_export) : false,
           stock: stock,
+          granel_code: granelCode,
+          granel_desc: granelDesc,
+          granel_stock: granelStock,
+          granel_family: granelFamily,
           pending: pending,
           forecast: forecastPeriod,
           total_demand: totalDemand,
           net_balance: netBalance,
-          falta_fabricar: faltaFabricar,
+          falta_envasar: faltaEnvasar,
+          falta_fabricar_granel: faltaFabricarGranel,
+          falta_fabricar: faltaFabricarGranel > 0 ? faltaFabricarGranel : faltaEnvasar,
           sug_fabricar: sugFabricar,
           num_batches: numBatches,
           coverage_pct: coveragePct,
@@ -3089,14 +3155,16 @@
         total_pending: processed.reduce((acc, r) => acc + r.pending, 0),
         total_forecast: processed.reduce((acc, r) => acc + r.forecast, 0),
         total_demand: processed.reduce((acc, r) => acc + r.total_demand, 0),
+        total_falta_envasar: processed.reduce((acc, r) => acc + r.falta_envasar, 0),
+        total_falta_granel: processed.reduce((acc, r) => acc + r.falta_fabricar_granel, 0),
         total_falta: processed.reduce((acc, r) => acc + r.falta_fabricar, 0),
         total_sug_fabricar: processed.reduce((acc, r) => acc + r.sug_fabricar, 0),
         total_batches: processed.reduce((acc, r) => acc + r.num_batches, 0),
-        total_20l_falta: processed.filter(r => r.pkg.category === '20').reduce((acc, r) => acc + r.falta_fabricar, 0),
-        total_small_falta: processed.filter(r => r.pkg.category === 'SMALL').reduce((acc, r) => acc + r.falta_fabricar, 0),
-        total_bulk_falta: processed.filter(r => r.pkg.category === 'BULK').reduce((acc, r) => acc + r.falta_fabricar, 0),
-        total_solids_falta: processed.filter(r => r.pkg.isSolid).reduce((acc, r) => acc + r.falta_fabricar, 0),
-        total_liquids_falta: processed.filter(r => r.pkg.isLiquid).reduce((acc, r) => acc + r.falta_fabricar, 0),
+        total_20l_falta: processed.filter(r => r.pkg.category === '20').reduce((acc, r) => acc + r.falta_envasar, 0),
+        total_small_falta: processed.filter(r => r.pkg.category === 'SMALL').reduce((acc, r) => acc + r.falta_envasar, 0),
+        total_bulk_falta: processed.filter(r => r.pkg.category === 'BULK').reduce((acc, r) => acc + r.falta_envasar, 0),
+        total_solids_falta: processed.filter(r => r.pkg.isSolid).reduce((acc, r) => acc + r.falta_envasar, 0),
+        total_liquids_falta: processed.filter(r => r.pkg.isLiquid).reduce((acc, r) => acc + r.falta_envasar, 0),
 
         total_nomover_qty: processed.reduce((acc, r) => acc + r.no_mover_qty, 0),
         total_slowmover_qty: processed.reduce((acc, r) => acc + r.slow_mover_qty, 0),
@@ -3127,6 +3195,146 @@
       return { rows: processed, totals: totals };
     }
 
+    // GENERAR FILA HTML DE TABLA MRP (Granel + Formato)
+    function generateProdTableRowHtml(r) {
+      let statusBadge = '';
+      if (r.status === 'CRITICAL') {
+        statusBadge = `<span class="coverage-pill coverage-crit" style="font-weight:800;font-size:0.75rem;background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.5);">🔴 Fabricar Granel</span>`;
+      } else if (r.status === 'WARNING') {
+        statusBadge = `<span class="coverage-pill coverage-warn" style="font-weight:800;font-size:0.75rem;background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.5);">🟡 Solo Envasar</span>`;
+      } else {
+        statusBadge = `<span class="coverage-pill coverage-ok" style="font-weight:700;font-size:0.75rem;">🟢 Cubierto</span>`;
+      }
+
+      let barColor = r.coverage_pct < 25 ? '#ef4444' : (r.coverage_pct < 100 ? '#f59e0b' : '#10b981');
+      let barWidth = Math.min(100, Math.max(0, r.coverage_pct));
+
+      let scopeBadge = '';
+      if (r.is_mixed) {
+        scopeBadge = `<span class="tab-badge badge-neutral" style="font-size:0.65rem">🌐 Nac+Exp</span>`;
+      } else if (r.is_nacional) {
+        scopeBadge = `<span class="tab-badge badge-success" style="font-size:0.65rem">🇪🇸 Nac</span>`;
+      } else {
+        scopeBadge = `<span class="tab-badge badge-info" style="font-size:0.65rem">🌍 ${r.pais.slice(0,3)}</span>`;
+      }
+
+      let depletionBadge = '';
+      if (r.depleted_idx === 0) {
+        depletionBadge = `<span class="coverage-pill coverage-crit" style="font-weight:800;font-size:0.75rem;">${r.depleted_month}</span>`;
+      } else if (r.depleted_idx < 99) {
+        depletionBadge = `<span class="coverage-pill coverage-warn" style="font-weight:700;font-size:0.75rem;">📅 ${r.depleted_month}</span>`;
+      } else {
+        depletionBadge = `<span class="coverage-pill coverage-ok" style="font-size:0.75rem;opacity:0.9;">${r.depleted_month}</span>`;
+      }
+
+      let rotationBadges = '';
+      if (r.stock > 0) {
+        if (r.is_nomover) {
+          rotationBadges += `<span class="tab-badge" style="background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.45);font-size:0.67rem;padding:0.1rem 0.35rem;font-weight:700;" title="${t('mrp_tooltip_nomover')}">🔴 NoMover: ${fmtNum(r.no_mover_qty)} u</span>`;
+        }
+        if (r.is_slowmover) {
+          rotationBadges += `<span class="tab-badge" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.45);font-size:0.67rem;padding:0.1rem 0.35rem;font-weight:700;" title="${t('mrp_tooltip_slowmover')}">🟡 SlowMover: ${fmtNum(r.slow_mover_qty)} u</span>`;
+        }
+        if (r.is_fastmover) {
+          rotationBadges += `<span class="tab-badge" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);font-size:0.67rem;padding:0.1rem 0.35rem;font-weight:600;" title="${t('mrp_tooltip_fastmover')}">⚡ Alta Rotación</span>`;
+        }
+      }
+
+      return `
+        <tr style="cursor:pointer;" data-sku="${r.key}" onclick="openProdSkuModal(this.getAttribute('data-sku'))" title="Click para ver desglose mensual, granel y proyección de agotamiento">
+          <td style="font-family:monospace;font-weight:700;color:#38bdf8;">
+            ${r.sku}
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+              <span style="font-weight:600;color:#f8fafc">${r.desc}</span>
+              <span class="tab-badge badge-neutral" style="font-size:0.65rem;padding:0.1rem 0.35rem;border:1px solid rgba(255,255,255,0.15)">
+                ${r.pkg.badge}
+              </span>
+              ${rotationBadges}
+            </div>
+            ${r.envase ? `<div style="font-size:0.72rem;color:var(--muted)">Formato: ${r.envase}</div>` : ''}
+          </td>
+          <td style="text-align:center;">
+            ${scopeBadge}
+          </td>
+          <td class="text-right" style="font-weight:600;color:${r.stock > 0 ? '#6ee7b7' : 'var(--muted)'}">
+            <div>${fmtNum(r.stock)} u</div>
+            ${r.stock > 0 && (r.is_nomover || r.is_slowmover) ? `
+              <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem;display:flex;justify-content:flex-end;gap:0.35rem;flex-wrap:wrap;">
+                ${r.no_mover_qty > 0 ? `<span style="color:#f87171;font-weight:700;" title="NoMover: sin venta en 6 meses">🔴 ${fmtNum(r.no_mover_qty)}</span>` : ''}
+                ${r.slow_mover_qty > 0 ? `<span style="color:#fbbf24;font-weight:700;" title="SlowMover: venta meses 3 a 6">🟡 ${fmtNum(r.slow_mover_qty)}</span>` : ''}
+                ${r.fast_mover_qty > 0 ? `<span style="color:#34d399;font-weight:600;" title="Alta Rotación N+2: venta meses 0 a 3">⚡ ${fmtNum(r.fast_mover_qty)}</span>` : ''}
+              </div>
+            ` : ''}
+          </td>
+          <td class="text-right">
+            ${r.granel_code ? `
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.15rem;">
+                <span class="tab-badge" style="background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.35);font-size:0.75rem;padding:0.15rem 0.45rem;font-weight:800;" title="Semielaborado ${r.granel_code} (${r.granel_desc}): ${fmtNum(r.granel_stock)} L/kg listos para acondicionar en 1, 5, 20, 200, 1000">
+                  🛢️ ${fmtNum(r.granel_stock)}
+                </span>
+                <span style="font-size:0.68rem;color:var(--muted);">${r.granel_code}</span>
+              </div>
+            ` : `
+              <span style="color:var(--muted);font-size:0.75rem;">—</span>
+            `}
+          </td>
+          <td class="text-right" style="color:${r.pending > 0 ? '#fbbf24' : 'var(--muted)'};font-weight:${r.pending > 0 ? '700' : 'normal'}">
+            ${fmtNum(r.pending)}
+          </td>
+          <td class="text-right" style="color:#c084fc;font-weight:600">
+            ${fmtNum(r.forecast)}
+          </td>
+          <td class="text-right" style="font-weight:700;color:#f8fafc">
+            ${fmtNum(r.total_demand)}
+          </td>
+          <td class="text-right" style="color:${r.net_balance < 0 ? '#f87171' : '#34d399'};font-weight:700">
+            ${r.net_balance > 0 ? '+' : ''}${fmtNum(r.net_balance)}
+          </td>
+          <td class="text-right">
+            ${r.status === 'CRITICAL' ? `
+              <div style="background:rgba(239,68,68,0.12);padding:0.25rem 0.5rem;border-radius:4px;border:1px solid rgba(239,68,68,0.35);display:inline-block;text-align:right;">
+                <div style="color:#f87171;font-weight:800;font-size:0.82rem;">🔴 Fab. Granel: ${fmtNum(r.falta_fabricar_granel)}</div>
+                <div style="color:#fbbf24;font-size:0.7rem;font-weight:700;margin-top:0.1rem;">🟡 Envasar: ${fmtNum(r.falta_envasar)} u</div>
+              </div>
+            ` : (r.status === 'WARNING' ? `
+              <div style="background:rgba(245,158,11,0.1);padding:0.25rem 0.5rem;border-radius:4px;border:1px solid rgba(245,158,11,0.3);display:inline-block;text-align:right;">
+                <div style="color:#fbbf24;font-weight:800;font-size:0.82rem;">🟡 Solo Envasar: ${fmtNum(r.falta_envasar)} u</div>
+                <div style="color:#34d399;font-size:0.68rem;font-weight:600;margin-top:0.1rem;">✓ Granel cubre 100%</div>
+              </div>
+            ` : `
+              <span style="color:var(--muted);font-size:0.85rem;">—</span>
+            `)}
+            ${prodBatchSize > 0 && r.falta_fabricar > 0 ? `
+              <div style="font-size:0.7rem;color:#a78bfa;font-weight:700;margin-top:0.25rem;">
+                ↳ ${fmtNum(r.sug_fabricar)} u (${r.num_batches} ${r.num_batches === 1 ? 'lote' : 'lotes'})
+              </div>
+            ` : ''}
+          </td>
+          <td style="text-align:right;">
+            <span style="font-size:0.8rem;font-weight:700;color:${barColor}">
+              ${r.coverage_pct.toFixed(0)}%
+            </span>
+            <span class="coverage-bar-track">
+              <span class="coverage-bar-fill" style="width:${barWidth}%;background:${barColor};display:block;"></span>
+            </span>
+          </td>
+          <td style="text-align:center;white-space:nowrap;">
+            ${depletionBadge}
+          </td>
+          <td style="text-align:center;">
+            ${statusBadge}
+          </td>
+          <td style="text-align:center;">
+            <button class="pill-btn" style="padding:0.2rem 0.5rem;font-size:0.75rem;" data-sku="${r.key}" onclick="event.stopPropagation(); openProdSkuModal(this.getAttribute('data-sku'))">
+              ${t('kpi_breakdown')}
+            </button>
+          </td>
+        </tr>
+      `;
+    }
+
     // RENDER: PESTAÑA PRINCIPAL DE PLANIFICACIÓN PRODUCCIÓN (MRP)
     function renderProduccionTab(container) {
       if (!productionData) {
@@ -3137,6 +3345,13 @@
         </div>`;
         return;
       }
+
+      // Guardar posición de scroll y foco del buscador para evitar saltos
+      const prevScrollY = window.scrollY;
+      const searchEl = document.getElementById('mrpSearchInput');
+      const isSearchFocused = (document.activeElement === searchEl);
+      const selStart = (isSearchFocused && searchEl) ? searchEl.selectionStart : 0;
+      const selEnd = (isSearchFocused && searchEl) ? searchEl.selectionEnd : 0;
 
       const { rows, totals } = computeProductionTableData();
       const meta = productionData.metadata;
@@ -3186,132 +3401,13 @@
       if (rows.length === 0) {
         tableRowsHtml = `
           <tr>
-            <td colspan="13" style="text-align:center;padding:3rem;color:var(--muted)">
+            <td colspan="14" style="text-align:center;padding:3rem;color:var(--muted)">
               No se han encontrado artículos que coincidan con los filtros aplicados.
             </td>
           </tr>
         `;
       } else {
-        tableRowsHtml = rows.map((r, idx) => {
-          let statusBadge = '';
-          if (r.status === 'CRITICAL') {
-            statusBadge = `<span class="coverage-pill coverage-crit">🔴 ${t('mrp_action_critical')}</span>`;
-          } else if (r.status === 'WARNING') {
-            statusBadge = `<span class="coverage-pill coverage-warn">🟡 ${t('mrp_action_warning')}</span>`;
-          } else {
-            statusBadge = `<span class="coverage-pill coverage-ok">🟢 ${t('mrp_action_covered')}</span>`;
-          }
-
-          let barColor = r.coverage_pct < 25 ? '#ef4444' : (r.coverage_pct < 100 ? '#f59e0b' : '#10b981');
-          let barWidth = Math.min(100, Math.max(0, r.coverage_pct));
-
-          let scopeBadge = '';
-          if (r.is_mixed) {
-            scopeBadge = `<span class="tab-badge badge-neutral" style="font-size:0.65rem">🌐 Nac+Exp</span>`;
-          } else if (r.is_nacional) {
-            scopeBadge = `<span class="tab-badge badge-success" style="font-size:0.65rem">🇪🇸 Nac</span>`;
-          } else {
-            scopeBadge = `<span class="tab-badge badge-info" style="font-size:0.65rem">🌍 ${r.pais.slice(0,3)}</span>`;
-          }
-
-          let faltaStyle = r.falta_fabricar > 0 
-            ? 'color:#f87171;font-weight:800;background:rgba(239,68,68,0.1);padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(239,68,68,0.3);display:inline-block;' 
-            : 'color:var(--muted);';
-
-          let depletionBadge = '';
-          if (r.depleted_idx === 0) {
-            depletionBadge = `<span class="coverage-pill coverage-crit" style="font-weight:800;font-size:0.75rem;">${r.depleted_month}</span>`;
-          } else if (r.depleted_idx < 99) {
-            depletionBadge = `<span class="coverage-pill coverage-warn" style="font-weight:700;font-size:0.75rem;">📅 ${r.depleted_month}</span>`;
-          } else {
-            depletionBadge = `<span class="coverage-pill coverage-ok" style="font-size:0.75rem;opacity:0.9;">${r.depleted_month}</span>`;
-          }
-
-          let rotationBadges = '';
-          if (r.stock > 0) {
-            if (r.is_nomover) {
-              rotationBadges += `<span class="tab-badge" style="background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.45);font-size:0.67rem;padding:0.1rem 0.35rem;font-weight:700;" title="${t('mrp_tooltip_nomover')}">🔴 NoMover: ${fmtNum(r.no_mover_qty)} u</span>`;
-            }
-            if (r.is_slowmover) {
-              rotationBadges += `<span class="tab-badge" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.45);font-size:0.67rem;padding:0.1rem 0.35rem;font-weight:700;" title="${t('mrp_tooltip_slowmover')}">🟡 SlowMover: ${fmtNum(r.slow_mover_qty)} u</span>`;
-            }
-            if (r.is_fastmover) {
-              rotationBadges += `<span class="tab-badge" style="background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);font-size:0.67rem;padding:0.1rem 0.35rem;font-weight:600;" title="${t('mrp_tooltip_fastmover')}">⚡ Alta Rotación</span>`;
-            }
-          }
-
-          return `
-            <tr style="cursor:pointer;" data-sku="${r.key}" onclick="openProdSkuModal(this.getAttribute('data-sku'))" title="Click para ver desglose mensual y proyección de agotamiento">
-              <td style="font-family:monospace;font-weight:700;color:#38bdf8;">
-                ${r.sku}
-              </td>
-              <td>
-                <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
-                  <span style="font-weight:600;color:#f8fafc">${r.desc}</span>
-                  <span class="tab-badge badge-neutral" style="font-size:0.65rem;padding:0.1rem 0.35rem;border:1px solid rgba(255,255,255,0.15)">
-                    ${r.pkg.badge}
-                  </span>
-                  ${rotationBadges}
-                </div>
-                ${r.envase ? `<div style="font-size:0.72rem;color:var(--muted)">Formato: ${r.envase}</div>` : ''}
-              </td>
-              <td style="text-align:center;">
-                ${scopeBadge}
-              </td>
-              <td class="text-right" style="font-weight:600;color:${r.stock > 0 ? '#6ee7b7' : 'var(--muted)'}">
-                <div>${fmtNum(r.stock)}</div>
-                ${r.stock > 0 && (r.is_nomover || r.is_slowmover) ? `
-                  <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem;display:flex;justify-content:flex-end;gap:0.35rem;flex-wrap:wrap;">
-                    ${r.no_mover_qty > 0 ? `<span style="color:#f87171;font-weight:700;" title="NoMover: sin venta en 6 meses">🔴 ${fmtNum(r.no_mover_qty)}</span>` : ''}
-                    ${r.slow_mover_qty > 0 ? `<span style="color:#fbbf24;font-weight:700;" title="SlowMover: venta meses 3 a 6">🟡 ${fmtNum(r.slow_mover_qty)}</span>` : ''}
-                    ${r.fast_mover_qty > 0 ? `<span style="color:#34d399;font-weight:600;" title="Alta Rotación N+2: venta meses 0 a 3">⚡ ${fmtNum(r.fast_mover_qty)}</span>` : ''}
-                  </div>
-                ` : ''}
-              </td>
-              <td class="text-right" style="color:${r.pending > 0 ? '#fbbf24' : 'var(--muted)'};font-weight:${r.pending > 0 ? '700' : 'normal'}">
-                ${fmtNum(r.pending)}
-              </td>
-              <td class="text-right" style="color:#c084fc;font-weight:600">
-                ${fmtNum(r.forecast)}
-              </td>
-              <td class="text-right" style="font-weight:700;color:#f8fafc">
-                ${fmtNum(r.total_demand)}
-              </td>
-              <td class="text-right" style="color:${r.net_balance < 0 ? '#f87171' : '#34d399'};font-weight:700">
-                ${r.net_balance > 0 ? '+' : ''}${fmtNum(r.net_balance)}
-              </td>
-              <td class="text-right">
-                <span style="${faltaStyle}">
-                  ${r.falta_fabricar > 0 ? fmtNum(r.falta_fabricar) : '—'}
-                </span>
-                ${prodBatchSize > 0 && r.falta_fabricar > 0 ? `
-                  <div style="font-size:0.7rem;color:#a78bfa;font-weight:700;margin-top:0.25rem;">
-                    ↳ ${fmtNum(r.sug_fabricar)} u (${r.num_batches} ${r.num_batches === 1 ? 'lote' : 'lotes'})
-                  </div>
-                ` : ''}
-              </td>
-              <td style="text-align:right;">
-                <span style="font-size:0.8rem;font-weight:700;color:${barColor}">
-                  ${r.coverage_pct.toFixed(0)}%
-                </span>
-                <span class="coverage-bar-track">
-                  <span class="coverage-bar-fill" style="width:${barWidth}%;background:${barColor};display:block;"></span>
-                </span>
-              </td>
-              <td style="text-align:center;white-space:nowrap;">
-                ${depletionBadge}
-              </td>
-              <td style="text-align:center;">
-                ${statusBadge}
-              </td>
-              <td style="text-align:center;">
-                <button class="pill-btn" style="padding:0.2rem 0.5rem;font-size:0.75rem;" data-sku="${r.key}" onclick="event.stopPropagation(); openProdSkuModal(this.getAttribute('data-sku'))">
-                  ${t('kpi_breakdown')}
-                </button>
-              </td>
-            </tr>
-          `;
-        }).join('');
+        tableRowsHtml = rows.map(r => generateProdTableRowHtml(r)).join('');
       }
 
       container.innerHTML = `
@@ -3359,32 +3455,46 @@
 
           <!-- KPIS RESUMEN DE PLANTA -->
           <div class="mrp-kpi-grid">
+            <!-- KPI 1: FABRICAR GRANEL (QUÍMICA) -->
             <div class="mrp-kpi-card urgent">
               <div style="font-size:0.8rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.04em;">
-                ${prodBatchSize > 0 ? t('mrp_kpi_sug_produce') : t('mrp_kpi_to_produce')}
+                🔴 Falta Fabricar Granel
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#ef4444;line-height:1.2;">
-                ${fmtNum(prodBatchSize > 0 ? totals.total_sug_fabricar : totals.total_falta)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+                ${fmtNum(totals.total_falta_granel)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">L/kg</span>
               </div>
               <div style="font-size:0.75rem;color:var(--muted)">
-                ${prodBatchSize > 0 
-                  ? `${totals.total_batches} baches de ${fmtNum(prodBatchSize)} u sugeridos` 
-                  : t('mrp_kpi_to_produce_sub')}
+                ${totals.critical_count} SKUs con rotura química (tras agotar granel en tanque)
               </div>
             </div>
 
+            <!-- KPI 2: SOLO ENVASAR (ACONDICIONAMIENTO) -->
+            <div class="mrp-kpi-card warning">
+              <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;">
+                🟡 Solo Envasar (Hay Granel)
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#f59e0b;line-height:1.2;">
+                ${fmtNum(totals.total_falta_envasar)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                ${totals.warning_count} SKUs que solo precisan dosificado/acondicionado
+              </div>
+            </div>
+
+            <!-- KPI 3: STOCK DISPONIBLE (ENVASADO + GRANEL) -->
             <div class="mrp-kpi-card stock">
               <div style="font-size:0.8rem;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:0.04em;">
-                ${t('mrp_kpi_stock')}
+                📦 Stock Físico Almacén
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
-                ${fmtNum(totals.total_stock)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+                ${fmtNum(totals.total_stock)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u env.</span>
               </div>
-              <div style="font-size:0.75rem;color:var(--muted)">
-                ${t('mrp_kpi_stock_sub')}
+              <div style="font-size:0.75rem;color:#38bdf8;font-weight:700;">
+                🛢️ Granel en Fábrica: 112.599 L/kg (82 semielaborados)
               </div>
             </div>
 
+            <!-- KPI 4: NOMOVERS -->
             <div class="mrp-kpi-card" style="border-left: 3px solid #ef4444; background: ${prodRotationFilter === 'NOMOVER' ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.06)'}; cursor:pointer;" onclick="setProdRotationFilter(prodRotationFilter === 'NOMOVER' ? 'ALL' : 'NOMOVER')" title="Click para filtrar artículos con Stock NoMover">
               <div style="font-size:0.8rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.04em;display:flex;justify-content:space-between;align-items:center;">
                 <span>🔴 ${t('mrp_kpi_nomover')}</span>
@@ -3398,6 +3508,7 @@
               </div>
             </div>
 
+            <!-- KPI 5: SLOWMOVERS -->
             <div class="mrp-kpi-card" style="border-left: 3px solid #f59e0b; background: ${prodRotationFilter === 'SLOWMOVER' ? 'rgba(245,158,11,0.2)' : 'rgba(245,158,11,0.06)'}; cursor:pointer;" onclick="setProdRotationFilter(prodRotationFilter === 'SLOWMOVER' ? 'ALL' : 'SLOWMOVER')" title="Click para filtrar artículos con Stock SlowMover">
               <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;display:flex;justify-content:space-between;align-items:center;">
                 <span>🟡 ${t('mrp_kpi_slowmover')}</span>
@@ -3411,6 +3522,7 @@
               </div>
             </div>
 
+            <!-- KPI 6: DEMANDA TOTAL PREVISTA -->
             <div class="mrp-kpi-card forecast">
               <div style="font-size:0.8rem;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:0.04em;">
                 ${t('mrp_kpi_forecast')}
@@ -3423,6 +3535,7 @@
               </div>
             </div>
 
+            <!-- KPI 7: PEDIDOS PENDIENTES -->
             <div class="mrp-kpi-card warning">
               <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;">
                 ${t('mrp_kpi_pending')}
@@ -3435,18 +3548,7 @@
               </div>
             </div>
 
-            <div class="mrp-kpi-card urgent">
-              <div style="font-size:0.8rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.04em;">
-                ${t('mrp_kpi_critical')}
-              </div>
-              <div style="font-size:1.85rem;font-weight:800;color:#ef4444;line-height:1.2;">
-                ${totals.critical_count} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">SKUs</span>
-              </div>
-              <div style="font-size:0.75rem;color:var(--muted)">
-                ${t('mrp_kpi_critical_sub')}
-              </div>
-            </div>
-
+            <!-- KPI 8: ARTICULOS CUBIERTOS -->
             <div class="mrp-kpi-card success">
               <div style="font-size:0.8rem;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.04em;">
                 ${t('mrp_kpi_covered')}
@@ -3456,20 +3558,6 @@
               </div>
               <div style="font-size:0.75rem;color:var(--muted)">
                 ${t('mrp_kpi_covered_sub')}
-              </div>
-            </div>
-
-            <div class="mrp-kpi-card" style="border-left: 3px solid #818cf8; background: rgba(99, 102, 241, 0.05);">
-              <div style="font-size:0.78rem;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.04em;">
-                ${t('mrp_kpi_format_title')}
-              </div>
-              <div style="display:flex;gap:0.7rem;margin-top:0.3rem;font-size:0.82rem;font-weight:700;flex-wrap:wrap;">
-                <span style="color:#38bdf8;">🛢️ 20L/Kg: <span style="color:#fff">${fmtNum(totals.total_20l_falta)} u</span></span>
-                <span style="color:#a78bfa;">🧴 1L/5L: <span style="color:#fff">${fmtNum(totals.total_small_falta)} u</span></span>
-                <span style="color:#34d399;">🏭 Granel: <span style="color:#fff">${fmtNum(totals.total_bulk_falta)} u</span></span>
-              </div>
-              <div style="font-size:0.73rem;color:var(--muted);margin-top:0.2rem;">
-                🌾 Sólidos: <strong style="color:#f8fafc">${fmtNum(totals.total_solids_falta)} u</strong> &bull; 💧 Líquidos: <strong style="color:#f8fafc">${fmtNum(totals.total_liquids_falta)} u</strong>
               </div>
             </div>
           </div>
@@ -3493,16 +3581,16 @@
                   ${t('mrp_rot_all')}
                 </button>
                 <button class="pill-btn ${prodRotationFilter === 'NOMOVER' ? 'active' : ''}" onclick="setProdRotationFilter('NOMOVER')" style="color:${prodRotationFilter === 'NOMOVER' ? '#fff' : '#f87171'}">
-                  ${t('mrp_rot_nomover')} (${totals.all_nomover_count})
+                  ${t('mrp_rot_nomover')} <span id="mrpCountNomover">(${totals.all_nomover_count})</span>
                 </button>
                 <button class="pill-btn ${prodRotationFilter === 'SLOWMOVER' ? 'active' : ''}" onclick="setProdRotationFilter('SLOWMOVER')" style="color:${prodRotationFilter === 'SLOWMOVER' ? '#fff' : '#fbbf24'}">
-                  ${t('mrp_rot_slowmover')} (${totals.all_slowmover_count})
+                  ${t('mrp_rot_slowmover')} <span id="mrpCountSlowmover">(${totals.all_slowmover_count})</span>
                 </button>
                 <button class="pill-btn ${prodRotationFilter === 'BOTH' ? 'active' : ''}" onclick="setProdRotationFilter('BOTH')" style="color:${prodRotationFilter === 'BOTH' ? '#fff' : '#c084fc'}">
-                  ${t('mrp_rot_both')} (${totals.all_both_count})
+                  ${t('mrp_rot_both')} <span id="mrpCountBoth">(${totals.all_both_count})</span>
                 </button>
                 <button class="pill-btn ${prodRotationFilter === 'FASTMOVER' ? 'active' : ''}" onclick="setProdRotationFilter('FASTMOVER')" style="color:${prodRotationFilter === 'FASTMOVER' ? '#fff' : '#34d399'}">
-                  ${t('mrp_rot_fastmover')} (${totals.all_fastmover_count})
+                  ${t('mrp_rot_fastmover')} <span id="mrpCountFastmover">(${totals.all_fastmover_count})</span>
                 </button>
               </div>
 
@@ -3531,16 +3619,16 @@
               <!-- Filtro de Estado -->
               <div class="filter-pills" style="margin:0;">
                 <button class="pill-btn ${prodStatusFilter === 'ALL' ? 'active' : ''}" onclick="setProdStatusFilter('ALL')">
-                  ${t('mrp_status_all')} (${totals.all_skus_count})
+                  ${t('mrp_status_all')} <span id="mrpCountAll">(${totals.all_skus_count})</span>
                 </button>
                 <button class="pill-btn ${prodStatusFilter === 'CRITICAL' ? 'active' : ''}" onclick="setProdStatusFilter('CRITICAL')" style="color:${prodStatusFilter === 'CRITICAL' ? '#fff' : '#f87171'}">
-                  ${t('mrp_status_critical')} (${totals.all_critical_count})
+                  🔴 Fabricar Granel <span id="mrpCountCritical">(${totals.all_critical_count})</span>
                 </button>
                 <button class="pill-btn ${prodStatusFilter === 'WARNING' ? 'active' : ''}" onclick="setProdStatusFilter('WARNING')" style="color:${prodStatusFilter === 'WARNING' ? '#fff' : '#fbbf24'}">
-                  ${t('mrp_status_warning')} (${totals.all_warning_count})
+                  🟡 Solo Envasar <span id="mrpCountWarning">(${totals.all_warning_count})</span>
                 </button>
                 <button class="pill-btn ${prodStatusFilter === 'COVERED' ? 'active' : ''}" onclick="setProdStatusFilter('COVERED')" style="color:${prodStatusFilter === 'COVERED' ? '#fff' : '#34d399'}">
-                  ${t('mrp_status_covered')} (${totals.all_covered_count})
+                  🟢 Cubierto <span id="mrpCountCovered">(${totals.all_covered_count})</span>
                 </button>
               </div>
 
@@ -3558,8 +3646,8 @@
             </div>
 
             <div class="mrp-toolbar-right">
-              <!-- Buscador -->
-              <input type="text" class="search-input" placeholder="${t('mrp_search_ph')}" 
+              <!-- Buscador con ID persistente -->
+              <input type="text" id="mrpSearchInput" class="search-input" placeholder="${t('mrp_search_ph')}" 
                      value="${prodSearchQuery}" oninput="handleProdSearch(this.value)" style="min-width:240px;">
 
               <!-- Botón Exportar CSV -->
@@ -3584,8 +3672,11 @@
                     <th style="text-align:center;">
                       ${t('mrp_th_scope')}
                     </th>
-                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('stock')">
-                      ${t('mrp_th_stock')} ${prodSortField === 'stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('stock')" title="Stock físico ya envasado en este formato específico">
+                      Stock Env. ${prodSortField === 'stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('granel_stock')" title="Bolsa de granel semielaborado en fábrica disponible para acondicionar">
+                      🛢️ Granel Disp. ${prodSortField === 'granel_stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
                     <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('pending')">
                       ${t('mrp_th_pending')} ${prodSortField === 'pending' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
@@ -3600,7 +3691,7 @@
                       ${t('mrp_th_balance')} ${prodSortField === 'net_balance' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
                     <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('falta_fabricar')">
-                      ${t('mrp_th_shortage')} ${prodSortField === 'falta_fabricar' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                      Falta Fab. / Env. ${prodSortField === 'falta_fabricar' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
                     <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('coverage_pct')">
                       ${t('mrp_th_coverage')} ${prodSortField === 'coverage_pct' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
@@ -3609,14 +3700,14 @@
                       ${t('mrp_th_depletion')} ${prodSortField === 'depleted_idx' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
                     <th style="text-align:center;">
-                      ${t('mrp_th_action')}
+                      Acción MRP
                     </th>
                     <th style="text-align:center;">
                       ${t('mrp_th_detail')}
                     </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="mrpTableBody">
                   ${tableRowsHtml}
                 </tbody>
               </table>
@@ -3624,6 +3715,18 @@
           </div>
         </div>
       `;
+
+      // Restaurar scroll y foco para que el usuario nunca experimente saltos de pantalla
+      if (prevScrollY > 0) {
+        window.scrollTo(0, prevScrollY);
+      }
+      if (isSearchFocused) {
+        const newSearch = document.getElementById('mrpSearchInput');
+        if (newSearch) {
+          newSearch.focus();
+          newSearch.setSelectionRange(selStart, selEnd);
+        }
+      }
     }
 
     // MODAL DE DETALLE: EVOLUCIÓN MENSUAL Y AGOTAMIENTO
@@ -3804,11 +3907,34 @@
         `;
       }
 
+      let granelCardHtml = '';
+      if (item.granel_code) {
+        granelCardHtml = `
+          <div style="background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.35);border-radius:var(--radius-sm);padding:0.75rem 1rem;margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+            <div>
+              <div style="font-size:0.72rem;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:0.04em;">🛢️ BOLSA DE GRANEL (SEMIELABORADO EN PLANTA)</div>
+              <div style="font-size:1.1rem;font-weight:800;color:#f8fafc;margin-top:0.15rem;">
+                ${item.granel_code} <span style="font-size:0.85rem;font-weight:normal;color:#94a3b8;">(${item.granel_desc || 'Formulación Común'})</span>
+              </div>
+              <div style="font-size:0.75rem;color:#cbd5e1;margin-top:0.2rem;">
+                Disponible para acondicionar en garrafas 1L, 5L, 20L, bidones 200L o contenedores 1.000L.
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:1.4rem;font-weight:800;color:#38bdf8;">${fmtNum(item.granel_stock)} <span style="font-size:0.85rem;">L/kg</span></div>
+              <div style="font-size:0.7rem;color:#94a3b8;">Existencias en Tanque</div>
+            </div>
+          </div>
+        `;
+      }
+
       bodyEl.innerHTML = `
+        ${granelCardHtml}
+
         <!-- KPI Strip dentro del modal -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:0.75rem;">
           <div style="background:rgba(30,41,59,0.7);padding:0.75rem;border-radius:var(--radius-sm);border:1px solid #334155;">
-            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;">Stock Inicial</div>
+            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;">Stock Envasado</div>
             <div style="font-size:1.3rem;font-weight:800;color:#6ee7b7;">${fmtNum(stockInitial)} u</div>
           </div>
           <div style="background:rgba(30,41,59,0.7);padding:0.75rem;border-radius:var(--radius-sm);border:1px solid #334155;">

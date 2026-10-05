@@ -1704,8 +1704,29 @@
         mrp_th_balance: "Balance Neto",
         mrp_th_shortage: "Falta Fabricar",
         mrp_th_coverage: "Cobertura",
+        mrp_th_depletion: "Agotamiento",
         mrp_th_action: "Estado / Acción",
         mrp_th_detail: "Evolución",
+
+        mrp_depleted_immediate: "🚨 Inmediato",
+        mrp_depleted_covered_15m: "🛡️ Cubierto 15M",
+        mrp_format_all: "Todos los Formatos",
+        mrp_format_20l: "🛢️ Garrafas 20L/Kg",
+        mrp_format_small: "🧴 Envases 1L / 5L",
+        mrp_format_bulk: "🏭 Granel (200L/1.000L)",
+        mrp_format_solids: "🌾 Sólidos (KG)",
+        mrp_format_liquids: "💧 Líquidos (L)",
+        mrp_batch_label: "LOTE MÍNIMO (MOQ):",
+        mrp_batch_none: "Exacto (Sin lote)",
+        mrp_batch_250: "Lote 250 u",
+        mrp_batch_500: "Lote 500 u",
+        mrp_batch_1000: "Lote 1.000 u",
+        mrp_batch_2500: "Lote 2.500 u",
+        mrp_kpi_batches: "Total Lotes Sugeridos",
+        mrp_kpi_batches_sub: "Baches de reactor a programar",
+        mrp_kpi_sug_produce: "Fabricación Sugerida",
+        mrp_kpi_sug_produce_sub: "Ajustada a múltiplos de lote mínimo",
+        mrp_kpi_format_title: "Desglose por Formato de Envase",
 
         mrp_action_critical: "Fabricación Urgente",
         mrp_action_warning: "Programar Lote",
@@ -1897,8 +1918,29 @@
         mrp_th_balance: "Net Balance",
         mrp_th_shortage: "To Manufacture",
         mrp_th_coverage: "Coverage",
+        mrp_th_depletion: "Depletion",
         mrp_th_action: "Status / Action",
         mrp_th_detail: "Evolution",
+
+        mrp_depleted_immediate: "🚨 Immediate",
+        mrp_depleted_covered_15m: "🛡️ Covered 15M",
+        mrp_format_all: "All Packages",
+        mrp_format_20l: "🛢️ 20L/Kg Jugs",
+        mrp_format_small: "🧴 1L / 5L Small",
+        mrp_format_bulk: "🏭 Bulk (200L/1,000L)",
+        mrp_format_solids: "🌾 Solids (KG)",
+        mrp_format_liquids: "💧 Liquids (L)",
+        mrp_batch_label: "BATCH SIZING (MOQ):",
+        mrp_batch_none: "Exact (No batch)",
+        mrp_batch_250: "Batch 250 u",
+        mrp_batch_500: "Batch 500 u",
+        mrp_batch_1000: "Batch 1,000 u",
+        mrp_batch_2500: "Batch 2,500 u",
+        mrp_kpi_batches: "Suggested Batches",
+        mrp_kpi_batches_sub: "Reactor batches to schedule",
+        mrp_kpi_sug_produce: "Suggested Mfg Units",
+        mrp_kpi_sug_produce_sub: "Adjusted to minimum batch sizing",
+        mrp_kpi_format_title: "Packaging Format Breakdown",
 
         mrp_action_critical: "Urgent Manufacture",
         mrp_action_warning: "Schedule Batch",
@@ -2616,6 +2658,8 @@
     let activePreset = 'N2';
     let prodViewMode = 'base'; // 'base' (Formulación/Envase Planta) o 'detail' (Por Destino)
     let prodStatusFilter = 'ALL'; // 'ALL', 'CRITICAL', 'WARNING', 'COVERED'
+    let prodFormatFilter = 'ALL'; // 'ALL', '20', 'SMALL', 'BULK', 'SOLIDS', 'LIQUIDS'
+    let prodBatchSize = 0; // 0 (Desactivado), 250, 500, 1000, 2500
     let prodSearchQuery = '';
     let prodSortField = 'falta_fabricar';
     let prodSortOrder = 'desc';
@@ -2711,6 +2755,16 @@
       renderCurrentTab();
     }
 
+    function setProdFormatFilter(fmt) {
+      prodFormatFilter = fmt;
+      renderCurrentTab();
+    }
+
+    function setProdBatchSize(sz) {
+      prodBatchSize = Number(sz) || 0;
+      renderCurrentTab();
+    }
+
     function handleProdSearch(query) {
       prodSearchQuery = (query || '').toLowerCase().trim();
       renderCurrentTab();
@@ -2726,6 +2780,44 @@
       renderCurrentTab();
     }
 
+    // Clasificación de formato y tipo de formulación de cada artículo
+    function getItemPackagingFormat(item) {
+      const sku = (item.base_sku || item.sku || '').toUpperCase();
+      const desc = (item.desc || '').toLowerCase();
+      const env = (item.envase || '').toString().trim();
+
+      const isSolid = desc.includes(' kg') || desc.includes('polvo') || desc.includes('soluble') || desc.includes('micronizado') || desc.includes(' wg') || desc.includes(' sp');
+      
+      let category = 'OTHER';
+      if (env === '20' || sku.includes('0020')) {
+        category = '20';
+      } else if (env === '1' || env === '5' || sku.includes('0001') || sku.includes('0005')) {
+        category = 'SMALL';
+      } else if (env === '200' || env === '1000' || sku.includes('0200') || sku.includes('1000')) {
+        category = 'BULK';
+      }
+
+      let formatBadge = '';
+      if (category === '20') {
+        formatBadge = isSolid ? '🌾 20 KG' : '🛢️ 20 L';
+      } else if (category === 'SMALL') {
+        const u = (env === '1' || sku.includes('0001')) ? (isSolid ? '1 KG' : '1 L') : (isSolid ? '5 KG' : '5 L');
+        formatBadge = isSolid ? `🌾 ${u}` : `🧴 ${u}`;
+      } else if (category === 'BULK') {
+        const u = (env === '200' || sku.includes('0200')) ? '200 L' : '1.000 L';
+        formatBadge = `🏭 ${u}`;
+      } else {
+        formatBadge = isSolid ? '🌾 Sólido' : '💧 Líquido';
+      }
+
+      return {
+        isSolid: isSolid,
+        isLiquid: !isSolid,
+        category: category,
+        badge: formatBadge
+      };
+    }
+
     // CÁLCULO DINÁMICO DE FILAS SEGÚN MESES Y FILTROS ACTIVOS
     function computeProductionTableData() {
       if (!productionData) return { rows: [], totals: {} };
@@ -2736,7 +2828,7 @@
       let processed = [];
 
       rawItems.forEach(item => {
-        // Filtro por Ámbito Comercial (ALL, NACIONAL, EXPORTACION)
+        // 1. Filtro por Ámbito Comercial (ALL, NACIONAL, EXPORTACION)
         if (currentScope === 'NACIONAL') {
           if (isBaseView && !item.has_nacional) return;
           if (!isBaseView && !item.is_nacional) return;
@@ -2745,7 +2837,15 @@
           if (!isBaseView && item.is_nacional) return;
         }
 
-        // Búsqueda en texto
+        // 2. Clasificación de Formato y Filtro
+        const pkg = getItemPackagingFormat(item);
+        if (prodFormatFilter === '20' && pkg.category !== '20') return;
+        if (prodFormatFilter === 'SMALL' && pkg.category !== 'SMALL') return;
+        if (prodFormatFilter === 'BULK' && pkg.category !== 'BULK') return;
+        if (prodFormatFilter === 'SOLIDS' && !pkg.isSolid) return;
+        if (prodFormatFilter === 'LIQUIDS' && !pkg.isLiquid) return;
+
+        // 3. Búsqueda en texto
         if (prodSearchQuery) {
           const code = (isBaseView ? item.base_sku : item.sku).toLowerCase();
           const desc = (item.desc || '').toLowerCase();
@@ -2756,7 +2856,7 @@
           }
         }
 
-        // Cálculo de previsión para los meses seleccionados
+        // 4. Cálculo de previsión para los meses seleccionados
         let forecastPeriod = 0;
         selectedMonths.forEach(m => {
           forecastPeriod += (item.monthly_forecast[m] || 0);
@@ -2775,7 +2875,7 @@
           coveragePct = 0;
         }
 
-        // Estado del semáforo
+        // 5. Estado del semáforo
         let status = 'COVERED'; // 🟢
         if (faltaFabricar > 0) {
           if (coveragePct < 25 || stock === 0) {
@@ -2790,12 +2890,47 @@
           return;
         }
 
+        // 6. Proyección Cronológica del Mes de Agotamiento de Stock
+        let runStock = stock - pending;
+        let depletedMonth = null;
+        let depletedIdx = 99;
+
+        if (runStock < 0) {
+          depletedMonth = t('mrp_depleted_immediate');
+          depletedIdx = 0;
+        } else {
+          const monthsMeta = (productionData && productionData.metadata && productionData.metadata.months) || [];
+          for (let mIdx = 0; mIdx < monthsMeta.length; mIdx++) {
+            const mObj = monthsMeta[mIdx];
+            const mDem = Number(item.monthly_forecast[mObj.key]) || 0;
+            runStock -= mDem;
+            if (runStock < 0) {
+              depletedMonth = currentLang === 'en' ? mObj.label_en : mObj.label_es;
+              depletedIdx = mIdx + 1;
+              break;
+            }
+          }
+        }
+        if (!depletedMonth) {
+          depletedMonth = t('mrp_depleted_covered_15m');
+          depletedIdx = 99;
+        }
+
+        // 7. Cálculo con Lote Mínimo (MOQ / Batch Sizing)
+        let numBatches = 0;
+        let sugFabricar = faltaFabricar;
+        if (prodBatchSize > 0 && faltaFabricar > 0) {
+          numBatches = Math.ceil(faltaFabricar / prodBatchSize);
+          sugFabricar = numBatches * prodBatchSize;
+        }
+
         processed.push({
           rawItem: item,
           key: isBaseView ? item.base_sku : item.sku,
           sku: isBaseView ? item.base_sku : item.sku,
           desc: item.desc || (isBaseView ? item.base_sku : item.sku),
           envase: item.envase || '',
+          pkg: pkg,
           pais: item.pais || (item.is_nacional ? 'ESPAÑA' : 'VARIOS'),
           is_nacional: isBaseView ? (item.has_nacional && !item.has_export) : item.is_nacional,
           is_mixed: isBaseView ? (item.has_nacional && item.has_export) : false,
@@ -2805,7 +2940,11 @@
           total_demand: totalDemand,
           net_balance: netBalance,
           falta_fabricar: faltaFabricar,
+          sug_fabricar: sugFabricar,
+          num_batches: numBatches,
           coverage_pct: coveragePct,
+          depleted_month: depletedMonth,
+          depleted_idx: depletedIdx,
           status: status
         });
       });
@@ -2822,7 +2961,7 @@
         return prodSortOrder === 'asc' ? valA - valB : valB - valA;
       });
 
-      // Totales
+      // Totales Consolidados
       const totals = {
         total_skus: processed.length,
         total_stock: processed.reduce((acc, r) => acc + r.stock, 0),
@@ -2830,6 +2969,13 @@
         total_forecast: processed.reduce((acc, r) => acc + r.forecast, 0),
         total_demand: processed.reduce((acc, r) => acc + r.total_demand, 0),
         total_falta: processed.reduce((acc, r) => acc + r.falta_fabricar, 0),
+        total_sug_fabricar: processed.reduce((acc, r) => acc + r.sug_fabricar, 0),
+        total_batches: processed.reduce((acc, r) => acc + r.num_batches, 0),
+        total_20l_falta: processed.filter(r => r.pkg.category === '20').reduce((acc, r) => acc + r.falta_fabricar, 0),
+        total_small_falta: processed.filter(r => r.pkg.category === 'SMALL').reduce((acc, r) => acc + r.falta_fabricar, 0),
+        total_bulk_falta: processed.filter(r => r.pkg.category === 'BULK').reduce((acc, r) => acc + r.falta_fabricar, 0),
+        total_solids_falta: processed.filter(r => r.pkg.isSolid).reduce((acc, r) => acc + r.falta_fabricar, 0),
+        total_liquids_falta: processed.filter(r => r.pkg.isLiquid).reduce((acc, r) => acc + r.falta_fabricar, 0),
         critical_count: processed.filter(r => r.status === 'CRITICAL').length,
         warning_count: processed.filter(r => r.status === 'WARNING').length,
         covered_count: processed.filter(r => r.status === 'COVERED').length
@@ -2897,7 +3043,7 @@
       if (rows.length === 0) {
         tableRowsHtml = `
           <tr>
-            <td colspan="10" style="text-align:center;padding:3rem;color:var(--muted)">
+            <td colspan="13" style="text-align:center;padding:3rem;color:var(--muted)">
               No se han encontrado artículos que coincidan con los filtros aplicados.
             </td>
           </tr>
@@ -2929,14 +3075,28 @@
             ? 'color:#f87171;font-weight:800;background:rgba(239,68,68,0.1);padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(239,68,68,0.3);display:inline-block;' 
             : 'color:var(--muted);';
 
+          let depletionBadge = '';
+          if (r.depleted_idx === 0) {
+            depletionBadge = `<span class="coverage-pill coverage-crit" style="font-weight:800;font-size:0.75rem;">${r.depleted_month}</span>`;
+          } else if (r.depleted_idx < 99) {
+            depletionBadge = `<span class="coverage-pill coverage-warn" style="font-weight:700;font-size:0.75rem;">📅 ${r.depleted_month}</span>`;
+          } else {
+            depletionBadge = `<span class="coverage-pill coverage-ok" style="font-size:0.75rem;opacity:0.9;">${r.depleted_month}</span>`;
+          }
+
           return `
             <tr style="cursor:pointer;" data-sku="${r.key}" onclick="openProdSkuModal(this.getAttribute('data-sku'))" title="Click para ver desglose mensual y proyección de agotamiento">
               <td style="font-family:monospace;font-weight:700;color:#38bdf8;">
                 ${r.sku}
               </td>
               <td>
-                <div style="font-weight:600;color:#f8fafc">${r.desc}</div>
-                ${r.envase ? `<div style="font-size:0.75rem;color:var(--muted)">${r.envase}</div>` : ''}
+                <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+                  <span style="font-weight:600;color:#f8fafc">${r.desc}</span>
+                  <span class="tab-badge badge-neutral" style="font-size:0.65rem;padding:0.1rem 0.35rem;border:1px solid rgba(255,255,255,0.15)">
+                    ${r.pkg.badge}
+                  </span>
+                </div>
+                ${r.envase ? `<div style="font-size:0.72rem;color:var(--muted)">Formato: ${r.envase}</div>` : ''}
               </td>
               <td style="text-align:center;">
                 ${scopeBadge}
@@ -2960,6 +3120,11 @@
                 <span style="${faltaStyle}">
                   ${r.falta_fabricar > 0 ? fmtNum(r.falta_fabricar) : '—'}
                 </span>
+                ${prodBatchSize > 0 && r.falta_fabricar > 0 ? `
+                  <div style="font-size:0.7rem;color:#a78bfa;font-weight:700;margin-top:0.25rem;">
+                    ↳ ${fmtNum(r.sug_fabricar)} u (${r.num_batches} ${r.num_batches === 1 ? 'lote' : 'lotes'})
+                  </div>
+                ` : ''}
               </td>
               <td style="text-align:right;">
                 <span style="font-size:0.8rem;font-weight:700;color:${barColor}">
@@ -2968,6 +3133,9 @@
                 <span class="coverage-bar-track">
                   <span class="coverage-bar-fill" style="width:${barWidth}%;background:${barColor};display:block;"></span>
                 </span>
+              </td>
+              <td style="text-align:center;white-space:nowrap;">
+                ${depletionBadge}
               </td>
               <td style="text-align:center;">
                 ${statusBadge}
@@ -2996,7 +3164,7 @@
               </div>
               <div>
                 <span class="tab-badge badge-warning" style="font-size:0.75rem;padding:0.35rem 0.75rem;">
-                  Stock al corte: 02/10/2026 | Matriz 2026-2027
+                  Stock: ${meta.stock_source ? meta.stock_source.replace('.xlsx', '') : 'Almacén'} | Pedidos: ${meta.orders_source ? meta.orders_source.replace('.xlsx', '') : 'Actual'} | Matriz 2026-2027
                 </span>
               </div>
             </div>
@@ -3029,13 +3197,15 @@
           <div class="mrp-kpi-grid">
             <div class="mrp-kpi-card urgent">
               <div style="font-size:0.8rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.04em;">
-                ${t('mrp_kpi_to_produce')}
+                ${prodBatchSize > 0 ? t('mrp_kpi_sug_produce') : t('mrp_kpi_to_produce')}
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#ef4444;line-height:1.2;">
-                ${fmtNum(totals.total_falta)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+                ${fmtNum(prodBatchSize > 0 ? totals.total_sug_fabricar : totals.total_falta)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
               </div>
               <div style="font-size:0.75rem;color:var(--muted)">
-                ${t('mrp_kpi_to_produce_sub')}
+                ${prodBatchSize > 0 
+                  ? `${totals.total_batches} baches de ${fmtNum(prodBatchSize)} u sugeridos` 
+                  : t('mrp_kpi_to_produce_sub')}
               </div>
             </div>
 
@@ -3098,6 +3268,20 @@
                 ${t('mrp_kpi_covered_sub')}
               </div>
             </div>
+
+            <div class="mrp-kpi-card" style="border-left: 3px solid #818cf8; background: rgba(99, 102, 241, 0.05);">
+              <div style="font-size:0.78rem;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:0.04em;">
+                ${t('mrp_kpi_format_title')}
+              </div>
+              <div style="display:flex;gap:0.7rem;margin-top:0.3rem;font-size:0.82rem;font-weight:700;flex-wrap:wrap;">
+                <span style="color:#38bdf8;">🛢️ 20L/Kg: <span style="color:#fff">${fmtNum(totals.total_20l_falta)} u</span></span>
+                <span style="color:#a78bfa;">🧴 1L/5L: <span style="color:#fff">${fmtNum(totals.total_small_falta)} u</span></span>
+                <span style="color:#34d399;">🏭 Granel: <span style="color:#fff">${fmtNum(totals.total_bulk_falta)} u</span></span>
+              </div>
+              <div style="font-size:0.73rem;color:var(--muted);margin-top:0.2rem;">
+                🌾 Sólidos: <strong style="color:#f8fafc">${fmtNum(totals.total_solids_falta)} u</strong> &bull; 💧 Líquidos: <strong style="color:#f8fafc">${fmtNum(totals.total_liquids_falta)} u</strong>
+              </div>
+            </div>
           </div>
 
           <!-- TOOLBAR & FILTROS -->
@@ -3110,6 +3294,28 @@
                 </button>
                 <button class="pill-btn ${prodViewMode === 'detail' ? 'active' : ''}" onclick="setProdViewMode('detail')">
                   ${t('mrp_view_detail')}
+                </button>
+              </div>
+
+              <!-- Filtro de Formato de Envase -->
+              <div class="filter-pills" style="margin:0;">
+                <button class="pill-btn ${prodFormatFilter === 'ALL' ? 'active' : ''}" onclick="setProdFormatFilter('ALL')">
+                  ${t('mrp_format_all')}
+                </button>
+                <button class="pill-btn ${prodFormatFilter === '20' ? 'active' : ''}" onclick="setProdFormatFilter('20')">
+                  ${t('mrp_format_20l')}
+                </button>
+                <button class="pill-btn ${prodFormatFilter === 'SMALL' ? 'active' : ''}" onclick="setProdFormatFilter('SMALL')">
+                  ${t('mrp_format_small')}
+                </button>
+                <button class="pill-btn ${prodFormatFilter === 'BULK' ? 'active' : ''}" onclick="setProdFormatFilter('BULK')">
+                  ${t('mrp_format_bulk')}
+                </button>
+                <button class="pill-btn ${prodFormatFilter === 'SOLIDS' ? 'active' : ''}" onclick="setProdFormatFilter('SOLIDS')">
+                  ${t('mrp_format_solids')}
+                </button>
+                <button class="pill-btn ${prodFormatFilter === 'LIQUIDS' ? 'active' : ''}" onclick="setProdFormatFilter('LIQUIDS')">
+                  ${t('mrp_format_liquids')}
                 </button>
               </div>
 
@@ -3128,12 +3334,24 @@
                   ${t('mrp_status_covered')} (${totals.covered_count})
                 </button>
               </div>
+
+              <!-- Selector Lote Mínimo (MOQ) -->
+              <div style="display:inline-flex;align-items:center;gap:0.35rem;background:rgba(15,23,42,0.8);padding:0.2rem 0.5rem;border-radius:var(--radius-sm);border:1px solid var(--card-border);">
+                <span style="font-size:0.72rem;font-weight:700;color:var(--muted);">${t('mrp_batch_label')}</span>
+                <select id="mrpBatchSelect" class="search-input" style="padding:0.2rem 0.5rem;font-size:0.78rem;background:rgba(30,41,59,0.95);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:4px;" onchange="setProdBatchSize(this.value)">
+                  <option value="0" ${prodBatchSize === 0 ? 'selected' : ''}>${t('mrp_batch_none')}</option>
+                  <option value="250" ${prodBatchSize === 250 ? 'selected' : ''}>${t('mrp_batch_250')}</option>
+                  <option value="500" ${prodBatchSize === 500 ? 'selected' : ''}>${t('mrp_batch_500')}</option>
+                  <option value="1000" ${prodBatchSize === 1000 ? 'selected' : ''}>${t('mrp_batch_1000')}</option>
+                  <option value="2500" ${prodBatchSize === 2500 ? 'selected' : ''}>${t('mrp_batch_2500')}</option>
+                </select>
+              </div>
             </div>
 
             <div class="mrp-toolbar-right">
               <!-- Buscador -->
               <input type="text" class="search-input" placeholder="${t('mrp_search_ph')}" 
-                     value="${prodSearchQuery}" oninput="handleProdSearch(this.value)" style="min-width:280px;">
+                     value="${prodSearchQuery}" oninput="handleProdSearch(this.value)" style="min-width:240px;">
 
               <!-- Botón Exportar CSV -->
               <button class="btn btn-secondary" onclick="exportProductionOrderCsv()" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 0.9rem;border-radius:var(--radius-sm);cursor:pointer;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);font-weight:600;">
@@ -3177,6 +3395,9 @@
                     </th>
                     <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('coverage_pct')">
                       ${t('mrp_th_coverage')} ${prodSortField === 'coverage_pct' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th style="cursor:pointer;text-align:center;" onclick="sortProdTable('depleted_idx')">
+                      ${t('mrp_th_depletion')} ${prodSortField === 'depleted_idx' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
                     <th style="text-align:center;">
                       ${t('mrp_th_action')}
@@ -3394,14 +3615,15 @@
       csv += `Orden de Fabricacion MRP - Codiagro S.L.\n`;
       csv += `Horizonte Seleccionado:;${monthNamesStr};(${selectedMonths.size} meses)\n`;
       csv += `Fecha Generacion:;${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n`;
-      csv += `Ambito Mercado:;${currentScope}\n\n`;
+      csv += `Ambito Mercado:;${currentScope};Formato Filtro:;${prodFormatFilter};Lote Minimo MOQ:;${prodBatchSize > 0 ? prodBatchSize + ' u' : 'Exacto'}\n\n`;
 
-      csv += `SKU_Codigo;Descripcion_Articulo;Envase;Mercado;Stock_Actual_Uds;Pedidos_Pendientes_Uds;Prevision_Periodo_Uds;Demanda_Total_Uds;Balance_Neto_Uds;FALTA_FABRICAR_UDS;Cobertura_Pct;Accion_Requerida\n`;
+      csv += `SKU_Codigo;Descripcion_Articulo;Envase;Formato_Clasificacion;Mercado;Stock_Actual_Uds;Pedidos_Pendientes_Uds;Prevision_Periodo_Uds;Demanda_Total_Uds;Balance_Neto_Uds;FALTA_FABRICAR_UDS;Lotes_Sugeridos;SUGERENCIA_CON_LOTES_UDS;Cobertura_Pct;Mes_Agotamiento;Accion_Requerida\n`;
 
       rows.forEach(r => {
         const sku = (r.sku || '').replace(/;/g, ',');
         const desc = (r.desc || '').replace(/;/g, ',');
         const env = (r.envase || '').replace(/;/g, ',');
+        const fmt = (r.pkg ? r.pkg.badge : '').replace(/;/g, ',');
         const scope = (r.is_mixed ? 'Nacional+Export' : (r.is_nacional ? 'Nacional' : r.pais)).replace(/;/g, ',');
         const dec = currentLang === 'en' ? '.' : ',';
 
@@ -3411,10 +3633,13 @@
         const dem = String(r.total_demand).replace('.', dec);
         const bal = String(r.net_balance).replace('.', dec);
         const falta = String(r.falta_fabricar).replace('.', dec);
+        const lotes = String(r.num_batches || 0);
+        const sug = String(r.sug_fabricar || r.falta_fabricar).replace('.', dec);
         const cob = String(r.coverage_pct.toFixed(1)).replace('.', dec);
+        const agot = (r.depleted_month || '').replace(/;/g, ',');
         const acc = r.status === 'CRITICAL' ? 'FABRICACION URGENTE' : (r.status === 'WARNING' ? 'PROGRAMAR LOTE' : 'CUBIERTO');
 
-        csv += `"${sku}";"${desc}";"${env}";"${scope}";${stock};${pend};${prev};${dem};${bal};${falta};${cob};"${acc}"\n`;
+        csv += `"${sku}";"${desc}";"${env}";"${fmt}";"${scope}";${stock};${pend};${prev};${dem};${bal};${falta};${lotes};${sug};${cob};"${agot}";"${acc}"\n`;
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

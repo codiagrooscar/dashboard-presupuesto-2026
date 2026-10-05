@@ -109,21 +109,104 @@ def load_data_sources():
 
     return df_ped_sep, df_ped_oct, df_bud, sep_file, oct_file
 
-def is_line_nacional(cli, sku, b_match, com, df_bud):
-    if len(b_match) > 0:
-        return (str(b_match['País'].iloc[0]).strip().upper() == 'ESPAÑA')
+COUNTRY_CODES_MAP = {
+    'ESPANA': ('España', 'ES'),
+    'ESPAÑA': ('España', 'ES'),
+    'COSTA RICA': ('Costa Rica', 'CR'),
+    'EGIPTO': ('Egipto', 'EG'),
+    'TURQUIA': ('Turquía', 'TR'),
+    'TURQUÍA': ('Turquía', 'TR'),
+    'COLOMBIA': ('Colombia', 'CO'),
+    'RUMANIA': ('Rumanía', 'RO'),
+    'RUMANÍA': ('Rumanía', 'RO'),
+    'MARRUECOS': ('Marruecos', 'MA'),
+    'ARABIA SAUDI': ('Arabia Saudí', 'SA'),
+    'ARABIA SAUDÍ': ('Arabia Saudí', 'SA'),
+    'PANAMA': ('Panamá', 'PA'),
+    'PANAMÁ': ('Panamá', 'PA'),
+    'AZERBAIYAN': ('Azerbaiyán', 'AZ'),
+    'AZERBAIYÁN': ('Azerbaiyán', 'AZ'),
+    'GEORGIA': ('Georgia', 'GE'),
+    'DOMINICANA, REPUBLICA': ('Rep. Dominicana', 'DO'),
+    'DOMINICANA, REPÚBLICA': ('Rep. Dominicana', 'DO'),
+    'ECUADOR (INCLUIDAS LAS ISLAS GALAPAGOS)': ('Ecuador', 'EC'),
+    'ECUADOR (INCLUIDAS LAS ISLAS GALÁPAGOS)': ('Ecuador', 'EC'),
+    'ECUADOR': ('Ecuador', 'EC'),
+    'CHILE': ('Chile', 'CL'),
+    'PERU': ('Perú', 'PE'),
+    'PERÚ': ('Perú', 'PE'),
+    'ITALIA': ('Italia', 'IT'),
+    'LIBANO': ('Líbano', 'LB'),
+    'LÍBANO': ('Líbano', 'LB'),
+    'GRECIA': ('Grecia', 'GR'),
+    'SERBIA': ('Serbia', 'RS'),
+    'NETHERLANS': ('Países Bajos', 'NL'),
+    'PAISES BAJOS': ('Países Bajos', 'NL')
+}
+
+CLIENT_COUNTRY_OVERRIDE = {
+    norm('ÇİTAR ÇİÇEK TARIM TIC. LTD. STI'): ('Turquía', 'TR'),
+    norm('DOGA TARIM'): ('Turquía', 'TR'),
+    norm('DOTRA CHEMICALS'): ('Egipto', 'EG'),
+    norm('DOTRA GULF TRADING COMPANY'): ('Arabia Saudí', 'SA'),
+    norm('SC MARCOSER S.R.L.'): ('Rumanía', 'RO'),
+    norm('STE BBMAGRI, SARL'): ('Marruecos', 'MA'),
+    norm('CAMPO ABIERTO, S.A.S.'): ('Colombia', 'CO'),
+    norm('EUROFERTIL, S.A.'): ('Costa Rica', 'CR'),
+    norm('ECUAQUIMICA'): ('Ecuador', 'EC'),
+    norm('HORTIFRUT - PERU, S.A.C.'): ('Perú', 'PE'),
+    norm('SERVICIOS AGROPECUARIOS EL LLANO, S. A.'): ('Panamá', 'PA'),
+    norm('AIFAR S.P.A'): ('Italia', 'IT'),
+    norm('FINCA DOÑA ANA C.B.'): ('España', 'ES'),
+    norm('FITOSANITARIOS CARCAIXENT, S.L.'): ('España', 'ES'),
+    norm('ALMENDRALIA IBÉRICA, S.L.U.'): ('España', 'ES'),
+    norm('TÉCNICAS AGRÍCOLAS, S.A.'): ('España', 'ES'),
+}
+
+def get_line_country_info(cli, sku, b_match, com, df_bud):
+    cli_n = norm(cli)
+    if cli_n in CLIENT_COUNTRY_OVERRIDE:
+        return CLIENT_COUNTRY_OVERRIDE[cli_n]
+
+    if len(b_match) > 0 and pd.notna(b_match['País'].iloc[0]):
+        p_str = norm(str(b_match['País'].iloc[0]))
+        if p_str in COUNTRY_CODES_MAP:
+            return COUNTRY_CODES_MAP[p_str]
+
+    m = df_bud[df_bud['CLIENTE_NORM'] == cli_n]
+    if len(m) > 0 and pd.notna(m['País'].iloc[0]):
+        p_str = norm(str(m['País'].iloc[0]))
+        if p_str in COUNTRY_CODES_MAP:
+            return COUNTRY_CODES_MAP[p_str]
+
     if com in ['Alfonso', 'Irene', 'Javier', 'Pedro']:
-        return True
-    if com in ['Mehmet', 'Ricardo']:
-        return False
-    # Para García o clientes sin budget
-    m = df_bud[df_bud['Cliente'] == cli]
-    if len(m) > 0:
-        return (str(m['País'].iloc[0]).strip().upper() == 'ESPAÑA')
-    sku_clean = str(sku).strip().upper()
-    if len(sku_clean) >= 2 and sku_clean[-2:].isalpha():
-        return False
-    return True
+        return ('España', 'ES')
+    if com == 'Mehmet':
+        return ('Turquía', 'TR')
+    if com == 'Ricardo':
+        return ('Colombia', 'CO')
+
+    return ('España', 'ES')
+
+def get_export_sku(sku, pais_code, is_nac, b_match):
+    if is_nac or pais_code == 'ES':
+        return sku
+    if len(b_match) > 0 and pd.notna(b_match['Código Artículo'].iloc[0]):
+        b_code = str(b_match['Código Artículo'].iloc[0]).strip().upper()
+        if len(b_code) > len(sku):
+            return b_code
+    sku_u = sku.upper()
+    if sku_u.endswith(pais_code):
+        return sku_u
+    if len(sku_u) >= 4 and sku_u[-2:].isalpha() and sku_u[-4:-2].isdigit():
+        return sku_u
+    if sku_u.startswith(('AGXCR', 'SSEG', 'P-5X', 'A-50EG', 'AGRMG2', 'SPCE2B')):
+        return sku_u
+    return f"{sku_u}{pais_code}"
+
+def is_line_nacional(cli, sku, b_match, com, df_bud):
+    country_name, country_code = get_line_country_info(cli, sku, b_match, com, df_bud)
+    return country_code == 'ES'
 
 def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, period_subtitle, period_status, badge_class, fecha_corte='01/10/2026', is_active=False):
     comerciales = ['Alfonso', 'García', 'Irene', 'Javier', 'Mehmet', 'Pedro', 'Ricardo']
@@ -180,7 +263,6 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
             pct_u = float((p_u / b_u * 100) if b_u > 0 else (100.0 if p_u > 0 else 0.0))
             
             err_abs_u = desv_u
-            # Si el % de forecast accuracy es negativo, pon 0%
             acc_u = float(max(0.0, (1.0 - desv_u / b_u) * 100)) if b_u > 0 else (100.0 if p_u == 0 else 0.0)
 
             if b_u == 0 and p_u > 0:
@@ -194,11 +276,16 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
             else:
                 est = "Sin Pedido"
 
-            is_nac = is_line_nacional(cli, sku, b_match, c, df_bud)
+            c_name, c_code = get_line_country_info(cli, sku, b_match, c, df_bud)
+            is_nac = (c_code == 'ES')
+            sku_exp = get_export_sku(sku, c_code, is_nac, b_match)
 
             lines.append({
                 'cliente': cli,
-                'sku': sku,
+                'sku': sku_exp,
+                'sku_base': sku,
+                'pais': c_name,
+                'pais_codigo': c_code,
                 'descripcion': desc,
                 'budget_uds': b_u,
                 'pedidos_uds': p_u,
@@ -354,6 +441,9 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
             lines_dict[k] = {
                 'cliente': l['cliente'],
                 'sku': l['sku'],
+                'sku_export': l.get('sku_export', l['sku']),
+                'pais': l.get('pais', 'España'),
+                'pais_codigo': l.get('pais_codigo', 'ES'),
                 'descripcion': l['descripcion'],
                 'budget_uds': l['budget_uds'],
                 'pedidos_uds': l['pedidos_uds'],
@@ -377,6 +467,9 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
                 lines_dict[k] = {
                     'cliente': l['cliente'],
                     'sku': l['sku'],
+                    'sku_export': l.get('sku_export', l['sku']),
+                    'pais': l.get('pais', 'España'),
+                    'pais_codigo': l.get('pais_codigo', 'ES'),
                     'descripcion': l['descripcion'],
                     'budget_uds': l['budget_uds'],
                     'pedidos_uds': l['pedidos_uds'],
@@ -599,6 +692,17 @@ def build_all():
         f.write("window.DASHBOARD_PERIODS_DATA = " + json.dumps(periods_data, ensure_ascii=False) + ";\n")
         # Mantener window.DASHBOARD_DATA apuntando por defecto a Octubre (período en curso)
         f.write("window.DASHBOARD_DATA = window.DASHBOARD_PERIODS_DATA.periods['2026-10'];\n")
+
+    # Sincronizar directorio raíz
+    shutil.copy2('web_dashboard/dashboard_data.json', 'dashboard_data.json')
+    shutil.copy2('web_dashboard/dashboard_data.js', 'dashboard_data.js')
+
+    # Actualizar también módulo de planificación de producción (MRP)
+    try:
+        import subprocess, sys
+        subprocess.run([sys.executable, 'build_production_data.py'], check=True)
+    except Exception as e:
+        print("Aviso al regenerar datos de producción MRP:", e)
 
     print("Multi-period dataset generado con éxito:")
     print(f"- Sep (cierre {d_sep['global_kpis']['fecha_corte']}): budget={d_sep['global_kpis']['budget_uds']}, pedidos={d_sep['global_kpis']['pedidos_uds']}, accuracy={d_sep['global_kpis']['forecast_accuracy']:.1f}%")

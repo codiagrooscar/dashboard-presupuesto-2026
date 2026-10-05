@@ -34,9 +34,16 @@ def get_latest_pedidos_file():
     candidates.sort(key=sort_key, reverse=True)
     return candidates[0]
 
+def safe_copy(src, dst):
+    try:
+        shutil.copy2(src, dst)
+    except Exception:
+        import subprocess
+        subprocess.run(['powershell', '-Command', f'Copy-Item -LiteralPath "{src}" -Destination "{dst}" -Force'], check=True)
+
 pedidos_file = get_latest_pedidos_file()
 print(f"Excel Dashboard usando pedidos: {pedidos_file}")
-shutil.copy2(pedidos_file, 'temp_pedidos_input.xlsx')
+safe_copy(pedidos_file, 'temp_pedidos_input.xlsx')
 df_ped = pd.read_excel('temp_pedidos_input.xlsx')
 
 m_fc = re.search(r'(\d{1,2})\.(\d{1,2})', pedidos_file)
@@ -64,7 +71,7 @@ df_ped = df_ped[~df_ped['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, 
 
 # 2. Cargar Budget de forma segura
 src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx' if os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx') else 'Presupuesto_Ventas_2027.xlsx'
-shutil.copy2(src_budget, 'temp_budget_input.xlsx')
+safe_copy(src_budget, 'temp_budget_input.xlsx')
 df_bud = pd.read_excel('temp_budget_input.xlsx', sheet_name='Previsión Matriz Horizontal')
 df_bud = df_bud[df_bud['Comercial'].notna() & (~df_bud['Comercial'].astype(str).str.contains('TOTAL', case=False))].copy()
 

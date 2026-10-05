@@ -13,6 +13,7 @@
   <script src="chart.umd.min.js"></script>
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="dashboard_data.js?v=20261001_1145"></script>
+  <script src="production_planning_data.js"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -115,7 +116,66 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    /* SCOPE SWITCHER (NACIONAL / EXPORTACION) */
+    .scope-switcher {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 0.3rem 0.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--card-border);
+      flex-wrap: wrap;
+    }
+
+    .scope-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-left: 0.25rem;
+      margin-right: 0.25rem;
+    }
+
+    .scope-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.38rem 0.85rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .scope-btn:hover {
+      color: var(--ink);
+      border-color: #475569;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .scope-btn.active {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+    }
+
+    .scope-btn.active.scope-exp {
+      background: rgba(59, 130, 246, 0.18);
+      border-color: #3b82f6;
+      color: #93c5fd;
+      box-shadow: 0 0 14px rgba(59, 130, 246, 0.25);
     }
 
     /* PERIOD SWITCHER */
@@ -180,6 +240,46 @@
     .period-dot.active {
       background: var(--accent);
       box-shadow: 0 0 8px var(--accent);
+    }
+
+    /* LANGUAGE SWITCHER */
+    .lang-switcher {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 0.25rem 0.35rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--card-border);
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.35rem 0.65rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .lang-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .lang-btn.active {
+      background: rgba(59, 130, 246, 0.25);
+      border-color: #3b82f6;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
     }
 
     .btn-download {
@@ -290,6 +390,42 @@
       flex-direction: column;
       position: relative;
       overflow: hidden;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    .kpi-card.clickable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .kpi-card.clickable:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 30px -4px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(16, 185, 129, 0.4);
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+
+    .kpi-card.clickable:active {
+      transform: translateY(-1px);
+    }
+
+    .kpi-click-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.12rem 0.42rem;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      transition: all 0.2s ease;
+    }
+
+    .kpi-card.clickable:hover .kpi-click-tag {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.4);
     }
 
     .kpi-card::before {
@@ -592,6 +728,221 @@
       color: #000000;
     }
 
+    /* MODAL OVERLAY & CONTAINER */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(3, 7, 18, 0.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-container {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 1350px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      transform: scale(0.96) translateY(12px);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    .modal-overlay.active .modal-container {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      padding: 1.15rem 1.6rem;
+      background: #111827;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .modal-titles h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.28rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .modal-subtitle {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-close-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--muted);
+      font-size: 1.35rem;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #ef4444;
+    }
+
+    .modal-stats-bar {
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.7rem 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+    }
+
+    .modal-stat-group {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-stat-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .modal-stat-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .modal-controls {
+      padding: 0.75rem 1.6rem;
+      background: #0b1120;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-search {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .modal-search input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.85rem;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .modal-search input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+      max-height: 56vh;
+    }
+
+    .modal-table {
+      width: 100%;
+      min-width: 950px;
+      border-collapse: collapse;
+      font-size: 0.81rem;
+    }
+
+    .modal-table thead th {
+      position: sticky;
+      top: 0;
+      background: #111827;
+      z-index: 10;
+      box-shadow: 0 1px 0 var(--card-border);
+    }
+
+    .metric-highlight {
+      font-weight: 800;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    .metric-amber {
+      background: rgba(245, 158, 11, 0.16);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .metric-emerald {
+      background: rgba(16, 185, 129, 0.16);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .metric-blue {
+      background: rgba(59, 130, 246, 0.16);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+    }
+
     /* FOOTER */
     footer {
       background: #0f172a;
@@ -615,12 +966,27 @@
         width: 100%;
         justify-content: flex-start;
       }
-      .period-switcher {
-        width: 100%;
+      .scope-switcher,
+      .period-switcher,
+      .lang-switcher {
         overflow-x: auto;
         flex-wrap: nowrap;
         -webkit-overflow-scrolling: touch;
         padding-bottom: 0.25rem;
+      }
+      .modal-overlay {
+        padding: 0.5rem;
+      }
+      .modal-container {
+        max-height: 94vh;
+      }
+      .modal-body {
+        max-height: 50vh;
+      }
+      .modal-header,
+      .modal-stats-bar,
+      .modal-controls {
+        padding: 0.75rem 1rem;
       }
       .tabs-wrapper {
         top: 0;
@@ -655,6 +1021,251 @@
         -webkit-overflow-scrolling: touch;
       }
     }
+
+    /* ====================================================
+       MRP / PLANIFICACIÓN DE LA PRODUCCIÓN ESTILOS
+       ==================================================== */
+    .tab-btn-mrp {
+      border: 1px solid rgba(245, 158, 11, 0.4) !important;
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(30, 41, 59, 0.6) 100%) !important;
+    }
+    .tab-btn-mrp:hover {
+      border-color: rgba(245, 158, 11, 0.8) !important;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+    }
+    .tab-btn-mrp.active {
+      border-color: #f59e0b !important;
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.25) 0%, rgba(30, 41, 59, 0.95) 100%) !important;
+      color: #fbbf24 !important;
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+    }
+
+    .mrp-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .mrp-control-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 1.75rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .mrp-control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+      padding-bottom: 1rem;
+    }
+
+    .mrp-control-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .mrp-control-title h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f8fafc;
+      letter-spacing: -0.02em;
+    }
+    .mrp-control-title p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    .mrp-presets-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .mrp-preset-btn {
+      padding: 0.45rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: rgba(51, 65, 85, 0.4);
+      color: #cbd5e1;
+      border: 1px solid rgba(71, 85, 105, 0.6);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .mrp-preset-btn:hover {
+      background: rgba(71, 85, 105, 0.7);
+      color: #fff;
+      border-color: #94a3b8;
+      transform: translateY(-1px);
+    }
+    .mrp-preset-btn.active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%);
+      color: #fbbf24;
+      border-color: #f59e0b;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+    }
+    .mrp-preset-btn.highlight {
+      border-color: #f59e0b;
+    }
+
+    .mrp-month-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .mrp-month-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .mrp-month-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .month-chip {
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 500;
+      background: rgba(15, 23, 42, 0.7);
+      color: #94a3b8;
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      user-select: none;
+    }
+    .month-chip:hover {
+      background: rgba(30, 41, 59, 0.9);
+      color: #f8fafc;
+      border-color: #64748b;
+    }
+    .month-chip.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.28) 100%);
+      color: #34d399;
+      border-color: #10b981;
+      font-weight: 600;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+    }
+    .month-chip .chip-check {
+      display: none;
+      font-size: 0.75rem;
+    }
+    .month-chip.active .chip-check {
+      display: inline-block;
+    }
+
+    .mrp-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .mrp-kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .mrp-kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--card-border);
+    }
+    .mrp-kpi-card.urgent::before { background: var(--danger-gradient); }
+    .mrp-kpi-card.warning::before { background: var(--warn-gradient); }
+    .mrp-kpi-card.stock::before { background: var(--info-gradient); }
+    .mrp-kpi-card.forecast::before { background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%); }
+    .mrp-kpi-card.success::before { background: var(--accent-gradient); }
+
+    .mrp-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.25rem;
+    }
+    .mrp-toolbar-left, .mrp-toolbar-right {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .coverage-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .coverage-crit {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .coverage-warn {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .coverage-ok {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .coverage-bar-track {
+      width: 50px;
+      height: 6px;
+      background: rgba(51, 65, 85, 0.6);
+      border-radius: 9999px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 0.4rem;
+    }
+    .coverage-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+    }
+
   </style>
 </head>
 <body>
@@ -673,24 +1284,50 @@
         </div>
       </div>
 
-      <!-- PERIOD SELECTOR -->
-      <div class="period-switcher" id="periodSwitcher">
-        <span class="period-label">PERÍODO:</span>
-        <button class="period-btn active" id="pbtn-2026-10" onclick="switchPeriod('2026-10')">
-          <span class="period-dot active"></span>
-          <span>Octubre 2026</span>
-          <span class="tab-badge badge-success" style="font-size:0.65rem">En Curso</span>
-        </button>
-        <button class="period-btn" id="pbtn-2026-09" onclick="switchPeriod('2026-09')">
-          <span class="period-dot"></span>
-          <span>Septiembre 2026</span>
-          <span class="tab-badge badge-neutral" style="font-size:0.65rem">Cerrado</span>
-        </button>
-        <button class="period-btn" id="pbtn-acumulado" onclick="switchPeriod('acumulado')">
-          <span class="period-dot"></span>
-          <span>📊 Acumulado Sep + Oct</span>
-          <span class="tab-badge badge-info" style="font-size:0.65rem">Consolidado</span>
-        </button>
+      <div class="header-actions">
+        <!-- AMBITO SELECTOR (NACIONAL / EXPORTACION) -->
+        <div class="scope-switcher" id="scopeSwitcher">
+          <span class="scope-label" id="scopeLabel">MERCADO:</span>
+          <button class="scope-btn active" id="sbtn-ALL" onclick="setScope('ALL')">
+            <span id="sbtn-ALL-text">🌐 Todos</span>
+          </button>
+          <button class="scope-btn" id="sbtn-NACIONAL" onclick="setScope('NACIONAL')">
+            <span id="sbtn-NACIONAL-text">🇪🇸 Nacional</span>
+          </button>
+          <button class="scope-btn" id="sbtn-EXPORTACION" onclick="setScope('EXPORTACION')">
+            <span id="sbtn-EXPORTACION-text">🌍 Exportación</span>
+          </button>
+        </div>
+
+        <!-- PERIOD SELECTOR -->
+        <div class="period-switcher" id="periodSwitcher">
+          <span class="period-label" id="periodLabel">PERÍODO:</span>
+          <button class="period-btn active" id="pbtn-2026-10" onclick="switchPeriod('2026-10')">
+            <span class="period-dot active"></span>
+            <span id="pbtn-2026-10-text">Octubre 2026</span>
+            <span class="tab-badge badge-success" id="pbtn-2026-10-badge" style="font-size:0.65rem">En Curso</span>
+          </button>
+          <button class="period-btn" id="pbtn-2026-09" onclick="switchPeriod('2026-09')">
+            <span class="period-dot"></span>
+            <span id="pbtn-2026-09-text">Septiembre 2026</span>
+            <span class="tab-badge badge-neutral" id="pbtn-2026-09-badge" style="font-size:0.65rem">Cerrado</span>
+          </button>
+          <button class="period-btn" id="pbtn-acumulado" onclick="switchPeriod('acumulado')">
+            <span class="period-dot"></span>
+            <span id="pbtn-acumulado-text">📊 Acumulado Sep + Oct</span>
+            <span class="tab-badge badge-info" id="pbtn-acumulado-badge" style="font-size:0.65rem">Consolidado</span>
+          </button>
+        </div>
+
+        <!-- LANGUAGE SWITCHER (ES / EN) -->
+        <div class="lang-switcher" id="langSwitcher" title="Idioma / Language">
+          <button class="lang-btn active" id="lbtn-es" onclick="setLanguage('es')">
+            <span>🇪🇸 ES</span>
+          </button>
+          <button class="lang-btn" id="lbtn-en" onclick="setLanguage('en')">
+            <span>🇬🇧 EN</span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -699,8 +1336,12 @@
   <nav class="tabs-wrapper">
     <div class="tabs-container" id="tabsNav">
       <button class="tab-btn active" onclick="switchTab('resumen')">
-        Resumen General
+        <span id="tabBtnResumenText">Resumen General</span>
         <span class="tab-badge badge-success" id="tabBadgeResumen">128.4%</span>
+      </button>
+      <button class="tab-btn tab-btn-mrp" id="tabBtnProduccion" onclick="switchTab('produccion')">
+        <span id="tabBtnProduccionText">🏭 Planificación Producción</span>
+        <span class="tab-badge" id="tabBadgeProduccion" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">MRP</span>
       </button>
       <button class="tab-btn" onclick="switchTab('Alfonso')">
         Alfonso
@@ -740,9 +1381,129 @@
     </div>
   </main>
 
+  <!-- MODAL OVERLAY FOR KPI DRILLDOWN & SKUs -->
+  <div class="modal-overlay" id="kpiModalOverlay" onclick="handleModalOverlayClick(event)">
+    <div class="modal-container" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-titles">
+          <h2>
+            <span id="modalKpiIcon">📦</span>
+            <span id="modalKpiTitle">Desglose de SKUs Pendientes de Servir</span>
+          </h2>
+          <div class="modal-subtitle" id="modalKpiSubtitle">
+            <span>Octubre 2026</span> &bull; <span>Todos los Comerciales</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeKpiModal()" title="Cerrar ventana (Esc)">&times;</button>
+      </div>
+
+      <div class="modal-stats-bar">
+        <div class="modal-stat-group">
+          <div class="modal-stat-item">
+            <span class="modal-stat-label" id="modalStatLabelMetric">Métrica Filtrada</span>
+            <span class="modal-stat-value" id="modalStatPrimary" style="color:#fbbf24">0 u</span>
+          </div>
+          <div class="modal-stat-item">
+            <span class="modal-stat-label" id="modalStatLabelSkus">SKUs Únicos</span>
+            <span class="modal-stat-value" id="modalStatCount">0 SKUs</span>
+          </div>
+          <div class="modal-stat-item">
+            <span class="modal-stat-label" id="modalStatLabelComs">Comerciales</span>
+            <span class="modal-stat-value" id="modalStatClients">0</span>
+          </div>
+          <div class="modal-stat-item">
+            <span class="modal-stat-label" id="modalStatLabelAmount">Importe Asociado</span>
+            <span class="modal-stat-value" id="modalStatImporte" style="color:#34d399">0,00 €</span>
+          </div>
+        </div>
+        <button class="btn-table-action" onclick="exportModalCsv()" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.45rem 0.9rem; font-weight:700">
+          <span>📥</span> <span id="modalBtnExportText">Descargar Excel / CSV</span>
+        </button>
+      </div>
+
+      <div class="modal-controls">
+        <div class="modal-search">
+          <input type="text" id="modalSearchInput" placeholder="Buscar por código SKU, descripción o comercial en tiempo real..." oninput="handleModalSearch(this.value)">
+        </div>
+        <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+          <div class="scope-switcher" style="padding:0.2rem 0.4rem;">
+            <span class="scope-label" id="modalScopeLabel" style="font-size:0.68rem">MERCADO:</span>
+            <button class="scope-btn" id="modal-sbtn-ALL" onclick="setModalScope('ALL')">🌐 Todos</button>
+            <button class="scope-btn" id="modal-sbtn-NACIONAL" onclick="setModalScope('NACIONAL')">🇪🇸 Nac</button>
+            <button class="scope-btn" id="modal-sbtn-EXPORTACION" onclick="setModalScope('EXPORTACION')">🌍 Exp</button>
+          </div>
+          <select id="modalCommercialSelect" class="search-input" style="padding:0.45rem 0.8rem; width:auto; border-radius:var(--radius-sm); background:rgba(15,23,42,0.9); color:#fff; border:1px solid var(--card-border); font-size:0.8rem" onchange="handleModalCommercialChange(this.value)">
+            <option value="ALL" id="modalSelAllComsOption">👤 Todos los comerciales</option>
+            <option value="Alfonso">Alfonso</option>
+            <option value="García">García</option>
+            <option value="Irene">Irene</option>
+            <option value="Javier">Javier</option>
+            <option value="Mehmet">Mehmet</option>
+            <option value="Pedro">Pedro</option>
+            <option value="Ricardo">Ricardo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="table-wrapper" style="border:none; border-radius:0;">
+          <table class="modal-table">
+            <thead>
+              <tr>
+                <th style="width:11%" id="modalThSku">SKU</th>
+                <th style="width:25%" id="modalThItem">Artículo / Descripción</th>
+                <th style="width:8%" class="text-center" id="modalThScope">Ámbito</th>
+                <th style="width:10%" class="text-right" id="modalThMetric">Pendientes (u)</th>
+                <th style="width:8%" class="text-right" id="modalThPedidos">Pedidos (u)</th>
+                <th style="width:8%" class="text-right" id="modalThServidas">Servidas (u)</th>
+                <th style="width:8%" class="text-right" id="modalThEstimacion">Estimación (u)</th>
+                <th style="width:7%" class="text-right" id="modalThConsec">% Consec.</th>
+                <th style="width:8%" class="text-right" id="modalThRevenue">Importe (€)</th>
+                <th style="width:7%" class="text-center" id="modalThComs">Comerciales</th>
+              </tr>
+            </thead>
+            <tbody id="modalTableBody">
+              <!-- Rendered dynamic lines -->
+            </tbody>
+            <tfoot id="modalTableFoot">
+              <!-- Rendered totals -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EVOLUCIÓN MENSUAL Y AGOTAMIENTO SKU (MRP) -->
+  <div class="modal-overlay" id="mrpSkuModal" style="z-index:1050;" onclick="if(event.target===this) closeProdSkuModal()">
+    <div class="modal-container" role="dialog" aria-modal="true" style="max-width:1050px;">
+      <div class="modal-header">
+        <div class="modal-titles">
+          <h2>
+            <span>🏭</span>
+            <span id="mrpModalSkuName">AN0020 - ALCAPLANT NEW 20KG</span>
+          </h2>
+          <div class="modal-subtitle" id="mrpModalSub">
+            Trayectoria de demanda a 15 meses (Oct 2026 - Dic 2027) y proyección de agotamiento
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeProdSkuModal()" title="Cerrar ventana (Esc)">&times;</button>
+      </div>
+
+      <div class="modal-content-area" id="mrpModalBody" style="padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
+        <!-- Dynamic content injected by JavaScript -->
+      </div>
+
+      <div class="modal-footer-bar" style="padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--card-border); background:rgba(15,23,42,0.6);">
+        <span id="mrpModalFooterSummary" style="font-size:0.85rem; color:var(--muted);"></span>
+        <button class="btn btn-secondary" onclick="closeProdSkuModal()" style="padding:0.45rem 1.25rem; border-radius:var(--radius-sm); cursor:pointer; background:rgba(51,65,85,0.6); color:#fff; border:1px solid #475569; font-weight:600;">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <footer>
-    Codiagro S.L. &copy; 2026 | Sistema de Seguimiento Diario de Ventas y Previsiones | Fichero de pedidos diario cruzado con Presupuesto Oficial 2026-2027
+    <span id="footerText">Codiagro S.L. &copy; 2026 | Sistema de Seguimiento Diario de Ventas y Previsiones | Fichero de pedidos diario cruzado con Presupuesto Oficial 2026-2027</span>
   </footer>
 
   <script>
@@ -751,30 +1512,580 @@
     let appData = null;
     let currentTab = 'resumen';
     let currentFilter = 'ALL';
+    let currentScope = 'ALL'; // 'ALL' | 'NACIONAL' | 'EXPORTACION'
     let searchQuery = '';
+
+    // Modal drilldown state
+    let modalKpiType = 'pendientes';
+    let modalCommercial = 'ALL';
+    let modalScope = 'ALL';
+    let modalSearchQuery = '';
+
+    let currentLang = 'es';
+    try {
+      const savedLang = localStorage.getItem('codiagro_lang');
+      if (savedLang === 'en' || savedLang === 'es') currentLang = savedLang;
+    } catch (e) {}
+
+    const TRANSLATIONS = {
+      es: {
+        app_title: "Controller Presupuesto Ventas 2026",
+        badge_live: "En Tiempo Real",
+        badge_closed: "Mes Cerrado",
+        badge_consolidated: "Consolidado",
+        subtitle_prefix: "Seguimiento Diario de Previsión vs Pedidos a Fecha",
+        period_label: "PERÍODO:",
+        market_label: "MERCADO:",
+        all_markets: "🌐 Todos",
+        domestic_market: "🇪🇸 Nacional",
+        export_market: "🌍 Exportación",
+        in_progress: "En Curso",
+        closed: "Cerrado",
+        period_oct: "Octubre 2026",
+        period_sep: "Septiembre 2026",
+        period_accum: "📊 Acumulado Sep + Oct",
+        tab_resumen: "Resumen General",
+
+        kpi_budget_title: "Estimación",
+        kpi_budget_hint: "Click para ver desglose de todos los SKUs con presupuesto planificado",
+        kpi_breakdown: "Ver desglose ↗",
+        kpi_total_planned: "Total planificado",
+        kpi_orders_title: "Pedidos a Fecha",
+        kpi_orders_hint: "Click para ver desglose de todos los SKUs con pedidos recibidos",
+        kpi_delivered: "Servidas",
+        kpi_pending: "Pendientes",
+        kpi_gap_title: "Falta Conseguir (Gap)",
+        kpi_gap_hint: "Click para ver SKUs con brecha pendiente de cubrir",
+        kpi_gap_subtext_pending: "Unidades pendientes para alcanzar objetivo",
+        kpi_gap_subtext_covered: "Objetivo 100% cubierto",
+        kpi_pending_title: "Pendientes de Servir",
+        kpi_pending_hint: "Click para ver desglose completo de todos los SKUs pendientes de servir",
+        kpi_cum_delivered: "Servidas acumuladas",
+        kpi_accuracy_title: "Forecast Accuracy",
+        kpi_accuracy_hint: "Click para ver SKUs ordenados por mayor desviación de previsión",
+        kpi_accuracy_nac_title: "Accuracy Prod. Nacionales",
+        kpi_accuracy_nac_hint: "Click para ver desglose exclusivo de productos nacionales",
+        kpi_volume_served: "Volumen Servido",
+        kpi_volume_served_hint: "Click para ver desglose de SKUs con unidades servidas",
+        kpi_of_ordered: "solicitadas",
+        
+        chart_comparison_title: "Comparativa Estimación vs Pedidos por Comercial (Unidades)",
+        chart_achievement_title: "% Consecución por Comercial",
+        chart_target_100: "Objetivo: 100%",
+
+        table_rep_title: "Desglose de Consecución, Exactitud y Desviación por Comercial",
+        table_rep_badge: "7 Comerciales Oficiales",
+        th_sales_rep: "Comercial",
+        th_clients: "Clientes",
+        th_estimate: "Estimación",
+        th_orders: "Pedidos",
+        th_delivered: "Servidas",
+        th_pending: "Pendientes",
+        th_gap: "Falta",
+        th_abs_dev: "Desv. Abs. (u)",
+        th_consec_pct: "% Consec.",
+        th_global_acc: "Accuracy Global",
+        th_nac_acc: "Accuracy Nac.",
+        th_status: "Estado",
+        th_view: "Ver",
+        btn_view_details: "Ver Detalle →",
+        status_exceeded: "SUPERADO",
+        status_on_track: "EN CURSO",
+        status_lagging: "REZAGADO",
+        status_no_orders: "SIN PEDIDO",
+        status_extra: "EXTRA ESTIMACIÓN",
+        total_general: "TOTAL GENERAL",
+        total_national: "TOTAL NACIONAL",
+        total_export: "TOTAL EXPORTACIÓN",
+        
+        obj_assigned_to: "Objetivo asignado a",
+        portfolio_accuracy: "Accuracy Cartera",
+        exclusive_export_warning: "opera exclusivamente en Mercado de Exportación",
+        exclusive_nac_warning: "opera exclusivamente en Mercado Nacional",
+        view_market: "Ver Mercado",
+        view_full_portfolio: "Ver Cartera Completa",
+        search_placeholder_com: "Buscar por cliente, SKU o producto...",
+        filter_all: "Todos",
+        filter_superado: "Superados",
+        filter_en_curso: "En Curso",
+        filter_rezagado: "Rezagados",
+        filter_sin_pedido: "Sin Pedido",
+        filter_extra: "Extra Estimación",
+        filter_nac: "Nacionales",
+        filter_exp: "Exportación",
+        subtotal_label: "SUBTOTAL",
+        th_client: "Cliente",
+        th_sku: "SKU",
+        th_article: "Artículo",
+        th_accuracy: "Accuracy",
+        lines_combinations: "combinaciones cliente-artículo",
+        lines_filtered: "partidas filtradas",
+
+        modal_stat_metric: "Métrica Filtrada",
+        modal_stat_skus: "SKUs Únicos",
+        modal_stat_coms: "Comerciales",
+        modal_stat_amount: "Importe Asociado",
+        modal_btn_export: "Descargar Excel / CSV",
+        modal_search_ph: "Buscar por código SKU, descripción o comercial en tiempo real...",
+        modal_sel_all_coms: "👤 Todos los comerciales",
+        modal_th_item: "Artículo / Descripción",
+        modal_th_scope: "Ámbito",
+        modal_th_revenue: "Importe (€)",
+        modal_th_coms: "Comerciales",
+        modal_total_consolidated: "TOTAL CONSOLIDADO",
+        modal_title_pendientes: "Desglose Consolidado de SKUs Pendientes de Servir",
+        modal_title_budget: "Desglose Consolidado por SKU con Presupuesto / Estimación",
+        modal_title_pedidos: "Desglose Consolidado por SKU con Pedidos Registrados",
+        modal_title_servidas: "Desglose Consolidado por SKU con Unidades Servidas",
+        modal_title_gap: "Desglose Consolidado por SKU con Brecha de Presupuesto (Gap)",
+        modal_title_desv: "Desglose Consolidado por SKU de Desviación Absoluta",
+        modal_title_acc_nac: "Desglose de SKUs Nacionales (Sin Siglas País)",
+        modal_th_pendientes: "Pendientes (u)",
+        modal_th_pedidos: "Pedidos (u)",
+        modal_th_servidas: "Servidas (u)",
+        modal_th_budget: "Estimación (u)",
+        modal_th_gap: "Gap / Falta (u)",
+        modal_th_desv: "Desv. Abs. (u)",
+        modal_empty_oct: "¡Excelente servicio en Octubre 2026!",
+        modal_empty_oct_desc: "No constan pedidos pendientes de servir en Octubre 2026: todos los pedidos procesados hasta la fecha de corte ya han sido completamente servidos.",
+        modal_btn_goto_sep: "👉 Ver 35.774 u Pendientes en Septiembre 2026",
+        modal_btn_goto_accum: "Ver Acumulado Sep + Oct",
+        
+        footer_text: "Codiagro S.L. © 2026 | Sistema de Seguimiento Diario de Ventas y Previsiones | Fichero de pedidos diario cruzado con Presupuesto Oficial 2026-2027",
+
+        tab_produccion: "🏭 Planificación Producción",
+        mrp_title: "Planificación de la Producción y Necesidades de Fabricación (MRP)",
+        mrp_subtitle: "Balance dinámico de Stock Real de Almacén, Pedidos en Cartera y Previsiones Mensuales",
+        mrp_time_horizon: "HORIZONTE TEMPORAL:",
+        mrp_custom_months: "SELECTOR LIBRE DE MESES:",
+        mrp_selected_count: "meses seleccionados",
+        mrp_active_range: "Ventana activa:",
+        
+        mrp_preset_n: "N (Oct 26)",
+        mrp_preset_n1: "N+1 (Oct-Nov)",
+        mrp_preset_n2: "N+2 (Oct-Dic 2026)",
+        mrp_preset_n5: "N+5 (Oct 26 - Mar 27)",
+        mrp_preset_rest_2026: "Resto 2026 (Oct-Dic)",
+        mrp_preset_q1_2027: "Q1 2027 (Ene-Mar)",
+        mrp_preset_h1_2027: "1er Semestre 2027",
+        mrp_preset_all_2027: "Todo 2027 (12 meses)",
+        mrp_preset_all_15: "Todo el Horizonte (15 meses)",
+        mrp_preset_custom: "Personalizado",
+
+        mrp_kpi_to_produce: "Falta Fabricar (Uds)",
+        mrp_kpi_to_produce_sub: "Déficit neto para cubrir la demanda del periodo",
+        mrp_kpi_stock: "Stock Total Almacén",
+        mrp_kpi_stock_sub: "Unidades físicas disponibles en almacén",
+        mrp_kpi_forecast: "Previsión Demanda",
+        mrp_kpi_forecast_sub: "Suma de los meses seleccionados",
+        mrp_kpi_pending: "Pedidos Pendientes",
+        mrp_kpi_pending_sub: "En cola de entrega inmediata",
+        mrp_kpi_critical: "SKUs en Rotura / Urgente",
+        mrp_kpi_critical_sub: "Cobertura < 25% o stock insuficiente",
+        mrp_kpi_covered: "SKUs Cubiertos",
+        mrp_kpi_covered_sub: "Cobertura ≥ 100% de la demanda",
+
+        mrp_view_base: "📦 Por Envase / Planta",
+        mrp_view_detail: "🌍 Detallado por Destino",
+        mrp_status_all: "Todos los Estados",
+        mrp_status_critical: "🔴 Falta Fabricar / Rotura",
+        mrp_status_warning: "🟡 Programar Lote",
+        mrp_status_covered: "🟢 Cubierto",
+        mrp_btn_export: "📥 Exportar Orden Fabricación (CSV)",
+        mrp_search_ph: "Buscar por SKU, producto, envase o país...",
+
+        mrp_th_sku: "SKU / Código",
+        mrp_th_product: "Producto y Envase",
+        mrp_th_scope: "Mercado",
+        mrp_th_stock: "Stock Actual",
+        mrp_th_pending: "Pendientes",
+        mrp_th_forecast: "Previsión",
+        mrp_th_demand: "Demanda Total",
+        mrp_th_balance: "Balance Neto",
+        mrp_th_shortage: "Falta Fabricar",
+        mrp_th_coverage: "Cobertura",
+        mrp_th_action: "Estado / Acción",
+        mrp_th_detail: "Evolución",
+
+        mrp_action_critical: "Fabricación Urgente",
+        mrp_action_warning: "Programar Lote",
+        mrp_action_covered: "Stock Suficiente",
+        mrp_modal_title: "Evolución Mensual y Balance Proyectado de Stock",
+        mrp_modal_subtitle: "Trayectoria de demanda a 15 meses (Oct 2026 - Dic 2027) y proyección de agotamiento",
+        mrp_modal_depleted_in: "Agotamiento estimado en:",
+        mrp_modal_never_depleted: "Stock cubre todo el horizonte analizado",
+        mrp_modal_th_month: "Mes",
+        mrp_modal_th_forecast: "Previsión Mes (u)",
+        mrp_modal_th_cum_demand: "Demanda Acumulada",
+        mrp_modal_th_proj_stock: "Stock Proyectado",
+        mrp_modal_destinations: "Desglose por Destinos y Clientes:"
+
+      },
+      en: {
+        app_title: "2026 Sales Budget Controller",
+        badge_live: "Real Time",
+        badge_closed: "Closed Month",
+        badge_consolidated: "Consolidated",
+        subtitle_prefix: "Daily Forecast vs Orders Tracking as of",
+        period_label: "PERIOD:",
+        market_label: "MARKET:",
+        all_markets: "🌐 All",
+        domestic_market: "🇪🇸 Domestic",
+        export_market: "🌍 Export",
+        in_progress: "In Progress",
+        closed: "Closed",
+        period_oct: "October 2026",
+        period_sep: "September 2026",
+        period_accum: "📊 Cumulative Sep + Oct",
+        tab_resumen: "Executive Summary",
+
+        kpi_budget_title: "Forecast",
+        kpi_budget_hint: "Click to view breakdown of all SKUs with planned budget",
+        kpi_breakdown: "View breakdown ↗",
+        kpi_total_planned: "Total planned",
+        kpi_orders_title: "Orders to Date",
+        kpi_orders_hint: "Click to view breakdown of all SKUs with logged orders",
+        kpi_delivered: "Delivered",
+        kpi_pending: "Pending",
+        kpi_gap_title: "Target Gap",
+        kpi_gap_hint: "Click to view SKUs with remaining gap",
+        kpi_gap_subtext_pending: "Remaining units to reach target",
+        kpi_gap_subtext_covered: "100% Target achieved",
+        kpi_pending_title: "Pending Shipments",
+        kpi_pending_hint: "Click to view complete breakdown of all pending SKUs",
+        kpi_cum_delivered: "Cumulative delivered",
+        kpi_accuracy_title: "Forecast Accuracy",
+        kpi_accuracy_hint: "Click to view SKUs ordered by highest forecast variance",
+        kpi_accuracy_nac_title: "Domestic Prod. Accuracy",
+        kpi_accuracy_nac_hint: "Click to view exclusive breakdown of domestic products",
+        kpi_volume_served: "Delivered Volume",
+        kpi_volume_served_hint: "Click to view breakdown of SKUs with delivered units",
+        kpi_of_ordered: "ordered",
+        
+        chart_comparison_title: "Sales Rep Comparison: Forecast vs Orders (Units)",
+        chart_achievement_title: "% Achievement by Sales Rep",
+        chart_target_100: "Target: 100%",
+
+        table_rep_title: "Breakdown of Achievement, Accuracy and Variance by Sales Rep",
+        table_rep_badge: "7 Official Sales Reps",
+        th_sales_rep: "Sales Rep",
+        th_clients: "Accounts",
+        th_estimate: "Forecast",
+        th_orders: "Orders",
+        th_delivered: "Delivered",
+        th_pending: "Pending",
+        th_gap: "Gap",
+        th_abs_dev: "Abs. Dev. (u)",
+        th_consec_pct: "% Ach.",
+        th_global_acc: "Overall Accuracy",
+        th_nac_acc: "Domestic Acc.",
+        th_status: "Status",
+        th_view: "View",
+        btn_view_details: "View Details →",
+        status_exceeded: "EXCEEDED",
+        status_on_track: "ON TRACK",
+        status_lagging: "LAGGING",
+        status_no_orders: "NO ORDERS",
+        status_extra: "UNPLANNED ORDERS",
+        total_general: "CONSOLIDATED TOTAL",
+        total_national: "DOMESTIC TOTAL",
+        total_export: "EXPORT TOTAL",
+        
+        obj_assigned_to: "Target assigned to",
+        portfolio_accuracy: "Portfolio Accuracy",
+        exclusive_export_warning: "operates exclusively in Export Market",
+        exclusive_nac_warning: "operates exclusively in Domestic Market",
+        view_market: "View Market",
+        view_full_portfolio: "View Full Portfolio",
+        search_placeholder_com: "Search by account, SKU or product...",
+        filter_all: "All",
+        filter_superado: "Exceeded",
+        filter_en_curso: "On Track",
+        filter_rezagado: "Lagging",
+        filter_sin_pedido: "No Orders",
+        filter_extra: "Unplanned Orders",
+        filter_nac: "Domestic",
+        filter_exp: "Export",
+        subtotal_label: "SUBTOTAL",
+        th_client: "Account",
+        th_sku: "SKU",
+        th_article: "Product Item",
+        th_accuracy: "Accuracy",
+        lines_combinations: "account-item combinations",
+        lines_filtered: "filtered lines",
+
+        modal_stat_metric: "Filtered Metric",
+        modal_stat_skus: "Unique SKUs",
+        modal_stat_coms: "Sales Reps",
+        modal_stat_amount: "Associated Revenue",
+        modal_btn_export: "Download Excel / CSV",
+        modal_search_ph: "Search by SKU, description or sales rep in real time...",
+        modal_sel_all_coms: "👤 All Sales Reps",
+        modal_th_item: "Item / Description",
+        modal_th_scope: "Scope",
+        modal_th_revenue: "Revenue (€)",
+        modal_th_coms: "Sales Reps",
+        modal_total_consolidated: "CONSOLIDATED TOTAL",
+        modal_title_pendientes: "Consolidated Breakdown of Pending Shipments by SKU",
+        modal_title_budget: "Consolidated SKU Breakdown with Budget / Forecast",
+        modal_title_pedidos: "Consolidated SKU Breakdown with Logged Orders",
+        modal_title_servidas: "Consolidated SKU Breakdown with Delivered Units",
+        modal_title_gap: "Consolidated SKU Breakdown with Budget Gap",
+        modal_title_desv: "Consolidated SKU Breakdown of Absolute Deviation",
+        modal_title_acc_nac: "Breakdown of Domestic SKUs (No Country Code)",
+        modal_th_pendientes: "Pending (u)",
+        modal_th_pedidos: "Orders (u)",
+        modal_th_servidas: "Delivered (u)",
+        modal_th_budget: "Forecast (u)",
+        modal_th_gap: "Gap (u)",
+        modal_th_desv: "Abs. Dev. (u)",
+        modal_empty_oct: "Outstanding fulfillment in October 2026!",
+        modal_empty_oct_desc: "There are no pending shipments in October 2026: all orders received as of the cut-off date have already been fully delivered.",
+        modal_btn_goto_sep: "👉 View 35,774 u Pending in September 2026",
+        modal_btn_goto_accum: "View Cumulative Sep + Oct",
+        
+        footer_text: "Codiagro S.L. © 2026 | Daily Sales & Forecast Tracking System | Daily order file reconciled with Official 2026-2027 Budget",
+
+        tab_produccion: "🏭 Production Planning",
+        mrp_title: "Production Planning & Manufacturing Requirements (MRP)",
+        mrp_subtitle: "Dynamic balance of Real Warehouse Stock, Pending Orders, and Monthly Forecasts",
+        mrp_time_horizon: "TIME HORIZON:",
+        mrp_custom_months: "CUSTOM MONTH SELECTOR:",
+        mrp_selected_count: "months selected",
+        mrp_active_range: "Active window:",
+        
+        mrp_preset_n: "N (Oct 26)",
+        mrp_preset_n1: "N+1 (Oct-Nov)",
+        mrp_preset_n2: "N+2 (Oct-Dec 2026)",
+        mrp_preset_n5: "N+5 (Oct 26 - Mar 27)",
+        mrp_preset_rest_2026: "Remainder 2026 (Oct-Dec)",
+        mrp_preset_q1_2027: "Q1 2027 (Jan-Mar)",
+        mrp_preset_h1_2027: "H1 2027 (Jan-Jun)",
+        mrp_preset_all_2027: "Full 2027 (12 months)",
+        mrp_preset_all_15: "Full Horizon (15 months)",
+        mrp_preset_custom: "Custom Range",
+
+        mrp_kpi_to_produce: "To Manufacture (Units)",
+        mrp_kpi_to_produce_sub: "Net deficit to fulfill selected period demand",
+        mrp_kpi_stock: "Total Warehouse Stock",
+        mrp_kpi_stock_sub: "Physical units available in warehouse",
+        mrp_kpi_forecast: "Forecast Demand",
+        mrp_kpi_forecast_sub: "Sum of selected forecast months",
+        mrp_kpi_pending: "Pending Orders",
+        mrp_kpi_pending_sub: "Orders awaiting shipment",
+        mrp_kpi_critical: "Urgent / Out of Stock",
+        mrp_kpi_critical_sub: "Coverage < 25% or immediate shortage",
+        mrp_kpi_covered: "Fully Covered SKUs",
+        mrp_kpi_covered_sub: "Coverage ≥ 100% of demand",
+
+        mrp_view_base: "📦 By Package / Plant",
+        mrp_view_detail: "🌍 Detailed by Destination",
+        mrp_status_all: "All Statuses",
+        mrp_status_critical: "🔴 Must Manufacture / Shortage",
+        mrp_status_warning: "🟡 Schedule Batch",
+        mrp_status_covered: "🟢 Covered",
+        mrp_btn_export: "📥 Export Production Order (CSV)",
+        mrp_search_ph: "Search by SKU, product, package or country...",
+
+        mrp_th_sku: "SKU / Code",
+        mrp_th_product: "Product & Packaging",
+        mrp_th_scope: "Market",
+        mrp_th_stock: "Current Stock",
+        mrp_th_pending: "Pending",
+        mrp_th_forecast: "Forecast",
+        mrp_th_demand: "Total Demand",
+        mrp_th_balance: "Net Balance",
+        mrp_th_shortage: "To Manufacture",
+        mrp_th_coverage: "Coverage",
+        mrp_th_action: "Status / Action",
+        mrp_th_detail: "Evolution",
+
+        mrp_action_critical: "Urgent Manufacture",
+        mrp_action_warning: "Schedule Batch",
+        mrp_action_covered: "Sufficient Stock",
+        mrp_modal_title: "Monthly Evolution & Projected Stock Balance",
+        mrp_modal_subtitle: "15-month demand trajectory (Oct 2026 - Dec 2027) and depletion forecast",
+        mrp_modal_depleted_in: "Estimated depletion in:",
+        mrp_modal_never_depleted: "Stock fully covers analyzed horizon",
+        mrp_modal_th_month: "Month",
+        mrp_modal_th_forecast: "Month Forecast (u)",
+        mrp_modal_th_cum_demand: "Cumulative Demand",
+        mrp_modal_th_proj_stock: "Projected Stock",
+        mrp_modal_destinations: "Breakdown by Destinations and Clients:"
+
+      }
+    };
+
+    function t(key) {
+      if (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key] !== undefined) {
+        return TRANSLATIONS[currentLang][key];
+      }
+      if (TRANSLATIONS.es && TRANSLATIONS.es[key] !== undefined) {
+        return TRANSLATIONS.es[key];
+      }
+      return key;
+    }
 
     const fmtNum = (n, dec=0) => {
       if (isNaN(n) || n === null || n === undefined) return '0';
-      return Number(n).toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+      const loc = currentLang === 'en' ? 'en-US' : 'es-ES';
+      return Number(n).toLocaleString(loc, { minimumFractionDigits: dec, maximumFractionDigits: dec });
     };
 
     const fmtCurr = (n) => {
-      if (isNaN(n) || n === null || n === undefined) return '0,00 €';
-      return Number(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+      if (isNaN(n) || n === null || n === undefined) return currentLang === 'en' ? '€0.00' : '0,00 €';
+      const loc = currentLang === 'en' ? 'en-US' : 'es-ES';
+      const str = Number(n).toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return currentLang === 'en' ? `€${str}` : `${str} €`;
     };
 
     const fmtPct = (val) => {
       const n = Number(val);
-      if (isNaN(n) || val === null || val === undefined) return '0,0%';
-      return n.toFixed(1).replace('.', ',') + '%';
+      if (isNaN(n) || val === null || val === undefined) return currentLang === 'en' ? '0.0%' : '0,0%';
+      const s = n.toFixed(1);
+      return (currentLang === 'en' ? s : s.replace('.', ',')) + '%';
     };
 
     const fmtAcc = (val) => {
       let n = Number(val);
-      if (isNaN(n) || val === null || val === undefined) return '0,0%';
+      if (isNaN(n) || val === null || val === undefined) return currentLang === 'en' ? '0.0%' : '0,0%';
       if (n < 0) n = 0;
-      return n.toFixed(1).replace('.', ',') + '%';
+      const s = n.toFixed(1);
+      return (currentLang === 'en' ? s : s.replace('.', ',')) + '%';
     };
+
+    function formatDate(dStr) {
+      if (!dStr) return '';
+      if (currentLang === 'en') {
+        const parts = dStr.split('/');
+        if (parts.length === 3) {
+          const day = parts[0];
+          const month = parts[1];
+          const year = parts[2];
+          const monthNamesEn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          const mIdx = parseInt(month, 10) - 1;
+          if (mIdx >= 0 && mIdx < 12) {
+            return `${monthNamesEn[mIdx]} ${parseInt(day, 10)}, ${year}`;
+          }
+          return `${month}/${day}/${year}`;
+        }
+      }
+      return dStr;
+    }
+
+    function localizeStatus(status) {
+      if (!status) return '';
+      const s = String(status).trim();
+      if (s === 'Superado' || s === 'SUPERADO') return t('status_exceeded');
+      if (s === 'En Curso' || s === 'EN CURSO') return t('status_on_track');
+      if (s === 'Rezagado' || s === 'REZAGADO') return t('status_lagging');
+      if (s === 'Sin Pedido' || s === 'SIN PEDIDO') return t('status_no_orders');
+      if (s === 'Sin Actividad') return currentLang === 'en' ? 'No Activity' : 'Sin Actividad';
+      if (s === 'Extra Estimación' || s === 'Extra Budget' || s === 'EXTRA ESTIMACIÓN') return t('status_extra');
+      if (s === 'Nacional') return currentLang === 'en' ? 'Domestic' : 'Nacional';
+      if (s === 'Exportación') return currentLang === 'en' ? 'Export' : 'Exportación';
+      return s;
+    }
+
+    function setLanguage(lang) {
+      currentLang = (lang === 'en' ? 'en' : 'es');
+      try {
+        localStorage.setItem('codiagro_lang', currentLang);
+      } catch (e) {}
+
+      updateLanguageButtonsUI();
+      updateLanguageStaticUI();
+      updateHeaderInfo();
+      updateNavBadges();
+      renderCurrentTab();
+
+      const modalOverlay = document.getElementById('kpiModalOverlay');
+      if (modalOverlay && modalOverlay.classList.contains('active')) {
+        renderModalContent();
+      }
+    }
+
+    function updateLanguageButtonsUI() {
+      const btnEs = document.getElementById('lbtn-es');
+      const btnEn = document.getElementById('lbtn-en');
+      if (btnEs) btnEs.classList.toggle('active', currentLang === 'es');
+      if (btnEn) btnEn.classList.toggle('active', currentLang === 'en');
+    }
+
+    function updateLanguageStaticUI() {
+      // Header brand
+      const titleEl = document.getElementById('headerTitle');
+      if (titleEl) titleEl.innerText = t('app_title');
+
+      // Scope Switcher
+      const scopeLabel = document.getElementById('scopeLabel');
+      if (scopeLabel) scopeLabel.innerText = t('market_label');
+      const sbtnAll = document.getElementById('sbtn-ALL-text');
+      if (sbtnAll) sbtnAll.innerText = t('all_markets');
+      const sbtnNac = document.getElementById('sbtn-NACIONAL-text');
+      if (sbtnNac) sbtnNac.innerText = t('domestic_market');
+      const sbtnExp = document.getElementById('sbtn-EXPORTACION-text');
+      if (sbtnExp) sbtnExp.innerText = t('export_market');
+
+      // Period Switcher
+      const periodLabel = document.getElementById('periodLabel');
+      if (periodLabel) periodLabel.innerText = t('period_label');
+      const pbtnOct = document.getElementById('pbtn-2026-10-text');
+      if (pbtnOct) pbtnOct.innerText = t('period_oct');
+      const pbtnOctBadge = document.getElementById('pbtn-2026-10-badge');
+      if (pbtnOctBadge) pbtnOctBadge.innerText = t('in_progress');
+      const pbtnSep = document.getElementById('pbtn-2026-09-text');
+      if (pbtnSep) pbtnSep.innerText = t('period_sep');
+      const pbtnSepBadge = document.getElementById('pbtn-2026-09-badge');
+      if (pbtnSepBadge) pbtnSepBadge.innerText = t('closed');
+      const pbtnAcc = document.getElementById('pbtn-acumulado-text');
+      if (pbtnAcc) pbtnAcc.innerText = t('period_accum');
+      const pbtnAccBadge = document.getElementById('pbtn-acumulado-badge');
+      if (pbtnAccBadge) pbtnAccBadge.innerText = t('badge_consolidated');
+
+      // Tabs
+      const tabRes = document.getElementById('tabBtnResumenText');
+      if (tabRes) tabRes.innerText = t('tab_resumen');
+
+      // Modal Static Elements
+      const mStatMetric = document.getElementById('modalStatLabelMetric');
+      if (mStatMetric) mStatMetric.innerText = t('modal_stat_metric');
+      const mStatSkus = document.getElementById('modalStatLabelSkus');
+      if (mStatSkus) mStatSkus.innerText = t('modal_stat_skus');
+      const mStatComs = document.getElementById('modalStatLabelComs');
+      if (mStatComs) mStatComs.innerText = t('modal_stat_coms');
+      const mStatAmt = document.getElementById('modalStatLabelAmount');
+      if (mStatAmt) mStatAmt.innerText = t('modal_stat_amount');
+      const mBtnExport = document.getElementById('modalBtnExportText');
+      if (mBtnExport) mBtnExport.innerText = t('modal_btn_export');
+      const mSearch = document.getElementById('modalSearchInput');
+      if (mSearch) mSearch.placeholder = t('modal_search_ph');
+      const mScopeLabel = document.getElementById('modalScopeLabel');
+      if (mScopeLabel) mScopeLabel.innerText = t('market_label');
+      const mSelComs = document.getElementById('modalSelAllComsOption');
+      if (mSelComs) mSelComs.innerText = t('modal_sel_all_coms');
+
+      const mThItem = document.getElementById('modalThItem');
+      if (mThItem) mThItem.innerText = t('modal_th_item');
+      const mThScope = document.getElementById('modalThScope');
+      if (mThScope) mThScope.innerText = t('modal_th_scope');
+      const mThPedidos = document.getElementById('modalThPedidos');
+      if (mThPedidos) mThPedidos.innerText = t('modal_th_pedidos');
+      const mThServidas = document.getElementById('modalThServidas');
+      if (mThServidas) mThServidas.innerText = t('modal_th_servidas');
+      const mThEstimacion = document.getElementById('modalThEstimacion');
+      if (mThEstimacion) mThEstimacion.innerText = t('modal_th_budget');
+      const mThConsec = document.getElementById('modalThConsec');
+      if (mThConsec) mThConsec.innerText = t('th_consec_pct');
+      const mThRevenue = document.getElementById('modalThRevenue');
+      if (mThRevenue) mThRevenue.innerText = t('modal_th_revenue');
+      const mThComs = document.getElementById('modalThComs');
+      if (mThComs) mThComs.innerText = t('modal_th_coms');
+
+      // Footer
+      const footerEl = document.getElementById('footerText');
+      if (footerEl) footerEl.innerText = t('footer_text');
+    }
 
     function ensureAccuracyFields(data) {
       if (!data) return;
@@ -926,6 +2237,172 @@
       }
     }
 
+    // ==========================================
+    // MERCADO (SCOPE) MANAGEMENT: TODOS / NACIONAL / EXPORTACION
+    // ==========================================
+    function setScope(scopeKey) {
+      currentScope = scopeKey;
+      updateScopeSwitcherUI();
+      updateNavBadges();
+      renderCurrentTab();
+
+      // Si el modal está abierto, sincronizar también su contenido
+      const modalOverlay = document.getElementById('kpiModalOverlay');
+      if (modalOverlay && modalOverlay.classList.contains('active')) {
+        modalScope = scopeKey;
+        updateModalScopeUI();
+        renderModalContent();
+      }
+    }
+
+    function updateScopeSwitcherUI() {
+      const btns = document.querySelectorAll('#scopeSwitcher .scope-btn');
+      btns.forEach(btn => {
+        const isMatch = btn.id === ('sbtn-' + currentScope);
+        btn.classList.toggle('active', isMatch);
+        if (currentScope === 'EXPORTACION' && isMatch) {
+          btn.classList.add('scope-exp');
+        } else {
+          btn.classList.remove('scope-exp');
+        }
+      });
+    }
+
+    function getScopeData(scope = currentScope) {
+      if (!appData) return { allLines: [], comLinesMap: {}, resList: [], globalKpis: {} };
+
+      const allLines = [];
+      const comLinesMap = {};
+
+      Object.keys(appData.comerciales || {}).forEach(com => {
+        const rawLines = appData.comerciales[com].lineas || [];
+        comLinesMap[com] = [];
+        rawLines.forEach(l => {
+          let pass = true;
+          if (scope === 'NACIONAL' && !l.is_nacional) pass = false;
+          if (scope === 'EXPORTACION' && l.is_nacional) pass = false;
+          if (pass) {
+            const lineWithCom = { ...l, comercial: com };
+            allLines.push(lineWithCom);
+            comLinesMap[com].push(lineWithCom);
+          }
+        });
+      });
+
+      const resList = [];
+      const comKeys = ['Alfonso', 'García', 'Irene', 'Javier', 'Mehmet', 'Pedro', 'Ricardo'];
+      Object.keys(appData.comerciales || {}).forEach(com => {
+        if (!comKeys.includes(com)) comKeys.push(com);
+      });
+
+      comKeys.forEach(com => {
+        const comObj = appData.comerciales[com];
+        if (!comObj) return;
+        const lines = comLinesMap[com] || [];
+        const rawLines = comObj.lineas || [];
+
+        let budget = 0, pedidos = 0, servidas = 0, pendientes = 0, gap = 0, desv = 0, importe = 0;
+        let bNac = 0, pNac = 0, dNac = 0;
+        const clients = new Set();
+
+        lines.forEach(l => {
+          budget += (l.budget_uds || 0);
+          pedidos += (l.pedidos_uds || 0);
+          servidas += (l.servidas_uds || 0);
+          pendientes += (l.pendientes_uds || 0);
+          gap += (l.gap_uds || 0);
+          desv += (l.desv_uds || 0);
+          importe += (l.importe_neto || 0);
+          if (l.cliente) clients.add(l.cliente);
+
+          if (l.is_nacional) {
+            bNac += (l.budget_uds || 0);
+            pNac += (l.pedidos_uds || 0);
+            dNac += (l.desv_uds || 0);
+          }
+        });
+
+        const pct = budget > 0 ? (pedidos / budget * 100) : (pedidos > 0 ? 100 : 0);
+        let accuracy = budget > 0 ? Math.max(0, ((1.0 - (desv / budget)) * 100)) : 0;
+        if (accuracy < 0) accuracy = 0;
+
+        let accNac = bNac > 0 ? Math.max(0, ((1.0 - (dNac / bNac)) * 100)) : 0;
+        if (accNac < 0) accNac = 0;
+
+        let estado = 'Sin Pedido';
+        if (pct >= 100) estado = 'Superado';
+        else if (pct >= 50) estado = 'En Curso';
+        else if (pedidos > 0) estado = 'Rezagado';
+        else if (budget === 0 && pedidos === 0) estado = 'Sin Actividad';
+
+        const hasNac = rawLines.some(l => l.is_nacional);
+        const hasExp = rawLines.some(l => !l.is_nacional);
+
+        resList.push({
+          comercial: com,
+          clientes_activos: clients.size,
+          budget_uds: budget,
+          pedidos_uds: pedidos,
+          servidas_uds: servidas,
+          pendientes_uds: pendientes,
+          gap_uds: gap,
+          desv_uds: desv,
+          pct_consec: pct,
+          forecast_accuracy: accuracy,
+          forecast_accuracy_nacional: accNac,
+          importe_neto: importe,
+          estado: estado,
+          tiene_nacional: hasNac,
+          tiene_exportacion: hasExp,
+          lineas_count: lines.length
+        });
+      });
+
+      let gBudget = 0, gPedidos = 0, gServidas = 0, gPendientes = 0, gGap = 0, gDesv = 0, gImporte = 0;
+      let gBNac = 0, gDNac = 0;
+
+      allLines.forEach(l => {
+        gBudget += (l.budget_uds || 0);
+        gPedidos += (l.pedidos_uds || 0);
+        gServidas += (l.servidas_uds || 0);
+        gPendientes += (l.pendientes_uds || 0);
+        gGap += (l.gap_uds || 0);
+        gDesv += (l.desv_uds || 0);
+        gImporte += (l.importe_neto || 0);
+        if (l.is_nacional) {
+          gBNac += (l.budget_uds || 0);
+          gDNac += (l.desv_uds || 0);
+        }
+      });
+
+      const gPct = gBudget > 0 ? (gPedidos / gBudget * 100) : (gPedidos > 0 ? 100 : 0);
+      let gAccuracy = gBudget > 0 ? Math.max(0, ((1.0 - (gDesv / gBudget)) * 100)) : 0;
+      if (gAccuracy < 0) gAccuracy = 0;
+
+      let gAccNac = gBNac > 0 ? Math.max(0, ((1.0 - (gDNac / gBNac)) * 100)) : 0;
+      if (gAccNac < 0) gAccNac = 0;
+
+      const globalKpis = {
+        budget_uds: gBudget,
+        pedidos_uds: gPedidos,
+        servidas_uds: gServidas,
+        pendientes_uds: gPendientes,
+        gap_uds: gGap,
+        desv_uds: gDesv,
+        pct_consec: gPct,
+        forecast_accuracy: gAccuracy,
+        forecast_accuracy_nacional: gAccNac,
+        budget_uds_nacional: gBNac,
+        desv_uds_nacional: gDNac,
+        importe_neto: gImporte,
+        num_lineas: allLines.length,
+        num_clientes: new Set(allLines.map(l => l.cliente).filter(Boolean)).size,
+        fecha_corte: appData.global_kpis ? appData.global_kpis.fecha_corte : '02/10/2026'
+      };
+
+      return { allLines, comLinesMap, resList, globalKpis };
+    }
+
     async function loadData() {
       try {
         if (window.DASHBOARD_PERIODS_DATA && window.DASHBOARD_PERIODS_DATA.periods) {
@@ -987,10 +2464,51 @@
         }
         appData = allPeriodsData.periods[currentPeriod];
 
+        updateLanguageButtonsUI();
+        updateLanguageStaticUI();
         updatePeriodSwitcherUI();
+        updateScopeSwitcherUI();
         updateHeaderInfo();
         updateNavBadges();
+
+        // Parámetros de URL opcionales (?tab=produccion, ?preset=N5, ?lang=en, etc.)
+        let requestedModalSku = null;
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('lang')) {
+            const l = urlParams.get('lang').toLowerCase();
+            if (l === 'en' || l === 'es') currentLang = l;
+          }
+          if (urlParams.get('tab')) {
+            currentTab = urlParams.get('tab');
+          }
+          if (currentTab === 'produccion') {
+            await loadProductionData();
+            if (urlParams.get('preset')) {
+              const pKey = urlParams.get('preset');
+              if (productionData && productionData.metadata && productionData.metadata.presets[pKey]) {
+                activePreset = pKey;
+                selectedMonths = new Set(productionData.metadata.presets[pKey]);
+              }
+            }
+          }
+          if (urlParams.get('modal_sku')) {
+            requestedModalSku = urlParams.get('modal_sku');
+          }
+        } catch(e) {}
+
+        // Actualizar clase active en botones de pestañas
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => {
+          const isMatch = btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${currentTab}'`);
+          btn.classList.toggle('active', isMatch);
+        });
+
         renderCurrentTab();
+
+        if (requestedModalSku) {
+          setTimeout(() => openProdSkuModal(requestedModalSku), 150);
+        }
       } catch (err) {
         console.error("Error cargando datos:", err);
         document.getElementById('appContent').innerHTML = `
@@ -1008,9 +2526,16 @@
       currentPeriod = periodId;
       appData = allPeriodsData.periods[periodId];
       updatePeriodSwitcherUI();
+      updateScopeSwitcherUI();
       updateHeaderInfo();
       updateNavBadges();
       renderCurrentTab();
+
+      // Sincronizar modal si está visible
+      const modalOverlay = document.getElementById('kpiModalOverlay');
+      if (modalOverlay && modalOverlay.classList.contains('active')) {
+        renderModalContent();
+      }
     }
 
     function updatePeriodSwitcherUI() {
@@ -1050,23 +2575,857 @@
     }
 
     function updateNavBadges() {
-      if (!appData || !appData.global_kpis) return;
+      if (!appData) return;
+      const scopeData = getScopeData(currentScope);
+      const g = scopeData.globalKpis;
       const elRes = document.getElementById('tabBadgeResumen');
-      if (elRes) elRes.innerText = fmtPct(appData.global_kpis.pct_consec);
+      if (elRes) elRes.innerText = fmtPct(g.pct_consec);
       
       const badgeClass = pct => pct >= 100 ? 'badge-success' : (pct >= 50 ? 'badge-warning' : 'badge-danger');
 
-      if (appData.resumen_comerciales) {
-        for (let item of appData.resumen_comerciales) {
+      if (scopeData.resList) {
+        for (let item of scopeData.resList) {
           const c = item.comercial;
           let elId = 'tabBadge' + (c === 'García' ? 'Garcia' : c);
           const el = document.getElementById(elId);
           if (el) {
-            el.innerText = fmtPct(item.pct_consec);
-            el.className = 'tab-badge ' + badgeClass(item.pct_consec);
+            if (currentScope === 'NACIONAL' && !item.tiene_nacional) {
+              el.innerText = 'Exp';
+              el.className = 'tab-badge badge-neutral';
+              el.title = 'Comercial exclusivo de Exportación';
+            } else if (currentScope === 'EXPORTACION' && !item.tiene_exportacion) {
+              el.innerText = 'Nac';
+              el.className = 'tab-badge badge-neutral';
+              el.title = 'Comercial exclusivo de Nacional';
+            } else {
+              el.innerText = fmtPct(item.pct_consec);
+              el.className = 'tab-badge ' + badgeClass(item.pct_consec);
+              el.title = '';
+            }
           }
         }
       }
+    }
+
+    
+    // ==========================================================
+    // ESTADO Y LÓGICA: PLANIFICACIÓN DE LA PRODUCCIÓN (MRP)
+    // ==========================================================
+    let productionData = null;
+    let selectedMonths = new Set(['2026-10', '2026-11', '2026-12']); // Default N+2 (Oct + Nov + Dic 2026)
+    let activePreset = 'N2';
+    let prodViewMode = 'base'; // 'base' (Formulación/Envase Planta) o 'detail' (Por Destino)
+    let prodStatusFilter = 'ALL'; // 'ALL', 'CRITICAL', 'WARNING', 'COVERED'
+    let prodSearchQuery = '';
+    let prodSortField = 'falta_fabricar';
+    let prodSortOrder = 'desc';
+
+    async function loadProductionData() {
+      if (productionData) return productionData;
+      let fetched = null;
+      try {
+        const resp = await fetch('production_planning_data.json?t=' + Date.now());
+        if (resp.ok) fetched = await resp.json();
+      } catch (e) {}
+
+      if (!fetched && window.PRODUCTION_PLANNING_DATA) {
+        fetched = window.PRODUCTION_PLANNING_DATA;
+      }
+      productionData = fetched;
+      return productionData;
+    }
+
+    // Sincronización bidireccional de presets y meses libres
+    function applyPreset(presetKey) {
+      if (!productionData || !productionData.metadata || !productionData.metadata.presets) return;
+      const presetMonths = productionData.metadata.presets[presetKey];
+      if (!presetMonths) return;
+
+      activePreset = presetKey;
+      selectedMonths = new Set(presetMonths);
+
+      syncPresetAndMonthPillsUI();
+      renderCurrentTab();
+    }
+
+    function toggleMonth(monthKey) {
+      if (selectedMonths.has(monthKey)) {
+        if (selectedMonths.size > 1) {
+          selectedMonths.delete(monthKey);
+        }
+      } else {
+        selectedMonths.add(monthKey);
+      }
+
+      // Comprobar si coincide exactamente con algún preset predefinido
+      let matchedPreset = 'CUSTOM';
+      if (productionData && productionData.metadata && productionData.metadata.presets) {
+        const pMap = productionData.metadata.presets;
+        const curArr = Array.from(selectedMonths).sort();
+        for (let pKey of Object.keys(pMap)) {
+          const pArr = [...pMap[pKey]].sort();
+          if (curArr.length === pArr.length && curArr.every((v, i) => v === pArr[i])) {
+            matchedPreset = pKey;
+            break;
+          }
+        }
+      }
+      activePreset = matchedPreset;
+
+      syncPresetAndMonthPillsUI();
+      renderCurrentTab();
+    }
+
+    function syncPresetAndMonthPillsUI() {
+      // 1. Presets buttons
+      document.querySelectorAll('.mrp-preset-btn').forEach(btn => {
+        const pKey = btn.getAttribute('data-preset');
+        btn.classList.toggle('active', pKey === activePreset);
+      });
+
+      // 2. Month chips
+      document.querySelectorAll('.month-chip').forEach(chip => {
+        const mKey = chip.getAttribute('data-month');
+        chip.classList.toggle('active', selectedMonths.has(mKey));
+      });
+
+      // 3. Counter text
+      const counterEl = document.getElementById('mrpSelectedCountText');
+      if (counterEl) {
+        const sortedSelected = Array.from(selectedMonths).sort();
+        const monthNames = sortedSelected.map(m => {
+          const mo = productionData.metadata.months.find(x => x.key === m);
+          return mo ? (currentLang === 'en' ? mo.label_en : mo.label_es) : m;
+        });
+        counterEl.innerHTML = `<strong>${selectedMonths.size}</strong> ${t('mrp_selected_count')}: <span style="color:#f8fafc">${monthNames.join(', ')}</span>`;
+      }
+    }
+
+    function setProdViewMode(mode) {
+      prodViewMode = mode;
+      renderCurrentTab();
+    }
+
+    function setProdStatusFilter(filter) {
+      prodStatusFilter = filter;
+      renderCurrentTab();
+    }
+
+    function handleProdSearch(query) {
+      prodSearchQuery = (query || '').toLowerCase().trim();
+      renderCurrentTab();
+    }
+
+    function sortProdTable(field) {
+      if (prodSortField === field) {
+        prodSortOrder = prodSortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+        prodSortField = field;
+        prodSortOrder = 'desc';
+      }
+      renderCurrentTab();
+    }
+
+    // CÁLCULO DINÁMICO DE FILAS SEGÚN MESES Y FILTROS ACTIVOS
+    function computeProductionTableData() {
+      if (!productionData) return { rows: [], totals: {} };
+
+      const isBaseView = (prodViewMode === 'base');
+      const rawItems = isBaseView ? productionData.base_skus : productionData.detailed_skus;
+
+      let processed = [];
+
+      rawItems.forEach(item => {
+        // Filtro por Ámbito Comercial (ALL, NACIONAL, EXPORTACION)
+        if (currentScope === 'NACIONAL') {
+          if (isBaseView && !item.has_nacional) return;
+          if (!isBaseView && !item.is_nacional) return;
+        } else if (currentScope === 'EXPORTACION') {
+          if (isBaseView && !item.has_export) return;
+          if (!isBaseView && item.is_nacional) return;
+        }
+
+        // Búsqueda en texto
+        if (prodSearchQuery) {
+          const code = (isBaseView ? item.base_sku : item.sku).toLowerCase();
+          const desc = (item.desc || '').toLowerCase();
+          const env = (item.envase || '').toLowerCase();
+          const pais = (item.pais || '').toLowerCase();
+          if (!code.includes(prodSearchQuery) && !desc.includes(prodSearchQuery) && !env.includes(prodSearchQuery) && !pais.includes(prodSearchQuery)) {
+            return;
+          }
+        }
+
+        // Cálculo de previsión para los meses seleccionados
+        let forecastPeriod = 0;
+        selectedMonths.forEach(m => {
+          forecastPeriod += (item.monthly_forecast[m] || 0);
+        });
+
+        const stock = Number(item.stock_actual) || 0;
+        const pending = Number(item.pedidos_pendientes || item.pendientes_uds) || 0;
+        const totalDemand = pending + forecastPeriod;
+        const netBalance = stock - totalDemand;
+        const faltaFabricar = Math.max(0, -netBalance);
+        
+        let coveragePct = 100;
+        if (totalDemand > 0) {
+          coveragePct = (stock / totalDemand) * 100;
+        } else if (stock === 0) {
+          coveragePct = 0;
+        }
+
+        // Estado del semáforo
+        let status = 'COVERED'; // 🟢
+        if (faltaFabricar > 0) {
+          if (coveragePct < 25 || stock === 0) {
+            status = 'CRITICAL'; // 🔴
+          } else {
+            status = 'WARNING'; // 🟡
+          }
+        }
+
+        // Filtro de estado
+        if (prodStatusFilter !== 'ALL' && prodStatusFilter !== status) {
+          return;
+        }
+
+        processed.push({
+          rawItem: item,
+          key: isBaseView ? item.base_sku : item.sku,
+          sku: isBaseView ? item.base_sku : item.sku,
+          desc: item.desc || (isBaseView ? item.base_sku : item.sku),
+          envase: item.envase || '',
+          pais: item.pais || (item.is_nacional ? 'ESPAÑA' : 'VARIOS'),
+          is_nacional: isBaseView ? (item.has_nacional && !item.has_export) : item.is_nacional,
+          is_mixed: isBaseView ? (item.has_nacional && item.has_export) : false,
+          stock: stock,
+          pending: pending,
+          forecast: forecastPeriod,
+          total_demand: totalDemand,
+          net_balance: netBalance,
+          falta_fabricar: faltaFabricar,
+          coverage_pct: coveragePct,
+          status: status
+        });
+      });
+
+      // Ordenación
+      processed.sort((a, b) => {
+        let valA = a[prodSortField];
+        let valB = b[prodSortField];
+        if (typeof valA === 'string') {
+          return prodSortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        valA = Number(valA) || 0;
+        valB = Number(valB) || 0;
+        return prodSortOrder === 'asc' ? valA - valB : valB - valA;
+      });
+
+      // Totales
+      const totals = {
+        total_skus: processed.length,
+        total_stock: processed.reduce((acc, r) => acc + r.stock, 0),
+        total_pending: processed.reduce((acc, r) => acc + r.pending, 0),
+        total_forecast: processed.reduce((acc, r) => acc + r.forecast, 0),
+        total_demand: processed.reduce((acc, r) => acc + r.total_demand, 0),
+        total_falta: processed.reduce((acc, r) => acc + r.falta_fabricar, 0),
+        critical_count: processed.filter(r => r.status === 'CRITICAL').length,
+        warning_count: processed.filter(r => r.status === 'WARNING').length,
+        covered_count: processed.filter(r => r.status === 'COVERED').length
+      };
+
+      return { rows: processed, totals: totals };
+    }
+
+    // RENDER: PESTAÑA PRINCIPAL DE PLANIFICACIÓN PRODUCCIÓN (MRP)
+    function renderProduccionTab(container) {
+      if (!productionData) {
+        loadProductionData().then(() => renderProduccionTab(container));
+        container.innerHTML = `<div style="text-align:center;padding:5rem 2rem;color:var(--muted)">
+          <div style="font-size:2rem;margin-bottom:1rem;animation:spin 1s linear infinite">⚙️</div>
+          <p>Cargando datos de stock y previsiones de 15 meses...</p>
+        </div>`;
+        return;
+      }
+
+      const { rows, totals } = computeProductionTableData();
+      const meta = productionData.metadata;
+
+      // Generar selector de Presets
+      const presetButtons = [
+        { key: 'N', label: t('mrp_preset_n') },
+        { key: 'N1', label: t('mrp_preset_n1') },
+        { key: 'N2', label: '⭐ ' + t('mrp_preset_n2'), highlight: true },
+        { key: 'N5', label: '⭐ ' + t('mrp_preset_n5'), highlight: true },
+        { key: 'REST_2026', label: t('mrp_preset_rest_2026') },
+        { key: 'Q1_2027', label: t('mrp_preset_q1_2027') },
+        { key: 'H1_2027', label: t('mrp_preset_h1_2027') },
+        { key: 'ALL_2027', label: t('mrp_preset_all_2027') },
+        { key: 'ALL_15', label: t('mrp_preset_all_15') }
+      ];
+
+      let presetsHtml = presetButtons.map(p => `
+        <button class="mrp-preset-btn ${p.highlight ? 'highlight' : ''} ${activePreset === p.key ? 'active' : ''}" 
+                data-preset="${p.key}" onclick="applyPreset('${p.key}')">
+          ${p.label}
+        </button>
+      `).join('');
+
+      // Generar 15 Meses Libres
+      let monthsHtml = meta.months.map(m => {
+        const isSelected = selectedMonths.has(m.key);
+        const lbl = currentLang === 'en' ? m.label_en : m.label_es;
+        const is2026 = m.year === 2026;
+        return `
+          <button class="month-chip ${isSelected ? 'active' : ''}" data-month="${m.key}" onclick="toggleMonth('${m.key}')" 
+                  title="${lbl} (${is2026 ? '2026' : '2027'})">
+            <span class="chip-check">✓</span>
+            <span>${lbl}</span>
+          </button>
+        `;
+      }).join('');
+
+      const sortedSelected = Array.from(selectedMonths).sort();
+      const monthNamesStr = sortedSelected.map(m => {
+        const mo = meta.months.find(x => x.key === m);
+        return mo ? (currentLang === 'en' ? mo.label_en : mo.label_es) : m;
+      }).join(', ');
+
+      // Filas de la tabla
+      let tableRowsHtml = '';
+      if (rows.length === 0) {
+        tableRowsHtml = `
+          <tr>
+            <td colspan="10" style="text-align:center;padding:3rem;color:var(--muted)">
+              No se han encontrado artículos que coincidan con los filtros aplicados.
+            </td>
+          </tr>
+        `;
+      } else {
+        tableRowsHtml = rows.map((r, idx) => {
+          let statusBadge = '';
+          if (r.status === 'CRITICAL') {
+            statusBadge = `<span class="coverage-pill coverage-crit">🔴 ${t('mrp_action_critical')}</span>`;
+          } else if (r.status === 'WARNING') {
+            statusBadge = `<span class="coverage-pill coverage-warn">🟡 ${t('mrp_action_warning')}</span>`;
+          } else {
+            statusBadge = `<span class="coverage-pill coverage-ok">🟢 ${t('mrp_action_covered')}</span>`;
+          }
+
+          let barColor = r.coverage_pct < 25 ? '#ef4444' : (r.coverage_pct < 100 ? '#f59e0b' : '#10b981');
+          let barWidth = Math.min(100, Math.max(0, r.coverage_pct));
+
+          let scopeBadge = '';
+          if (r.is_mixed) {
+            scopeBadge = `<span class="tab-badge badge-neutral" style="font-size:0.65rem">🌐 Nac+Exp</span>`;
+          } else if (r.is_nacional) {
+            scopeBadge = `<span class="tab-badge badge-success" style="font-size:0.65rem">🇪🇸 Nac</span>`;
+          } else {
+            scopeBadge = `<span class="tab-badge badge-info" style="font-size:0.65rem">🌍 ${r.pais.slice(0,3)}</span>`;
+          }
+
+          let faltaStyle = r.falta_fabricar > 0 
+            ? 'color:#f87171;font-weight:800;background:rgba(239,68,68,0.1);padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(239,68,68,0.3);display:inline-block;' 
+            : 'color:var(--muted);';
+
+          return `
+            <tr style="cursor:pointer;" data-sku="${r.key}" onclick="openProdSkuModal(this.getAttribute('data-sku'))" title="Click para ver desglose mensual y proyección de agotamiento">
+              <td style="font-family:monospace;font-weight:700;color:#38bdf8;">
+                ${r.sku}
+              </td>
+              <td>
+                <div style="font-weight:600;color:#f8fafc">${r.desc}</div>
+                ${r.envase ? `<div style="font-size:0.75rem;color:var(--muted)">${r.envase}</div>` : ''}
+              </td>
+              <td style="text-align:center;">
+                ${scopeBadge}
+              </td>
+              <td class="text-right" style="font-weight:600;color:${r.stock > 0 ? '#6ee7b7' : 'var(--muted)'}">
+                ${fmtNum(r.stock)}
+              </td>
+              <td class="text-right" style="color:${r.pending > 0 ? '#fbbf24' : 'var(--muted)'};font-weight:${r.pending > 0 ? '700' : 'normal'}">
+                ${fmtNum(r.pending)}
+              </td>
+              <td class="text-right" style="color:#c084fc;font-weight:600">
+                ${fmtNum(r.forecast)}
+              </td>
+              <td class="text-right" style="font-weight:700;color:#f8fafc">
+                ${fmtNum(r.total_demand)}
+              </td>
+              <td class="text-right" style="color:${r.net_balance < 0 ? '#f87171' : '#34d399'};font-weight:700">
+                ${r.net_balance > 0 ? '+' : ''}${fmtNum(r.net_balance)}
+              </td>
+              <td class="text-right">
+                <span style="${faltaStyle}">
+                  ${r.falta_fabricar > 0 ? fmtNum(r.falta_fabricar) : '—'}
+                </span>
+              </td>
+              <td style="text-align:right;">
+                <span style="font-size:0.8rem;font-weight:700;color:${barColor}">
+                  ${r.coverage_pct.toFixed(0)}%
+                </span>
+                <span class="coverage-bar-track">
+                  <span class="coverage-bar-fill" style="width:${barWidth}%;background:${barColor};display:block;"></span>
+                </span>
+              </td>
+              <td style="text-align:center;">
+                ${statusBadge}
+              </td>
+              <td style="text-align:center;">
+                <button class="pill-btn" style="padding:0.2rem 0.5rem;font-size:0.75rem;" data-sku="${r.key}" onclick="event.stopPropagation(); openProdSkuModal(this.getAttribute('data-sku'))">
+                  ${t('kpi_breakdown')}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      container.innerHTML = `
+        <div class="mrp-section">
+          <!-- CONTROL PANEL: PRESETS Y HORIZONTE -->
+          <div class="mrp-control-card">
+            <div class="mrp-control-header">
+              <div class="mrp-control-title">
+                <span style="font-size:1.8rem;">🏭</span>
+                <div>
+                  <h2>${t('mrp_title')}</h2>
+                  <p>${t('mrp_subtitle')}</p>
+                </div>
+              </div>
+              <div>
+                <span class="tab-badge badge-warning" style="font-size:0.75rem;padding:0.35rem 0.75rem;">
+                  Stock al corte: 02/10/2026 | Matriz 2026-2027
+                </span>
+              </div>
+            </div>
+
+            <!-- PRESETS -->
+            <div style="display:flex;flex-direction:column;gap:0.5rem;">
+              <span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted)">
+                ${t('mrp_time_horizon')}
+              </span>
+              <div class="mrp-presets-row">
+                ${presetsHtml}
+              </div>
+            </div>
+
+            <!-- SELECTOR LIBRE DE MESES -->
+            <div class="mrp-month-selector">
+              <div class="mrp-month-header">
+                <span>${t('mrp_custom_months')}</span>
+                <span id="mrpSelectedCountText" style="text-transform:none;font-weight:normal;color:#94a3b8">
+                  <strong>${selectedMonths.size}</strong> ${t('mrp_selected_count')}: <span style="color:#f8fafc">${monthNamesStr}</span>
+                </span>
+              </div>
+              <div class="mrp-month-grid">
+                ${monthsHtml}
+              </div>
+            </div>
+          </div>
+
+          <!-- KPIS RESUMEN DE PLANTA -->
+          <div class="mrp-kpi-grid">
+            <div class="mrp-kpi-card urgent">
+              <div style="font-size:0.8rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.04em;">
+                ${t('mrp_kpi_to_produce')}
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#ef4444;line-height:1.2;">
+                ${fmtNum(totals.total_falta)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                ${t('mrp_kpi_to_produce_sub')}
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card stock">
+              <div style="font-size:0.8rem;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:0.04em;">
+                ${t('mrp_kpi_stock')}
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
+                ${fmtNum(totals.total_stock)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                ${t('mrp_kpi_stock_sub')}
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card forecast">
+              <div style="font-size:0.8rem;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:0.04em;">
+                ${t('mrp_kpi_forecast')}
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
+                ${fmtNum(totals.total_forecast)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                ${t('mrp_kpi_forecast_sub')} (${selectedMonths.size} meses)
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card warning">
+              <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;">
+                ${t('mrp_kpi_pending')}
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
+                ${fmtNum(totals.total_pending)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                ${t('mrp_kpi_pending_sub')}
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card urgent">
+              <div style="font-size:0.8rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.04em;">
+                ${t('mrp_kpi_critical')}
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#ef4444;line-height:1.2;">
+                ${totals.critical_count} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">SKUs</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                ${t('mrp_kpi_critical_sub')}
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card success">
+              <div style="font-size:0.8rem;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.04em;">
+                ${t('mrp_kpi_covered')}
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#10b981;line-height:1.2;">
+                ${totals.covered_count} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">SKUs</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                ${t('mrp_kpi_covered_sub')}
+              </div>
+            </div>
+          </div>
+
+          <!-- TOOLBAR & FILTROS -->
+          <div class="mrp-toolbar">
+            <div class="mrp-toolbar-left">
+              <!-- Switch de Vista (Base vs Detallado) -->
+              <div class="filter-pills" style="margin:0;">
+                <button class="pill-btn ${prodViewMode === 'base' ? 'active' : ''}" onclick="setProdViewMode('base')">
+                  ${t('mrp_view_base')}
+                </button>
+                <button class="pill-btn ${prodViewMode === 'detail' ? 'active' : ''}" onclick="setProdViewMode('detail')">
+                  ${t('mrp_view_detail')}
+                </button>
+              </div>
+
+              <!-- Filtro de Estado -->
+              <div class="filter-pills" style="margin:0;">
+                <button class="pill-btn ${prodStatusFilter === 'ALL' ? 'active' : ''}" onclick="setProdStatusFilter('ALL')">
+                  ${t('mrp_status_all')} (${totals.total_skus})
+                </button>
+                <button class="pill-btn ${prodStatusFilter === 'CRITICAL' ? 'active' : ''}" onclick="setProdStatusFilter('CRITICAL')" style="color:${prodStatusFilter === 'CRITICAL' ? '#fff' : '#f87171'}">
+                  ${t('mrp_status_critical')} (${totals.critical_count})
+                </button>
+                <button class="pill-btn ${prodStatusFilter === 'WARNING' ? 'active' : ''}" onclick="setProdStatusFilter('WARNING')" style="color:${prodStatusFilter === 'WARNING' ? '#fff' : '#fbbf24'}">
+                  ${t('mrp_status_warning')} (${totals.warning_count})
+                </button>
+                <button class="pill-btn ${prodStatusFilter === 'COVERED' ? 'active' : ''}" onclick="setProdStatusFilter('COVERED')" style="color:${prodStatusFilter === 'COVERED' ? '#fff' : '#34d399'}">
+                  ${t('mrp_status_covered')} (${totals.covered_count})
+                </button>
+              </div>
+            </div>
+
+            <div class="mrp-toolbar-right">
+              <!-- Buscador -->
+              <input type="text" class="search-input" placeholder="${t('mrp_search_ph')}" 
+                     value="${prodSearchQuery}" oninput="handleProdSearch(this.value)" style="min-width:280px;">
+
+              <!-- Botón Exportar CSV -->
+              <button class="btn btn-secondary" onclick="exportProductionOrderCsv()" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 0.9rem;border-radius:var(--radius-sm);cursor:pointer;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);font-weight:600;">
+                ${t('mrp_btn_export')}
+              </button>
+            </div>
+          </div>
+
+          <!-- TABLA DE PLANIFICACIÓN -->
+          <div class="table-panel">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="cursor:pointer;" onclick="sortProdTable('sku')">
+                      ${t('mrp_th_sku')} ${prodSortField === 'sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th style="cursor:pointer;" onclick="sortProdTable('desc')">
+                      ${t('mrp_th_product')} ${prodSortField === 'desc' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th style="text-align:center;">
+                      ${t('mrp_th_scope')}
+                    </th>
+                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('stock')">
+                      ${t('mrp_th_stock')} ${prodSortField === 'stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('pending')">
+                      ${t('mrp_th_pending')} ${prodSortField === 'pending' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('forecast')">
+                      ${t('mrp_th_forecast')} ${prodSortField === 'forecast' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('total_demand')">
+                      ${t('mrp_th_demand')} ${prodSortField === 'total_demand' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('net_balance')">
+                      ${t('mrp_th_balance')} ${prodSortField === 'net_balance' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('falta_fabricar')">
+                      ${t('mrp_th_shortage')} ${prodSortField === 'falta_fabricar' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('coverage_pct')">
+                      ${t('mrp_th_coverage')} ${prodSortField === 'coverage_pct' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
+                    <th style="text-align:center;">
+                      ${t('mrp_th_action')}
+                    </th>
+                    <th style="text-align:center;">
+                      ${t('mrp_th_detail')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRowsHtml}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // MODAL DE DETALLE: EVOLUCIÓN MENSUAL Y AGOTAMIENTO
+    function openProdSkuModal(skuKey) {
+      if (!productionData) {
+        loadProductionData().then(() => openProdSkuModal(skuKey));
+        return;
+      }
+
+      const isBaseView = (prodViewMode === 'base');
+      let item = null;
+
+      if (isBaseView) {
+        item = productionData.base_skus.find(x => x.base_sku === skuKey);
+      } else {
+        item = productionData.detailed_skus.find(x => x.sku === skuKey);
+      }
+
+      if (!item) {
+        item = productionData.base_skus.find(x => x.base_sku === skuKey) || productionData.detailed_skus.find(x => x.sku === skuKey);
+      }
+      if (!item) return;
+
+      const modalEl = document.getElementById('mrpSkuModal');
+      const titleEl = document.getElementById('mrpModalSkuName');
+      const subEl = document.getElementById('mrpModalSub');
+      const bodyEl = document.getElementById('mrpModalBody');
+      const footerSummaryEl = document.getElementById('mrpModalFooterSummary');
+
+      const code = item.base_sku || item.sku;
+      titleEl.innerHTML = `${code} <span style="font-weight:normal;color:#94a3b8;font-size:1.1rem;">— ${item.desc || ''}</span>`;
+      subEl.innerText = t('mrp_modal_subtitle');
+
+      const stockInitial = Number(item.stock_actual) || 0;
+      const pendingUnits = Number(item.pedidos_pendientes || item.pendientes_uds) || 0;
+
+      // Calcular trayectoria a 15 meses
+      let runningStock = stockInitial - pendingUnits;
+      let depletedMonth = null;
+
+      const monthsMeta = productionData.metadata.months;
+      let trajectoryRowsHtml = '';
+      let cumDemand = pendingUnits;
+
+      // Fila de pedidos pendientes iniciales
+      trajectoryRowsHtml += `
+        <tr style="background:rgba(251,191,36,0.06);">
+          <td style="font-weight:700;color:#fbbf24;">📦 Pedidos Pendientes Hoy</td>
+          <td class="text-right" style="font-weight:700;color:#fbbf24;">${fmtNum(pendingUnits)}</td>
+          <td class="text-right">${fmtNum(cumDemand)}</td>
+          <td class="text-right" style="font-weight:700;color:${runningStock < 0 ? '#f87171' : '#34d399'}">
+            ${runningStock > 0 ? '+' : ''}${fmtNum(runningStock)}
+          </td>
+          <td style="text-align:center;">
+            ${runningStock < 0 ? '<span class="coverage-pill coverage-crit">Rotura Inmediata</span>' : '<span class="coverage-pill coverage-ok">Cubierto</span>'}
+          </td>
+        </tr>
+      `;
+
+      if (runningStock < 0 && !depletedMonth) {
+        depletedMonth = 'Inmediato (Pedidos en cartera)';
+      }
+
+      monthsMeta.forEach(m => {
+        const mDemand = Number(item.monthly_forecast[m.key]) || 0;
+        cumDemand += mDemand;
+        runningStock -= mDemand;
+
+        const isSelected = selectedMonths.has(m.key);
+        const mLabel = currentLang === 'en' ? m.label_en : m.label_es;
+
+        if (runningStock < 0 && !depletedMonth) {
+          depletedMonth = mLabel;
+        }
+
+        let rowBg = isSelected ? 'background:rgba(16,185,129,0.08);' : '';
+        let stockColor = runningStock < 0 ? '#f87171' : '#34d399';
+
+        trajectoryRowsHtml += `
+          <tr style="${rowBg}">
+            <td style="font-weight:${isSelected ? '700' : 'normal'};color:${isSelected ? '#34d399' : '#f8fafc'}">
+              ${isSelected ? '● ' : ''}${mLabel}
+            </td>
+            <td class="text-right" style="font-weight:${mDemand > 0 ? '600' : 'normal'};color:${mDemand > 0 ? '#c084fc' : 'var(--muted)'}">
+              ${fmtNum(mDemand)}
+            </td>
+            <td class="text-right" style="color:var(--muted)">
+              ${fmtNum(cumDemand)}
+            </td>
+            <td class="text-right" style="font-weight:700;color:${stockColor}">
+              ${runningStock > 0 ? '+' : ''}${fmtNum(runningStock)}
+            </td>
+            <td style="text-align:center;">
+              ${runningStock < 0 
+                ? '<span class="coverage-pill coverage-crit">Déficit</span>' 
+                : '<span class="coverage-pill coverage-ok">Positivo</span>'}
+            </td>
+          </tr>
+        `;
+      });
+
+      // Desglose de destinos si es base SKU
+      let destinationsHtml = '';
+      if (item.destinos && item.destinos.length > 0) {
+        destinationsHtml = `
+          <div style="margin-top:1rem;">
+            <h4 style="font-size:0.9rem;font-weight:700;color:#f8fafc;margin-bottom:0.6rem;">
+              ${t('mrp_modal_destinations')}
+            </h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:0.6rem;">
+              ${item.destinos.map(d => {
+                let destForecast = 0;
+                selectedMonths.forEach(m => destForecast += (d.monthly_forecast[m] || 0));
+                return `
+                  <div style="background:rgba(15,23,42,0.6);border:1px solid #334155;border-radius:var(--radius-sm);padding:0.6rem 0.8rem;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                      <div style="font-weight:700;color:#38bdf8;font-size:0.82rem;">${d.sku}</div>
+                      <div style="font-size:0.75rem;color:var(--muted);">${d.pais} (${d.ambito})</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="font-weight:700;color:#c084fc;font-size:0.85rem;">${fmtNum(destForecast)} u</div>
+                      <div style="font-size:0.7rem;color:var(--muted);">Prev. seleccionada</div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      bodyEl.innerHTML = `
+        <!-- KPI Strip dentro del modal -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:0.75rem;">
+          <div style="background:rgba(30,41,59,0.7);padding:0.75rem;border-radius:var(--radius-sm);border:1px solid #334155;">
+            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;">Stock Inicial</div>
+            <div style="font-size:1.3rem;font-weight:800;color:#6ee7b7;">${fmtNum(stockInitial)} u</div>
+          </div>
+          <div style="background:rgba(30,41,59,0.7);padding:0.75rem;border-radius:var(--radius-sm);border:1px solid #334155;">
+            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;">Pedidos en Cartera</div>
+            <div style="font-size:1.3rem;font-weight:800;color:#fbbf24;">${fmtNum(pendingUnits)} u</div>
+          </div>
+          <div style="background:rgba(30,41,59,0.7);padding:0.75rem;border-radius:var(--radius-sm);border:1px solid #334155;">
+            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;">Agotamiento Estimado</div>
+            <div style="font-size:1.15rem;font-weight:800;color:${depletedMonth ? '#f87171' : '#34d399'};">
+              ${depletedMonth ? '🔴 ' + depletedMonth : '🟢 ' + t('mrp_modal_never_depleted')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla mensual -->
+        <div style="max-height:360px;overflow-y:auto;border:1px solid #334155;border-radius:var(--radius-sm);">
+          <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+            <thead style="position:sticky;top:0;background:#0f172a;z-index:2;">
+              <tr>
+                <th style="padding:0.5rem 0.75rem;text-align:left;">${t('mrp_modal_th_month')}</th>
+                <th class="text-right" style="padding:0.5rem 0.75rem;">${t('mrp_modal_th_forecast')}</th>
+                <th class="text-right" style="padding:0.5rem 0.75rem;">${t('mrp_modal_th_cum_demand')}</th>
+                <th class="text-right" style="padding:0.5rem 0.75rem;">${t('mrp_modal_th_proj_stock')}</th>
+                <th style="padding:0.5rem 0.75rem;text-align:center;">Estado Proyectado</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${trajectoryRowsHtml}
+            </tbody>
+          </table>
+        </div>
+
+        ${destinationsHtml}
+      `;
+
+      footerSummaryEl.innerHTML = `Mostrando trayectoria para <strong>${code}</strong> en horizonte de 15 meses.`;
+      modalEl.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeProdSkuModal() {
+      const modalEl = document.getElementById('mrpSkuModal');
+      if (modalEl) modalEl.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // EXPORTACIÓN DE ORDEN DE FABRICACIÓN A CSV EXCEL
+    function exportProductionOrderCsv() {
+      const { rows } = computeProductionTableData();
+      if (!rows || rows.length === 0) {
+        alert("No hay artículos en la selección actual para exportar.");
+        return;
+      }
+
+      const sortedSelected = Array.from(selectedMonths).sort();
+      const monthNamesStr = sortedSelected.map(m => {
+        const mo = productionData.metadata.months.find(x => x.key === m);
+        return mo ? mo.label_es : m;
+      }).join(' + ');
+
+      let csv = "\uFEFF"; // BOM UTF-8 para Excel
+      csv += `Orden de Fabricacion MRP - Codiagro S.L.\n`;
+      csv += `Horizonte Seleccionado:;${monthNamesStr};(${selectedMonths.size} meses)\n`;
+      csv += `Fecha Generacion:;${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n`;
+      csv += `Ambito Mercado:;${currentScope}\n\n`;
+
+      csv += `SKU_Codigo;Descripcion_Articulo;Envase;Mercado;Stock_Actual_Uds;Pedidos_Pendientes_Uds;Prevision_Periodo_Uds;Demanda_Total_Uds;Balance_Neto_Uds;FALTA_FABRICAR_UDS;Cobertura_Pct;Accion_Requerida\n`;
+
+      rows.forEach(r => {
+        const sku = (r.sku || '').replace(/;/g, ',');
+        const desc = (r.desc || '').replace(/;/g, ',');
+        const env = (r.envase || '').replace(/;/g, ',');
+        const scope = (r.is_mixed ? 'Nacional+Export' : (r.is_nacional ? 'Nacional' : r.pais)).replace(/;/g, ',');
+        const dec = currentLang === 'en' ? '.' : ',';
+
+        const stock = String(r.stock).replace('.', dec);
+        const pend = String(r.pending).replace('.', dec);
+        const prev = String(r.forecast).replace('.', dec);
+        const dem = String(r.total_demand).replace('.', dec);
+        const bal = String(r.net_balance).replace('.', dec);
+        const falta = String(r.falta_fabricar).replace('.', dec);
+        const cob = String(r.coverage_pct.toFixed(1)).replace('.', dec);
+        const acc = r.status === 'CRITICAL' ? 'FABRICACION URGENTE' : (r.status === 'WARNING' ? 'PROGRAMAR LOTE' : 'CUBIERTO');
+
+        csv += `"${sku}";"${desc}";"${env}";"${scope}";${stock};${pend};${prev};${dem};${bal};${falta};${cob};"${acc}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const filename = `Codiagro_Orden_Fabricacion_MRP_${activePreset}_${new Date().toISOString().slice(0,10)}.csv`;
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     function switchTab(tabKey) {
@@ -1092,6 +3451,8 @@
       const container = document.getElementById('appContent');
       if (currentTab === 'resumen') {
         renderResumenTab(container);
+      } else if (currentTab === 'produccion') {
+        renderProduccionTab(container);
       } else {
         renderComercialTab(container, currentTab);
       }
@@ -1100,82 +3461,114 @@
     // ==========================================
     // RENDER: RESUMEN GENERAL
     // ==========================================
+    // ==========================================
+    // RENDER: RESUMEN GENERAL
+    // ==========================================
     function renderResumenTab(container) {
-      const g = appData.global_kpis;
-      const resList = appData.resumen_comerciales;
-      const periodLabel = appData.nombre || 'Período';
+      const scopeData = getScopeData(currentScope);
+      const g = scopeData.globalKpis;
+      const resList = scopeData.resList;
+      
+      let periodLabel = appData.nombre || 'Período';
+      if (currentLang === 'en') {
+        if (currentPeriod === '2026-10') periodLabel = 'October 2026';
+        else if (currentPeriod === '2026-09') periodLabel = 'September 2026';
+        else if (currentPeriod === 'acumulado') periodLabel = 'Cumulative Sep + Oct';
+      }
+
       const pctGlobalClass = (g.pct_consec || 0) >= 100 ? 'badge-success' : 'badge-warning';
 
+      let scopeBadge = `<span class="tab-badge badge-neutral" style="font-size:0.68rem">${currentLang === 'en' ? 'Global' : 'Global'}</span>`;
+      let scopeSuffix = '';
+      if (currentScope === 'NACIONAL') {
+        scopeBadge = `<span class="tab-badge badge-success" style="font-size:0.68rem">${t('domestic_market')}</span>`;
+        scopeSuffix = currentLang === 'en' ? ' (Domestic)' : ' (Nacional)';
+      } else if (currentScope === 'EXPORTACION') {
+        scopeBadge = `<span class="tab-badge badge-info" style="font-size:0.68rem">${t('export_market')}</span>`;
+        scopeSuffix = currentLang === 'en' ? ' (Export)' : ' (Exportación)';
+      }
+
       let html = `
-        <!-- KPI GRID -->
+        <!-- KPI GRID INTERACTIVO -->
         <div class="kpi-grid">
-          <div class="kpi-card accent-blue">
+          <div class="kpi-card accent-blue clickable" onclick="openKpiModal('budget')" title="${t('kpi_budget_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Estimación ${periodLabel}</span>
-              <span class="tab-badge badge-neutral">Previsión Base</span>
+              <span class="kpi-title">${t('kpi_budget_title')} ${periodLabel}${scopeSuffix}</span>
+              <span class="kpi-click-tag">${t('kpi_breakdown')}</span>
             </div>
             <div class="kpi-value">${fmtNum(g.budget_uds)} <span style="font-size:1rem;font-weight:600;color:var(--muted)">u</span></div>
-            <div class="kpi-subtext">Total planificado (${periodLabel})</div>
+            <div class="kpi-subtext">${t('kpi_total_planned')} &bull; ${scopeBadge}</div>
           </div>
 
-          <div class="kpi-card accent-emerald">
+          <div class="kpi-card accent-emerald clickable" onclick="openKpiModal('pedidos')" title="${t('kpi_orders_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Pedidos a Fecha</span>
-              <span class="tab-badge ${pctGlobalClass}">${fmtPct(g.pct_consec)}</span>
+              <span class="kpi-title">${t('kpi_orders_title')}${scopeSuffix}</span>
+              <span class="kpi-click-tag" style="color:#34d399; border-color:rgba(16,185,129,0.35)">${fmtPct(g.pct_consec)} ↗</span>
             </div>
             <div class="kpi-value">${fmtNum(g.pedidos_uds)} <span style="font-size:1rem;font-weight:600;color:var(--muted)">u</span></div>
             <div class="progress-bar-container">
               <div class="progress-bar-fill" style="width: ${Math.min(100, g.pct_consec || 0)}%"></div>
             </div>
             <div class="kpi-subtext" style="margin-top:0.4rem">
-              <span>Servidas: <strong>${fmtNum(g.servidas_uds)}</strong></span> &bull; 
-              <span>Pendientes: <strong>${fmtNum(g.pendientes_uds)}</strong></span>
+              <span>${t('kpi_delivered')}: <strong>${fmtNum(g.servidas_uds)}</strong></span> &bull; 
+              <span>${t('kpi_pending')}: <strong style="color:${g.pendientes_uds > 0 ? '#fbbf24' : 'inherit'}">${fmtNum(g.pendientes_uds)}</strong></span>
             </div>
           </div>
 
-          <div class="kpi-card ${g.gap_uds > 0 ? 'accent-amber' : 'accent-emerald'}">
+          <div class="kpi-card ${g.gap_uds > 0 ? 'accent-amber' : 'accent-emerald'} clickable" onclick="openKpiModal('gap')" title="${t('kpi_gap_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Falta Conseguir (Gap)</span>
-              <span class="tab-badge ${g.gap_uds > 0 ? 'badge-warning' : 'badge-success'}">${g.gap_uds > 0 ? 'En Brecha' : 'Objetivo Cubierto'}</span>
+              <span class="kpi-title">${t('kpi_gap_title')}</span>
+              <span class="kpi-click-tag">${t('kpi_breakdown')}</span>
             </div>
             <div class="kpi-value">${fmtNum(g.gap_uds)} <span style="font-size:1rem;font-weight:600;color:var(--muted)">u</span></div>
-            <div class="kpi-subtext">Unidades restantes de comerciales rezagados</div>
+            <div class="kpi-subtext">${g.gap_uds > 0 ? t('kpi_gap_subtext_pending') : t('kpi_gap_subtext_covered')}</div>
           </div>
 
-          <div class="kpi-card accent-blue">
+          <div class="kpi-card accent-blue clickable" onclick="openKpiModal('pendientes')" title="${t('kpi_pending_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Pendientes de Servir</span>
-              <span class="tab-badge badge-neutral">Logística / Entrega</span>
+              <span class="kpi-title">${t('kpi_pending_title')}</span>
+              <span class="kpi-click-tag" style="color:#fbbf24; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.12)">${t('kpi_breakdown')} 📦</span>
             </div>
-            <div class="kpi-value">${fmtNum(g.pendientes_uds)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
-            <div class="kpi-subtext">Servidas acumuladas: <strong style="color:#34d399">${fmtNum(g.servidas_uds)} u</strong></div>
+            <div class="kpi-value" style="color:${g.pendientes_uds > 0 ? '#fbbf24' : '#ffffff'}">${fmtNum(g.pendientes_uds)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
+            <div class="kpi-subtext">${t('kpi_cum_delivered')}: <strong style="color:#34d399">${fmtNum(g.servidas_uds)} u</strong></div>
           </div>
 
-          <div class="kpi-card accent-blue">
+          <div class="kpi-card accent-blue clickable" onclick="openKpiModal('accuracy')" title="${t('kpi_accuracy_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Forecast Accuracy Global</span>
-              <span class="tab-badge badge-neutral" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Total Cartera</span>
+              <span class="kpi-title">${t('kpi_accuracy_title')}${scopeSuffix}</span>
+              <span class="kpi-click-tag">${t('kpi_breakdown')}</span>
             </div>
             <div class="kpi-value" style="color: ${(g.forecast_accuracy || 0) >= 80 ? '#34d399' : ((g.forecast_accuracy || 0) >= 50 ? '#fbbf24' : ((g.forecast_accuracy || 0) > 0 ? '#38bdf8' : '#f87171'))}">${fmtAcc(g.forecast_accuracy)}</div>
-            <div class="kpi-subtext">Total planificado: <strong>${fmtNum(g.budget_uds)} u</strong> &bull; Desv: <strong>${fmtNum(g.desv_uds, 2)} u</strong></div>
+            <div class="kpi-subtext">${t('kpi_budget_title')}: <strong>${fmtNum(g.budget_uds)} u</strong> &bull; ${currentLang === 'en' ? 'Dev' : 'Desv'}: <strong>${fmtNum(g.desv_uds, 2)} u</strong></div>
           </div>
 
-          <div class="kpi-card accent-emerald">
+          ${currentScope === 'ALL' ? `
+          <div class="kpi-card accent-emerald clickable" onclick="openKpiModal('accuracy_nacional')" title="${t('kpi_accuracy_nac_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Accuracy Prod. Nacionales</span>
-              <span class="tab-badge badge-success" title="Productos sin siglas de país en el SKU (Mercado Nacional)">Sin Siglas País</span>
+              <span class="kpi-title">${t('kpi_accuracy_nac_title')}</span>
+              <span class="kpi-click-tag">${t('kpi_breakdown')} 🇪🇸</span>
             </div>
             <div class="kpi-value" style="color: ${(g.forecast_accuracy_nacional || 0) >= 80 ? '#34d399' : ((g.forecast_accuracy_nacional || 0) >= 50 ? '#fbbf24' : ((g.forecast_accuracy_nacional || 0) > 0 ? '#38bdf8' : '#f87171'))}">${fmtAcc(g.forecast_accuracy_nacional)}</div>
-            <div class="kpi-subtext">Budget Nac: <strong>${fmtNum(g.budget_uds_nacional)} u</strong> &bull; Desv: <strong>${fmtNum(g.desv_uds_nacional, 2)} u</strong></div>
+            <div class="kpi-subtext">${currentLang === 'en' ? 'Dom. Budget' : 'Budget Nac'}: <strong>${fmtNum(g.budget_uds_nacional)} u</strong> &bull; ${currentLang === 'en' ? 'Dev' : 'Desv'}: <strong>${fmtNum(g.desv_uds_nacional, 2)} u</strong></div>
           </div>
+          ` : `
+          <div class="kpi-card accent-emerald clickable" onclick="openKpiModal('servidas')" title="${t('kpi_volume_served_hint')}">
+            <div class="kpi-header">
+              <span class="kpi-title">${t('kpi_volume_served')}${scopeSuffix}</span>
+              <span class="kpi-click-tag">${t('kpi_breakdown')}</span>
+            </div>
+            <div class="kpi-value" style="color:#34d399">${fmtNum(g.servidas_uds)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
+            <div class="kpi-subtext">${currentLang === 'en' ? 'Of' : 'De'} <strong>${fmtNum(g.pedidos_uds)} u</strong> ${t('kpi_of_ordered')} &bull; ${t('th_consec_pct')}: <strong>${fmtPct(g.pct_consec)}</strong></div>
+          </div>
+          `}
         </div>
 
         <!-- CHARTS SECTION -->
         <div class="charts-grid">
           <div class="chart-panel">
             <div class="panel-header">
-              <div class="panel-title">Comparativa Estimación vs Pedidos por Comercial (Unidades)</div>
-              <span class="panel-badge">${periodLabel}</span>
+              <div class="panel-title">${t('chart_comparison_title')}</div>
+              <span class="panel-badge">${periodLabel}${scopeSuffix}</span>
             </div>
             <div class="chart-container">
               <canvas id="chartBudgetVsPedidos"></canvas>
@@ -1184,8 +3577,8 @@
 
           <div class="chart-panel">
             <div class="panel-header">
-              <div class="panel-title">% Consecución por Comercial</div>
-              <span class="panel-badge">Objetivo: 100%</span>
+              <div class="panel-title">${t('chart_achievement_title')}</div>
+              <span class="panel-badge">${t('chart_target_100')}</span>
             </div>
             <div class="chart-container">
               <canvas id="chartPctConsecucion"></canvas>
@@ -1196,8 +3589,11 @@
         <!-- SUMMARY TABLE -->
         <div class="table-panel">
           <div class="panel-header">
-            <div class="panel-title">Desglose de Consecución, Exactitud y Desviación por Comercial</div>
-            <span class="panel-badge">7 Comerciales Oficiales</span>
+            <div class="panel-title">${t('table_rep_title')} ${scopeSuffix}</div>
+            <div style="display:flex; align-items:center; gap:0.5rem">
+              ${scopeBadge}
+              <span class="panel-badge">${t('table_rep_badge')}</span>
+            </div>
           </div>
 
           <div class="table-wrapper">
@@ -1219,34 +3615,45 @@
               </colgroup>
               <thead>
                 <tr>
-                  <th>Comercial</th>
-                  <th class="text-center">Clientes</th>
-                  <th class="text-right">Estimación</th>
-                  <th class="text-right">Pedidos</th>
-                  <th class="text-right">Servidas</th>
-                  <th class="text-right">Pendientes</th>
-                  <th class="text-right">Falta</th>
-                  <th class="text-right" title="Desviación en valor absoluto |Pedidos - Estimación|">Desv. Abs. (u)</th>
-                  <th class="text-right">% Consec.</th>
-                  <th class="text-right" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Accuracy Global</th>
-                  <th class="text-right" title="Forecast Accuracy solo productos nacionales (sin siglas de país en el SKU)">Accuracy Nac.</th>
-                  <th class="text-center">Estado</th>
-                  <th class="text-center">Ver</th>
+                  <th>${t('th_sales_rep')}</th>
+                  <th class="text-center">${t('th_clients')}</th>
+                  <th class="text-right">${t('th_estimate')}</th>
+                  <th class="text-right">${t('th_orders')}</th>
+                  <th class="text-right">${t('th_delivered')}</th>
+                  <th class="text-right">${t('th_pending')}</th>
+                  <th class="text-right">${t('th_gap')}</th>
+                  <th class="text-right" title="Desviación en valor absoluto |Pedidos - Estimación|">${t('th_abs_dev')}</th>
+                  <th class="text-right">${t('th_consec_pct')}</th>
+                  <th class="text-right" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">${t('th_global_acc')}</th>
+                  <th class="text-right" title="Forecast Accuracy solo productos nacionales (sin siglas de país en el SKU)">${t('th_nac_acc')}</th>
+                  <th class="text-center">${t('th_status')}</th>
+                  <th class="text-center">${t('th_view')}</th>
                 </tr>
               </thead>
               <tbody>
       `;
 
       resList.forEach(r => {
-        const pctBadge = r.pct_consec >= 100 ? 'badge-success' : (r.pct_consec >= 50 ? 'badge-warning' : 'badge-danger');
+        const pctBadge = r.pct_consec >= 100 ? 'badge-success' : (r.pct_consec >= 50 ? 'badge-warning' : (r.budget_uds > 0 ? 'badge-danger' : 'badge-neutral'));
         const accVal = r.forecast_accuracy;
         const accColor = accVal >= 80 ? '#34d399' : (accVal >= 50 ? '#fbbf24' : (accVal > 0 ? '#38bdf8' : '#f87171'));
 
         const accNacVal = r.forecast_accuracy_nacional;
         const accNacColor = (accNacVal || 0) >= 80 ? '#34d399' : ((accNacVal || 0) >= 50 ? '#fbbf24' : ((accNacVal || 0) > 0 ? '#38bdf8' : '#f87171'));
-        const accNacDisplay = r.tiene_nacional 
-          ? `<strong style="color: ${accNacColor}">${fmtAcc(accNacVal)}</strong>` 
-          : `<span style="color:var(--muted); font-size:0.75rem" title="Cartera 100% Exportación">Exportación</span>`;
+        
+        let accNacDisplay = '';
+        if (r.tiene_nacional) {
+          accNacDisplay = `<strong style="color: ${accNacColor}">${fmtAcc(accNacVal)}</strong>`;
+        } else {
+          accNacDisplay = `<span style="color:var(--muted); font-size:0.75rem" title="${currentLang === 'en' ? '100% Export Portfolio' : 'Cartera 100% Exportación'}">${currentLang === 'en' ? 'Export' : 'Exportación'}</span>`;
+        }
+
+        let estadoLabel = localizeStatus(r.estado);
+        if (currentScope === 'NACIONAL' && !r.tiene_nacional) {
+          estadoLabel = currentLang === 'en' ? 'Export' : 'Exportación';
+        } else if (currentScope === 'EXPORTACION' && !r.tiene_exportacion) {
+          estadoLabel = currentLang === 'en' ? 'Domestic' : 'Nacional';
+        }
 
         html += `
           <tr>
@@ -1255,7 +3662,7 @@
             <td class="text-right">${fmtNum(r.budget_uds, 2)}</td>
             <td class="text-right" style="font-weight:700">${fmtNum(r.pedidos_uds, 2)}</td>
             <td class="text-right">${fmtNum(r.servidas_uds, 2)}</td>
-            <td class="text-right">${fmtNum(r.pendientes_uds, 2)}</td>
+            <td class="text-right" style="color: ${r.pendientes_uds > 0 ? '#fbbf24' : 'inherit'}; font-weight:${r.pendientes_uds > 0 ? '700' : 'normal'}">${fmtNum(r.pendientes_uds, 2)}</td>
             <td class="text-right" style="color: ${r.gap_uds > 0 ? '#fbbf24' : '#94a3b8'}">${fmtNum(r.gap_uds, 2)}</td>
             <td class="text-right" style="color: #cbd5e1">${fmtNum(r.desv_uds, 2)}</td>
             <td class="text-right">
@@ -1268,9 +3675,9 @@
             </td>
             <td class="text-right"><strong style="color: ${accColor}">${fmtAcc(accVal)}</strong></td>
             <td class="text-right">${accNacDisplay}</td>
-            <td class="text-center"><span class="tab-badge ${pctBadge}">${r.estado}</span></td>
+            <td class="text-center"><span class="tab-badge ${pctBadge}">${estadoLabel}</span></td>
             <td class="text-center">
-              <button class="btn-table-action" onclick="switchTab('${r.comercial}')">Ver Detalle &rarr;</button>
+              <button class="btn-table-action" onclick="switchTab('${r.comercial}')">${t('btn_view_details')}</button>
             </td>
           </tr>
         `;
@@ -1285,18 +3692,18 @@
               </tbody>
               <tfoot>
                 <tr>
-                  <td>TOTAL GENERAL</td>
-                  <td class="text-center">${resList.reduce((acc, c) => acc + (c.clientes_activos || 0), 0)}</td>
+                  <td>${currentScope === 'ALL' ? t('total_general') : (currentScope === 'NACIONAL' ? t('total_national') : t('total_export'))}</td>
+                  <td class="text-center">${g.num_clientes}</td>
                   <td class="text-right">${fmtNum(g.budget_uds, 2)}</td>
                   <td class="text-right">${fmtNum(g.pedidos_uds, 2)}</td>
                   <td class="text-right">${fmtNum(g.servidas_uds, 2)}</td>
-                  <td class="text-right">${fmtNum(g.pendientes_uds, 2)}</td>
+                  <td class="text-right" style="color: ${g.pendientes_uds > 0 ? '#fbbf24' : 'inherit'}; font-weight:700">${fmtNum(g.pendientes_uds, 2)}</td>
                   <td class="text-right" style="color:#fbbf24">${fmtNum(g.gap_uds, 2)}</td>
                   <td class="text-right" style="color:#cbd5e1; font-weight:700">${fmtNum(g.desv_uds, 2)}</td>
                   <td class="text-right" style="color:#34d399; font-size:1rem">${fmtPct(g.pct_consec)}</td>
                   <td class="text-right" style="color:${gAccColor}; font-size:0.95rem; font-weight:800">${fmtAcc(gAcc)}</td>
                   <td class="text-right" style="color:${gAccNacColor}; font-size:0.95rem; font-weight:800">${fmtAcc(gAccNac)}</td>
-                  <td class="text-center"><span class="tab-badge badge-success">EN OBJETIVO</span></td>
+                  <td class="text-center"><span class="tab-badge ${pctGlobalClass}">${(g.pct_consec || 0) >= 100 ? t('status_exceeded') : t('status_on_track')}</span></td>
                   <td></td>
                 </tr>
               </tfoot>
@@ -1314,21 +3721,39 @@
         console.warn("Chart.js no está cargado.");
         return;
       }
+
+      // Destruir instancias previas para evitar colisiones
+      if (window.chartInst1) {
+        try { window.chartInst1.destroy(); } catch(e){}
+        window.chartInst1 = null;
+      }
+      if (window.chartInst2) {
+        try { window.chartInst2.destroy(); } catch(e){}
+        window.chartInst2 = null;
+      }
+
       const labels = resList.map(r => r.comercial);
       const dataBudget = resList.map(r => r.budget_uds);
       const dataPedidos = resList.map(r => r.pedidos_uds);
       const dataPct = resList.map(r => r.pct_consec);
 
+      let periodLabel = appData.nombre || 'Período';
+      if (currentLang === 'en') {
+        if (currentPeriod === '2026-10') periodLabel = 'October 2026';
+        else if (currentPeriod === '2026-09') periodLabel = 'September 2026';
+        else if (currentPeriod === 'acumulado') periodLabel = 'Cumulative Sep + Oct';
+      }
+
       // Chart 1: Budget vs Pedidos
       const ctx1 = document.getElementById('chartBudgetVsPedidos');
       if (ctx1) {
-        new Chart(ctx1, {
+        window.chartInst1 = new Chart(ctx1, {
           type: 'bar',
           data: {
             labels: labels,
             datasets: [
               {
-                label: 'Estimación ' + (appData.nombre || 'Período') + ' (u)',
+                label: `${t('kpi_budget_title')} ${periodLabel} (u)`,
                 data: dataBudget,
                 backgroundColor: 'rgba(59, 130, 246, 0.75)',
                 borderColor: '#3b82f6',
@@ -1336,7 +3761,7 @@
                 borderRadius: 4
               },
               {
-                label: 'Pedidos ' + (appData.nombre || 'Período') + ' (u)',
+                label: `${t('th_orders')} ${periodLabel} (u)`,
                 data: dataPedidos,
                 backgroundColor: 'rgba(16, 185, 129, 0.85)',
                 borderColor: '#10b981',
@@ -1375,12 +3800,12 @@
       // Chart 2: Consecución %
       const ctx2 = document.getElementById('chartPctConsecucion');
       if (ctx2) {
-        new Chart(ctx2, {
+        window.chartInst2 = new Chart(ctx2, {
           type: 'bar',
           data: {
             labels: labels,
             datasets: [{
-              label: '% Consecución',
+              label: t('th_consec_pct'),
               data: dataPct,
               backgroundColor: dataPct.map(p => p >= 100 ? 'rgba(16, 185, 129, 0.85)' : (p >= 50 ? 'rgba(245, 158, 11, 0.85)' : 'rgba(239, 68, 68, 0.85)')),
               borderRadius: 4
@@ -1394,7 +3819,7 @@
               legend: { display: false },
               tooltip: {
                 callbacks: {
-                  label: ctx => `Consecución: ${fmtPct(ctx.parsed.x)}`
+                  label: ctx => `${t('th_consec_pct')}: ${fmtPct(ctx.parsed.x)}`
                 }
               }
             },
@@ -1422,23 +3847,94 @@
     function renderComercialTab(container, comName) {
       const comData = appData.comerciales[comName];
       if (!comData) {
-        container.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--muted)">No hay datos disponibles para ${comName}</div>`;
+        container.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--muted)">${currentLang === 'en' ? 'No data available for ' + comName : 'No hay datos disponibles para ' + comName}</div>`;
         return;
       }
 
-      const k = comData.kpis;
-      const lines = comData.lineas;
+      const rawLines = comData.lineas || [];
+      const nacCount = rawLines.filter(l => l.is_nacional).length;
+      const expCount = rawLines.filter(l => !l.is_nacional).length;
+      const hasOriginSplit = (nacCount > 0 && expCount > 0);
+
+      // Filtrado por ámbito activo si no es ALL
+      let lines = rawLines;
+      if (currentScope === 'NACIONAL') {
+        lines = rawLines.filter(l => l.is_nacional);
+      } else if (currentScope === 'EXPORTACION') {
+        lines = rawLines.filter(l => !l.is_nacional);
+      }
+
+      // Si el comercial no tiene actividad en este ámbito
+      if (lines.length === 0) {
+        const isNacScope = currentScope === 'NACIONAL';
+        const warnText = isNacScope ? t('exclusive_export_warning') : t('exclusive_nac_warning');
+        const altScopeKey = isNacScope ? 'EXPORTACION' : 'NACIONAL';
+        const altScopeName = isNacScope ? (currentLang === 'en' ? 'Export' : 'Exportación') : (currentLang === 'en' ? 'Domestic' : 'Nacional');
+        const altCount = isNacScope ? expCount : nacCount;
+
+        container.innerHTML = `
+          <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 3rem 2rem; text-align: center; margin-top: 1rem;">
+            <div style="font-size: 2.2rem; margin-bottom: 0.8rem;">${isNacScope ? '🌍' : '🇪🇸'}</div>
+            <h3 style="font-size: 1.25rem; color: #ffffff; margin-bottom: 0.5rem;">${comName} ${warnText}</h3>
+            <p style="color: var(--muted); max-width: 600px; margin: 0 auto 1.5rem auto;">
+              ${currentLang === 'en' ? 'No lines registered in this market for ' + comName + ' in ' + (appData.nombre || currentPeriod) + '.' : 'No constan líneas registradas en este mercado para este comercial en ' + (appData.nombre || currentPeriod) + '.'}
+            </p>
+            <div style="display:flex; justify-content:center; gap:0.75rem;">
+              <button class="pill-btn active" onclick="setScope('${altScopeKey}')">
+                ${t('view_market')} ${altScopeName} (${altCount})
+              </button>
+              <button class="pill-btn" onclick="setScope('ALL')">${t('view_full_portfolio')} (${rawLines.length})</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Calcular métricas dinámicas para este comercial en este ámbito
+      let cBudget = 0, cPedidos = 0, cServidas = 0, cPendientes = 0, cGap = 0, cDesv = 0;
+      let cBudNac = 0, cDesvNac = 0;
+
+      lines.forEach(l => {
+        cBudget += (l.budget_uds || 0);
+        cPedidos += (l.pedidos_uds || 0);
+        cServidas += (l.servidas_uds || 0);
+        cPendientes += (l.pendientes_uds || 0);
+        cGap += (l.gap_uds || 0);
+        cDesv += (l.desv_uds || 0);
+        if (l.is_nacional) {
+          cBudNac += (l.budget_uds || 0);
+          cDesvNac += (l.desv_uds || 0);
+        }
+      });
+
+      const cPct = cBudget > 0 ? (cPedidos / cBudget * 100) : (cPedidos > 0 ? 100 : 0);
+      let cAcc = cBudget > 0 ? Math.max(0, ((1.0 - (cDesv / cBudget)) * 100)) : 0;
+      if (cAcc < 0) cAcc = 0;
+
+      let cAccNac = cBudNac > 0 ? Math.max(0, ((1.0 - (cDesvNac / cBudNac)) * 100)) : 0;
+      if (cAccNac < 0) cAccNac = 0;
+
+      const k = {
+        budget_uds: cBudget,
+        pedidos_uds: cPedidos,
+        servidas_uds: cServidas,
+        pendientes_uds: cPendientes,
+        gap_uds: cGap,
+        desv_uds: cDesv,
+        pct_consec: cPct,
+        forecast_accuracy: cAcc,
+        budget_uds_nacional: cBudNac,
+        desv_uds_nacional: cDesvNac,
+        forecast_accuracy_nacional: cAccNac,
+        tiene_nacional: cBudNac > 0
+      };
 
       const pctBadge = k.pct_consec >= 100 ? 'badge-success' : (k.pct_consec >= 50 ? 'badge-warning' : 'badge-danger');
       const isExtra = (st) => st === 'Extra Budget' || st === 'Extra Estimación';
       const extraCount = lines.filter(l => isExtra(l.estado)).length;
-      const nacCount = lines.filter(l => l.is_nacional).length;
-      const expCount = lines.filter(l => !l.is_nacional).length;
-      const hasOriginSplit = (nacCount > 0 && expCount > 0);
 
-      // Filtrado previo para poder computar subtotales de la partida filtrada
+      // Filtrado por búsqueda de texto y pills
       const filtered = lines.filter(l => {
-        // Filtro por estado u origen
         if (currentFilter !== 'ALL') {
           if (currentFilter === 'Extra Estimación' || currentFilter === 'Extra Budget') {
             if (!isExtra(l.estado)) return false;
@@ -1450,7 +3946,6 @@
             return false;
           }
         }
-        // Filtro por texto de búsqueda
         if (searchQuery.trim() !== '') {
           const q = searchQuery.toLowerCase();
           const matchCli = (l.cliente || '').toLowerCase().includes(q);
@@ -1463,17 +3958,8 @@
 
       const isFiltered = (searchQuery.trim() !== '' || currentFilter !== 'ALL');
 
-      // Cálculo de subtotales de la partida filtrada
-      let subBudget = 0;
-      let subPedidos = 0;
-      let subServidas = 0;
-      let subPendientes = 0;
-      let subGap = 0;
-      let subDesv = 0;
-      let subPct = 0;
-      let subBadge = 'badge-neutral';
-      let subBadgeText = 'SIN ESTIMACIÓN';
-      let subtotalLabel = 'SUBTOTAL FILTRADO';
+      let subBudget = 0, subPedidos = 0, subServidas = 0, subPendientes = 0, subGap = 0, subDesv = 0, subPct = 0;
+      let subBadge = 'badge-neutral', subBadgeText = 'SIN ESTIMACIÓN', subtotalLabel = t('subtotal_label');
 
       if (filtered.length > 0) {
         subBudget = filtered.reduce((acc, l) => acc + (l.budget_uds || 0), 0);
@@ -1497,84 +3983,93 @@
         if (uniqueClients.length === 1) {
           subtotalLabel = `TOTAL ${uniqueClients[0].toUpperCase()}`;
         } else if (searchQuery.trim() !== '') {
-          subtotalLabel = `SUBTOTAL "${searchQuery.trim().toUpperCase()}"`;
+          subtotalLabel = `${t('subtotal_label')} "${searchQuery.trim().toUpperCase()}"`;
         } else if (currentFilter === 'Nacional') {
-          subtotalLabel = `SUBTOTAL PRODUCTOS NACIONALES`;
+          subtotalLabel = currentLang === 'en' ? 'DOMESTIC SUBTOTAL' : 'SUBTOTAL PRODUCTOS NACIONALES';
         } else if (currentFilter === 'Exportación') {
-          subtotalLabel = `SUBTOTAL PRODUCTOS EXPORTACIÓN`;
+          subtotalLabel = currentLang === 'en' ? 'EXPORT SUBTOTAL' : 'SUBTOTAL PRODUCTOS EXPORTACIÓN';
         } else if (currentFilter !== 'ALL') {
-          subtotalLabel = `SUBTOTAL ${currentFilter.toUpperCase()}`;
+          subtotalLabel = `${t('subtotal_label')} ${currentFilter.toUpperCase()}`;
         } else {
-          subtotalLabel = `SUBTOTAL FILTRADO`;
+          subtotalLabel = t('subtotal_label');
         }
       }
 
-      const periodLabel = appData.nombre || 'Período';
+      let periodLabel = appData.nombre || 'Período';
+      if (currentLang === 'en') {
+        if (currentPeriod === '2026-10') periodLabel = 'October 2026';
+        else if (currentPeriod === '2026-09') periodLabel = 'September 2026';
+        else if (currentPeriod === 'acumulado') periodLabel = 'Cumulative Sep + Oct';
+      }
+
+      let scopeNotice = '';
+      if (currentScope === 'NACIONAL') scopeNotice = ` <span class="tab-badge badge-success" style="font-size:0.68rem">${t('domestic_market')}</span>`;
+      else if (currentScope === 'EXPORTACION') scopeNotice = ` <span class="tab-badge badge-info" style="font-size:0.68rem">${t('export_market')}</span>`;
 
       let html = `
-        <!-- KPI GRID -->
+        <!-- KPI GRID INTERACTIVO COMERCIAL -->
         <div class="kpi-grid">
-          <div class="kpi-card accent-blue">
+          <div class="kpi-card accent-blue clickable" onclick="openKpiModal('budget', '${comName}')" title="${t('kpi_budget_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Estimación ${periodLabel}</span>
-              <span class="tab-badge badge-neutral">Previsión Base</span>
+              <span class="kpi-title">${t('kpi_budget_title')} ${periodLabel}</span>
+              <span class="kpi-click-tag">${t('kpi_breakdown')}</span>
             </div>
             <div class="kpi-value">${fmtNum(k.budget_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
-            <div class="kpi-subtext">Objetivo asignado a ${comName} (${periodLabel})</div>
+            <div class="kpi-subtext">${t('obj_assigned_to')} ${comName}${scopeNotice}</div>
           </div>
 
-          <div class="kpi-card accent-emerald">
+          <div class="kpi-card accent-emerald clickable" onclick="openKpiModal('pedidos', '${comName}')" title="${t('kpi_orders_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Pedidos a Fecha</span>
-              <span class="tab-badge ${pctBadge}">${fmtPct(k.pct_consec)}</span>
+              <span class="kpi-title">${t('kpi_orders_title')}</span>
+              <span class="kpi-click-tag" style="color:#34d399">${fmtPct(k.pct_consec)} ↗</span>
             </div>
             <div class="kpi-value">${fmtNum(k.pedidos_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
             <div class="progress-bar-container">
               <div class="progress-bar-fill ${k.pct_consec < 50 ? 'rose' : (k.pct_consec < 100 ? 'amber' : '')}" style="width: ${Math.min(100, k.pct_consec || 0)}%"></div>
             </div>
             <div class="kpi-subtext" style="margin-top:0.4rem">
-              <span>Servidas: <strong>${fmtNum(k.servidas_uds, 2)}</strong></span> &bull; 
-              <span>Pendientes: <strong>${fmtNum(k.pendientes_uds, 2)}</strong></span>
+              <span>${t('kpi_delivered')}: <strong>${fmtNum(k.servidas_uds, 2)}</strong></span> &bull; 
+              <span>${t('kpi_pending')}: <strong style="color:${k.pendientes_uds > 0 ? '#fbbf24' : 'inherit'}">${fmtNum(k.pendientes_uds, 2)}</strong></span>
             </div>
           </div>
 
-          <div class="kpi-card ${k.gap_uds > 0 ? 'accent-amber' : 'accent-emerald'}">
+          <div class="kpi-card ${k.gap_uds > 0 ? 'accent-amber' : 'accent-emerald'} clickable" onclick="openKpiModal('gap', '${comName}')" title="${t('kpi_gap_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Falta Conseguir (Gap)</span>
-              <span class="tab-badge ${k.gap_uds > 0 ? 'badge-warning' : 'badge-success'}">${k.gap_uds > 0 ? 'Por Cubrir' : 'Objetivo Conseguido'}</span>
+              <span class="kpi-title">${t('kpi_gap_title')}</span>
+              <span class="kpi-click-tag">${t('kpi_breakdown')}</span>
             </div>
             <div class="kpi-value">${fmtNum(k.gap_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
-            <div class="kpi-subtext">Desviación: <strong style="color: #cbd5e1">${fmtNum(k.desv_uds, 2)} u</strong></div>
+            <div class="kpi-subtext">${currentLang === 'en' ? 'Deviation' : 'Desviación'}: <strong style="color: #cbd5e1">${fmtNum(k.desv_uds, 2)} u</strong></div>
           </div>
 
-          <div class="kpi-card accent-blue">
+          <div class="kpi-card accent-blue clickable" onclick="openKpiModal('pendientes', '${comName}')" title="${t('kpi_pending_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Pendientes de Servir</span>
-              <span class="tab-badge badge-neutral">Por Entregar</span>
+              <span class="kpi-title">${t('kpi_pending_title')}</span>
+              <span class="kpi-click-tag" style="color:#fbbf24; border-color:rgba(245,158,11,0.4)">${t('kpi_breakdown')} 📦</span>
             </div>
-            <div class="kpi-value">${fmtNum(k.pendientes_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
-            <div class="kpi-subtext">Servidas acumuladas: <strong style="color:#34d399">${fmtNum(k.servidas_uds, 2)} u</strong></div>
+            <div class="kpi-value" style="color:${k.pendientes_uds > 0 ? '#fbbf24' : '#ffffff'}">${fmtNum(k.pendientes_uds, 2)} <span style="font-size:1rem;color:var(--muted)">u</span></div>
+            <div class="kpi-subtext">${t('kpi_cum_delivered')}: <strong style="color:#34d399">${fmtNum(k.servidas_uds, 2)} u</strong></div>
           </div>
 
-          <div class="kpi-card accent-blue">
+          <div class="kpi-card accent-blue clickable" onclick="openKpiModal('accuracy', '${comName}')" title="${t('kpi_accuracy_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Accuracy Global</span>
-              <span class="tab-badge badge-neutral" title="Fórmula oficial Dirección: 1 - SUM(|Real - Estimación|) / SUM(Estimación)">Todos los Productos</span>
+              <span class="kpi-title">${t('portfolio_accuracy')}</span>
+              <span class="kpi-click-tag">${t('kpi_breakdown')}</span>
             </div>
             <div class="kpi-value" style="color: ${(k.forecast_accuracy || 0) >= 80 ? '#34d399' : ((k.forecast_accuracy || 0) >= 50 ? '#fbbf24' : ((k.forecast_accuracy || 0) > 0 ? '#38bdf8' : '#f87171'))}">${fmtAcc(k.forecast_accuracy)}</div>
-            <div class="kpi-subtext">Desviación: <strong>${fmtNum(k.desv_uds, 2)} u</strong></div>
+            <div class="kpi-subtext">${currentLang === 'en' ? 'Deviation' : 'Desviación'}: <strong>${fmtNum(k.desv_uds, 2)} u</strong></div>
           </div>
 
-          <div class="kpi-card accent-emerald">
+          <div class="kpi-card accent-emerald clickable" onclick="openKpiModal('accuracy_nacional', '${comName}')" title="${t('kpi_accuracy_nac_hint')}">
             <div class="kpi-header">
-              <span class="kpi-title">Accuracy Prod. Nacionales</span>
-              <span class="tab-badge badge-success" title="Productos sin siglas de país en el SKU (Mercado Nacional)">Sin Siglas País</span>
+              <span class="kpi-title">${t('kpi_accuracy_nac_title')}</span>
+              <span class="kpi-click-tag">${t('kpi_breakdown')} 🇪🇸</span>
             </div>
             <div class="kpi-value" style="color: ${k.tiene_nacional ? ((k.forecast_accuracy_nacional || 0) >= 80 ? '#34d399' : ((k.forecast_accuracy_nacional || 0) >= 50 ? '#fbbf24' : ((k.forecast_accuracy_nacional || 0) > 0 ? '#38bdf8' : '#f87171'))) : 'var(--muted)'}">
               ${k.tiene_nacional ? fmtAcc(k.forecast_accuracy_nacional) : 'N/A'}
             </div>
             <div class="kpi-subtext">
-              ${k.tiene_nacional ? `Budget Nac: <strong>${fmtNum(k.budget_uds_nacional, 2)} u</strong> &bull; Desv: <strong>${fmtNum(k.desv_uds_nacional, 2)} u</strong>` : 'Cartera 100% Exportación'}
+              ${k.tiene_nacional ? `${currentLang === 'en' ? 'Dom. Budget' : 'Budget Nac'}: <strong>${fmtNum(k.budget_uds_nacional, 2)} u</strong>` : (currentLang === 'en' ? '100% Export Portfolio' : 'Cartera 100% Exportación')}
             </div>
           </div>
         </div>
@@ -1583,18 +4078,18 @@
         <div class="table-panel">
           <div class="table-controls">
             <div>
-              <input type="text" class="search-input" id="searchTable" placeholder="Buscar por cliente, SKU o producto..." value="${searchQuery}" oninput="handleSearch(this.value)">
+              <input type="text" class="search-input" id="searchTable" placeholder="${t('search_placeholder_com')}" value="${searchQuery}" oninput="handleSearch(this.value)">
             </div>
             <div class="filter-pills">
-              <button class="pill-btn ${currentFilter === 'ALL' ? 'active' : ''}" onclick="setFilter('ALL')">Todos (${lines.length})</button>
-              <button class="pill-btn ${currentFilter === 'Superado' ? 'active' : ''}" onclick="setFilter('Superado')">Superados (${lines.filter(l => l.estado==='Superado').length})</button>
-              <button class="pill-btn ${currentFilter === 'En Curso' ? 'active' : ''}" onclick="setFilter('En Curso')">En Curso (${lines.filter(l => l.estado==='En Curso').length})</button>
-              <button class="pill-btn ${currentFilter === 'Rezagado' ? 'active' : ''}" onclick="setFilter('Rezagado')">Rezagados (${lines.filter(l => l.estado==='Rezagado').length})</button>
-              <button class="pill-btn ${currentFilter === 'Sin Pedido' ? 'active' : ''}" onclick="setFilter('Sin Pedido')">Sin Pedido (${lines.filter(l => l.estado==='Sin Pedido').length})</button>
-              <button class="pill-btn ${currentFilter === 'Extra Estimación' ? 'active' : ''}" onclick="setFilter('Extra Estimación')">Extra Estimación (${extraCount})</button>
-              ${hasOriginSplit ? `
-                <button class="pill-btn ${currentFilter === 'Nacional' ? 'active' : ''}" onclick="setFilter('Nacional')" style="border-color: rgba(16, 185, 129, 0.45);"><span style="margin-right:3px">🇪🇸</span>Nacionales (${nacCount})</button>
-                <button class="pill-btn ${currentFilter === 'Exportación' ? 'active' : ''}" onclick="setFilter('Exportación')" style="border-color: rgba(59, 130, 246, 0.45);"><span style="margin-right:3px">🌍</span>Exportación (${expCount})</button>
+              <button class="pill-btn ${currentFilter === 'ALL' ? 'active' : ''}" onclick="setFilter('ALL')">${t('filter_all')} (${lines.length})</button>
+              <button class="pill-btn ${currentFilter === 'Superado' ? 'active' : ''}" onclick="setFilter('Superado')">${t('filter_superado')} (${lines.filter(l => l.estado==='Superado').length})</button>
+              <button class="pill-btn ${currentFilter === 'En Curso' ? 'active' : ''}" onclick="setFilter('En Curso')">${t('filter_en_curso')} (${lines.filter(l => l.estado==='En Curso').length})</button>
+              <button class="pill-btn ${currentFilter === 'Rezagado' ? 'active' : ''}" onclick="setFilter('Rezagado')">${t('filter_rezagado')} (${lines.filter(l => l.estado==='Rezagado').length})</button>
+              <button class="pill-btn ${currentFilter === 'Sin Pedido' ? 'active' : ''}" onclick="setFilter('Sin Pedido')">${t('filter_sin_pedido')} (${lines.filter(l => l.estado==='Sin Pedido').length})</button>
+              <button class="pill-btn ${currentFilter === 'Extra Estimación' ? 'active' : ''}" onclick="setFilter('Extra Estimación')">${t('filter_extra')} (${extraCount})</button>
+              ${currentScope === 'ALL' && hasOriginSplit ? `
+                <button class="pill-btn ${currentFilter === 'Nacional' ? 'active' : ''}" onclick="setFilter('Nacional')" style="border-color: rgba(16, 185, 129, 0.45);"><span style="margin-right:3px">🇪🇸</span>${t('filter_nac')} (${nacCount})</button>
+                <button class="pill-btn ${currentFilter === 'Exportación' ? 'active' : ''}" onclick="setFilter('Exportación')" style="border-color: rgba(59, 130, 246, 0.45);"><span style="margin-right:3px">🌍</span>${t('filter_exp')} (${expCount})</button>
               ` : ''}
             </div>
           </div>
@@ -1602,28 +4097,28 @@
           ${isFiltered && filtered.length > 0 ? `
           <div class="subtotal-banner" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.16) 0%, rgba(30, 41, 59, 0.95) 100%); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: var(--radius-sm); padding: 0.75rem 1.25rem; margin-bottom: 0.9rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.85rem; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
             <div style="display:flex; align-items:center; gap:0.65rem;">
-              <span style="background: var(--accent); color: #042f2e; font-weight: 800; font-size: 0.72rem; padding: 0.22rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">SUBTOTAL</span>
+              <span style="background: var(--accent); color: #042f2e; font-weight: 800; font-size: 0.72rem; padding: 0.22rem 0.55rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">${t('subtotal_label')}</span>
               <strong style="color: #f8fafc; font-size: 1.05rem; letter-spacing: -0.01em;">${subtotalLabel}</strong>
-              <span style="color: var(--muted); font-size: 0.82rem;">(${filtered.length} partida${filtered.length > 1 ? 's' : ''})</span>
+              <span style="color: var(--muted); font-size: 0.82rem;">(${filtered.length} ${t('lines_filtered')})</span>
             </div>
             <div style="display:flex; align-items:center; gap:1.2rem; font-size: 0.85rem; flex-wrap: wrap;">
-              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Estimación:</span> <strong style="color: #f8fafc; font-size: 0.95rem;">${fmtNum(subBudget, 2)} u</strong></div>
-              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Pedidos:</span> <strong style="color: #34d399; font-size: 0.95rem;">${fmtNum(subPedidos, 2)} u</strong></div>
-              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Servidas:</span> <strong style="color: #f8fafc; font-size: 0.95rem;">${fmtNum(subServidas, 2)} u</strong></div>
-              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Pendientes:</span> <strong style="color: ${subPendientes > 0 ? '#fbbf24' : 'var(--muted)'}; font-size: 0.95rem;">${fmtNum(subPendientes, 2)} u</strong></div>
-              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Falta:</span> <strong style="color: ${subGap > 0 ? '#fbbf24' : 'var(--muted)'}; font-size: 0.95rem;">${fmtNum(subGap, 2)} u</strong></div>
-              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Desv:</span> <strong style="color: #cbd5e1; font-size: 0.95rem;">${fmtNum(subDesv, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">${t('th_estimate')}:</span> <strong style="color: #f8fafc; font-size: 0.95rem;">${fmtNum(subBudget, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">${t('th_orders')}:</span> <strong style="color: #34d399; font-size: 0.95rem;">${fmtNum(subPedidos, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">${t('th_delivered')}:</span> <strong style="color: #f8fafc; font-size: 0.95rem;">${fmtNum(subServidas, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">${t('th_pending')}:</span> <strong style="color: ${subPendientes > 0 ? '#fbbf24' : 'var(--muted)'}; font-size: 0.95rem;">${fmtNum(subPendientes, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">${t('th_gap')}:</span> <strong style="color: ${subGap > 0 ? '#fbbf24' : 'var(--muted)'}; font-size: 0.95rem;">${fmtNum(subGap, 2)} u</strong></div>
+              <div><span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">${currentLang === 'en' ? 'Dev:' : 'Desv:'}</span> <strong style="color: #cbd5e1; font-size: 0.95rem;">${fmtNum(subDesv, 2)} u</strong></div>
               <div style="display:flex; align-items:center; gap: 0.35rem;">
-                <span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Consec:</span>
+                <span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">${t('th_consec_pct')}:</span>
                 <strong style="color: #34d399; font-size: 1rem; font-weight: 800;">${fmtPct(subPct)}</strong>
               </div>
               <div style="display:flex; align-items:center; gap: 0.35rem;">
-                <span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">Accuracy:</span>
+                <span style="color: var(--muted); font-size: 0.72rem; text-transform: uppercase;">${t('th_accuracy')}:</span>
                 <strong style="color: ${subBudget > 0 && Math.max(0, (1.0 - filtered.reduce((acc, l) => acc + (l.desv_uds || 0), 0)/subBudget)) >= 0.8 ? '#34d399' : (subBudget > 0 && (1.0 - filtered.reduce((acc, l) => acc + (l.desv_uds || 0), 0)/subBudget) > 0 ? '#38bdf8' : '#f87171')}; font-size: 1rem; font-weight: 800;">
                   ${subBudget > 0 ? fmtAcc(Math.max(0, (1.0 - filtered.reduce((acc, l) => acc + (l.desv_uds || 0), 0)/subBudget) * 100)) : '0,0%'}
                 </strong>
               </div>
-              <span class="tab-badge ${subBadge}" style="font-size: 0.68rem; padding: 0.15rem 0.45rem;">${subBadgeText}</span>
+              <span class="tab-badge ${subBadge}" style="font-size: 0.68rem; padding: 0.15rem 0.45rem;">${localizeStatus(subBadgeText)}</span>
             </div>
           </div>
           ` : ''}
@@ -1646,25 +4141,25 @@
               </colgroup>
               <thead>
                 <tr>
-                  <th>Cliente</th>
-                  <th>SKU</th>
-                  <th>Artículo</th>
-                  <th class="text-right">Estimación</th>
-                  <th class="text-right">Pedidos</th>
-                  <th class="text-right">Servidas</th>
-                  <th class="text-right">Pendientes</th>
-                  <th class="text-right">Falta</th>
-                  <th class="text-right" title="Desviación en valor absoluto |Pedidos - Estimación|">Desv. Abs. (u)</th>
-                  <th class="text-right">% Consec.</th>
-                  <th class="text-right" title="Forecast Accuracy: 1 - |Pedidos - Estimación| / Estimación">Accuracy</th>
-                  <th class="text-center">Estado</th>
+                  <th>${t('th_client')}</th>
+                  <th>${t('th_sku')}</th>
+                  <th>${t('th_article')}</th>
+                  <th class="text-right">${t('th_estimate')}</th>
+                  <th class="text-right">${t('th_orders')}</th>
+                  <th class="text-right">${t('th_delivered')}</th>
+                  <th class="text-right">${t('th_pending')}</th>
+                  <th class="text-right">${t('th_gap')}</th>
+                  <th class="text-right" title="Desviación en valor absoluto |Pedidos - Estimación|">${t('th_abs_dev')}</th>
+                  <th class="text-right">${t('th_consec_pct')}</th>
+                  <th class="text-right" title="Forecast Accuracy: 1 - |Pedidos - Estimación| / Estimación">${t('th_accuracy')}</th>
+                  <th class="text-center">${t('th_status')}</th>
                 </tr>
               </thead>
               <tbody id="linesTableBody">
       `;
 
       if (filtered.length === 0) {
-        html += `<tr><td colspan="12" style="text-align:center; padding: 2.5rem; color: var(--muted)">No se encontraron líneas que coincidan con la búsqueda/filtro.</td></tr>`;
+        html += `<tr><td colspan="12" style="text-align:center; padding: 2.5rem; color: var(--muted)">${currentLang === 'en' ? 'No items found matching the filter/search.' : 'No se encontraron líneas que coincidan con la búsqueda/filtro.'}</td></tr>`;
       } else {
         filtered.forEach(l => {
           const isExtraLine = isExtra(l.estado);
@@ -1677,18 +4172,20 @@
           const lAcc = l.forecast_accuracy;
           const lAccColor = lAcc >= 80 ? '#34d399' : (lAcc >= 50 ? '#fbbf24' : (lAcc > 0 ? '#38bdf8' : '#f87171'));
 
+          const ambitoTag = l.is_nacional ? (currentLang === 'en' ? '🇪🇸 Dom' : '🇪🇸 Nac') : (currentLang === 'en' ? '🌍 Exp' : '🌍 Exp');
+
           html += `
             <tr>
               <td><strong>${l.cliente}</strong></td>
               <td>
                 <span style="font-family:monospace; background:rgba(255,255,255,0.06); padding:0.15rem 0.4rem; border-radius:4px; font-weight:600">${l.sku}</span>
-                <span class="tab-badge ${l.is_nacional ? 'badge-success' : 'badge-info'}" style="font-size:0.62rem; padding:0.1rem 0.35rem; margin-left:4px" title="${l.is_nacional ? 'Producto Nacional (sin siglas de país)' : 'Producto Exportación (con siglas de país)'}">${l.is_nacional ? '🇪🇸 Nac' : '🌍 Exp'}</span>
+                <span class="tab-badge ${l.is_nacional ? 'badge-success' : 'badge-info'}" style="font-size:0.62rem; padding:0.1rem 0.35rem; margin-left:4px" title="${l.is_nacional ? 'Producto Nacional' : 'Producto Exportación'}">${ambitoTag}</span>
               </td>
               <td><span style="color:#cbd5e1" title="${l.descripcion}">${l.descripcion || '—'}</span></td>
               <td class="text-right">${fmtNum(l.budget_uds, 2)}</td>
               <td class="text-right" style="font-weight:700; color:${l.pedidos_uds > 0 ? '#f8fafc' : 'var(--muted)'}">${fmtNum(l.pedidos_uds, 2)}</td>
               <td class="text-right">${fmtNum(l.servidas_uds, 2)}</td>
-              <td class="text-right" style="color:${l.pendientes_uds > 0 ? '#fbbf24' : 'var(--muted)'}">${fmtNum(l.pendientes_uds, 2)}</td>
+              <td class="text-right" style="color:${l.pendientes_uds > 0 ? '#fbbf24' : 'var(--muted)'}; font-weight:${l.pendientes_uds > 0 ? '700' : 'normal'}">${fmtNum(l.pendientes_uds, 2)}</td>
               <td class="text-right" style="color:${l.gap_uds > 0 ? '#fbbf24' : 'var(--muted)'}">${fmtNum(l.gap_uds, 2)}</td>
               <td class="text-right" style="color: #cbd5e1">${fmtNum(l.desv_uds, 2)}</td>
               <td class="text-right">
@@ -1700,7 +4197,7 @@
                 </div>
               </td>
               <td class="text-right"><strong style="color:${lAccColor}">${fmtAcc(lAcc)}</strong></td>
-              <td class="text-center"><span class="tab-badge ${stBadge}">${estadoDisplay}</span></td>
+              <td class="text-center"><span class="tab-badge ${stBadge}">${localizeStatus(estadoDisplay)}</span></td>
             </tr>
           `;
         });
@@ -1708,8 +4205,8 @@
 
       const subFilteredError = filtered.reduce((acc, l) => acc + (l.desv_uds || 0), 0);
       const subFilteredAcc = subBudget > 0 ? Math.max(0, ((1.0 - subFilteredError / subBudget) * 100)) : 0;
-      const cAcc = k.forecast_accuracy;
-      const cAccColor = (cAcc || 0) >= 80 ? '#34d399' : ((cAcc || 0) >= 50 ? '#fbbf24' : ((cAcc || 0) > 0 ? '#38bdf8' : '#f87171'));
+      const cAccDisplay = k.forecast_accuracy;
+      const cAccColor = (cAccDisplay || 0) >= 80 ? '#34d399' : ((cAccDisplay || 0) >= 50 ? '#fbbf24' : ((cAccDisplay || 0) > 0 ? '#38bdf8' : '#f87171'));
 
       html += `
               </tbody>
@@ -1719,7 +4216,7 @@
                   <td style="color: #34d399; font-weight: 800; font-size: 0.85rem;" title="${subtotalLabel}">
                     <span style="display:inline-block; margin-right:4px;">📌</span>${subtotalLabel}
                   </td>
-                  <td colspan="2" style="font-weight: 600; color: #cbd5e1;">${filtered.length} partida${filtered.length > 1 ? 's' : ''} filtrada${filtered.length > 1 ? 's' : ''}</td>
+                  <td colspan="2" style="font-weight: 600; color: #cbd5e1;">${filtered.length} ${t('lines_filtered')}</td>
                   <td class="text-right" style="color: #f8fafc; font-weight: 700;">${fmtNum(subBudget, 2)}</td>
                   <td class="text-right" style="color: #f8fafc; font-weight: 800;">${fmtNum(subPedidos, 2)}</td>
                   <td class="text-right" style="font-weight: 700;">${fmtNum(subServidas, 2)}</td>
@@ -1728,21 +4225,21 @@
                   <td class="text-right" style="color: #cbd5e1; font-weight: 700;">${fmtNum(subDesv, 2)}</td>
                   <td class="text-right" style="color: #34d399; font-size: 1rem; font-weight: 800;">${fmtPct(subPct)}</td>
                   <td class="text-right" style="color: ${subFilteredAcc >= 80 ? '#34d399' : (subFilteredAcc >= 50 ? '#fbbf24' : (subFilteredAcc > 0 ? '#38bdf8' : '#f87171'))}; font-size: 0.95rem; font-weight: 800;">${fmtAcc(subFilteredAcc)}</td>
-                  <td class="text-center"><span class="tab-badge ${subBadge}">${subBadgeText}</span></td>
+                  <td class="text-center"><span class="tab-badge ${subBadge}">${localizeStatus(subBadgeText)}</span></td>
                 </tr>
                 ` : ''}
                 <tr style="${isFiltered ? 'opacity: 0.65; font-size: 0.78rem;' : ''}">
-                  <td>TOTAL ${comName.toUpperCase()} ${isFiltered ? '(GLOBAL)' : ''}</td>
-                  <td colspan="2" style="font-weight:normal; color:var(--muted)">${lines.length} combinaciones cliente-artículo</td>
+                  <td>TOTAL ${comName.toUpperCase()} ${currentScope !== 'ALL' ? '(' + currentScope + ')' : ''}</td>
+                  <td colspan="2" style="font-weight:normal; color:var(--muted)">${lines.length} ${t('lines_combinations')}</td>
                   <td class="text-right">${fmtNum(k.budget_uds, 2)}</td>
                   <td class="text-right">${fmtNum(k.pedidos_uds, 2)}</td>
                   <td class="text-right">${fmtNum(k.servidas_uds, 2)}</td>
-                  <td class="text-right">${fmtNum(k.pendientes_uds, 2)}</td>
+                  <td class="text-right" style="color:${k.pendientes_uds > 0 ? '#fbbf24' : 'inherit'}; font-weight:700">${fmtNum(k.pendientes_uds, 2)}</td>
                   <td class="text-right" style="color:#fbbf24">${fmtNum(k.gap_uds, 2)}</td>
                   <td class="text-right" style="color: #cbd5e1; font-weight: 700;">${fmtNum(k.desv_uds, 2)}</td>
                   <td class="text-right" style="color:#34d399; font-size:1rem">${fmtPct(k.pct_consec)}</td>
-                  <td class="text-right" style="color:${cAccColor}; font-size:0.95rem; font-weight:800">${fmtAcc(cAcc)}</td>
-                  <td class="text-center"><span class="tab-badge ${pctBadge}">${(k.pct_consec || 0) >= 100 ? 'SUPERADO' : 'EN CURSO'}</span></td>
+                  <td class="text-right" style="color:${cAccColor}; font-size:0.95rem; font-weight:800">${fmtAcc(cAccDisplay)}</td>
+                  <td class="text-center"><span class="tab-badge ${pctBadge}">${(k.pct_consec || 0) >= 100 ? t('status_exceeded') : t('status_on_track')}</span></td>
                 </tr>
               </tfoot>
             </table>
@@ -1769,6 +4266,434 @@
       currentFilter = filterKey;
       renderComercialTab(document.getElementById('appContent'), currentTab);
     }
+
+    // ==========================================
+    // MODAL DRILLDOWN INTERACTIVO: DESGLOSE DE SKUs
+    // ==========================================
+    function openKpiModal(kpiType = 'pendientes', comName = null) {
+      modalKpiType = kpiType;
+      modalCommercial = comName || (currentTab !== 'resumen' ? currentTab : 'ALL');
+      modalScope = currentScope;
+      modalSearchQuery = '';
+
+      const modalOverlay = document.getElementById('kpiModalOverlay');
+      if (!modalOverlay) return;
+
+      const searchInput = document.getElementById('modalSearchInput');
+      if (searchInput) searchInput.value = '';
+
+      const sel = document.getElementById('modalCommercialSelect');
+      if (sel) sel.value = modalCommercial;
+
+      updateModalScopeUI();
+      renderModalContent();
+
+      modalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      setTimeout(() => {
+        if (searchInput) searchInput.focus();
+      }, 120);
+    }
+
+    function closeKpiModal() {
+      const modalOverlay = document.getElementById('kpiModalOverlay');
+      if (modalOverlay) {
+        modalOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function handleModalOverlayClick(e) {
+      if (e.target && e.target.id === 'kpiModalOverlay') {
+        closeKpiModal();
+      }
+    }
+
+    function setModalScope(scopeKey) {
+      modalScope = scopeKey;
+      updateModalScopeUI();
+      renderModalContent();
+    }
+
+    function updateModalScopeUI() {
+      const btns = [
+        { id: 'modal-sbtn-ALL', key: 'ALL' },
+        { id: 'modal-sbtn-NACIONAL', key: 'NACIONAL' },
+        { id: 'modal-sbtn-EXPORTACION', key: 'EXPORTACION' }
+      ];
+      btns.forEach(b => {
+        const el = document.getElementById(b.id);
+        if (el) {
+          const isMatch = b.key === modalScope;
+          el.classList.toggle('active', isMatch);
+          if (b.key === 'EXPORTACION' && isMatch) el.classList.add('scope-exp');
+          else el.classList.remove('scope-exp');
+        }
+      });
+    }
+
+    function handleModalCommercialChange(com) {
+      modalCommercial = com;
+      renderModalContent();
+    }
+
+    function handleModalSearch(query) {
+      modalSearchQuery = query;
+      renderModalContent();
+    }
+
+    function renderModalContent() {
+      if (!appData) return;
+
+      // 1. Recolectar todas las líneas con su comercial asignado
+      let rawLines = [];
+      Object.keys(appData.comerciales || {}).forEach(com => {
+        if (modalCommercial !== 'ALL' && com !== modalCommercial) return;
+        const comLines = appData.comerciales[com].lineas || [];
+        comLines.forEach(l => {
+          rawLines.push({ ...l, comercial: com });
+        });
+      });
+
+      // 2. Filtrar por ámbito seleccionado si aplica
+      if (modalScope === 'NACIONAL') {
+        rawLines = rawLines.filter(l => l.is_nacional);
+      } else if (modalScope === 'EXPORTACION') {
+        rawLines = rawLines.filter(l => !l.is_nacional);
+      }
+
+      // 3. CONSOLIDACIÓN ESTRICTA POR SKU ÚNICO (Suma de comerciales y clientes)
+      const skuMap = new Map();
+      rawLines.forEach(l => {
+        const skuKey = (l.sku || 'SIN_SKU').trim();
+        if (!skuMap.has(skuKey)) {
+          skuMap.set(skuKey, {
+            sku: skuKey,
+            descripcion: l.descripcion || '',
+            is_nacional: l.is_nacional,
+            budget_uds: 0,
+            pedidos_uds: 0,
+            servidas_uds: 0,
+            pendientes_uds: 0,
+            gap_uds: 0,
+            importe_neto: 0,
+            desv_uds: 0,
+            comercialesSet: new Set()
+          });
+        }
+        const item = skuMap.get(skuKey);
+        if (!item.descripcion && l.descripcion) item.descripcion = l.descripcion;
+
+        item.budget_uds += (l.budget_uds || 0);
+        item.pedidos_uds += (l.pedidos_uds || 0);
+        item.servidas_uds += (l.servidas_uds || 0);
+        item.pendientes_uds += (l.pendientes_uds || 0);
+        item.gap_uds += (l.gap_uds || 0);
+        item.desv_uds += (l.desv_uds || 0);
+        item.importe_neto += (l.importe_neto || 0);
+        if (l.comercial) item.comercialesSet.add(l.comercial);
+      });
+
+      // Transformar mapa en array consolidado por SKU
+      let skuList = [];
+      skuMap.forEach(item => {
+        item.comerciales = Array.from(item.comercialesSet).sort();
+        item.pct_consec = item.budget_uds > 0 ? (item.pedidos_uds / item.budget_uds * 100) : (item.pedidos_uds > 0 ? 100 : 0);
+        item.ambitoText = item.is_nacional ? (currentLang === 'en' ? '🇪🇸 Dom' : '🇪🇸 Nac') : (currentLang === 'en' ? '🌍 Exp' : '🌍 Exp');
+        item.ambitoClass = item.is_nacional ? 'badge-success' : 'badge-info';
+
+        skuList.push(item);
+      });
+
+      // 4. Filtrar y ordenar según el KPI seleccionado
+      let metricTitle = t('modal_th_pendientes');
+      let modalTitle = t('modal_title_pendientes');
+      let modalIcon = '📦';
+      let metricAccessor = s => s.pendientes_uds || 0;
+      let metricHighlightClass = 'metric-amber';
+
+      switch (modalKpiType) {
+        case 'budget':
+          modalTitle = t('modal_title_budget');
+          modalIcon = '📋';
+          metricTitle = t('modal_th_budget');
+          metricAccessor = s => s.budget_uds || 0;
+          metricHighlightClass = 'metric-blue';
+          skuList = skuList.filter(s => (s.budget_uds || 0) > 0);
+          skuList.sort((a, b) => (b.budget_uds || 0) - (a.budget_uds || 0));
+          break;
+
+        case 'pedidos':
+          modalTitle = t('modal_title_pedidos');
+          modalIcon = '🛒';
+          metricTitle = t('modal_th_pedidos');
+          metricAccessor = s => s.pedidos_uds || 0;
+          metricHighlightClass = 'metric-emerald';
+          skuList = skuList.filter(s => (s.pedidos_uds || 0) > 0);
+          skuList.sort((a, b) => (b.pedidos_uds || 0) - (a.pedidos_uds || 0));
+          break;
+
+        case 'servidas':
+          modalTitle = t('modal_title_servidas');
+          modalIcon = '🚚';
+          metricTitle = t('modal_th_servidas');
+          metricAccessor = s => s.servidas_uds || 0;
+          metricHighlightClass = 'metric-emerald';
+          skuList = skuList.filter(s => (s.servidas_uds || 0) > 0);
+          skuList.sort((a, b) => (b.servidas_uds || 0) - (a.servidas_uds || 0));
+          break;
+
+        case 'gap':
+          modalTitle = t('modal_title_gap');
+          modalIcon = '⚠️';
+          metricTitle = t('modal_th_gap');
+          metricAccessor = s => s.gap_uds || 0;
+          metricHighlightClass = 'metric-amber';
+          skuList = skuList.filter(s => (s.gap_uds || 0) > 0);
+          skuList.sort((a, b) => (b.gap_uds || 0) - (a.gap_uds || 0));
+          break;
+
+        case 'accuracy':
+        case 'desv':
+          modalTitle = t('modal_title_desv');
+          modalIcon = '🎯';
+          metricTitle = t('modal_th_desv');
+          metricAccessor = s => s.desv_uds || 0;
+          metricHighlightClass = 'metric-blue';
+          skuList = skuList.filter(s => (s.desv_uds || 0) > 0 || (s.budget_uds || 0) > 0);
+          skuList.sort((a, b) => (b.desv_uds || 0) - (a.desv_uds || 0));
+          break;
+
+        case 'accuracy_nacional':
+          modalTitle = t('modal_title_acc_nac');
+          modalIcon = '🇪🇸';
+          metricTitle = t('modal_th_desv');
+          metricAccessor = s => s.desv_uds || 0;
+          metricHighlightClass = 'metric-emerald';
+          skuList = skuList.filter(s => s.is_nacional && ((s.desv_uds || 0) > 0 || (s.budget_uds || 0) > 0));
+          skuList.sort((a, b) => (b.desv_uds || 0) - (a.desv_uds || 0));
+          break;
+
+        case 'pendientes':
+        default:
+          modalTitle = t('modal_title_pendientes');
+          modalIcon = '📦';
+          metricTitle = t('modal_th_pendientes');
+          metricAccessor = s => s.pendientes_uds || 0;
+          metricHighlightClass = 'metric-amber';
+          skuList = skuList.filter(s => (s.pendientes_uds || 0) > 0);
+          skuList.sort((a, b) => (b.pendientes_uds || 0) - (a.pendientes_uds || 0));
+          break;
+      }
+
+      // 5. Filtrar por búsqueda de texto (SKU, descripción o comerciales asociados)
+      if (modalSearchQuery.trim() !== '') {
+        const q = modalSearchQuery.toLowerCase();
+        skuList = skuList.filter(s => {
+          return (s.sku || '').toLowerCase().includes(q) ||
+                 (s.descripcion || '').toLowerCase().includes(q) ||
+                 s.comerciales.some(c => c.toLowerCase().includes(q));
+        });
+      }
+
+      // 6. Actualizar Títulos y Cabeceras
+      const iconEl = document.getElementById('modalKpiIcon');
+      const titleEl = document.getElementById('modalKpiTitle');
+      const subEl = document.getElementById('modalKpiSubtitle');
+      const thMetricEl = document.getElementById('modalThMetric');
+
+      if (iconEl) iconEl.innerText = modalIcon;
+      if (titleEl) titleEl.innerText = modalTitle;
+      if (thMetricEl) thMetricEl.innerText = metricTitle;
+
+      let periodName = appData.nombre || currentPeriod;
+      if (currentLang === 'en') {
+        if (currentPeriod === '2026-10') periodName = 'October 2026';
+        else if (currentPeriod === '2026-09') periodName = 'September 2026';
+        else if (currentPeriod === 'acumulado') periodName = 'Cumulative Sep + Oct';
+      }
+
+      const comText = modalCommercial === 'ALL' ? (currentLang === 'en' ? 'All Sales Reps' : 'Todos los Comerciales') : `${currentLang === 'en' ? 'Sales Rep:' : 'Comercial:'} ${modalCommercial}`;
+      const scopeText = modalScope === 'ALL' ? (currentLang === 'en' ? 'All Markets' : 'Todos los Mercados') : (modalScope === 'NACIONAL' ? (currentLang === 'en' ? '🇪🇸 Domestic Only' : '🇪🇸 Solo Nacional') : (currentLang === 'en' ? '🌍 Export Only' : '🌍 Solo Exportación'));
+      const skuConsolWord = currentLang === 'en' ? 'Consolidated by SKU' : 'Consolidado por SKU';
+      if (subEl) subEl.innerHTML = `<span>${periodName}</span> &bull; <span>${comText}</span> &bull; <span>${scopeText}</span> &bull; <span style="color:#38bdf8; font-weight:700">${skuConsolWord}</span>`;
+
+      // 7. Calcular métricas agregadas del filtro modal
+      const totalPrimaryMetric = skuList.reduce((acc, s) => acc + metricAccessor(s), 0);
+      const totalPedidos = skuList.reduce((acc, s) => acc + (s.pedidos_uds || 0), 0);
+      const totalServidas = skuList.reduce((acc, s) => acc + (s.servidas_uds || 0), 0);
+      const totalBudget = skuList.reduce((acc, s) => acc + (s.budget_uds || 0), 0);
+      const totalImporte = skuList.reduce((acc, s) => acc + (s.importe_neto || 0), 0);
+
+      const allComsInFiltered = new Set();
+      skuList.forEach(s => s.comerciales.forEach(c => allComsInFiltered.add(c)));
+
+      const statPrimaryEl = document.getElementById('modalStatPrimary');
+      const statCountEl = document.getElementById('modalStatCount');
+      const statClientsEl = document.getElementById('modalStatClients');
+      const statImporteEl = document.getElementById('modalStatImporte');
+
+      if (statPrimaryEl) statPrimaryEl.innerText = fmtNum(totalPrimaryMetric, 2) + ' u';
+      if (statCountEl) statCountEl.innerText = skuList.length + ' SKUs';
+      if (statClientsEl) {
+        const comWord = allComsInFiltered.size === 1 ? (currentLang === 'en' ? 'sales rep' : 'comercial') : (currentLang === 'en' ? 'sales reps' : 'comerciales');
+        statClientsEl.innerText = allComsInFiltered.size + ' ' + comWord;
+      }
+      if (statImporteEl) statImporteEl.innerText = fmtCurr(totalImporte);
+
+      // Guardar lista consolidada para exportación CSV
+      window._activeModalSkus = skuList;
+
+      // 8. Renderizar filas en el tbody
+      const tbody = document.getElementById('modalTableBody');
+      const tfoot = document.getElementById('modalTableFoot');
+
+      if (!tbody) return;
+
+      if (skuList.length === 0) {
+        let emptyNotice = currentLang === 'en' ? `No SKUs found for this filter in <strong>${periodName}</strong>.` : `No se encontraron SKUs para este filtro en <strong>${periodName}</strong>.`;
+        if (modalKpiType === 'pendientes' && currentPeriod === '2026-10') {
+          emptyNotice = `
+            <div style="font-size:2.2rem; margin-bottom:0.75rem;">🎉</div>
+            <strong style="font-size:1.1rem; color:#f8fafc; display:block; margin-bottom:0.35rem">${t('modal_empty_oct')}</strong>
+            <p style="color:var(--muted); max-width:650px; margin:0 auto 1.25rem auto;">
+              ${t('modal_empty_oct_desc')}
+            </p>
+            <div style="display:flex; justify-content:center; gap:0.75rem; margin-top:1rem;">
+              <button class="pill-btn active" onclick="switchPeriod('2026-09'); openKpiModal('pendientes')">
+                ${t('modal_btn_goto_sep')}
+              </button>
+              <button class="pill-btn" onclick="switchPeriod('acumulado'); openKpiModal('pendientes')">
+                ${t('modal_btn_goto_accum')}
+              </button>
+            </div>
+          `;
+        }
+
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" style="text-align:center; padding:3.5rem 1.5rem; color:var(--muted)">
+              ${emptyNotice}
+            </td>
+          </tr>
+        `;
+        if (tfoot) tfoot.innerHTML = '';
+        return;
+      }
+
+      let rowsHtml = '';
+      skuList.forEach(s => {
+        const metricVal = metricAccessor(s);
+        const lPct = s.pct_consec;
+        const comPills = s.comerciales.map(c => `<span class="tag-commercial" style="font-size:0.68rem; padding:0.12rem 0.35rem; cursor:default">${c}</span>`).join(' ');
+
+        rowsHtml += `
+          <tr>
+            <td>
+              <span style="font-family:monospace; background:rgba(255,255,255,0.06); padding:0.18rem 0.45rem; border-radius:4px; font-weight:700; color:#f8fafc">${s.sku}</span>
+            </td>
+            <td><span style="color:#cbd5e1" title="${s.descripcion}">${s.descripcion || '—'}</span></td>
+            <td class="text-center">
+              <span class="tab-badge ${s.ambitoClass}" style="font-size:0.65rem; padding:0.15rem 0.4rem; white-space:nowrap;">
+                ${s.ambitoText}
+              </span>
+            </td>
+            <td class="text-right">
+              <span class="metric-highlight ${metricHighlightClass}">${fmtNum(metricVal, 2)}</span>
+            </td>
+            <td class="text-right" style="font-weight:600; color:${s.pedidos_uds > 0 ? '#f8fafc' : 'var(--muted)'}">${fmtNum(s.pedidos_uds, 2)}</td>
+            <td class="text-right">${fmtNum(s.servidas_uds, 2)}</td>
+            <td class="text-right">${fmtNum(s.budget_uds, 2)}</td>
+            <td class="text-right">
+              <span style="font-weight:700; color:${lPct >= 100 ? '#34d399' : (lPct >= 50 ? '#fbbf24' : '#f87171')}">${fmtPct(lPct)}</span>
+            </td>
+            <td class="text-right" style="color:#cbd5e1">${fmtCurr(s.importe_neto || 0)}</td>
+            <td class="text-center" style="white-space:nowrap;">
+              ${comPills}
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = rowsHtml;
+
+      // 9. Renderizar totales en tfoot (10 columnas exactas)
+      const totalPct = totalBudget > 0 ? (totalPedidos / totalBudget * 100) : (totalPedidos > 0 ? 100 : 0);
+      if (tfoot) {
+        const uniqueSkusWord = currentLang === 'en' ? 'unique SKUs' : 'SKUs únicos';
+        const comsWord = currentLang === 'en' ? 'sales reps' : 'comerciales';
+        tfoot.innerHTML = `
+          <tr>
+            <td>${t('modal_total_consolidated')}</td>
+            <td colspan="2" style="color:var(--muted)">${skuList.length} ${uniqueSkusWord} &bull; ${allComsInFiltered.size} ${comsWord}</td>
+            <td class="text-right">
+              <span class="metric-highlight ${metricHighlightClass}" style="font-size:0.95rem">${fmtNum(totalPrimaryMetric, 2)}</span>
+            </td>
+            <td class="text-right" style="color:#f8fafc; font-weight:800">${fmtNum(totalPedidos, 2)}</td>
+            <td class="text-right">${fmtNum(totalServidas, 2)}</td>
+            <td class="text-right">${fmtNum(totalBudget, 2)}</td>
+            <td class="text-right" style="color:#34d399; font-weight:800">${fmtPct(totalPct)}</td>
+            <td class="text-right" style="color:#34d399; font-weight:800">${fmtCurr(totalImporte)}</td>
+            <td class="text-center" style="color:var(--muted); font-size:0.75rem;">—</td>
+          </tr>
+        `;
+      }
+    }
+
+    function exportModalCsv() {
+      const skus = window._activeModalSkus || [];
+      if (skus.length === 0) {
+        alert(currentLang === 'en' ? "No SKUs to export with the current filter." : "No hay SKUs que exportar con el filtro actual.");
+        return;
+      }
+
+      let csv = "\uFEFF"; // UTF-8 BOM para que Excel respete tildes y caracteres
+      if (currentLang === 'en') {
+        csv += "SKU;Item_Description;Scope;Filtered_Metric;Orders_Units;Delivered_Units;Forecast_Units;Pct_Achievement;Revenue_EUR;Sales_Reps;Period\n";
+      } else {
+        csv += "SKU;Articulo_Descripcion;Ambito;Metrica_Filtrada;Pedidos_Uds;Servidas_Uds;Estimacion_Uds;Pct_Consecucion;Importe_EUR;Comerciales;Periodo\n";
+      }
+
+      skus.forEach(s => {
+        const metricVal = modalKpiType === 'budget' ? s.budget_uds :
+                         (modalKpiType === 'pedidos' ? s.pedidos_uds :
+                         (modalKpiType === 'servidas' ? s.servidas_uds :
+                         (modalKpiType === 'gap' ? s.gap_uds :
+                         (modalKpiType === 'desv' || modalKpiType === 'accuracy' || modalKpiType === 'accuracy_nacional' ? s.desv_uds : s.pendientes_uds))));
+
+        const sku = (s.sku || '').replace(/;/g, ',');
+        const art = (s.descripcion || '').replace(/;/g, ',');
+        const amb = (s.ambitoText || '').replace(/;/g, ',');
+        const decSep = currentLang === 'en' ? '.' : ',';
+        const met = String(metricVal || 0).replace('.', decSep);
+        const ped = String(s.pedidos_uds || 0).replace('.', decSep);
+        const ser = String(s.servidas_uds || 0).replace('.', decSep);
+        const bud = String(s.budget_uds || 0).replace('.', decSep);
+        const pct = String((s.pct_consec || 0).toFixed(1)).replace('.', decSep);
+        const imp = String((s.importe_neto || 0).toFixed(2)).replace('.', decSep);
+        const coms = (s.comerciales || []).join(' + ').replace(/;/g, ',');
+        const per = currentPeriod;
+
+        csv += `"${sku}";"${art}";"${amb}";${met};${ped};${ser};${bud};${pct};${imp};"${coms}";"${per}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const filename = `Codiagro_SKU_${modalKpiType}_${currentPeriod}_${modalCommercial}_${modalScope}.csv`;
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Tecla Escape para cerrar modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeKpiModal();
+      }
+    });
 
     // Inicializar al cargar el DOM de forma segura
     if (document.readyState === 'loading') {

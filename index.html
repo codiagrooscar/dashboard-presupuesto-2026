@@ -3098,10 +3098,21 @@
         if (prodRotationFilter === 'BOTH' && !is_both_movers) return;
         if (prodRotationFilter === 'FASTMOVER' && !is_fastmover) return;
 
+        let nuevoSku = isBaseView ? item.base_sku : item.sku;
+        if (isBaseView) {
+          const destinos = item.destinos || [];
+          const expDestinos = destinos.filter(d => d.ambito === 'Exportación' || (d.pais && d.pais !== 'ESPAÑA' && d.pais !== 'ESP'));
+          if (expDestinos.length > 0) {
+            const expSkus = Array.from(new Set(expDestinos.map(d => d.sku).filter(Boolean)));
+            nuevoSku = expSkus.join(', ');
+          }
+        }
+
         processed.push({
           rawItem: item,
           key: isBaseView ? item.base_sku : item.sku,
           sku: isBaseView ? item.base_sku : item.sku,
+          nuevo_sku: nuevoSku,
           desc: item.desc || (isBaseView ? item.base_sku : item.sku),
           envase: item.envase || '',
           pkg: pkg,
@@ -3246,6 +3257,9 @@
         <tr style="cursor:pointer;" data-sku="${r.key}" onclick="openProdSkuModal(this.getAttribute('data-sku'))" title="Click para ver desglose mensual, granel y proyección de agotamiento">
           <td style="font-family:monospace;font-weight:700;color:#38bdf8;">
             ${r.sku}
+          </td>
+          <td style="font-family:monospace;font-weight:600;color:${(r.nuevo_sku && r.nuevo_sku !== r.sku) ? '#c084fc' : '#94a3b8'};font-size:0.83rem;" title="Nuevo SKU con sufijo de país en exportación">
+            ${r.nuevo_sku || r.sku}
           </td>
           <td>
             <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
@@ -3668,6 +3682,9 @@
                     <th style="cursor:pointer;" onclick="sortProdTable('sku')">
                       ${t('mrp_th_sku')} ${prodSortField === 'sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
+                    <th style="cursor:pointer;" onclick="sortProdTable('nuevo_sku')" title="SKU con sufijo de 2 dígitos de país en exportación">
+                      Nuevo SKU ${prodSortField === 'nuevo_sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                    </th>
                     <th style="cursor:pointer;" onclick="sortProdTable('desc')">
                       ${t('mrp_th_product')} ${prodSortField === 'desc' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
@@ -4048,7 +4065,7 @@
         };
 
         // 1. BANNER PRINCIPAL (Filas 1 y 2)
-        ws.mergeCells('A1:P1');
+        ws.mergeCells('A1:Q1');
         const cellTitle = ws.getCell('A1');
         cellTitle.value = '  CODIAGRO S.L.  |  ORDEN DE FABRICACIÓN Y PLANIFICACIÓN DE PRODUCCIÓN (MRP)';
         cellTitle.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
@@ -4056,7 +4073,7 @@
         cellTitle.alignment = { vertical: 'middle', horizontal: 'left' };
         ws.getRow(1).height = 28;
 
-        ws.mergeCells('A2:P2');
+        ws.mergeCells('A2:Q2');
         const cellSub = ws.getCell('A2');
         const nowStr = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString();
         const scopeStr = currentScope === 'ALL' ? 'Global (Nacional + Exportación)' : currentScope;
@@ -4092,8 +4109,8 @@
           { top: 'D4:F4', bot: 'D5:F5', topC: 'D4', botC: 'D5', label: 'LOTES SUGERIDOS', val: `${Math.round(totLotesFabricar).toLocaleString()} lotes`, color: 'FFD97706' },
           { top: 'G4:I4', bot: 'G5:I5', topC: 'G4', botC: 'G5', label: 'ARTÍCULOS URGENTES', val: `${countCritical} SKUs (Déficit Granel)`, color: 'FFDC2626' },
           { top: 'J4:L4', bot: 'J5:L5', topC: 'J4', botC: 'J5', label: 'SOLO ENVASAR', val: `${countWarning} SKUs (Granel OK)`, color: 'FFD97706' },
-          { top: 'M4:N4', bot: 'M5:N5', topC: 'M4', botC: 'M5', label: 'PEDIDOS CARTERA', val: `${Math.round(totPedidosCartera).toLocaleString()} u`, color: 'FF0F172A' },
-          { top: 'O4:P4', bot: 'O5:P5', topC: 'O4', botC: 'O5', label: 'STOCK ENVASADO', val: `${Math.round(totStockEnvasado).toLocaleString()} u`, color: 'FF059669' }
+          { top: 'M4:O4', bot: 'M5:O5', topC: 'M4', botC: 'M5', label: 'PEDIDOS CARTERA', val: `${Math.round(totPedidosCartera).toLocaleString()} u`, color: 'FF0F172A' },
+          { top: 'P4:Q4', bot: 'P5:Q5', topC: 'P4', botC: 'P5', label: 'STOCK ENVASADO', val: `${Math.round(totStockEnvasado).toLocaleString()} u`, color: 'FF059669' }
         ];
 
         kpis.forEach(k => {
@@ -4130,22 +4147,22 @@
         ws.getRow(6).height = 10;
 
         // 4. ENCABEZADOS DE TABLA (Filas 7 y 8)
-        ws.mergeCells('A7:E7');
+        ws.mergeCells('A7:F7');
         const g1 = ws.getCell('A7');
         g1.value = '1. IDENTIFICACIÓN DEL ARTÍCULO';
         g1.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
         g1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_ID } };
         g1.alignment = { horizontal: 'center', vertical: 'middle' };
 
-        ws.mergeCells('F7:J7');
-        const g2 = ws.getCell('F7');
+        ws.mergeCells('G7:K7');
+        const g2 = ws.getCell('G7');
         g2.value = '2. SITUACIÓN ACTUAL DE STOCK Y DEMANDA';
         g2.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
         g2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_DEMAND } };
         g2.alignment = { horizontal: 'center', vertical: 'middle' };
 
-        ws.mergeCells('K7:P7');
-        const g3 = ws.getCell('K7');
+        ws.mergeCells('L7:Q7');
+        const g3 = ws.getCell('L7');
         g3.value = '3. PLAN DE FABRICACIÓN Y ACCIÓN MRP';
         g3.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
         g3.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_PLAN } };
@@ -4154,23 +4171,24 @@
 
         const colHeaders = [
           { col: 1, text: 'Código SKU', bg: C_GRP_ID, align: 'center', width: 15 },
-          { col: 2, text: 'Producto / Descripción', bg: C_GRP_ID, align: 'left', width: 38 },
-          { col: 3, text: 'Envase', bg: C_GRP_ID, align: 'center', width: 12 },
-          { col: 4, text: 'Línea Envasado', bg: C_GRP_ID, align: 'center', width: 18 },
-          { col: 5, text: 'Mercado', bg: C_GRP_ID, align: 'center', width: 16 },
+          { col: 2, text: 'Nuevo SKU', bg: C_GRP_ID, align: 'center', width: 22 },
+          { col: 3, text: 'Producto / Descripción', bg: C_GRP_ID, align: 'left', width: 38 },
+          { col: 4, text: 'Envase', bg: C_GRP_ID, align: 'center', width: 12 },
+          { col: 5, text: 'Línea Envasado', bg: C_GRP_ID, align: 'center', width: 18 },
+          { col: 6, text: 'Mercado', bg: C_GRP_ID, align: 'center', width: 16 },
 
-          { col: 6, text: 'Stock Envasado (u)', bg: C_GRP_DEMAND, align: 'right', width: 16 },
-          { col: 7, text: 'Pedidos Cartera (u)', bg: C_GRP_DEMAND, align: 'right', width: 16 },
-          { col: 8, text: 'Previsión Período (u)', bg: C_GRP_DEMAND, align: 'right', width: 17 },
-          { col: 9, text: 'Demanda Total (u)', bg: C_GRP_DEMAND, align: 'right', width: 17 },
-          { col: 10, text: 'Balance Neto (u)', bg: C_GRP_DEMAND, align: 'right', width: 16 },
+          { col: 7, text: 'Stock Envasado (u)', bg: C_GRP_DEMAND, align: 'right', width: 16 },
+          { col: 8, text: 'Pedidos Cartera (u)', bg: C_GRP_DEMAND, align: 'right', width: 16 },
+          { col: 9, text: 'Previsión Período (u)', bg: C_GRP_DEMAND, align: 'right', width: 17 },
+          { col: 10, text: 'Demanda Total (u)', bg: C_GRP_DEMAND, align: 'right', width: 17 },
+          { col: 11, text: 'Balance Neto (u)', bg: C_GRP_DEMAND, align: 'right', width: 16 },
 
-          { col: 11, text: 'Déficit Neto (u)', bg: C_GRP_PLAN, align: 'right', width: 16 },
-          { col: 12, text: 'Lotes', bg: C_GRP_PLAN, align: 'center', width: 11 },
-          { col: 13, text: 'A Fabricar Sugerido (u)', bg: C_GRP_PLAN, align: 'right', width: 20 },
-          { col: 14, text: 'Cobertura', bg: C_GRP_PLAN, align: 'center', width: 13 },
-          { col: 15, text: 'Agotamiento Stock', bg: C_GRP_PLAN, align: 'center', width: 20 },
-          { col: 16, text: 'Prioridad / Acción', bg: C_GRP_PLAN, align: 'center', width: 22 }
+          { col: 12, text: 'Déficit Neto (u)', bg: C_GRP_PLAN, align: 'right', width: 16 },
+          { col: 13, text: 'Lotes', bg: C_GRP_PLAN, align: 'center', width: 11 },
+          { col: 14, text: 'A Fabricar Sugerido (u)', bg: C_GRP_PLAN, align: 'right', width: 20 },
+          { col: 15, text: 'Cobertura', bg: C_GRP_PLAN, align: 'center', width: 13 },
+          { col: 16, text: 'Agotamiento Stock', bg: C_GRP_PLAN, align: 'center', width: 20 },
+          { col: 17, text: 'Prioridad / Acción', bg: C_GRP_PLAN, align: 'center', width: 22 }
         ];
 
         colHeaders.forEach(ch => {
@@ -4197,129 +4215,136 @@
           const fmtText = r.pkg ? r.pkg.badge : (r.envase ? r.envase + ' L' : '-');
           const sug = Number(r.sug_fabricar || r.falta_fabricar) || 0;
           const cobDec = Number((r.coverage_pct / 100).toFixed(3)) || 0;
+          const nuevoSkuVal = r.nuevo_sku || r.sku || '';
 
-          // A: SKU
+          // A: SKU Base
           const cA = rowObj.getCell(1);
           cA.value = r.sku || '';
           cA.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
           cA.alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // B: Desc
+          // B: Nuevo SKU (con 2 dígitos de país en exportación)
           const cB = rowObj.getCell(2);
-          cB.value = r.desc || '';
-          cB.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cB.alignment = { horizontal: 'left', vertical: 'middle' };
+          cB.value = nuevoSkuVal;
+          cB.font = { name: 'Calibri', size: 9.5, bold: (nuevoSkuVal !== r.sku), color: { argb: (nuevoSkuVal !== r.sku) ? 'FF6B21A8' : 'FF0F172A' } };
+          cB.alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // C: Envase
+          // C: Desc
           const cC = rowObj.getCell(3);
-          cC.value = r.envase || '';
+          cC.value = r.desc || '';
           cC.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cC.alignment = { horizontal: 'center', vertical: 'middle' };
+          cC.alignment = { horizontal: 'left', vertical: 'middle' };
 
-          // D: Formato
+          // D: Envase
           const cD = rowObj.getCell(4);
-          cD.value = fmtText;
+          cD.value = r.envase || '';
           cD.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
           cD.alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // E: Mercado
+          // E: Formato
           const cE = rowObj.getCell(5);
-          cE.value = scopeText;
+          cE.value = fmtText;
           cE.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
           cE.alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // F: Stock
+          // F: Mercado
           const cF = rowObj.getCell(6);
-          cF.value = Number(r.stock) || 0;
-          cF.numFmt = '#,##0';
+          cF.value = scopeText;
           cF.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cF.alignment = { horizontal: 'right', vertical: 'middle' };
+          cF.alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // G: Pedidos
+          // G: Stock
           const cG = rowObj.getCell(7);
-          cG.value = Number(r.pending) || 0;
+          cG.value = Number(r.stock) || 0;
           cG.numFmt = '#,##0';
-          cG.font = { name: 'Calibri', size: 9.5, bold: (Number(r.pending) > 0), color: { argb: 'FF0F172A' } };
+          cG.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
           cG.alignment = { horizontal: 'right', vertical: 'middle' };
 
-          // H: Previsión
+          // H: Pedidos
           const cH = rowObj.getCell(8);
-          cH.value = Number(r.forecast) || 0;
+          cH.value = Number(r.pending) || 0;
           cH.numFmt = '#,##0';
-          cH.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
+          cH.font = { name: 'Calibri', size: 9.5, bold: (Number(r.pending) > 0), color: { argb: 'FF0F172A' } };
           cH.alignment = { horizontal: 'right', vertical: 'middle' };
 
-          // I: Demanda Total (=G+H)
+          // I: Previsión
           const cI = rowObj.getCell(9);
-          cI.value = { formula: `G${currentRow}+H${currentRow}` };
+          cI.value = Number(r.forecast) || 0;
           cI.numFmt = '#,##0';
-          cI.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
+          cI.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
           cI.alignment = { horizontal: 'right', vertical: 'middle' };
 
-          // J: Balance Neto (=F-I)
+          // J: Demanda Total (=H+I)
           const cJ = rowObj.getCell(10);
-          cJ.value = { formula: `F${currentRow}-I${currentRow}` };
-          cJ.numFmt = '#,##0;[Red]-#,##0;0';
-          cJ.font = { name: 'Calibri', size: 9.5, bold: true };
+          cJ.value = { formula: `H${currentRow}+I${currentRow}` };
+          cJ.numFmt = '#,##0';
+          cJ.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
           cJ.alignment = { horizontal: 'right', vertical: 'middle' };
 
-          // K: Déficit Neto
+          // K: Balance Neto (=G-J)
           const cK = rowObj.getCell(11);
-          cK.value = Number(r.falta_fabricar) || 0;
-          cK.numFmt = '#,##0';
-          cK.font = { name: 'Calibri', size: 9.5, bold: (Number(r.falta_fabricar) > 0), color: { argb: 'FF0F172A' } };
+          cK.value = { formula: `G${currentRow}-J${currentRow}` };
+          cK.numFmt = '#,##0;[Red]-#,##0;0';
+          cK.font = { name: 'Calibri', size: 9.5, bold: true };
           cK.alignment = { horizontal: 'right', vertical: 'middle' };
 
-          // L: Lotes
+          // L: Déficit Neto
           const cL = rowObj.getCell(12);
-          cL.value = Number(r.num_batches) || 0;
+          cL.value = Number(r.falta_fabricar) || 0;
           cL.numFmt = '#,##0';
-          cL.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cL.alignment = { horizontal: 'center', vertical: 'middle' };
+          cL.font = { name: 'Calibri', size: 9.5, bold: (Number(r.falta_fabricar) > 0), color: { argb: 'FF0F172A' } };
+          cL.alignment = { horizontal: 'right', vertical: 'middle' };
 
-          // M: A Fabricar Sugerido
+          // M: Lotes
           const cM = rowObj.getCell(13);
-          cM.value = sug;
+          cM.value = Number(r.num_batches) || 0;
           cM.numFmt = '#,##0';
-          cM.font = { name: 'Calibri', size: 10, bold: true, color: { argb: sug > 0 ? 'FF991B1B' : 'FF0F172A' } };
-          cM.alignment = { horizontal: 'right', vertical: 'middle' };
+          cM.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
+          cM.alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // N: Cobertura
+          // N: A Fabricar Sugerido
           const cN = rowObj.getCell(14);
-          cN.value = cobDec;
-          cN.numFmt = '0.0%';
-          cN.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cN.alignment = { horizontal: 'center', vertical: 'middle' };
+          cN.value = sug;
+          cN.numFmt = '#,##0';
+          cN.font = { name: 'Calibri', size: 10, bold: true, color: { argb: sug > 0 ? 'FF991B1B' : 'FF0F172A' } };
+          cN.alignment = { horizontal: 'right', vertical: 'middle' };
 
-          // O: Agotamiento
+          // O: Cobertura
           const cO = rowObj.getCell(15);
-          cO.value = r.depleted_month || '';
-          cO.font = { name: 'Calibri', size: 9.5, bold: (r.depleted_month && r.depleted_month.includes('Inmediato')), color: { argb: 'FF0F172A' } };
+          cO.value = cobDec;
+          cO.numFmt = '0.0%';
+          cO.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
           cO.alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // P: Prioridad / Acción con Badge
+          // P: Agotamiento
           const cP = rowObj.getCell(16);
-          const actText = r.status === 'CRITICAL' ? 'FABRICACIÓN URGENTE' : (r.status === 'WARNING' ? 'PROGRAMAR LOTE' : 'CUBIERTO');
-          cP.value = actText;
+          cP.value = r.depleted_month || '';
+          cP.font = { name: 'Calibri', size: 9.5, bold: (r.depleted_month && r.depleted_month.includes('Inmediato')), color: { argb: 'FF0F172A' } };
           cP.alignment = { horizontal: 'center', vertical: 'middle' };
 
+          // Q: Prioridad / Acción con Badge
+          const cQ = rowObj.getCell(17);
+          const actText = r.status === 'CRITICAL' ? 'FABRICACIÓN URGENTE' : (r.status === 'WARNING' ? 'PROGRAMAR LOTE' : 'CUBIERTO');
+          cQ.value = actText;
+          cQ.alignment = { horizontal: 'center', vertical: 'middle' };
+
           if (r.status === 'CRITICAL') {
-            cP.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEE2E2' } };
-            cP.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF991B1B' } };
+            cQ.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEE2E2' } };
+            cQ.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF991B1B' } };
           } else if (r.status === 'WARNING') {
-            cP.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
-            cP.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF92400E' } };
+            cQ.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
+            cQ.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF92400E' } };
           } else {
-            cP.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } };
-            cP.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF065F46' } };
+            cQ.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } };
+            cQ.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF065F46' } };
           }
 
-          for (let colI = 1; colI <= 15; colI++) {
+          for (let colI = 1; colI <= 16; colI++) {
             const cItem = rowObj.getCell(colI);
             cItem.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
             cItem.border = thinBorder;
           }
-          cP.border = thinBorder;
+          cQ.border = thinBorder;
 
           rowObj.height = 20;
           currentRow++;
@@ -4327,15 +4352,15 @@
 
         // 6. FILA DE TOTALES
         const totRow = currentRow;
-        ws.mergeCells(`A${totRow}:E${totRow}`);
+        ws.mergeCells(`A${totRow}:F${totRow}`);
         const cTotLbl = ws.getRow(totRow).getCell(1);
         cTotLbl.value = `TOTAL GENERAL (${rows.length} SKUs)`;
         cTotLbl.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
         cTotLbl.alignment = { horizontal: 'right', vertical: 'middle' };
 
         const sumCols = [
-          { col: 6, l: 'F' }, { col: 7, l: 'G' }, { col: 8, l: 'H' }, { col: 9, l: 'I' },
-          { col: 10, l: 'J' }, { col: 11, l: 'K' }, { col: 12, l: 'L' }, { col: 13, l: 'M' }
+          { col: 7, l: 'G' }, { col: 8, l: 'H' }, { col: 9, l: 'I' },
+          { col: 10, l: 'J' }, { col: 11, l: 'K' }, { col: 12, l: 'L' }, { col: 13, l: 'M' }, { col: 14, l: 'N' }
         ];
 
         sumCols.forEach(sc => {
@@ -4346,23 +4371,23 @@
           cSum.alignment = { horizontal: 'right', vertical: 'middle' };
         });
 
-        const cCobTot = ws.getRow(totRow).getCell(14);
-        cCobTot.value = { formula: `IF(I${totRow}>0, F${totRow}/I${totRow}, 1)` };
+        const cCobTot = ws.getRow(totRow).getCell(15);
+        cCobTot.value = { formula: `IF(J${totRow}>0, G${totRow}/J${totRow}, 1)` };
         cCobTot.numFmt = '0.0%';
         cCobTot.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
         cCobTot.alignment = { horizontal: 'center', vertical: 'middle' };
 
-        ws.getRow(totRow).getCell(15).value = '';
         ws.getRow(totRow).getCell(16).value = '';
+        ws.getRow(totRow).getCell(17).value = '';
 
-        for (let colI = 1; colI <= 16; colI++) {
+        for (let colI = 1; colI <= 17; colI++) {
           const cT = ws.getRow(totRow).getCell(colI);
           cT.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_TOTAL_BG } };
           cT.border = totalBorder;
         }
         ws.getRow(totRow).height = 26;
 
-        ws.autoFilter = `A8:P${totRow - 1}`;
+        ws.autoFilter = `A8:Q${totRow - 1}`;
 
         // ---------------- HOJA 2: RESUMEN POR LÍNEA DE ENVASADO ----------------
         const wsEnv = wb.addWorksheet('Resumen por Envase', {
@@ -4500,10 +4525,11 @@
       let csv = "\uFEFF";
       csv += `Orden de Fabricacion MRP - Codiagro S.L.\n`;
       csv += `Fecha Generacion:;${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n\n`;
-      csv += `SKU_Codigo;Descripcion_Articulo;Envase;Formato;Mercado;Stock_Actual_Uds;Pedidos_Pendientes_Uds;Prevision_Periodo_Uds;Demanda_Total_Uds;Balance_Neto_Uds;FALTA_FABRICAR_UDS;Lotes;A_FABRICAR_SUGERIDO_UDS;Cobertura_Pct;Agotamiento;Accion\n`;
+      csv += `SKU_Codigo;Nuevo_SKU;Descripcion_Articulo;Envase;Formato;Mercado;Stock_Actual_Uds;Pedidos_Pendientes_Uds;Prevision_Periodo_Uds;Demanda_Total_Uds;Balance_Neto_Uds;FALTA_FABRICAR_UDS;Lotes;A_FABRICAR_SUGERIDO_UDS;Cobertura_Pct;Agotamiento;Accion\n`;
       rows.forEach(r => {
         const dec = ',';
         const sku = (r.sku || '').replace(/;/g, ',');
+        const nuevoSku = (r.nuevo_sku || r.sku || '').replace(/;/g, ',');
         const desc = (r.desc || '').replace(/;/g, ',');
         const env = (r.envase || '').replace(/;/g, ',');
         const fmt = (r.pkg ? r.pkg.badge : '').replace(/;/g, ',');
@@ -4519,7 +4545,7 @@
         const cob = String(r.coverage_pct.toFixed(1)).replace('.', dec);
         const agot = (r.depleted_month || '').replace(/;/g, ',');
         const acc = r.status === 'CRITICAL' ? 'FABRICACION URGENTE' : (r.status === 'WARNING' ? 'PROGRAMAR LOTE' : 'CUBIERTO');
-        csv += `"${sku}";"${desc}";"${env}";"${fmt}";"${scope}";${stock};${pend};${prev};${dem};${bal};${falta};${lotes};${sug};${cob};"${agot}";"${acc}"\n`;
+        csv += `"${sku}";"${nuevoSku}";"${desc}";"${env}";"${fmt}";"${scope}";${stock};${pend};${prev};${dem};${bal};${falta};${lotes};${sug};${cob};"${agot}";"${acc}"\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);

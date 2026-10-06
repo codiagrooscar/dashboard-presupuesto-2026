@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "generated_at": "2026-10-05T10:39:02.065692",
-    "stock_source": "Stock 05.10.xlsx",
-    "orders_source": "Pedidos 05.10 comerciales.xlsx",
+    "generated_at": "2026-10-06T08:13:49.584518",
+    "stock_source": "Stock 06.10.xlsx",
+    "orders_source": "Pedidos 06.10 comerciales.xlsx",
     "forecast_source": "Presupuesto_Ventas_2027_Definitivo.xlsx",
     "current_month": "2026-10",
     "months": [
@@ -184,8 +184,8 @@
       ]
     },
     "default_preset": "N2",
-    "total_graneles_stock": 112599.3228,
-    "total_envasado_stock": 265433.0
+    "total_graneles_stock": 132730.2328,
+    "total_envasado_stock": 261783.0
   },
   "graneles": [
     {
@@ -203,7 +203,7 @@
         "AO0020",
         "AO1000"
       ],
-      "stock_envasado_total": 74770.0,
+      "stock_envasado_total": 72570.0,
       "pedidos_pendientes_total": 7320.0,
       "monthly_forecast_total": {
         "2026-10": 104400.0,
@@ -265,7 +265,7 @@
         "A-50(2)0005",
         "A-50(2)0001"
       ],
-      "stock_envasado_total": 3015.0,
+      "stock_envasado_total": 2665.0,
       "pedidos_pendientes_total": 350.0,
       "monthly_forecast_total": {
         "2026-10": 2200.0,
@@ -561,8 +561,8 @@
         "AGXKAE1000",
         "AGXK0001"
       ],
-      "stock_envasado_total": 27580.0,
-      "pedidos_pendientes_total": 640.0,
+      "stock_envasado_total": 26940.0,
+      "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
         "2026-10": 45976.0,
         "2026-11": 47840.0,
@@ -815,7 +815,7 @@
     {
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40,
       "formatos": [
         "AVAN0020",
@@ -943,7 +943,7 @@
     {
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40,
       "formatos": [
         "BIO0020",
@@ -1097,8 +1097,8 @@
         "C-CU0001",
         "C-CU1000"
       ],
-      "stock_envasado_total": 8368.0,
-      "pedidos_pendientes_total": 420.0,
+      "stock_envasado_total": 8128.0,
+      "pedidos_pendientes_total": 320.0,
       "monthly_forecast_total": {
         "2026-10": 5196.0,
         "2026-11": 5860.0,
@@ -1148,14 +1148,14 @@
     {
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40,
       "formatos": [
         "C-L0020",
         "C-L0005",
         "C-L0001"
       ],
-      "stock_envasado_total": 1560.0,
+      "stock_envasado_total": 1360.0,
       "pedidos_pendientes_total": 620.0,
       "monthly_forecast_total": {
         "2026-10": 992.0,
@@ -1437,15 +1437,15 @@
     {
       "granel_code": "CPLUS",
       "granel_desc": "CALCIPLUS",
-      "granel_stock": 2480.0,
+      "granel_stock": 1480.0,
       "granel_family": 40,
       "formatos": [
         "CPLUS0020",
         "CPLUS0200",
         "CPLUS1000"
       ],
-      "stock_envasado_total": 5640.0,
-      "pedidos_pendientes_total": 640.0,
+      "stock_envasado_total": 6000.0,
+      "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
         "2026-10": 6880.0,
         "2026-11": 7280.0,
@@ -2106,7 +2106,7 @@
     {
       "granel_code": "PIV",
       "granel_desc": "PGRIV",
-      "granel_stock": 540.0,
+      "granel_stock": 140.0,
       "granel_family": 40,
       "formatos": [
         "PIV0020",
@@ -2257,8 +2257,8 @@
         "PT1000",
         "PT0001"
       ],
-      "stock_envasado_total": 15152.0,
-      "pedidos_pendientes_total": 520.0,
+      "stock_envasado_total": 14432.0,
+      "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
         "2026-10": 17080.0,
         "2026-11": 12080.0,
@@ -2370,7 +2370,7 @@
     {
       "granel_code": "SPCE2",
       "granel_desc": "SPRINTENE ABONO CE EXPORTACIÓN",
-      "granel_stock": 1958.0,
+      "granel_stock": 1984.0,
       "granel_family": 40,
       "formatos": [
         "SPCE20001",
@@ -2604,8 +2604,8 @@
       "base_sku": "A-50(2)0020",
       "desc": "CODIORGAN A-50, 20 KG",
       "envase": "20",
-      "stock_actual": 680.0,
-      "stock_envasado": 680.0,
+      "stock_actual": 580.0,
+      "stock_envasado": 580.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "A-50(2)",
       "granel_desc": "CODIORGAN-A50",
@@ -2691,7 +2691,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40,
       "pedidos_pendientes": 10700.0,
       "monthly_forecast": {
@@ -3052,12 +3052,12 @@
       "base_sku": "PIV0020",
       "desc": "PGR IV, 20 L",
       "envase": "20",
-      "stock_actual": 2020.0,
-      "stock_envasado": 2020.0,
+      "stock_actual": 1820.0,
+      "stock_envasado": 1820.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PIV",
       "granel_desc": "PGRIV",
-      "granel_stock": 540.0,
+      "granel_stock": 140.0,
       "granel_family": 40,
       "pedidos_pendientes": 200.0,
       "monthly_forecast": {
@@ -3110,14 +3110,14 @@
       "base_sku": "PT0020",
       "desc": "AGROPOTASION, 20 L",
       "envase": "20",
-      "stock_actual": 10968.0,
-      "stock_envasado": 10968.0,
+      "stock_actual": 10648.0,
+      "stock_envasado": 10648.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PT",
       "granel_desc": "AGROPOTASION",
       "granel_stock": 1106.0,
       "granel_family": 40,
-      "pedidos_pendientes": 320.0,
+      "pedidos_pendientes": 0.0,
       "monthly_forecast": {
         "2026-10": 12680.0,
         "2026-11": 8280.0,
@@ -3141,7 +3141,7 @@
           "desc": "AGROPOTASION, 20 L",
           "pais": "ESPAÑA",
           "ambito": "Nacional",
-          "pendientes_uds": 320.0,
+          "pendientes_uds": 0.0,
           "monthly_forecast": {
             "2026-10": 7680.0,
             "2026-11": 7680.0,
@@ -3216,14 +3216,14 @@
       "base_sku": "AGXK0020",
       "desc": "AGROXILATO-K, 20 L",
       "envase": "20",
-      "stock_actual": 26120.0,
-      "stock_envasado": 26120.0,
+      "stock_actual": 25480.0,
+      "stock_envasado": 25480.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "AGXK",
       "granel_desc": "AGROXILATO-K",
       "granel_stock": 11802.0,
       "granel_family": 40,
-      "pedidos_pendientes": 640.0,
+      "pedidos_pendientes": 0.0,
       "monthly_forecast": {
         "2026-10": 33180.0,
         "2026-11": 34040.0,
@@ -3247,7 +3247,7 @@
           "desc": "AGROXILATO-K, 20 L",
           "pais": "ESPAÑA",
           "ambito": "Nacional",
-          "pendientes_uds": 640.0,
+          "pendientes_uds": 0.0,
           "monthly_forecast": {
             "2026-10": 18580.0,
             "2026-11": 17240.0,
@@ -3832,14 +3832,14 @@
       "base_sku": "C-CU0020",
       "desc": "CODICOBRE, 20 L",
       "envase": "20",
-      "stock_actual": 3860.0,
-      "stock_envasado": 3860.0,
+      "stock_actual": 3620.0,
+      "stock_envasado": 3620.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "C-CU",
       "granel_desc": "CODICOBRE",
       "granel_stock": 1342.0,
       "granel_family": 40,
-      "pedidos_pendientes": 420.0,
+      "pedidos_pendientes": 320.0,
       "monthly_forecast": {
         "2026-10": 2120.0,
         "2026-11": 2000.0,
@@ -3863,7 +3863,7 @@
           "desc": "CODICOBRE, 20 L",
           "pais": "ESPAÑA",
           "ambito": "Nacional",
-          "pendientes_uds": 420.0,
+          "pendientes_uds": 320.0,
           "monthly_forecast": {
             "2026-10": 2120.0,
             "2026-11": 1680.0,
@@ -3967,7 +3967,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40,
       "pedidos_pendientes": 320.0,
       "monthly_forecast": {
@@ -4218,8 +4218,8 @@
       "base_sku": "A-50(2)0005",
       "desc": "CODIORGAN-A50, 5 KG",
       "envase": "5",
-      "stock_actual": 2335.0,
-      "stock_envasado": 2335.0,
+      "stock_actual": 2085.0,
+      "stock_envasado": 2085.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "A-50(2)",
       "granel_desc": "CODIORGAN-A50",
@@ -5476,14 +5476,14 @@
       "base_sku": "PT0005",
       "desc": "AGROPOTASION, 5 L",
       "envase": "5",
-      "stock_actual": 2080.0,
-      "stock_envasado": 2080.0,
+      "stock_actual": 1680.0,
+      "stock_envasado": 1680.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PT",
       "granel_desc": "AGROPOTASION",
       "granel_stock": 1106.0,
       "granel_family": 40,
-      "pedidos_pendientes": 200.0,
+      "pedidos_pendientes": 0.0,
       "monthly_forecast": {
         "2026-10": 200.0,
         "2026-11": 1000.0,
@@ -5507,7 +5507,7 @@
           "desc": "AGROPOTASION, 5 L",
           "pais": "ESPAÑA",
           "ambito": "Nacional",
-          "pendientes_uds": 200.0,
+          "pendientes_uds": 0.0,
           "monthly_forecast": {
             "2026-10": 200.0,
             "2026-11": 0.0,
@@ -5741,7 +5741,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -6098,9 +6098,9 @@
       "base_sku": "FTK0005",
       "desc": "FITOKONTROL CA FLOW, 5 KG",
       "envase": "5",
-      "stock_actual": 0.0,
-      "stock_envasado": 0.0,
-      "stock_match_type": "none",
+      "stock_actual": 440.0,
+      "stock_envasado": 440.0,
+      "stock_match_type": "exact_envasado",
       "granel_code": null,
       "granel_desc": null,
       "granel_stock": 0.0,
@@ -6933,7 +6933,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -7097,7 +7097,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -7492,12 +7492,12 @@
       "base_sku": "PIV0005",
       "desc": "PGR IV, 5 L",
       "envase": "5",
-      "stock_actual": 0.0,
-      "stock_envasado": 0.0,
-      "stock_match_type": "none",
+      "stock_actual": 200.0,
+      "stock_envasado": 200.0,
+      "stock_match_type": "exact_envasado",
       "granel_code": "PIV",
       "granel_desc": "PGRIV",
-      "granel_stock": 540.0,
+      "granel_stock": 140.0,
       "granel_family": 40,
       "pedidos_pendientes": 200.0,
       "monthly_forecast": {
@@ -7748,12 +7748,12 @@
       "base_sku": "C-L0005",
       "desc": "CODIBOR-L, 5 L",
       "envase": "5",
-      "stock_actual": 1240.0,
-      "stock_envasado": 1240.0,
+      "stock_actual": 1040.0,
+      "stock_envasado": 1040.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40,
       "pedidos_pendientes": 300.0,
       "monthly_forecast": {
@@ -7830,14 +7830,14 @@
       "base_sku": "CBASI0005",
       "desc": "BIOCULTURE BASI, 5 KG",
       "envase": "5",
-      "stock_actual": 870.0,
-      "stock_envasado": 870.0,
+      "stock_actual": 770.0,
+      "stock_envasado": 770.0,
       "stock_match_type": "exact_envasado",
       "granel_code": null,
       "granel_desc": null,
       "granel_stock": 0.0,
       "granel_family": null,
-      "pedidos_pendientes": 100.0,
+      "pedidos_pendientes": 0.0,
       "monthly_forecast": {
         "2026-10": 500.0,
         "2026-11": 0.0,
@@ -7861,7 +7861,7 @@
           "desc": "BIOCULTURE BASI, 5 KG",
           "pais": "ESPAÑA",
           "ambito": "Nacional",
-          "pendientes_uds": 100.0,
+          "pendientes_uds": 0.0,
           "monthly_forecast": {
             "2026-10": 500.0,
             "2026-11": 0.0,
@@ -9701,7 +9701,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40,
       "pedidos_pendientes": 11000.0,
       "monthly_forecast": {
@@ -9783,7 +9783,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -9908,14 +9908,14 @@
       "base_sku": "CPLUS0020",
       "desc": "CALCIPLUS, 20 L",
       "envase": "20",
-      "stock_actual": 5640.0,
-      "stock_envasado": 5640.0,
+      "stock_actual": 5000.0,
+      "stock_envasado": 5000.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "CPLUS",
       "granel_desc": "CALCIPLUS",
-      "granel_stock": 2480.0,
+      "granel_stock": 1480.0,
       "granel_family": 40,
-      "pedidos_pendientes": 640.0,
+      "pedidos_pendientes": 0.0,
       "monthly_forecast": {
         "2026-10": 4880.0,
         "2026-11": 4480.0,
@@ -9939,7 +9939,7 @@
           "desc": "CALCIPLUS, 20 L",
           "pais": "ESPAÑA",
           "ambito": "Nacional",
-          "pendientes_uds": 640.0,
+          "pendientes_uds": 0.0,
           "monthly_forecast": {
             "2026-10": 4880.0,
             "2026-11": 4480.0,
@@ -10391,7 +10391,7 @@
       "stock_match_type": "base_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -11279,7 +11279,7 @@
       "stock_match_type": "none",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -11588,8 +11588,8 @@
       "base_sku": "ANAE0005",
       "desc": "ALCAPLANT NEW AE, 5 KG",
       "envase": "5",
-      "stock_actual": 15040.0,
-      "stock_envasado": 15040.0,
+      "stock_actual": 12840.0,
+      "stock_envasado": 12840.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "A",
       "granel_desc": "ALCAPLANT",
@@ -12419,7 +12419,7 @@
       "stock_match_type": "none",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -13751,7 +13751,7 @@
       "stock_match_type": "none",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -14065,7 +14065,7 @@
       "stock_match_type": "base_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -16323,7 +16323,7 @@
       "stock_match_type": "none",
       "granel_code": "CPLUS",
       "granel_desc": "CALCIPLUS",
-      "granel_stock": 2480.0,
+      "granel_stock": 1480.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -16376,12 +16376,12 @@
       "base_sku": "CPLUS1000",
       "desc": "CALCIPLUS, 1000 L",
       "envase": "1000",
-      "stock_actual": 0.0,
-      "stock_envasado": 0.0,
-      "stock_match_type": "none",
+      "stock_actual": 1000.0,
+      "stock_envasado": 1000.0,
+      "stock_match_type": "exact_envasado",
       "granel_code": "CPLUS",
       "granel_desc": "CALCIPLUS",
-      "granel_stock": 2480.0,
+      "granel_stock": 1480.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -16791,7 +16791,7 @@
       "stock_match_type": "none",
       "granel_code": "PIV",
       "granel_desc": "PGRIV",
-      "granel_stock": 540.0,
+      "granel_stock": 140.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -20867,7 +20867,7 @@
       "stock_match_type": "none",
       "granel_code": "SPCE2",
       "granel_desc": "SPRINTENE ABONO CE EXPORTACIÓN",
-      "granel_stock": 1958.0,
+      "granel_stock": 1984.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -20925,7 +20925,7 @@
       "stock_match_type": "none",
       "granel_code": "SPCE2",
       "granel_desc": "SPRINTENE ABONO CE EXPORTACIÓN",
-      "granel_stock": 1958.0,
+      "granel_stock": 1984.0,
       "granel_family": 40,
       "pedidos_pendientes": 0.0,
       "monthly_forecast": {
@@ -22180,8 +22180,8 @@
         "Javier"
       ],
       "pendientes_uds": 100.0,
-      "stock_actual": 680.0,
-      "stock_envasado": 680.0,
+      "stock_actual": 580.0,
+      "stock_envasado": 580.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "A-50(2)",
       "granel_desc": "CODIORGAN-A50",
@@ -22242,7 +22242,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -22379,12 +22379,12 @@
         "Irene"
       ],
       "pendientes_uds": 200.0,
-      "stock_actual": 2020.0,
-      "stock_envasado": 2020.0,
+      "stock_actual": 1820.0,
+      "stock_envasado": 1820.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PIV",
       "granel_desc": "PGRIV",
-      "granel_stock": 540.0,
+      "granel_stock": 140.0,
       "granel_family": 40
     },
     {
@@ -22444,9 +22444,9 @@
         "Javier",
         "Pedro"
       ],
-      "pendientes_uds": 320.0,
-      "stock_actual": 10968.0,
-      "stock_envasado": 10968.0,
+      "pendientes_uds": 0.0,
+      "stock_actual": 10648.0,
+      "stock_envasado": 10648.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PT",
       "granel_desc": "AGROPOTASION",
@@ -22514,9 +22514,9 @@
         "Javier",
         "Pedro"
       ],
-      "pendientes_uds": 640.0,
-      "stock_actual": 26120.0,
-      "stock_envasado": 26120.0,
+      "pendientes_uds": 0.0,
+      "stock_actual": 25480.0,
+      "stock_envasado": 25480.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "AGXK",
       "granel_desc": "AGROXILATO-K",
@@ -22730,9 +22730,9 @@
         "Javier",
         "Pedro"
       ],
-      "pendientes_uds": 420.0,
-      "stock_actual": 3860.0,
-      "stock_envasado": 3860.0,
+      "pendientes_uds": 320.0,
+      "stock_actual": 3620.0,
+      "stock_envasado": 3620.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "C-CU",
       "granel_desc": "CODICOBRE",
@@ -22781,7 +22781,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40
     },
     {
@@ -22995,8 +22995,8 @@
         "Pedro"
       ],
       "pendientes_uds": 250.0,
-      "stock_actual": 2335.0,
-      "stock_envasado": 2335.0,
+      "stock_actual": 2085.0,
+      "stock_envasado": 2085.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "A-50(2)",
       "granel_desc": "CODIORGAN-A50",
@@ -23632,9 +23632,9 @@
         "Javier",
         "Pedro"
       ],
-      "pendientes_uds": 200.0,
-      "stock_actual": 2080.0,
-      "stock_envasado": 2080.0,
+      "pendientes_uds": 0.0,
+      "stock_actual": 1680.0,
+      "stock_envasado": 1680.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PT",
       "granel_desc": "AGROPOTASION",
@@ -23760,7 +23760,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -24007,9 +24007,9 @@
         "Pedro"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 0.0,
-      "stock_envasado": 0.0,
-      "stock_match_type": "none",
+      "stock_actual": 440.0,
+      "stock_envasado": 440.0,
+      "stock_match_type": "exact_envasado",
       "granel_code": null,
       "granel_desc": null,
       "granel_stock": 0.0,
@@ -24513,7 +24513,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -24617,7 +24617,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -24789,12 +24789,12 @@
         "Alfonso"
       ],
       "pendientes_uds": 200.0,
-      "stock_actual": 0.0,
-      "stock_envasado": 0.0,
-      "stock_match_type": "none",
+      "stock_actual": 200.0,
+      "stock_envasado": 200.0,
+      "stock_match_type": "exact_envasado",
       "granel_code": "PIV",
       "granel_desc": "PGRIV",
-      "granel_stock": 540.0,
+      "granel_stock": 140.0,
       "granel_family": 40
     },
     {
@@ -24977,12 +24977,12 @@
         "Pedro"
       ],
       "pendientes_uds": 300.0,
-      "stock_actual": 1240.0,
-      "stock_envasado": 1240.0,
+      "stock_actual": 1040.0,
+      "stock_envasado": 1040.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40
     },
     {
@@ -25019,9 +25019,9 @@
         "Alfonso",
         "Pedro"
       ],
-      "pendientes_uds": 100.0,
-      "stock_actual": 870.0,
-      "stock_envasado": 870.0,
+      "pendientes_uds": 0.0,
+      "stock_actual": 770.0,
+      "stock_envasado": 770.0,
       "stock_match_type": "exact_envasado",
       "granel_code": null,
       "granel_desc": null,
@@ -25964,7 +25964,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -26007,7 +26007,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40
     },
     {
@@ -26048,13 +26048,13 @@
         "Irene",
         "Javier"
       ],
-      "pendientes_uds": 640.0,
-      "stock_actual": 5640.0,
-      "stock_envasado": 5640.0,
+      "pendientes_uds": 0.0,
+      "stock_actual": 5000.0,
+      "stock_envasado": 5000.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "CPLUS",
       "granel_desc": "CALCIPLUS",
-      "granel_stock": 2480.0,
+      "granel_stock": 1480.0,
       "granel_family": 40
     },
     {
@@ -26178,7 +26178,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -26421,7 +26421,7 @@
       "stock_match_type": "base_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -27023,7 +27023,7 @@
       "stock_match_type": "none",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -27239,8 +27239,8 @@
         "Javier"
       ],
       "pendientes_uds": 2200.0,
-      "stock_actual": 15040.0,
-      "stock_envasado": 15040.0,
+      "stock_actual": 12840.0,
+      "stock_envasado": 12840.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "A",
       "granel_desc": "ALCAPLANT",
@@ -27284,7 +27284,7 @@
       "stock_match_type": "base_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -27848,8 +27848,8 @@
         "García"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 2335.0,
-      "stock_envasado": 2335.0,
+      "stock_actual": 2085.0,
+      "stock_envasado": 2085.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "A-50(2)",
       "granel_desc": "CODIORGAN-A50",
@@ -27888,8 +27888,8 @@
         "García"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 680.0,
-      "stock_envasado": 680.0,
+      "stock_actual": 580.0,
+      "stock_envasado": 580.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "A-50(2)",
       "granel_desc": "CODIORGAN-A50",
@@ -28088,8 +28088,8 @@
         "García"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 26120.0,
-      "stock_envasado": 26120.0,
+      "stock_actual": 25480.0,
+      "stock_envasado": 25480.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "AGXK",
       "granel_desc": "AGROXILATO-K",
@@ -28253,7 +28253,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -28293,7 +28293,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -28333,7 +28333,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -28373,7 +28373,7 @@
       "stock_match_type": "none",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -28848,9 +28848,9 @@
         "García"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 0.0,
-      "stock_envasado": 0.0,
-      "stock_match_type": "none",
+      "stock_actual": 440.0,
+      "stock_envasado": 440.0,
+      "stock_match_type": "exact_envasado",
       "granel_code": null,
       "granel_desc": null,
       "granel_stock": 0.0,
@@ -29048,8 +29048,8 @@
         "García"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 2080.0,
-      "stock_envasado": 2080.0,
+      "stock_actual": 1680.0,
+      "stock_envasado": 1680.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PT",
       "granel_desc": "AGROPOTASION",
@@ -29088,8 +29088,8 @@
         "García"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 10968.0,
-      "stock_envasado": 10968.0,
+      "stock_actual": 10648.0,
+      "stock_envasado": 10648.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PT",
       "granel_desc": "AGROPOTASION",
@@ -29973,7 +29973,7 @@
       "stock_match_type": "base_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -30013,7 +30013,7 @@
       "stock_match_type": "none",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -30213,7 +30213,7 @@
       "stock_match_type": "base_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -30253,7 +30253,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -30293,7 +30293,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -30368,8 +30368,8 @@
         "García"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 3860.0,
-      "stock_envasado": 3860.0,
+      "stock_actual": 3620.0,
+      "stock_envasado": 3620.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "C-CU",
       "granel_desc": "CODICOBRE",
@@ -30493,7 +30493,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40
     },
     {
@@ -31088,8 +31088,8 @@
         "García"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 2080.0,
-      "stock_envasado": 2080.0,
+      "stock_actual": 1680.0,
+      "stock_envasado": 1680.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PT",
       "granel_desc": "AGROPOTASION",
@@ -31128,8 +31128,8 @@
         "García"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 10968.0,
-      "stock_envasado": 10968.0,
+      "stock_actual": 10648.0,
+      "stock_envasado": 10648.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PT",
       "granel_desc": "AGROPOTASION",
@@ -31990,7 +31990,7 @@
       "stock_match_type": "none",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -32234,7 +32234,7 @@
       "stock_match_type": "none",
       "granel_code": "CPLUS",
       "granel_desc": "CALCIPLUS",
-      "granel_stock": 2480.0,
+      "granel_stock": 1480.0,
       "granel_family": 40
     },
     {
@@ -32269,12 +32269,12 @@
         "Javier"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 0.0,
-      "stock_envasado": 0.0,
-      "stock_match_type": "none",
+      "stock_actual": 1000.0,
+      "stock_envasado": 1000.0,
+      "stock_match_type": "exact_envasado",
       "granel_code": "CPLUS",
       "granel_desc": "CALCIPLUS",
-      "granel_stock": 2480.0,
+      "granel_stock": 1480.0,
       "granel_family": 40
     },
     {
@@ -32520,7 +32520,7 @@
       "stock_match_type": "none",
       "granel_code": "PIV",
       "granel_desc": "PGRIV",
-      "granel_stock": 540.0,
+      "granel_stock": 140.0,
       "granel_family": 40
     },
     {
@@ -32684,7 +32684,7 @@
       "stock_match_type": "none",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -33326,8 +33326,8 @@
         "Mehmet"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 26120.0,
-      "stock_envasado": 26120.0,
+      "stock_actual": 25480.0,
+      "stock_envasado": 25480.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "AGXK",
       "granel_desc": "AGROXILATO-K",
@@ -33451,7 +33451,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -33531,7 +33531,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -33646,12 +33646,12 @@
         "Mehmet"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 1240.0,
-      "stock_envasado": 1240.0,
+      "stock_actual": 1040.0,
+      "stock_envasado": 1040.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40
     },
     {
@@ -33691,7 +33691,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40
     },
     {
@@ -33886,9 +33886,9 @@
         "Mehmet"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 0.0,
-      "stock_envasado": 0.0,
-      "stock_match_type": "none",
+      "stock_actual": 440.0,
+      "stock_envasado": 440.0,
+      "stock_match_type": "exact_envasado",
       "granel_code": null,
       "granel_desc": null,
       "granel_stock": 0.0,
@@ -34411,7 +34411,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -34891,7 +34891,7 @@
       "stock_match_type": "base_envasado",
       "granel_code": "AVAN",
       "granel_desc": "FLORAMEC AVANCE",
-      "granel_stock": 1068.0,
+      "granel_stock": 1477.0,
       "granel_family": 40
     },
     {
@@ -34966,9 +34966,9 @@
         "Mehmet"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 0.0,
-      "stock_envasado": 0.0,
-      "stock_match_type": "none",
+      "stock_actual": 440.0,
+      "stock_envasado": 440.0,
+      "stock_match_type": "exact_envasado",
       "granel_code": null,
       "granel_desc": null,
       "granel_stock": 0.0,
@@ -35172,7 +35172,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -35212,7 +35212,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -35407,9 +35407,9 @@
         "Mehmet"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 0.0,
-      "stock_envasado": 0.0,
-      "stock_match_type": "none",
+      "stock_actual": 440.0,
+      "stock_envasado": 440.0,
+      "stock_match_type": "exact_envasado",
       "granel_code": null,
       "granel_desc": null,
       "granel_stock": 0.0,
@@ -36569,8 +36569,8 @@
         "Ricardo"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 3860.0,
-      "stock_envasado": 3860.0,
+      "stock_actual": 3620.0,
+      "stock_envasado": 3620.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "C-CU",
       "granel_desc": "CODICOBRE",
@@ -37814,7 +37814,7 @@
       "stock_match_type": "none",
       "granel_code": "SPCE2",
       "granel_desc": "SPRINTENE ABONO CE EXPORTACIÓN",
-      "granel_stock": 1958.0,
+      "granel_stock": 1984.0,
       "granel_family": 40
     },
     {
@@ -37854,7 +37854,7 @@
       "stock_match_type": "none",
       "granel_code": "SPCE2",
       "granel_desc": "SPRINTENE ABONO CE EXPORTACIÓN",
-      "granel_stock": 1958.0,
+      "granel_stock": 1984.0,
       "granel_family": 40
     },
     {
@@ -38214,7 +38214,7 @@
       "stock_match_type": "base_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -38254,7 +38254,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -38294,7 +38294,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -38374,7 +38374,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40
     },
     {
@@ -38929,8 +38929,8 @@
         "Ricardo"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 2080.0,
-      "stock_envasado": 2080.0,
+      "stock_actual": 1680.0,
+      "stock_envasado": 1680.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "PT",
       "granel_desc": "AGROPOTASION",
@@ -39414,7 +39414,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "C-L",
       "granel_desc": "CODIBOR-L",
-      "granel_stock": 3197.3228,
+      "granel_stock": 3193.2328,
       "granel_family": 40
     },
     {
@@ -39729,8 +39729,8 @@
         "Ricardo"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 26120.0,
-      "stock_envasado": 26120.0,
+      "stock_actual": 25480.0,
+      "stock_envasado": 25480.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "AGXK",
       "granel_desc": "AGROXILATO-K",
@@ -39849,8 +39849,8 @@
         "Ricardo"
       ],
       "pendientes_uds": 0.0,
-      "stock_actual": 3860.0,
-      "stock_envasado": 3860.0,
+      "stock_actual": 3620.0,
+      "stock_envasado": 3620.0,
       "stock_match_type": "exact_envasado",
       "granel_code": "C-CU",
       "granel_desc": "CODICOBRE",
@@ -40094,7 +40094,7 @@
       "stock_match_type": "base_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -40134,7 +40134,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {
@@ -40174,7 +40174,7 @@
       "stock_match_type": "exact_envasado",
       "granel_code": "BIO",
       "granel_desc": "BIORAD-20",
-      "granel_stock": 7.0,
+      "granel_stock": 21107.0,
       "granel_family": 40
     },
     {

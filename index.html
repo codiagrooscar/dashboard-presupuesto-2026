@@ -2876,39 +2876,62 @@
       }
     }
 
-    // Clasificación de formato y tipo de formulación de cada artículo
+    // Funcion auxiliar para parsear litros exactos de envase
+    function parseItemLitros(envVal, desc) {
+      const s = String(envVal || '').replace(',', '.').trim();
+      const n = parseFloat(s);
+      if (!isNaN(n) && n > 0) return n;
+      const m = String(desc || '').match(/(\d+[\.,]?\d*)\s*(?:L|KG|LITROS|KILOS)/i);
+      if (m) {
+        const parsed = parseFloat(m[1].replace(',', '.'));
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      }
+      return 1.0;
+    }
+
+    // Clasificacion de formato y tipo de formulacion de cada articulo
     function getItemPackagingFormat(item) {
       const sku = (item.base_sku || item.sku || '').toUpperCase();
       const desc = (item.desc || '').toLowerCase();
       const env = (item.envase || '').toString().trim();
+      const lVal = parseItemLitros(env, desc);
 
       const isSolid = desc.includes(' kg') || desc.includes('polvo') || desc.includes('soluble') || desc.includes('micronizado') || desc.includes(' wg') || desc.includes(' sp');
-      
-      let category = 'OTHER';
-      if (env === '20' || sku.includes('0020')) {
-        category = '20';
-      } else if (env === '1' || env === '5' || sku.includes('0001') || sku.includes('0005')) {
-        category = 'SMALL';
-      } else if (env === '200' || env === '1000' || sku.includes('0200') || sku.includes('1000')) {
-        category = 'BULK';
-      }
 
+      let category = 'OTHER';
       let formatBadge = '';
-      if (category === '20') {
+      let lineName = 'Otros Formatos';
+
+      if (lVal >= 900 || sku.includes('1000')) {
+        category = 'BULK_1000';
+        lineName = 'Deposito 1000 L';
+        formatBadge = '🏭 Deposito 1000 L';
+      } else if (lVal >= 150 || sku.includes('0200')) {
+        category = 'BULK_200';
+        lineName = 'Deposito 200 L';
+        formatBadge = '🛢️ Deposito 200 L';
+      } else if (lVal >= 15 || sku.includes('0020')) {
+        category = '20';
+        lineName = isSolid ? 'Garrafas 20 KG' : 'Garrafas 20L';
         formatBadge = isSolid ? '🌾 20 KG' : '🛢️ 20 L';
-      } else if (category === 'SMALL') {
-        const u = (env === '1' || sku.includes('0001')) ? (isSolid ? '1 KG' : '1 L') : (isSolid ? '5 KG' : '5 L');
-        formatBadge = isSolid ? `🌾 ${u}` : `🧴 ${u}`;
-      } else if (category === 'BULK') {
-        const u = (env === '200' || sku.includes('0200')) ? '200 L' : '1.000 L';
-        formatBadge = `🏭 ${u}`;
+      } else if (lVal >= 4 || sku.includes('0005')) {
+        category = 'SMALL_5';
+        lineName = isSolid ? 'Garrafas 5 KG' : 'Garrafas 5L';
+        formatBadge = isSolid ? '🌾 5 KG' : '🧴 5 L';
+      } else if (lVal >= 0.8 || sku.includes('0001')) {
+        category = 'SMALL_1';
+        lineName = isSolid ? 'Botellas 1 KG' : 'Botellas 1L';
+        formatBadge = isSolid ? '🌾 1 KG' : '🧴 1 L';
       } else {
-        formatBadge = isSolid ? '🌾 Sólido' : '💧 Líquido';
+        lineName = `Formato ${lVal} L`;
+        formatBadge = isSolid ? `🌾 ${lVal} KG` : `🧴 ${lVal} L`;
       }
 
       return {
         isSolid: isSolid,
         isLiquid: !isSolid,
+        litros: lVal,
+        lineName: lineName,
         category: category,
         badge: formatBadge
       };
@@ -2952,8 +2975,8 @@
         // 2. Clasificación de Formato y Filtro
         const pkg = getItemPackagingFormat(item);
         if (prodFormatFilter === '20' && pkg.category !== '20') return;
-        if (prodFormatFilter === 'SMALL' && pkg.category !== 'SMALL') return;
-        if (prodFormatFilter === 'BULK' && pkg.category !== 'BULK') return;
+        if (prodFormatFilter === 'SMALL' && !['SMALL', 'SMALL_1', 'SMALL_5'].includes(pkg.category)) return;
+        if (prodFormatFilter === 'BULK' && !['BULK', 'BULK_200', 'BULK_1000'].includes(pkg.category)) return;
         if (prodFormatFilter === 'SOLIDS' && !pkg.isSolid) return;
         if (prodFormatFilter === 'LIQUIDS' && !pkg.isLiquid) return;
 
@@ -3174,8 +3197,8 @@
         total_sug_fabricar: processed.reduce((acc, r) => acc + r.sug_fabricar, 0),
         total_batches: processed.reduce((acc, r) => acc + r.num_batches, 0),
         total_20l_falta: processed.filter(r => r.pkg.category === '20').reduce((acc, r) => acc + r.falta_envasar, 0),
-        total_small_falta: processed.filter(r => r.pkg.category === 'SMALL').reduce((acc, r) => acc + r.falta_envasar, 0),
-        total_bulk_falta: processed.filter(r => r.pkg.category === 'BULK').reduce((acc, r) => acc + r.falta_envasar, 0),
+        total_small_falta: processed.filter(r => ['SMALL', 'SMALL_1', 'SMALL_5'].includes(r.pkg.category)).reduce((acc, r) => acc + r.falta_envasar, 0),
+        total_bulk_falta: processed.filter(r => ['BULK', 'BULK_200', 'BULK_1000'].includes(r.pkg.category)).reduce((acc, r) => acc + r.falta_envasar, 0),
         total_solids_falta: processed.filter(r => r.pkg.isSolid).reduce((acc, r) => acc + r.falta_envasar, 0),
         total_liquids_falta: processed.filter(r => r.pkg.isLiquid).reduce((acc, r) => acc + r.falta_envasar, 0),
 
@@ -4002,16 +4025,16 @@
       document.body.style.overflow = '';
     }
 
-    // EXPORTACIÓN PROFESIONAL DE ORDEN DE FABRICACIÓN A EXCEL (XLSX)
+    // EXPORTACION PROFESIONAL DE ORDEN DE FABRICACION A EXCEL (XLSX CON 3 HOJAS)
     async function exportProductionOrderExcel() {
-      const { rows } = computeProductionTableData();
-      if (!rows || rows.length === 0) {
-        alert("No hay artículos en la selección actual para exportar.");
+      if (!productionData) {
+        alert("No hay datos de produccion cargados.");
         return;
       }
 
       if (typeof ExcelJS === 'undefined') {
-        return exportProductionOrderCsvFallback(rows);
+        alert("ExcelJS no esta disponible.");
+        return;
       }
 
       try {
@@ -4027,12 +4050,6 @@
         wb.created = new Date();
         wb.modified = new Date();
 
-        // ---------------- HOJA 1: ORDEN DE FABRICACIÓN ----------------
-        const ws = wb.addWorksheet('Orden de Fabricación', {
-          views: [{ state: 'frozen', ySplit: 8, showGridLines: true }]
-        });
-
-        // Colores ARGB corporativos
         const C_HEADER_BG = 'FF0F172A';
         const C_GRP_ID = 'FF1E3A8A';
         const C_GRP_DEMAND = 'FF334155';
@@ -4064,442 +4081,715 @@
           right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
         };
 
-        // 1. BANNER PRINCIPAL (Filas 1 y 2)
-        ws.mergeCells('A1:Q1');
-        const cellTitle = ws.getCell('A1');
-        cellTitle.value = '  CODIAGRO S.L.  |  ORDEN DE FABRICACIÓN Y PLANIFICACIÓN DE PRODUCCIÓN (MRP)';
-        cellTitle.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
-        cellTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_HEADER_BG } };
-        cellTitle.alignment = { vertical: 'middle', horizontal: 'left' };
-        ws.getRow(1).height = 28;
-
-        ws.mergeCells('A2:Q2');
-        const cellSub = ws.getCell('A2');
-        const nowStr = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString();
-        const scopeStr = currentScope === 'ALL' ? 'Global (Nacional + Exportación)' : currentScope;
-        const moqStr = prodBatchSize > 0 ? `Lote Mínimo ${prodBatchSize} u` : 'Exacto (Sin lote mínimo)';
-        cellSub.value = `  Horizonte: ${monthNamesStr} (${selectedMonths.size} meses)  |  Ámbito: ${scopeStr}  |  Criterio: ${moqStr}  |  Emisión: ${nowStr}`;
-        cellSub.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF94A3B8' } };
-        cellSub.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_HEADER_BG } };
-        cellSub.alignment = { vertical: 'middle', horizontal: 'left' };
-        ws.getRow(2).height = 18;
-        ws.getRow(3).height = 8;
-
-        // 2. CÁLCULO DE TOTALES PARA TARJETAS KPI
-        let totUnidadesFabricar = 0;
-        let totLotesFabricar = 0;
-        let countCritical = 0;
-        let countWarning = 0;
-        let totPedidosCartera = 0;
-        let totStockEnvasado = 0;
-
-        rows.forEach(r => {
-          const sug = Number(r.sug_fabricar || r.falta_fabricar) || 0;
-          totUnidadesFabricar += sug;
-          totLotesFabricar += Number(r.num_batches) || 0;
-          if (r.status === 'CRITICAL') countCritical++;
-          else if (r.status === 'WARNING') countWarning++;
-          totPedidosCartera += Number(r.pending) || 0;
-          totStockEnvasado += Number(r.stock) || 0;
+        // =========================================================================
+        // HOJA 1: ORDEN DE FABRICACION DESGLOSADA POR PAIS / SKU
+        // =========================================================================
+        const wsMain = wb.addWorksheet('Orden de Fabricación', {
+          views: [{ state: 'frozen', ySplit: 8, showGridLines: true }]
         });
 
-        // 3. TARJETAS KPI (Filas 4 y 5)
-        const kpis = [
-          { top: 'A4:C4', bot: 'A5:C5', topC: 'A4', botC: 'A5', label: 'TOTAL A FABRICAR', val: `${Math.round(totUnidadesFabricar).toLocaleString()} u`, color: 'FFDC2626' },
-          { top: 'D4:F4', bot: 'D5:F5', topC: 'D4', botC: 'D5', label: 'LOTES SUGERIDOS', val: `${Math.round(totLotesFabricar).toLocaleString()} lotes`, color: 'FFD97706' },
-          { top: 'G4:I4', bot: 'G5:I5', topC: 'G4', botC: 'G5', label: 'ARTÍCULOS URGENTES', val: `${countCritical} SKUs (Déficit Granel)`, color: 'FFDC2626' },
-          { top: 'J4:L4', bot: 'J5:L5', topC: 'J4', botC: 'J5', label: 'SOLO ENVASAR', val: `${countWarning} SKUs (Granel OK)`, color: 'FFD97706' },
-          { top: 'M4:O4', bot: 'M5:O5', topC: 'M4', botC: 'M5', label: 'PEDIDOS CARTERA', val: `${Math.round(totPedidosCartera).toLocaleString()} u`, color: 'FF0F172A' },
-          { top: 'P4:Q4', bot: 'P5:Q5', topC: 'P4', botC: 'P5', label: 'STOCK ENVASADO', val: `${Math.round(totStockEnvasado).toLocaleString()} u`, color: 'FF059669' }
+        // Banner Superior
+        wsMain.mergeCells('A1:P1');
+        const cTitle = wsMain.getCell('A1');
+        cTitle.value = '  CODIAGRO S.L.  |  ORDEN DE FABRICACIÓN Y ENVASADO MRP (DESGLOSE POR PAÍS Y FORMATO)';
+        cTitle.font = { name: 'Calibri', size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
+        cTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_HEADER_BG } };
+        cTitle.alignment = { vertical: 'middle', horizontal: 'left' };
+        wsMain.getRow(1).height = 28;
+
+        wsMain.mergeCells('A2:P2');
+        const cSub = wsMain.getCell('A2');
+        const nowStr = new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString();
+        const scopeStr = currentScope === 'ALL' ? 'Global (Nacional + Exportación)' : currentScope;
+        const moqStr = prodBatchSize > 0 ? `Lote Mínimo ${prodBatchSize} u` : 'Exacto';
+        cSub.value = `  Horizonte: ${monthNamesStr} (${selectedMonths.size} meses)  |  Ámbito: ${scopeStr}  |  Lotes: ${moqStr}  |  Emisión: ${nowStr}`;
+        cSub.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF94A3B8' } };
+        cSub.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_HEADER_BG } };
+        cSub.alignment = { vertical: 'middle', horizontal: 'left' };
+        wsMain.getRow(2).height = 18;
+        wsMain.getRow(3).height = 8;
+
+        // Procesar filas desglosadas por destino
+        const rowsExport = [];
+        let totUnidadesFab = 0;
+        let totLitrosFab = 0;
+        let countCrit = 0;
+        let countWarn = 0;
+        let countCov = 0;
+        let totCartera = 0;
+        let totStockEnv = 0;
+
+        (productionData.base_skus || []).forEach(b => {
+          if (currentScope === 'NACIONAL' && !b.has_nacional) return;
+          if (currentScope === 'EXPORTACION' && !b.has_export) return;
+
+          const baseSku = b.base_sku || '';
+          const desc = b.desc || '';
+          const pkg = getItemPackagingFormat(b);
+          const envL = pkg.litros;
+          const fmtLabel = pkg.lineName;
+          const granelStock = Number(b.granel_stock) || 0;
+          const stockTotalB = Number(b.stock_actual) || 0;
+
+          let destinos = b.destinos || [];
+          if (!destinos || destinos.length === 0) {
+            destinos = [{
+              sku: baseSku,
+              desc: desc,
+              pais: b.has_nacional ? 'ESPAÑA' : 'EXPORTACIÓN',
+              ambito: b.has_nacional ? 'Nacional' : 'Exportación',
+              pendientes_uds: b.pedidos_pendientes || 0,
+              monthly_forecast: b.monthly_forecast || {}
+            }];
+          }
+
+          const activeDestinos = [];
+          destinos.forEach(d => {
+            const dAmbito = d.ambito || 'Nacional';
+            if (currentScope === 'NACIONAL' && dAmbito !== 'Nacional') return;
+            if (currentScope === 'EXPORTACION' && dAmbito !== 'Exportación') return;
+
+            const pUds = Number(d.pendientes_uds) || 0;
+            let fUds = 0;
+            selectedMonths.forEach(m => { fUds += (Number(d.monthly_forecast && d.monthly_forecast[m]) || 0); });
+            if (pUds > 0 || fUds > 0) activeDestinos.push(d);
+          });
+
+          if (activeDestinos.length === 0 && stockTotalB > 0) {
+            activeDestinos.push(destinos[0]);
+          }
+
+          let remStock = stockTotalB;
+          totStockEnv += stockTotalB;
+
+          activeDestinos.forEach(d => {
+            const pUds = Number(d.pendientes_uds) || 0;
+            const octU = Number(d.monthly_forecast && d.monthly_forecast['2026-10']) || 0;
+            const novU = Number(d.monthly_forecast && d.monthly_forecast['2026-11']) || 0;
+            const dicU = Number(d.monthly_forecast && d.monthly_forecast['2026-12']) || 0;
+
+            let demPeriodU = 0;
+            selectedMonths.forEach(m => { demPeriodU += (Number(d.monthly_forecast && d.monthly_forecast[m]) || 0); });
+            const totalDemU = pUds + demPeriodU;
+            const totalDemL = totalDemU * envL;
+
+            const allocatedStock = Math.min(remStock, totalDemU);
+            remStock -= allocatedStock;
+
+            const faltaEnvasarU = Math.max(0, totalDemU - allocatedStock);
+            const faltaEnvasarL = faltaEnvasarU * envL;
+
+            let sugFabU = faltaEnvasarU;
+            if (prodBatchSize > 0 && faltaEnvasarU > 0) {
+              const numBatches = Math.ceil(faltaEnvasarU / prodBatchSize);
+              sugFabU = numBatches * prodBatchSize;
+            }
+            const sugFabL = sugFabU * envL;
+
+            let status = 'COVERED';
+            let actionLabel = 'CUBIERTO';
+            if (faltaEnvasarU > 0) {
+              if (granelStock >= faltaEnvasarL) {
+                status = 'WARNING';
+                actionLabel = 'SOLO ENVASAR';
+                countWarn++;
+              } else {
+                status = 'CRITICAL';
+                actionLabel = 'FABRICACIÓN URGENTE';
+                countCrit++;
+              }
+            } else {
+              countCov++;
+            }
+
+            const paisNombre = d.pais || 'ESPAÑA';
+            const nuevoSku = d.sku || baseSku;
+
+            totUnidadesFab += sugFabU;
+            totLitrosFab += sugFabL;
+            totCartera += pUds;
+
+            rowsExport.push({
+              base_sku: baseSku,
+              nuevo_sku: nuevoSku,
+              desc: desc,
+              envase: envL,
+              formato: fmtLabel,
+              pais: paisNombre,
+              stock_asignado: allocatedStock,
+              pending: pUds,
+              oct_u: octU,
+              nov_u: novU,
+              dic_u: dicU,
+              demand_u: totalDemU,
+              demand_l: totalDemL,
+              sug_u: sugFabU,
+              sug_l: sugFabL,
+              status: status,
+              action: actionLabel
+            });
+          });
+        });
+
+        // Ordenar por criticidad y litros
+        const pOrder = { 'CRITICAL': 0, 'WARNING': 1, 'COVERED': 2 };
+        rowsExport.sort((a, b) => (pOrder[a.status] - pOrder[b.status]) || (b.sug_l - a.sug_l));
+
+        // KPIs de la Hoja 1
+        const kpisMain = [
+          { top: 'A4:B4', bot: 'A5:B5', topC: 'A4', botC: 'A5', label: 'TOTAL A FABRICAR (L/Kg)', val: `${Math.round(totLitrosFab).toLocaleString()} L`, color: 'FFDC2626' },
+          { top: 'C4:D4', bot: 'C5:D5', topC: 'C4', botC: 'C5', label: 'TOTAL UNIDADES (u)', val: `${Math.round(totUnidadesFab).toLocaleString()} u`, color: 'FFDC2626' },
+          { top: 'E4:F4', bot: 'E5:F5', topC: 'E4', botC: 'E5', label: 'DÉFICIT URGENTE', val: `${countCrit} Artículos`, color: 'FFDC2626' },
+          { top: 'G4:H4', bot: 'G5:H5', topC: 'G4', botC: 'G5', label: 'SOLO ENVASAR', val: `${countWarn} Artículos`, color: 'FFD97706' },
+          { top: 'I4:L4', bot: 'I5:L5', topC: 'I4', botC: 'I5', label: 'PEDIDOS CARTERA', val: `${Math.round(totCartera).toLocaleString()} u`, color: 'FF0F172A' },
+          { top: 'M4:P4', bot: 'M5:P5', topC: 'M4', botC: 'M5', label: 'STOCK ENVASADO', val: `${Math.round(totStockEnv).toLocaleString()} u`, color: 'FF059669' }
         ];
 
-        kpis.forEach(k => {
-          ws.mergeCells(k.top);
-          ws.mergeCells(k.bot);
-
-          const cTop = ws.getCell(k.topC);
+        kpisMain.forEach(k => {
+          wsMain.mergeCells(k.top);
+          wsMain.mergeCells(k.bot);
+          const cTop = wsMain.getCell(k.topC);
           cTop.value = k.label;
           cTop.font = { name: 'Calibri', size: 8, bold: true, color: { argb: 'FF64748B' } };
           cTop.alignment = { horizontal: 'center', vertical: 'middle' };
 
-          const cBot = ws.getCell(k.botC);
+          const cBot = wsMain.getCell(k.botC);
           cBot.value = k.val;
-          cBot.font = { name: 'Calibri', size: 13, bold: true, color: { argb: k.color } };
+          cBot.font = { name: 'Calibri', size: 12, bold: true, color: { argb: k.color } };
           cBot.alignment = { horizontal: 'center', vertical: 'middle' };
 
           const startColL = k.top.split(':')[0].replace(/\d+/, '');
           const startRowN = Number(k.top.split(':')[0].replace(/\D+/, ''));
           const endColL = k.bot.split(':')[1].replace(/\d+/, '');
           const endRowN = Number(k.bot.split(':')[1].replace(/\D+/, ''));
-          const sCol = ws.getColumn(startColL).number;
-          const eCol = ws.getColumn(endColL).number;
+          const sCol = wsMain.getColumn(startColL).number;
+          const eCol = wsMain.getColumn(endColL).number;
           for (let rIdx = startRowN; rIdx <= endRowN; rIdx++) {
             for (let cIdx = sCol; cIdx <= eCol; cIdx++) {
-              const cell = ws.getRow(rIdx).getCell(cIdx);
+              const cell = wsMain.getRow(rIdx).getCell(cIdx);
               cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_KPI_BG } };
               cell.border = kpiBorder;
             }
           }
         });
 
-        ws.getRow(4).height = 16;
-        ws.getRow(5).height = 24;
-        ws.getRow(6).height = 10;
+        wsMain.getRow(4).height = 16;
+        wsMain.getRow(5).height = 24;
+        wsMain.getRow(6).height = 10;
 
-        // 4. ENCABEZADOS DE TABLA (Filas 7 y 8)
-        ws.mergeCells('A7:F7');
-        const g1 = ws.getCell('A7');
-        g1.value = '1. IDENTIFICACIÓN DEL ARTÍCULO';
-        g1.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
-        g1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_ID } };
-        g1.alignment = { horizontal: 'center', vertical: 'middle' };
+        // Encabezados Hoja 1
+        wsMain.mergeCells('A7:F7');
+        wsMain.getCell('A7').value = '1. IDENTIFICACIÓN Y MERCADO DESTINO';
+        wsMain.getCell('A7').font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FFFFFFFF' } };
+        wsMain.getCell('A7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_ID } };
+        wsMain.getCell('A7').alignment = { horizontal: 'center', vertical: 'middle' };
 
-        ws.mergeCells('G7:K7');
-        const g2 = ws.getCell('G7');
-        g2.value = '2. SITUACIÓN ACTUAL DE STOCK Y DEMANDA';
-        g2.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
-        g2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_DEMAND } };
-        g2.alignment = { horizontal: 'center', vertical: 'middle' };
+        wsMain.mergeCells('G7:M7');
+        wsMain.getCell('G7').value = '2. SITUACIÓN DE DEMANDA Y PREVISIÓN POR FECHAS';
+        wsMain.getCell('G7').font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FFFFFFFF' } };
+        wsMain.getCell('G7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_DEMAND } };
+        wsMain.getCell('G7').alignment = { horizontal: 'center', vertical: 'middle' };
 
-        ws.mergeCells('L7:Q7');
-        const g3 = ws.getCell('L7');
-        g3.value = '3. PLAN DE FABRICACIÓN Y ACCIÓN MRP';
-        g3.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
-        g3.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_PLAN } };
-        g3.alignment = { horizontal: 'center', vertical: 'middle' };
-        ws.getRow(7).height = 20;
+        wsMain.mergeCells('N7:P7');
+        wsMain.getCell('N7').value = '3. PLAN DE FABRICACIÓN SUGERIDO';
+        wsMain.getCell('N7').font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FFFFFFFF' } };
+        wsMain.getCell('N7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_PLAN } };
+        wsMain.getCell('N7').alignment = { horizontal: 'center', vertical: 'middle' };
+        wsMain.getRow(7).height = 20;
 
-        const colHeaders = [
-          { col: 1, text: 'Código SKU', bg: C_GRP_ID, align: 'center', width: 15 },
-          { col: 2, text: 'Nuevo SKU', bg: C_GRP_ID, align: 'center', width: 22 },
-          { col: 3, text: 'Producto / Descripción', bg: C_GRP_ID, align: 'left', width: 38 },
-          { col: 4, text: 'Envase', bg: C_GRP_ID, align: 'center', width: 12 },
+        const mainHeaders = [
+          { col: 1, text: 'Código Base', bg: C_GRP_ID, align: 'center', width: 14 },
+          { col: 2, text: 'Nuevo SKU', bg: C_GRP_ID, align: 'center', width: 18 },
+          { col: 3, text: 'Producto / Descripción', bg: C_GRP_ID, align: 'left', width: 36 },
+          { col: 4, text: 'Envase', bg: C_GRP_ID, align: 'center', width: 10 },
           { col: 5, text: 'Línea Envasado', bg: C_GRP_ID, align: 'center', width: 18 },
-          { col: 6, text: 'Mercado', bg: C_GRP_ID, align: 'center', width: 16 },
-
-          { col: 7, text: 'Stock Envasado (u)', bg: C_GRP_DEMAND, align: 'right', width: 16 },
-          { col: 8, text: 'Pedidos Cartera (u)', bg: C_GRP_DEMAND, align: 'right', width: 16 },
-          { col: 9, text: 'Previsión Período (u)', bg: C_GRP_DEMAND, align: 'right', width: 17 },
-          { col: 10, text: 'Demanda Total (u)', bg: C_GRP_DEMAND, align: 'right', width: 17 },
-          { col: 11, text: 'Balance Neto (u)', bg: C_GRP_DEMAND, align: 'right', width: 16 },
-
-          { col: 12, text: 'Déficit Neto (u)', bg: C_GRP_PLAN, align: 'right', width: 16 },
-          { col: 13, text: 'Lotes', bg: C_GRP_PLAN, align: 'center', width: 11 },
-          { col: 14, text: 'A Fabricar Sugerido (u)', bg: C_GRP_PLAN, align: 'right', width: 20 },
-          { col: 15, text: 'Cobertura', bg: C_GRP_PLAN, align: 'center', width: 13 },
-          { col: 16, text: 'Agotamiento Stock', bg: C_GRP_PLAN, align: 'center', width: 20 },
-          { col: 17, text: 'Prioridad / Acción', bg: C_GRP_PLAN, align: 'center', width: 22 }
+          { col: 6, text: 'País / Mercado', bg: C_GRP_ID, align: 'center', width: 18 },
+          { col: 7, text: 'Stock Asignado (u)', bg: C_GRP_DEMAND, align: 'right', width: 17 },
+          { col: 8, text: 'Cartera Inmediata (u)', bg: C_GRP_DEMAND, align: 'right', width: 17 },
+          { col: 9, text: 'Oct-26 (u)', bg: C_GRP_DEMAND, align: 'right', width: 14 },
+          { col: 10, text: 'Nov-26 (u)', bg: C_GRP_DEMAND, align: 'right', width: 14 },
+          { col: 11, text: 'Dic-26 (u)', bg: C_GRP_DEMAND, align: 'right', width: 14 },
+          { col: 12, text: 'Demanda Total (u)', bg: C_GRP_DEMAND, align: 'right', width: 18 },
+          { col: 13, text: 'Demanda Total (L/Kg)', bg: C_GRP_DEMAND, align: 'right', width: 20 },
+          { col: 14, text: 'A Fabricar (u)', bg: C_GRP_PLAN, align: 'right', width: 17 },
+          { col: 15, text: 'A Fabricar (L/Kg)', bg: C_GRP_PLAN, align: 'right', width: 20 },
+          { col: 16, text: 'Prioridad / Acción', bg: C_GRP_PLAN, align: 'center', width: 22 }
         ];
 
-        colHeaders.forEach(ch => {
-          const cell = ws.getRow(8).getCell(ch.col);
-          cell.value = ch.text;
-          cell.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FFFFFFFF' } };
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ch.bg } };
-          cell.alignment = { horizontal: ch.align, vertical: 'middle' };
+        mainHeaders.forEach(mh => {
+          const cell = wsMain.getRow(8).getCell(mh.col);
+          cell.value = mh.text;
+          cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: mh.bg } };
+          cell.alignment = { horizontal: mh.align, vertical: 'middle' };
           cell.border = thinBorder;
-          ws.getColumn(ch.col).width = ch.width;
+          wsMain.getColumn(mh.col).width = mh.width;
         });
-        ws.getRow(8).height = 26;
+        wsMain.getRow(8).height = 24;
 
-        // 5. FILAS DE DATOS
-        const startRow = 9;
-        let currentRow = startRow;
+        let curRow1 = 9;
+        const startRow1 = curRow1;
 
-        rows.forEach(r => {
-          const rowObj = ws.getRow(currentRow);
-          const isAlt = (currentRow % 2 === 0);
+        rowsExport.forEach(r => {
+          const rObj = wsMain.getRow(curRow1);
+          const isAlt = (curRow1 % 2 === 0);
           const rowBg = isAlt ? C_ROW_ALT : C_ROW_WHITE;
 
-          const scopeText = r.is_mixed ? 'Nacional+Export' : (r.is_nacional ? 'Nacional' : (r.pais || 'VARIOS'));
-          const fmtText = r.pkg ? r.pkg.badge : (r.envase ? r.envase + ' L' : '-');
-          const sug = Number(r.sug_fabricar || r.falta_fabricar) || 0;
-          const cobDec = Number((r.coverage_pct / 100).toFixed(3)) || 0;
-          const nuevoSkuVal = r.nuevo_sku || r.sku || '';
+          rObj.getCell(1).value = r.base_sku;
+          rObj.getCell(1).font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF0F172A' } };
+          rObj.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // A: SKU Base
-          const cA = rowObj.getCell(1);
-          cA.value = r.sku || '';
-          cA.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
-          cA.alignment = { horizontal: 'center', vertical: 'middle' };
+          rObj.getCell(2).value = r.nuevo_sku;
+          rObj.getCell(2).font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF6B21A8' } };
+          rObj.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // B: Nuevo SKU (con 2 dígitos de país en exportación)
-          const cB = rowObj.getCell(2);
-          cB.value = nuevoSkuVal;
-          cB.font = { name: 'Calibri', size: 9.5, bold: (nuevoSkuVal !== r.sku), color: { argb: (nuevoSkuVal !== r.sku) ? 'FF6B21A8' : 'FF0F172A' } };
-          cB.alignment = { horizontal: 'center', vertical: 'middle' };
+          rObj.getCell(3).value = r.desc;
+          rObj.getCell(3).font = { name: 'Calibri', size: 9, color: { argb: 'FF1E293B' } };
+          rObj.getCell(3).alignment = { horizontal: 'left', vertical: 'middle' };
 
-          // C: Desc
-          const cC = rowObj.getCell(3);
-          cC.value = r.desc || '';
-          cC.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cC.alignment = { horizontal: 'left', vertical: 'middle' };
+          rObj.getCell(4).value = r.envase;
+          rObj.getCell(4).numFmt = '#,##0.##';
+          rObj.getCell(4).font = { name: 'Calibri', size: 9, color: { argb: 'FF1E293B' } };
+          rObj.getCell(4).alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // D: Envase
-          const cD = rowObj.getCell(4);
-          cD.value = r.envase || '';
-          cD.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cD.alignment = { horizontal: 'center', vertical: 'middle' };
+          rObj.getCell(5).value = r.formato;
+          rObj.getCell(5).font = { name: 'Calibri', size: 9, color: { argb: 'FF1E293B' } };
+          rObj.getCell(5).alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // E: Formato
-          const cE = rowObj.getCell(5);
-          cE.value = fmtText;
-          cE.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cE.alignment = { horizontal: 'center', vertical: 'middle' };
+          rObj.getCell(6).value = r.pais;
+          rObj.getCell(6).font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF0F172A' } };
+          rObj.getCell(6).alignment = { horizontal: 'center', vertical: 'middle' };
 
-          // F: Mercado
-          const cF = rowObj.getCell(6);
-          cF.value = scopeText;
-          cF.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cF.alignment = { horizontal: 'center', vertical: 'middle' };
+          const numCols = [
+            { col: 7, val: r.stock_asignado, bold: false },
+            { col: 8, val: r.pending, bold: false },
+            { col: 9, val: r.oct_u, bold: false },
+            { col: 10, val: r.nov_u, bold: false },
+            { col: 11, val: r.dic_u, bold: false },
+            { col: 12, val: r.demand_u, bold: true },
+            { col: 13, val: r.demand_l, bold: true },
+            { col: 14, val: r.sug_u, bold: true },
+            { col: 15, val: r.sug_l, bold: true }
+          ];
 
-          // G: Stock
-          const cG = rowObj.getCell(7);
-          cG.value = Number(r.stock) || 0;
-          cG.numFmt = '#,##0';
-          cG.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cG.alignment = { horizontal: 'right', vertical: 'middle' };
+          numCols.forEach(nc => {
+            const cell = rObj.getCell(nc.col);
+            cell.value = nc.val;
+            cell.numFmt = '#,##0';
+            cell.font = { name: 'Calibri', size: 9, bold: nc.bold, color: { argb: 'FF0F172A' } };
+            cell.alignment = { horizontal: 'right', vertical: 'middle' };
+          });
 
-          // H: Pedidos
-          const cH = rowObj.getCell(8);
-          cH.value = Number(r.pending) || 0;
-          cH.numFmt = '#,##0';
-          cH.font = { name: 'Calibri', size: 9.5, bold: (Number(r.pending) > 0), color: { argb: 'FF0F172A' } };
-          cH.alignment = { horizontal: 'right', vertical: 'middle' };
-
-          // I: Previsión
-          const cI = rowObj.getCell(9);
-          cI.value = Number(r.forecast) || 0;
-          cI.numFmt = '#,##0';
-          cI.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cI.alignment = { horizontal: 'right', vertical: 'middle' };
-
-          // J: Demanda Total (=H+I)
-          const cJ = rowObj.getCell(10);
-          cJ.value = { formula: `H${currentRow}+I${currentRow}` };
-          cJ.numFmt = '#,##0';
-          cJ.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
-          cJ.alignment = { horizontal: 'right', vertical: 'middle' };
-
-          // K: Balance Neto (=G-J)
-          const cK = rowObj.getCell(11);
-          cK.value = { formula: `G${currentRow}-J${currentRow}` };
-          cK.numFmt = '#,##0;[Red]-#,##0;0';
-          cK.font = { name: 'Calibri', size: 9.5, bold: true };
-          cK.alignment = { horizontal: 'right', vertical: 'middle' };
-
-          // L: Déficit Neto
-          const cL = rowObj.getCell(12);
-          cL.value = Number(r.falta_fabricar) || 0;
-          cL.numFmt = '#,##0';
-          cL.font = { name: 'Calibri', size: 9.5, bold: (Number(r.falta_fabricar) > 0), color: { argb: 'FF0F172A' } };
-          cL.alignment = { horizontal: 'right', vertical: 'middle' };
-
-          // M: Lotes
-          const cM = rowObj.getCell(13);
-          cM.value = Number(r.num_batches) || 0;
-          cM.numFmt = '#,##0';
-          cM.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cM.alignment = { horizontal: 'center', vertical: 'middle' };
-
-          // N: A Fabricar Sugerido
-          const cN = rowObj.getCell(14);
-          cN.value = sug;
-          cN.numFmt = '#,##0';
-          cN.font = { name: 'Calibri', size: 10, bold: true, color: { argb: sug > 0 ? 'FF991B1B' : 'FF0F172A' } };
-          cN.alignment = { horizontal: 'right', vertical: 'middle' };
-
-          // O: Cobertura
-          const cO = rowObj.getCell(15);
-          cO.value = cobDec;
-          cO.numFmt = '0.0%';
-          cO.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
-          cO.alignment = { horizontal: 'center', vertical: 'middle' };
-
-          // P: Agotamiento
-          const cP = rowObj.getCell(16);
-          cP.value = r.depleted_month || '';
-          cP.font = { name: 'Calibri', size: 9.5, bold: (r.depleted_month && r.depleted_month.includes('Inmediato')), color: { argb: 'FF0F172A' } };
-          cP.alignment = { horizontal: 'center', vertical: 'middle' };
-
-          // Q: Prioridad / Acción con Badge
-          const cQ = rowObj.getCell(17);
-          const actText = r.status === 'CRITICAL' ? 'FABRICACIÓN URGENTE' : (r.status === 'WARNING' ? 'PROGRAMAR LOTE' : 'CUBIERTO');
-          cQ.value = actText;
-          cQ.alignment = { horizontal: 'center', vertical: 'middle' };
-
+          const cAct = rObj.getCell(16);
+          cAct.value = r.action;
+          cAct.alignment = { horizontal: 'center', vertical: 'middle' };
           if (r.status === 'CRITICAL') {
-            cQ.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEE2E2' } };
-            cQ.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF991B1B' } };
+            cAct.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEE2E2' } };
+            cAct.font = { name: 'Calibri', size: 8.5, bold: true, color: { argb: 'FF991B1B' } };
           } else if (r.status === 'WARNING') {
-            cQ.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
-            cQ.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF92400E' } };
+            cAct.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
+            cAct.font = { name: 'Calibri', size: 8.5, bold: true, color: { argb: 'FF92400E' } };
           } else {
-            cQ.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } };
-            cQ.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF065F46' } };
+            cAct.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } };
+            cAct.font = { name: 'Calibri', size: 8.5, bold: true, color: { argb: 'FF065F46' } };
           }
 
-          for (let colI = 1; colI <= 16; colI++) {
-            const cItem = rowObj.getCell(colI);
-            cItem.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
-            cItem.border = thinBorder;
+          for (let colI = 1; colI <= 15; colI++) {
+            rObj.getCell(colI).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
+            rObj.getCell(colI).border = thinBorder;
           }
-          cQ.border = thinBorder;
-
-          rowObj.height = 20;
-          currentRow++;
+          cAct.border = thinBorder;
+          rObj.height = 20;
+          curRow1++;
         });
 
-        // 6. FILA DE TOTALES
-        const totRow = currentRow;
-        ws.mergeCells(`A${totRow}:F${totRow}`);
-        const cTotLbl = ws.getRow(totRow).getCell(1);
-        cTotLbl.value = `TOTAL GENERAL (${rows.length} SKUs)`;
-        cTotLbl.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
-        cTotLbl.alignment = { horizontal: 'right', vertical: 'middle' };
+        // Totales Hoja 1
+        const totRow1 = curRow1;
+        wsMain.mergeCells(`A${totRow1}:F${totRow1}`);
+        const cTotLbl1 = wsMain.getRow(totRow1).getCell(1);
+        cTotLbl1.value = `TOTAL GENERAL (${rowsExport.length} Artículos / Destinos)`;
+        cTotLbl1.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
+        cTotLbl1.alignment = { horizontal: 'right', vertical: 'middle' };
 
-        const sumCols = [
-          { col: 7, l: 'G' }, { col: 8, l: 'H' }, { col: 9, l: 'I' },
-          { col: 10, l: 'J' }, { col: 11, l: 'K' }, { col: 12, l: 'L' }, { col: 13, l: 'M' }, { col: 14, l: 'N' }
+        const sumCols1 = [
+          { col: 7, l: 'G' }, { col: 8, l: 'H' }, { col: 9, l: 'I' }, { col: 10, l: 'J' }, { col: 11, l: 'K' },
+          { col: 12, l: 'L' }, { col: 13, l: 'M' }, { col: 14, l: 'N' }, { col: 15, l: 'O' }
         ];
 
-        sumCols.forEach(sc => {
-          const cSum = ws.getRow(totRow).getCell(sc.col);
-          cSum.value = { formula: `SUM(${sc.l}${startRow}:${sc.l}${totRow - 1})` };
+        sumCols1.forEach(sc => {
+          const cSum = wsMain.getRow(totRow1).getCell(sc.col);
+          cSum.value = { formula: `SUM(${sc.l}${startRow1}:${sc.l}${totRow1 - 1})` };
           cSum.numFmt = '#,##0';
-          cSum.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+          cSum.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
           cSum.alignment = { horizontal: 'right', vertical: 'middle' };
         });
 
-        const cCobTot = ws.getRow(totRow).getCell(15);
-        cCobTot.value = { formula: `IF(J${totRow}>0, G${totRow}/J${totRow}, 1)` };
-        cCobTot.numFmt = '0.0%';
-        cCobTot.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
-        cCobTot.alignment = { horizontal: 'center', vertical: 'middle' };
+        wsMain.getRow(totRow1).getCell(16).value = '';
 
-        ws.getRow(totRow).getCell(16).value = '';
-        ws.getRow(totRow).getCell(17).value = '';
-
-        for (let colI = 1; colI <= 17; colI++) {
-          const cT = ws.getRow(totRow).getCell(colI);
+        for (let colI = 1; colI <= 16; colI++) {
+          const cT = wsMain.getRow(totRow1).getCell(colI);
           cT.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_TOTAL_BG } };
           cT.border = totalBorder;
         }
-        ws.getRow(totRow).height = 26;
+        wsMain.getRow(totRow1).height = 26;
+        wsMain.autoFilter = `A8:P${totRow1 - 1}`;
 
-        ws.autoFilter = `A8:Q${totRow - 1}`;
+        // =========================================================================
+        // HOJA 2: PLAN GRANELES POR MES (Graneles en Filas, Meses en Columnas)
+        // =========================================================================
+        const wsGranel = wb.addWorksheet('Plan Graneles por Mes', {
+          views: [{ state: 'frozen', ySplit: 5, showGridLines: true }]
+        });
 
-        // ---------------- HOJA 2: RESUMEN POR LÍNEA DE ENVASADO ----------------
+        wsGranel.mergeCells('A1:M1');
+        const cGTitle = wsGranel.getCell('A1');
+        cGTitle.value = '  CODIAGRO S.L.  |  PLAN MAESTRO DE PRODUCCIÓN DE GRANELES (NECESIDAD EN LITROS / KG POR MES)';
+        cGTitle.font = { name: 'Calibri', size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
+        cGTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_HEADER_BG } };
+        cGTitle.alignment = { vertical: 'middle', horizontal: 'left' };
+        wsGranel.getRow(1).height = 28;
+
+        wsGranel.mergeCells('A2:M2');
+        const cGSub = wsGranel.getCell('A2');
+        cGSub.value = `  Horizonte: Octubre 2026 - Diciembre 2026  |  Total Graneles Químicos a Fabricar en Planta  |  Fecha Emisión: ${nowStr}`;
+        cGSub.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF94A3B8' } };
+        cGSub.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_HEADER_BG } };
+        cGSub.alignment = { vertical: 'middle', horizontal: 'left' };
+        wsGranel.getRow(2).height = 18;
+
+        wsGranel.mergeCells('A4:B4');
+        wsGranel.getCell('A4').value = '1. IDENTIFICACIÓN GRANEL';
+        wsGranel.getCell('A4').font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FFFFFFFF' } };
+        wsGranel.getCell('A4').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_ID } };
+        wsGranel.getCell('A4').alignment = { horizontal: 'center', vertical: 'middle' };
+
+        wsGranel.mergeCells('C4:E4');
+        wsGranel.getCell('C4').value = '2. DISPONIBILIDAD INICIAL (L/KG)';
+        wsGranel.getCell('C4').font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FFFFFFFF' } };
+        wsGranel.getCell('C4').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_DEMAND } };
+        wsGranel.getCell('C4').alignment = { horizontal: 'center', vertical: 'middle' };
+
+        wsGranel.mergeCells('F4:J4');
+        wsGranel.getCell('F4').value = '3. DEMANDA Y PREVISIÓN MENSUAL (L/KG)';
+        wsGranel.getCell('F4').font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FFFFFFFF' } };
+        wsGranel.getCell('F4').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_DEMAND } };
+        wsGranel.getCell('F4').alignment = { horizontal: 'center', vertical: 'middle' };
+
+        wsGranel.mergeCells('K4:M4');
+        wsGranel.getCell('K4').value = '4. NECESIDAD NETA REACTORES';
+        wsGranel.getCell('K4').font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FFFFFFFF' } };
+        wsGranel.getCell('K4').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_PLAN } };
+        wsGranel.getCell('K4').alignment = { horizontal: 'center', vertical: 'middle' };
+        wsGranel.getRow(4).height = 20;
+
+        const granelHeaders = [
+          { col: 1, text: 'Cód. Granel', bg: C_GRP_ID, align: 'center', width: 14 },
+          { col: 2, text: 'Producto Químico / Granel', bg: C_GRP_ID, align: 'left', width: 36 },
+          { col: 3, text: 'Stock Tanque (L/Kg)', bg: C_GRP_DEMAND, align: 'right', width: 20 },
+          { col: 4, text: 'Stock Envasado (L/Kg)', bg: C_GRP_DEMAND, align: 'right', width: 22 },
+          { col: 5, text: 'Stock Total (L/Kg)', bg: C_GRP_DEMAND, align: 'right', width: 20 },
+          { col: 6, text: 'Cartera Inmediata (L/Kg)', bg: C_GRP_DEMAND, align: 'right', width: 22 },
+          { col: 7, text: 'Oct-26 (L/Kg)', bg: C_GRP_DEMAND, align: 'right', width: 18 },
+          { col: 8, text: 'Nov-26 (L/Kg)', bg: C_GRP_DEMAND, align: 'right', width: 18 },
+          { col: 9, text: 'Dic-26 (L/Kg)', bg: C_GRP_DEMAND, align: 'right', width: 18 },
+          { col: 10, text: 'Demanda Total (L/Kg)', bg: C_GRP_DEMAND, align: 'right', width: 22 },
+          { col: 11, text: 'Balance Neto (L/Kg)', bg: C_GRP_PLAN, align: 'right', width: 20 },
+          { col: 12, text: 'FALTA FABRICAR (L/Kg)', bg: C_GRP_PLAN, align: 'right', width: 24 },
+          { col: 13, text: 'Prioridad Reactor', bg: C_GRP_PLAN, align: 'center', width: 20 }
+        ];
+
+        granelHeaders.forEach(gh => {
+          const cell = wsGranel.getRow(5).getCell(gh.col);
+          cell.value = gh.text;
+          cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: gh.bg } };
+          cell.alignment = { horizontal: gh.align, vertical: 'middle' };
+          cell.border = thinBorder;
+          wsGranel.getColumn(gh.col).width = gh.width;
+        });
+        wsGranel.getRow(5).height = 24;
+
+        // Calcular Graneles
+        const granelesMap = {};
+        (productionData.graneles || []).forEach(g => {
+          granelesMap[g.granel_code] = {
+            code: g.granel_code,
+            desc: g.granel_desc || `GRANEL ${g.granel_code}`,
+            stock_tanque: Number(g.granel_stock) || 0,
+            stock_envasado_l: 0,
+            cartera_l: 0,
+            oct_l: 0,
+            nov_l: 0,
+            dic_l: 0
+          };
+        });
+
+        (productionData.base_skus || []).forEach(b => {
+          const gCode = b.granel_code;
+          if (!gCode) return;
+          if (!granelesMap[gCode]) {
+            granelesMap[gCode] = {
+              code: gCode,
+              desc: b.granel_desc || `GRANEL ${gCode}`,
+              stock_tanque: Number(b.granel_stock) || 0,
+              stock_envasado_l: 0,
+              cartera_l: 0,
+              oct_l: 0,
+              nov_l: 0,
+              dic_l: 0
+            };
+          }
+
+          const pkg = getItemPackagingFormat(b);
+          const envL = pkg.litros;
+          const stU = Number(b.stock_actual) || 0;
+          const peU = Number(b.pedidos_pendientes) || 0;
+
+          granelesMap[gCode].stock_envasado_l += stU * envL;
+          granelesMap[gCode].cartera_l += peU * envL;
+          granelesMap[gCode].oct_l += (Number(b.monthly_forecast && b.monthly_forecast['2026-10']) || 0) * envL;
+          granelesMap[gCode].nov_l += (Number(b.monthly_forecast && b.monthly_forecast['2026-11']) || 0) * envL;
+          granelesMap[gCode].dic_l += (Number(b.monthly_forecast && b.monthly_forecast['2026-12']) || 0) * envL;
+        });
+
+        const granelesList = Object.values(granelesMap);
+        granelesList.forEach(g => {
+          g.dem_tot_l = g.cartera_l + g.oct_l + g.nov_l + g.dic_l;
+          g.stock_tot_l = g.stock_tanque + g.stock_envasado_l;
+          g.balance_l = g.stock_tot_l - g.dem_tot_l;
+          g.falta_fabricar_l = Math.max(0, -g.balance_l);
+        });
+
+        granelesList.sort((a, b) => (b.falta_fabricar_l - a.falta_fabricar_l) || (b.dem_tot_l - a.dem_tot_l));
+
+        let curGRow = 6;
+        const startGRow = curGRow;
+
+        granelesList.forEach(g => {
+          if (g.stock_tot_l === 0 && g.dem_tot_l === 0) return;
+
+          const rObj = wsGranel.getRow(curGRow);
+          const isAlt = (curGRow % 2 === 0);
+          const bg = isAlt ? C_ROW_ALT : C_ROW_WHITE;
+
+          rObj.getCell(1).value = g.code;
+          rObj.getCell(1).font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF0F172A' } };
+          rObj.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
+
+          rObj.getCell(2).value = g.desc;
+          rObj.getCell(2).font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF0F172A' } };
+          rObj.getCell(2).alignment = { horizontal: 'left', vertical: 'middle' };
+
+          const gNums = [
+            { col: 3, val: g.stock_tanque, bold: false },
+            { col: 4, val: g.stock_envasado_l, bold: false },
+            { col: 5, val: g.stock_tot_l, bold: true },
+            { col: 6, val: g.cartera_l, bold: false },
+            { col: 7, val: g.oct_l, bold: false },
+            { col: 8, val: g.nov_l, bold: false },
+            { col: 9, val: g.dic_l, bold: false },
+            { col: 10, val: g.dem_tot_l, bold: true },
+            { col: 11, val: g.balance_l, bold: false },
+            { col: 12, val: g.falta_fabricar_l, bold: true }
+          ];
+
+          gNums.forEach(gn => {
+            const cell = rObj.getCell(gn.col);
+            cell.value = gn.val;
+            cell.numFmt = '#,##0';
+            cell.font = { name: 'Calibri', size: 9, bold: gn.bold, color: { argb: 'FF0F172A' } };
+            cell.alignment = { horizontal: 'right', vertical: 'middle' };
+          });
+
+          const cPrio = rObj.getCell(13);
+          cPrio.alignment = { horizontal: 'center', vertical: 'middle' };
+          if (g.falta_fabricar_l > 0) {
+            cPrio.value = 'FABRICAR GRANEL';
+            cPrio.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEE2E2' } };
+            cPrio.font = { name: 'Calibri', size: 8.5, bold: true, color: { argb: 'FF991B1B' } };
+          } else {
+            cPrio.value = 'CUBIERTO';
+            cPrio.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1FAE5' } };
+            cPrio.font = { name: 'Calibri', size: 8.5, bold: true, color: { argb: 'FF065F46' } };
+          }
+
+          for (let colI = 1; colI <= 12; colI++) {
+            rObj.getCell(colI).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+            rObj.getCell(colI).border = thinBorder;
+          }
+          cPrio.border = thinBorder;
+          rObj.height = 20;
+          curGRow++;
+        });
+
+        // Totales Hoja 2
+        const totGRow = curGRow;
+        wsGranel.mergeCells(`A${totGRow}:B${totGRow}`);
+        const cTotGLbl = wsGranel.getRow(totGRow).getCell(1);
+        cTotGLbl.value = 'TOTAL PLANTA GRANELES (L/KG)';
+        cTotGLbl.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
+        cTotGLbl.alignment = { horizontal: 'right', vertical: 'middle' };
+
+        const sumGCols = [
+          { col: 3, l: 'C' }, { col: 4, l: 'D' }, { col: 5, l: 'E' }, { col: 6, l: 'F' },
+          { col: 7, l: 'G' }, { col: 8, l: 'H' }, { col: 9, l: 'I' }, { col: 10, l: 'J' },
+          { col: 11, l: 'K' }, { col: 12, l: 'L' }
+        ];
+
+        sumGCols.forEach(sc => {
+          const cell = wsGranel.getRow(totGRow).getCell(sc.col);
+          cell.value = { formula: `SUM(${sc.l}${startGRow}:${sc.l}${totGRow - 1})` };
+          cell.numFmt = '#,##0';
+          cell.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
+          cell.alignment = { horizontal: 'right', vertical: 'middle' };
+        });
+
+        wsGranel.getRow(totGRow).getCell(13).value = '';
+
+        for (let colI = 1; colI <= 13; colI++) {
+          const cell = wsGranel.getRow(totGRow).getCell(colI);
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_TOTAL_BG } };
+          cell.border = totalBorder;
+        }
+        wsGranel.getRow(totGRow).height = 26;
+        wsGranel.autoFilter = `A5:M${totGRow - 1}`;
+
+        // =========================================================================
+        // HOJA 3: RESUMEN POR LÍNEA DE ENVASADO
+        // =========================================================================
         const wsEnv = wb.addWorksheet('Resumen por Envase', {
           views: [{ showGridLines: true }]
         });
 
-        wsEnv.mergeCells('A1:G1');
+        wsEnv.mergeCells('A1:I1');
         const cEnvTitle = wsEnv.getCell('A1');
-        cEnvTitle.value = '  CODIAGRO S.L.  |  RESUMEN DE NECESIDADES POR LÍNEA DE ENVASADO';
+        cEnvTitle.value = '  CODIAGRO S.L.  |  RESUMEN DE NECESIDADES POR LÍNEA DE ENVASADO Y FORMATO';
         cEnvTitle.font = { name: 'Calibri', size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
         cEnvTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_HEADER_BG } };
         cEnvTitle.alignment = { vertical: 'middle', horizontal: 'left' };
         wsEnv.getRow(1).height = 28;
 
         const envHeaders = [
-          { col: 1, text: 'Línea / Formato Envase', width: 26, align: 'left' },
-          { col: 2, text: 'Nº SKUs', width: 14, align: 'center' },
-          { col: 3, text: 'Stock Actual (u)', width: 18, align: 'right' },
-          { col: 4, text: 'Pedidos Cartera (u)', width: 18, align: 'right' },
-          { col: 5, text: 'Previsión (u)', width: 18, align: 'right' },
-          { col: 6, text: 'Demanda Total (u)', width: 18, align: 'right' },
-          { col: 7, text: 'A Fabricar Sugerido (u)', width: 22, align: 'right' }
+          { col: 1, text: 'Línea / Formato de Envasado', width: 26, align: 'left' },
+          { col: 2, text: 'Nº Registros', width: 14, align: 'center' },
+          { col: 3, text: 'Stock Envasado (u)', width: 18, align: 'right' },
+          { col: 4, text: 'Cartera Inmediata (u)', width: 18, align: 'right' },
+          { col: 5, text: 'Oct-26 (u)', width: 16, align: 'right' },
+          { col: 6, text: 'Nov-26 (u)', width: 16, align: 'right' },
+          { col: 7, text: 'Dic-26 (u)', width: 16, align: 'right' },
+          { col: 8, text: 'Demanda Total (u)', width: 18, align: 'right' },
+          { col: 9, text: 'A Fabricar Sugerido (u)', width: 22, align: 'right' }
         ];
 
         envHeaders.forEach(eh => {
-          const cEh = wsEnv.getRow(3).getCell(eh.col);
-          cEh.value = eh.text;
-          cEh.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FFFFFFFF' } };
-          cEh.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_ID } };
-          cEh.alignment = { horizontal: eh.align, vertical: 'middle' };
-          cEh.border = thinBorder;
+          const cell = wsEnv.getRow(3).getCell(eh.col);
+          cell.value = eh.text;
+          cell.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_ID } };
+          cell.alignment = { horizontal: eh.align, vertical: 'middle' };
+          cell.border = thinBorder;
           wsEnv.getColumn(eh.col).width = eh.width;
         });
         wsEnv.getRow(3).height = 24;
 
-        const fmtMap = {};
-        rows.forEach(r => {
-          const fKey = r.pkg ? r.pkg.badge : (r.envase ? r.envase + ' L' : 'Otros');
-          if (!fmtMap[fKey]) {
-            fmtMap[fKey] = { count: 0, stock: 0, pending: 0, forecast: 0, demand: 0, sug: 0 };
-          }
-          fmtMap[fKey].count++;
-          fmtMap[fKey].stock += Number(r.stock) || 0;
-          fmtMap[fKey].pending += Number(r.pending) || 0;
-          fmtMap[fKey].forecast += Number(r.forecast) || 0;
-          fmtMap[fKey].demand += (Number(r.pending) || 0) + (Number(r.forecast) || 0);
-          fmtMap[fKey].sug += Number(r.sug_fabricar || r.falta_fabricar) || 0;
+        const fmtAgg = {};
+        rowsExport.forEach(r => {
+          const f = r.formato;
+          if (!fmtAgg[f]) fmtAgg[f] = { count: 0, stock: 0, pending: 0, oct: 0, nov: 0, dic: 0, demand: 0, sug: 0 };
+          fmtAgg[f].count++;
+          fmtAgg[f].stock += r.stock_asignado;
+          fmtAgg[f].pending += r.pending;
+          fmtAgg[f].oct += r.oct_u;
+          fmtAgg[f].nov += r.nov_u;
+          fmtAgg[f].dic += r.dic_u;
+          fmtAgg[f].demand += r.demand_u;
+          fmtAgg[f].sug += r.sug_u;
         });
 
+        const orderPriority = {
+          'Depósito 1000 L': 1,
+          'Depósito 200 L': 2,
+          'Garrafas 20L': 3,
+          'Garrafas 20 KG': 4,
+          'Garrafas 5L': 5,
+          'Garrafas 5 KG': 6,
+          'Botellas 1L': 7,
+          'Botellas 1 KG': 8
+        };
+        const sortedFmtKeys = Object.keys(fmtAgg).sort((a, b) => (orderPriority[a] || 99) - (orderPriority[b] || 99));
+
         let curEnvRow = 4;
-        Object.keys(fmtMap).sort().forEach(fKey => {
-          const agg = fmtMap[fKey];
+        const startEnvRow = curEnvRow;
+
+        sortedFmtKeys.forEach(fKey => {
+          const agg = fmtAgg[fKey];
           const rObj = wsEnv.getRow(curEnvRow);
           const isAlt = (curEnvRow % 2 === 0);
           const bg = isAlt ? C_ROW_ALT : C_ROW_WHITE;
 
           rObj.getCell(1).value = fKey;
-          rObj.getCell(1).font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
+          rObj.getCell(1).font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FF0F172A' } };
           rObj.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
 
           rObj.getCell(2).value = agg.count;
           rObj.getCell(2).numFmt = '#,##0';
-          rObj.getCell(2).font = { name: 'Calibri', size: 9.5, color: { argb: 'FF1E293B' } };
+          rObj.getCell(2).font = { name: 'Calibri', size: 9, color: { argb: 'FF1E293B' } };
           rObj.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
 
-          const metrics = [
+          const eNums = [
             { col: 3, val: agg.stock, bold: false },
             { col: 4, val: agg.pending, bold: false },
-            { col: 5, val: agg.forecast, bold: false },
-            { col: 6, val: agg.demand, bold: false },
-            { col: 7, val: agg.sug, bold: true, color: agg.sug > 0 ? 'FF991B1B' : 'FF0F172A' }
+            { col: 5, val: agg.oct, bold: false },
+            { col: 6, val: agg.nov, bold: false },
+            { col: 7, val: agg.dic, bold: false },
+            { col: 8, val: agg.demand, bold: true },
+            { col: 9, val: agg.sug, bold: true }
           ];
 
-          metrics.forEach(m => {
-            const cM = rObj.getCell(m.col);
-            cM.value = m.val;
-            cM.numFmt = '#,##0';
-            cM.font = { name: 'Calibri', size: 9.5, bold: m.bold, color: { argb: m.color || 'FF1E293B' } };
-            cM.alignment = { horizontal: 'right', vertical: 'middle' };
+          eNums.forEach(en => {
+            const cell = rObj.getCell(en.col);
+            cell.value = en.val;
+            cell.numFmt = '#,##0';
+            cell.font = { name: 'Calibri', size: 9, bold: en.bold, color: { argb: 'FF0F172A' } };
+            cell.alignment = { horizontal: 'right', vertical: 'middle' };
           });
 
-          for (let cI = 1; cI <= 7; cI++) {
-            rObj.getCell(cI).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
-            rObj.getCell(cI).border = thinBorder;
+          for (let colI = 1; colI <= 9; colI++) {
+            rObj.getCell(colI).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+            rObj.getCell(colI).border = thinBorder;
           }
           rObj.height = 20;
           curEnvRow++;
         });
 
-        // Totales Hoja 2
+        // Totales Hoja 3
         const envTotRow = curEnvRow;
-        wsEnv.getRow(envTotRow).getCell(1).value = 'TOTAL PLANTA';
-        wsEnv.getRow(envTotRow).getCell(1).font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+        wsEnv.getRow(envTotRow).getCell(1).value = 'TOTAL PLANTA ENVASADO';
+        wsEnv.getRow(envTotRow).getCell(1).font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
         wsEnv.getRow(envTotRow).getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
 
-        wsEnv.getRow(envTotRow).getCell(2).value = { formula: `SUM(B4:B${envTotRow - 1})` };
+        wsEnv.getRow(envTotRow).getCell(2).value = { formula: `SUM(B${startEnvRow}:B${envTotRow - 1})` };
         wsEnv.getRow(envTotRow).getCell(2).numFmt = '#,##0';
-        wsEnv.getRow(envTotRow).getCell(2).font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+        wsEnv.getRow(envTotRow).getCell(2).font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
         wsEnv.getRow(envTotRow).getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
 
-        const envCols = [{ col: 3, l: 'C' }, { col: 4, l: 'D' }, { col: 5, l: 'E' }, { col: 6, l: 'F' }, { col: 7, l: 'G' }];
+        const envCols = [
+          { col: 3, l: 'C' }, { col: 4, l: 'D' }, { col: 5, l: 'E' }, { col: 6, l: 'F' },
+          { col: 7, l: 'G' }, { col: 8, l: 'H' }, { col: 9, l: 'I' }
+        ];
+
         envCols.forEach(ec => {
-          const cE = wsEnv.getRow(envTotRow).getCell(ec.col);
-          cE.value = { formula: `SUM(${ec.l}4:${ec.l}${envTotRow - 1})` };
-          cE.numFmt = '#,##0';
-          cE.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
-          cE.alignment = { horizontal: 'right', vertical: 'middle' };
+          const cell = wsEnv.getRow(envTotRow).getCell(ec.col);
+          cell.value = { formula: `SUM(${ec.l}${startEnvRow}:${ec.l}${envTotRow - 1})` };
+          cell.numFmt = '#,##0';
+          cell.font = { name: 'Calibri', size: 9.5, bold: true, color: { argb: 'FF0F172A' } };
+          cell.alignment = { horizontal: 'right', vertical: 'middle' };
         });
 
-        for (let cI = 1; cI <= 7; cI++) {
-          wsEnv.getRow(envTotRow).getCell(cI).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_TOTAL_BG } };
-          wsEnv.getRow(envTotRow).getCell(cI).border = totalBorder;
+        for (let colI = 1; colI <= 9; colI++) {
+          const cell = wsEnv.getRow(envTotRow).getCell(colI);
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_TOTAL_BG } };
+          cell.border = totalBorder;
         }
         wsEnv.getRow(envTotRow).height = 24;
 
@@ -4517,7 +4807,7 @@
         URL.revokeObjectURL(url);
       } catch (err) {
         console.error("Error al generar Excel XLSX con ExcelJS:", err);
-        exportProductionOrderCsvFallback(rows);
+        alert("Ocurrio un error al generar el archivo Excel: " + err.message);
       }
     }
 

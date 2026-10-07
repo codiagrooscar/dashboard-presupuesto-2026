@@ -3493,9 +3493,12 @@
         if (isBaseView) {
           const destinos = item.destinos || [];
           const expDestinos = destinos.filter(d => d.ambito === 'Exportación' || (d.pais && d.pais !== 'ESPAÑA' && d.pais !== 'ESP'));
-          if (expDestinos.length > 0) {
-            const expSkus = Array.from(new Set(expDestinos.map(d => d.sku).filter(Boolean)));
-            nuevoSku = expSkus.join(', ');
+          const expSkus = Array.from(new Set(expDestinos.map(d => d.sku).filter(Boolean)));
+          // Solo si es de un ÚNICO país de exportación se muestra el nuevo SKU con sufijo
+          if (expSkus.length === 1) {
+            nuevoSku = expSkus[0];
+          } else {
+            nuevoSku = item.base_sku;
           }
         }
 
@@ -3651,10 +3654,10 @@
 
       return `
         <tr style="cursor:pointer;" data-sku="${r.key}" onclick="openProdSkuModal(this.getAttribute('data-sku'))" title="Click para ver desglose mensual, granel y proyección de agotamiento">
-          <td style="font-family:monospace;font-weight:700;color:#38bdf8;">
+          <td style="font-family:monospace;font-weight:700;color:#38bdf8;white-space:nowrap;">
             ${r.sku}
           </td>
-          <td style="font-family:monospace;font-weight:600;color:${(r.nuevo_sku && r.nuevo_sku !== r.sku) ? '#c084fc' : '#94a3b8'};font-size:0.83rem;" title="Nuevo SKU con sufijo de país en exportación">
+          <td style="font-family:monospace;font-weight:600;color:${(r.nuevo_sku && r.nuevo_sku !== r.sku) ? '#c084fc' : '#94a3b8'};font-size:0.83rem;white-space:nowrap;" title="Nuevo SKU con sufijo cuando es destino de un único país">
             ${r.nuevo_sku || r.sku}
           </td>
           <td>
@@ -4071,13 +4074,13 @@
               <table>
                 <thead>
                   <tr>
-                    <th style="cursor:pointer;" onclick="sortProdTable('sku')">
+                    <th style="cursor:pointer;white-space:nowrap;min-width:100px;width:110px;" onclick="sortProdTable('sku')">
                       ${t('mrp_th_sku')} ${prodSortField === 'sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
-                    <th style="cursor:pointer;" onclick="sortProdTable('nuevo_sku')" title="SKU con sufijo de país en exportación">
+                    <th style="cursor:pointer;white-space:nowrap;min-width:105px;width:115px;" onclick="sortProdTable('nuevo_sku')" title="SKU con sufijo cuando es destino de un único país">
                       Nuevo SKU ${prodSortField === 'nuevo_sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
-                    <th style="cursor:pointer;" onclick="sortProdTable('desc')">
+                    <th style="cursor:pointer;min-width:180px;" onclick="sortProdTable('desc')">
                       ${t('mrp_th_product')} ${prodSortField === 'desc' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
                     <th style="text-align:center;">

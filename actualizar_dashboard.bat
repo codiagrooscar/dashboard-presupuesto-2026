@@ -6,6 +6,7 @@ echo ========================================================
 echo.
 echo 1. Regenerando dataset y dashboard web...
 "C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" build_dataset.py
+"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" build_profitability_data.py
 
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Hubo un problema al procesar los datos web.

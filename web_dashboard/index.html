@@ -4436,10 +4436,110 @@
     }
 
     // 4. SUBPESTAÑA: SLOWMOVERS & NOMOVERS (MERCADO NACIONAL - HOJA 4 DEL EXCEL)
+    let cachedRotRows = [];
+
+    function handleRotSearch(val) {
+      rotSearchQuery = val;
+      renderRotTableContent();
+    }
+
+    function handleRotFilter(f) {
+      rotFilter = f;
+      // Actualizar estilo visual activo de las píldoras de filtro
+      ['ALL', 'NOMOVER', 'SLOWMOVER', 'FASTMOVER'].forEach(key => {
+        const btn = document.getElementById('rotFilterBtn-' + key);
+        if (btn) {
+          if (key === rotFilter) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        }
+      });
+      renderRotTableContent();
+    }
+
+    function renderRotTableContent() {
+      const tbody = document.getElementById('rotTableBody');
+      const tfoot = document.getElementById('rotTableFoot');
+      if (!tbody) return;
+
+      let filteredRotRows = cachedRotRows;
+      if (rotFilter === 'NOMOVER') filteredRotRows = cachedRotRows.filter(r => r.status_rot === 'NOMOVER');
+      else if (rotFilter === 'SLOWMOVER') filteredRotRows = cachedRotRows.filter(r => r.status_rot === 'SLOWMOVER');
+      else if (rotFilter === 'FASTMOVER') filteredRotRows = cachedRotRows.filter(r => r.status_rot === 'FASTMOVER');
+
+      if (rotSearchQuery.trim() !== '') {
+        const q = rotSearchQuery.toLowerCase();
+        filteredRotRows = filteredRotRows.filter(r => r.base_sku.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q));
+      }
+
+      if (filteredRotRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="14" style="text-align:center;padding:2.5rem;color:var(--muted);">No se encontraron SKUs que coincidan con la búsqueda o filtro activo.</td></tr>`;
+      } else {
+        tbody.innerHTML = filteredRotRows.map(r => {
+          let badgeStyle = 'background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);';
+          if (r.status_rot === 'NOMOVER') badgeStyle = 'background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.45);font-weight:700;';
+          else if (r.status_rot === 'SLOWMOVER') badgeStyle = 'background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.45);font-weight:700;';
+
+          return `
+            <tr>
+              <td style="font-family:monospace;font-weight:700;color:#38bdf8;cursor:pointer;" onclick="openProdSkuModal('${r.base_sku}')" title="Click para ver evolución">${r.base_sku}</td>
+              <td style="font-weight:600;color:#f8fafc;">${r.desc}</td>
+              <td style="color:#cbd5e1;">${r.formato}</td>
+              <td class="text-right" style="font-weight:700;color:#f8fafc;">${fmtNum(r.stock_u)} <span style="font-size:0.72rem;color:var(--muted);">${r.unidad}</span></td>
+              <td class="text-right" style="color:#94a3b8;">${fmtNum(r.envases_u)}</td>
+              <td class="text-right" style="font-weight:600;color:#38bdf8;" title="Previsión Demanda Q4 (N+2)">${fmtNum(r.d_q4)}</td>
+              <td class="text-right" style="font-weight:600;color:#818cf8;" title="Previsión Demanda Q1-27 (N+5)">${fmtNum(r.d_q1)}</td>
+              <td class="text-right" style="font-weight:700;color:${r.sm_u > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtNum(r.sm_u)}</td>
+              <td class="text-right" style="font-weight:800;color:${r.nm_u > 0 ? '#ef4444' : 'var(--muted)'};">${fmtNum(r.nm_u)}</td>
+              <td style="text-align:center;">
+                <span class="tab-badge" style="${badgeStyle};padding:0.2rem 0.5rem;font-size:0.72rem;">
+                  ${r.clasif}
+                </span>
+              </td>
+              <td class="text-right" style="color:#cbd5e1;">${fmtCurr(r.precio)}</td>
+              <td class="text-right" style="font-weight:800;color:${r.nm_eur > 0 ? '#ef4444' : 'var(--muted)'};">${fmtCurr(r.nm_eur)}</td>
+              <td class="text-right" style="font-weight:700;color:${r.sm_eur > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtCurr(r.sm_eur)}</td>
+              <td style="font-size:0.78rem;color:${r.status_rot === 'NOMOVER' ? '#fca5a5' : '#cbd5e1'};">${r.accion}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      if (tfoot) {
+        const sumStockU = filteredRotRows.reduce((a,b) => a + b.stock_u, 0);
+        const sumEnvasesU = filteredRotRows.reduce((a,b) => a + b.envases_u, 0);
+        const sumQ4 = filteredRotRows.reduce((a,b) => a + b.d_q4, 0);
+        const sumQ1 = filteredRotRows.reduce((a,b) => a + b.d_q1, 0);
+        const sumSmU = filteredRotRows.reduce((a,b) => a + b.sm_u, 0);
+        const sumNmU = filteredRotRows.reduce((a,b) => a + b.nm_u, 0);
+        const sumNmEur = filteredRotRows.reduce((a,b) => a + b.nm_eur, 0);
+        const sumSmEur = filteredRotRows.reduce((a,b) => a + b.sm_eur, 0);
+
+        tfoot.innerHTML = `
+          <tr style="background:rgba(15,23,42,0.95);font-weight:800;border-top:2px solid #334155;">
+            <td colspan="3" style="color:#f8fafc;">TOTAL FILTRADO (${filteredRotRows.length} SKUs)</td>
+            <td class="text-right" style="color:#38bdf8;">${fmtNum(sumStockU)} <span style="font-size:0.72rem;font-weight:normal;">L/Kg</span></td>
+            <td class="text-right" style="color:#94a3b8;">${fmtNum(sumEnvasesU)}</td>
+            <td class="text-right" style="color:#38bdf8;">${fmtNum(sumQ4)}</td>
+            <td class="text-right" style="color:#818cf8;">${fmtNum(sumQ1)}</td>
+            <td class="text-right" style="color:#fbbf24;">${fmtNum(sumSmU)}</td>
+            <td class="text-right" style="color:#ef4444;font-size:1.05rem;">${fmtNum(sumNmU)}</td>
+            <td style="text-align:center;color:var(--muted);font-size:0.75rem;">—</td>
+            <td class="text-right" style="color:var(--muted);">—</td>
+            <td class="text-right" style="color:#ef4444;font-size:1.05rem;">${fmtCurr(sumNmEur)}</td>
+            <td class="text-right" style="color:#fbbf24;font-size:1.05rem;">${fmtCurr(sumSmEur)}</td>
+            <td style="color:var(--muted);font-size:0.75rem;">—</td>
+          </tr>
+        `;
+      }
+    }
+
     function renderProdRotacionSubtab(container) {
       const allStockItems = (productionData.base_skus || []).filter(b => Number(b.stock_actual) > 0);
 
-      let rotRows = allStockItems.map(b => {
+      cachedRotRows = allStockItems.map(b => {
         const stU = Number(b.stock_actual) || 0; // Stock físico real en Litros o Kilos
         const envL = Number(b.envase_litros) || 1.0;
         const pEur = Number(b.precio_unitario) || 0;
@@ -4489,63 +4589,23 @@
       });
 
       const rotPrio = { "NOMOVER": 0, "SLOWMOVER": 1, "FASTMOVER": 2 };
-      rotRows.sort((a, b) => (rotPrio[a.status_rot] || 9) - (rotPrio[b.status_rot] || 9) || b.nm_eur - a.nm_eur || b.nm_u - a.nm_u);
+      cachedRotRows.sort((a, b) => (rotPrio[a.status_rot] || 9) - (rotPrio[b.status_rot] || 9) || b.nm_eur - a.nm_eur || b.nm_u - a.nm_u);
 
-      const totStockU = rotRows.reduce((a, b) => a + b.stock_u, 0);
-      const totStockEur = rotRows.reduce((a, b) => a + b.stock_eur, 0);
-      const totNmU = rotRows.reduce((a, b) => a + b.nm_u, 0);
-      const totNmEur = rotRows.reduce((a, b) => a + b.nm_eur, 0);
-      const totSmU = rotRows.reduce((a, b) => a + b.sm_u, 0);
-      const totSmEur = rotRows.reduce((a, b) => a + b.sm_eur, 0);
-      const totFmU = rotRows.reduce((a, b) => a + (b.status_rot === 'FASTMOVER' ? b.stock_u : 0), 0);
+      const totStockU = cachedRotRows.reduce((a, b) => a + b.stock_u, 0);
+      const totStockEur = cachedRotRows.reduce((a, b) => a + b.stock_eur, 0);
+      const totNmU = cachedRotRows.reduce((a, b) => a + b.nm_u, 0);
+      const totNmEur = cachedRotRows.reduce((a, b) => a + b.nm_eur, 0);
+      const totSmU = cachedRotRows.reduce((a, b) => a + b.sm_u, 0);
+      const totSmEur = cachedRotRows.reduce((a, b) => a + b.sm_eur, 0);
+      const totFmU = cachedRotRows.reduce((a, b) => a + (b.status_rot === 'FASTMOVER' ? b.stock_u : 0), 0);
 
-      const countNm = rotRows.filter(r => r.status_rot === 'NOMOVER').length;
-      const countSm = rotRows.filter(r => r.status_rot === 'SLOWMOVER').length;
-      const countFm = rotRows.filter(r => r.status_rot === 'FASTMOVER').length;
+      const countNm = cachedRotRows.filter(r => r.status_rot === 'NOMOVER').length;
+      const countSm = cachedRotRows.filter(r => r.status_rot === 'SLOWMOVER').length;
+      const countFm = cachedRotRows.filter(r => r.status_rot === 'FASTMOVER').length;
 
       const pctNm = totStockU > 0 ? (totNmU / totStockU * 100) : 0;
       const pctSm = totStockU > 0 ? (totSmU / totStockU * 100) : 0;
       const pctFm = totStockU > 0 ? (totFmU / totStockU * 100) : 0;
-
-      let filteredRotRows = rotRows;
-      if (rotFilter === 'NOMOVER') filteredRotRows = rotRows.filter(r => r.status_rot === 'NOMOVER');
-      else if (rotFilter === 'SLOWMOVER') filteredRotRows = rotRows.filter(r => r.status_rot === 'SLOWMOVER');
-      else if (rotFilter === 'FASTMOVER') filteredRotRows = rotRows.filter(r => r.status_rot === 'FASTMOVER');
-
-      if (rotSearchQuery.trim() !== '') {
-        const q = rotSearchQuery.toLowerCase();
-        filteredRotRows = filteredRotRows.filter(r => r.base_sku.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q));
-      }
-
-      const rotRowsHtml = filteredRotRows.map(r => {
-        let badgeStyle = 'background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);';
-        if (r.status_rot === 'NOMOVER') badgeStyle = 'background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.45);font-weight:700;';
-        else if (r.status_rot === 'SLOWMOVER') badgeStyle = 'background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.45);font-weight:700;';
-
-        return `
-          <tr>
-            <td style="font-family:monospace;font-weight:700;color:#38bdf8;">${r.base_sku}</td>
-            <td style="font-weight:600;color:#f8fafc;">${r.desc}</td>
-            <td style="color:#cbd5e1;">${r.formato}</td>
-            <td class="text-right" style="font-weight:700;color:#f8fafc;">${fmtNum(r.stock_u)} <span style="font-size:0.75rem;color:var(--muted);">${r.unidad}</span></td>
-            <td class="text-right" style="color:#94a3b8;">${fmtNum(r.envases_u)}</td>
-            <td class="text-right">${fmtNum(r.d_q4)}</td>
-            <td class="text-right">${fmtNum(r.d_q1)}</td>
-            <td class="text-right" style="font-weight:700;color:#c084fc;">${fmtNum(r.d_6m)}</td>
-            <td class="text-right" style="font-weight:700;color:${r.sm_u > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtNum(r.sm_u)}</td>
-            <td class="text-right" style="font-weight:800;color:${r.nm_u > 0 ? '#ef4444' : 'var(--muted)'};">${fmtNum(r.nm_u)}</td>
-            <td style="text-align:center;">
-              <span class="tab-badge" style="${badgeStyle};padding:0.2rem 0.5rem;font-size:0.75rem;">
-                ${r.clasif}
-              </span>
-            </td>
-            <td class="text-right" style="color:#cbd5e1;">${fmtCurr(r.precio)}</td>
-            <td class="text-right" style="font-weight:800;color:${r.nm_eur > 0 ? '#ef4444' : 'var(--muted)'};">${fmtCurr(r.nm_eur)}</td>
-            <td class="text-right" style="font-weight:700;color:${r.sm_eur > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtCurr(r.sm_eur)}</td>
-            <td style="font-size:0.8rem;color:${r.status_rot === 'NOMOVER' ? '#fca5a5' : '#cbd5e1'};">${r.accion}</td>
-          </tr>
-        `;
-      }).join('');
 
       container.innerHTML = `
         <div class="mrp-section">
@@ -4620,75 +4680,59 @@
           <div class="mrp-toolbar" style="margin-top:1.25rem;">
             <div class="mrp-toolbar-left">
               <div class="filter-pills" style="margin:0;">
-                <button class="pill-btn ${rotFilter === 'ALL' ? 'active' : ''}" onclick="rotFilter = 'ALL'; renderProdRotacionSubtab(document.getElementById('appContent'));">
-                  Todos con Stock (${rotRows.length})
+                <button id="rotFilterBtn-ALL" class="pill-btn ${rotFilter === 'ALL' ? 'active' : ''}" onclick="handleRotFilter('ALL');">
+                  Todos con Stock (${cachedRotRows.length})
                 </button>
-                <button class="pill-btn ${rotFilter === 'NOMOVER' ? 'active' : ''}" onclick="rotFilter = 'NOMOVER'; renderProdRotacionSubtab(document.getElementById('appContent'));" style="color:${rotFilter === 'NOMOVER' ? '#fff' : '#f87171'};">
+                <button id="rotFilterBtn-NOMOVER" class="pill-btn ${rotFilter === 'NOMOVER' ? 'active' : ''}" onclick="handleRotFilter('NOMOVER');" style="color:${rotFilter === 'NOMOVER' ? '#fff' : '#f87171'};">
                   🔴 Solo NoMovers (${countNm})
                 </button>
-                <button class="pill-btn ${rotFilter === 'SLOWMOVER' ? 'active' : ''}" onclick="rotFilter = 'SLOWMOVER'; renderProdRotacionSubtab(document.getElementById('appContent'));" style="color:${rotFilter === 'SLOWMOVER' ? '#fff' : '#fbbf24'};">
+                <button id="rotFilterBtn-SLOWMOVER" class="pill-btn ${rotFilter === 'SLOWMOVER' ? 'active' : ''}" onclick="handleRotFilter('SLOWMOVER');" style="color:${rotFilter === 'SLOWMOVER' ? '#fff' : '#fbbf24'};">
                   🟡 Solo SlowMovers (${countSm})
                 </button>
-                <button class="pill-btn ${rotFilter === 'FASTMOVER' ? 'active' : ''}" onclick="rotFilter = 'FASTMOVER'; renderProdRotacionSubtab(document.getElementById('appContent'));" style="color:${rotFilter === 'FASTMOVER' ? '#fff' : '#34d399'};">
+                <button id="rotFilterBtn-FASTMOVER" class="pill-btn ${rotFilter === 'FASTMOVER' ? 'active' : ''}" onclick="handleRotFilter('FASTMOVER');" style="color:${rotFilter === 'FASTMOVER' ? '#fff' : '#34d399'};">
                   🟢 Alta Rotación (${countFm})
                 </button>
               </div>
             </div>
 
             <div class="mrp-toolbar-right">
-              <input type="text" class="search-input" placeholder="Buscar por SKU o producto..." value="${rotSearchQuery}" 
-                     oninput="rotSearchQuery = this.value; renderProdRotacionSubtab(document.getElementById('appContent'));" style="width:260px;">
+              <input type="text" id="rotSearchInput" class="search-input" placeholder="Buscar por SKU o producto..." value="${rotSearchQuery}" 
+                     oninput="handleRotSearch(this.value);" style="width:260px;">
             </div>
           </div>
 
           <!-- TABLA COMPLETA DE ROTACIÓN -->
-          <div class="table-panel">
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Cód. Base SKU</th>
-                    <th>Descripción Producto</th>
-                    <th>Línea / Formato</th>
-                    <th class="text-right">Stock Físico (L/Kg)</th>
-                    <th class="text-right" style="color:#94a3b8;">Envases Est. (u)</th>
-                    <th class="text-right">Prev. Nac Q4 (L/Kg)</th>
-                    <th class="text-right">Prev. Nac Q1-27 (L/Kg)</th>
-                    <th class="text-right">Prev. Nac 6M (L/Kg)</th>
-                    <th class="text-right" style="color:#fbbf24;">SlowMovers (L/Kg)</th>
-                    <th class="text-right" style="color:#ef4444;">NoMovers (L/Kg)</th>
-                    <th style="text-align:center;">Clasificación</th>
-                    <th class="text-right">Precio Ref. (€/(L·Kg))</th>
-                    <th class="text-right" style="color:#ef4444;">Inmovilizado NoMover (€)</th>
-                    <th class="text-right" style="color:#fbbf24;">Inmovilizado SlowMover (€)</th>
-                    <th>Acción Recomendada</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${rotRowsHtml}
-                </tbody>
-                <tfoot>
-                  <tr style="background:rgba(15,23,42,0.95);font-weight:800;border-top:2px solid #334155;">
-                    <td colspan="3" style="color:#f8fafc;">TOTAL ROTACIÓN PLANTA (MERCADO NACIONAL)</td>
-                    <td class="text-right" style="color:#38bdf8;">${fmtNum(totStockU)} <span style="font-size:0.75rem;font-weight:normal;">L/Kg</span></td>
-                    <td class="text-right" style="color:#94a3b8;">${fmtNum(rotRows.reduce((a,b)=>a+b.envases_u,0))}</td>
-                    <td class="text-right">${fmtNum(rotRows.reduce((a,b)=>a+b.d_q4,0))}</td>
-                    <td class="text-right">${fmtNum(rotRows.reduce((a,b)=>a+b.d_q1,0))}</td>
-                    <td class="text-right" style="color:#c084fc;">${fmtNum(rotRows.reduce((a,b)=>a+b.d_6m,0))}</td>
-                    <td class="text-right" style="color:#fbbf24;">${fmtNum(totSmU)}</td>
-                    <td class="text-right" style="color:#ef4444;font-size:1.05rem;">${fmtNum(totNmU)}</td>
-                    <td style="text-align:center;color:var(--muted);font-size:0.75rem;">—</td>
-                    <td class="text-right" style="color:var(--muted);">—</td>
-                    <td class="text-right" style="color:#ef4444;font-size:1.05rem;">${fmtCurr(totNmEur)}</td>
-                    <td class="text-right" style="color:#fbbf24;font-size:1.05rem;">${fmtCurr(totSmEur)}</td>
-                    <td style="color:var(--muted);font-size:0.75rem;">—</td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
+          <div class="table-wrapper" style="overflow-x:auto;max-width:100%;margin-top:0.75rem;border-radius:var(--radius-sm);border:1px solid var(--card-border);">
+            <table style="width:100%;min-width:1150px;font-size:0.8rem;">
+              <thead>
+                <tr>
+                  <th style="min-width:90px;">Cód. SKU</th>
+                  <th style="min-width:150px;">Producto</th>
+                  <th style="min-width:95px;">Formato</th>
+                  <th class="text-right" style="min-width:85px;">Stock (L/Kg)</th>
+                  <th class="text-right" style="min-width:70px;color:#94a3b8;">Envases (u)</th>
+                  <th class="text-right" style="min-width:65px;color:#38bdf8;" title="Previsión Demanda Nacional Q4 (Oct-Dic 2026)">(N+2)</th>
+                  <th class="text-right" style="min-width:65px;color:#818cf8;" title="Previsión Demanda Nacional Q1-27 (Ene-Mar 2027)">(N+5)</th>
+                  <th class="text-right" style="min-width:80px;color:#fbbf24;">SlowMovers</th>
+                  <th class="text-right" style="min-width:80px;color:#ef4444;">NoMovers</th>
+                  <th style="text-align:center;min-width:110px;">Clasificación</th>
+                  <th class="text-right" style="min-width:70px;">Precio (€)</th>
+                  <th class="text-right" style="min-width:90px;color:#ef4444;">Inmov. NM (€)</th>
+                  <th class="text-right" style="min-width:90px;color:#fbbf24;">Inmov. SM (€)</th>
+                  <th style="min-width:130px;">Acción Recomendada</th>
+                </tr>
+              </thead>
+              <tbody id="rotTableBody">
+              </tbody>
+              <tfoot id="rotTableFoot">
+              </tfoot>
+            </table>
           </div>
         </div>
       `;
+
+      // Render inicial del cuerpo y pie de tabla
+      renderRotTableContent();
     }
 
     // MODAL DE DETALLE: EVOLUCIÓN MENSUAL Y AGOTAMIENTO

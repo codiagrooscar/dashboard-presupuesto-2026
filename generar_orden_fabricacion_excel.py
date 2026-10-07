@@ -1107,15 +1107,15 @@ def generar_excel_orden_fabricacion(
     c_rot_g2.fill = PatternFill(start_color=COLOR_GRP_DEMAND, end_color=COLOR_GRP_DEMAND, fill_type="solid")
     c_rot_g2.alignment = Alignment(horizontal="center", vertical="center")
 
-    ws_rot.merge_cells("F7:H7")
+    ws_rot.merge_cells("F7:G7")
     c_rot_g3 = ws_rot["F7"]
     c_rot_g3.value = "3. PREVISIÓN MERCADO NACIONAL (L/KG)"
     c_rot_g3.font = font_grp_header
     c_rot_g3.fill = PatternFill(start_color=COLOR_GRP_DEMAND, end_color=COLOR_GRP_DEMAND, fill_type="solid")
     c_rot_g3.alignment = Alignment(horizontal="center", vertical="center")
 
-    ws_rot.merge_cells("I7:P7")
-    c_rot_g4 = ws_rot["I7"]
+    ws_rot.merge_cells("H7:O7")
+    c_rot_g4 = ws_rot["H7"]
     c_rot_g4.value = "4. EVALUACIÓN DE ROTACIÓN Y VALORACIÓN ECONÓMICA"
     c_rot_g4.font = font_grp_header
     c_rot_g4.fill = PatternFill(start_color=COLOR_GRP_ROT, end_color=COLOR_GRP_ROT, fill_type="solid")
@@ -1131,18 +1131,17 @@ def generar_excel_orden_fabricacion(
         ("D", "Stock Físico (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
         ("E", "Envases Est. (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
         
-        ("F", "Prev. Nac Q4 (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("G", "Prev. Nac Q1-27 (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("H", "Prev. Nac 6 Meses (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("F", "(N+2) (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("G", "(N+5) (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
         
-        ("I", "SlowMovers (L/Kg)", COLOR_GRP_ROT, Alignment(horizontal="right")),
-        ("J", "NoMovers (L/Kg)", COLOR_GRP_ROT, Alignment(horizontal="right")),
-        ("K", "Envases NoMover (u)", COLOR_GRP_ROT, Alignment(horizontal="right")),
-        ("L", "Clasificación Rotación", COLOR_GRP_ROT, Alignment(horizontal="center")),
-        ("M", "Precio Ref. (€/(L·Kg))", COLOR_GRP_ROT, Alignment(horizontal="right")),
-        ("N", "Inmovilizado NoMover (€)", COLOR_GRP_ROT, Alignment(horizontal="right")),
-        ("O", "Inmovilizado SlowMover (€)", COLOR_GRP_ROT, Alignment(horizontal="right")),
-        ("P", "Acción Comercial Recomendada", COLOR_GRP_ROT, Alignment(horizontal="left"))
+        ("H", "SlowMovers (L/Kg)", COLOR_GRP_ROT, Alignment(horizontal="right")),
+        ("I", "NoMovers (L/Kg)", COLOR_GRP_ROT, Alignment(horizontal="right")),
+        ("J", "Envases NoMover (u)", COLOR_GRP_ROT, Alignment(horizontal="right")),
+        ("K", "Clasificación Rotación", COLOR_GRP_ROT, Alignment(horizontal="center")),
+        ("L", "Precio Ref. (€/(L·Kg))", COLOR_GRP_ROT, Alignment(horizontal="right")),
+        ("M", "Inmovilizado NoMover (€)", COLOR_GRP_ROT, Alignment(horizontal="right")),
+        ("N", "Inmovilizado SlowMover (€)", COLOR_GRP_ROT, Alignment(horizontal="right")),
+        ("O", "Acción Comercial Recomendada", COLOR_GRP_ROT, Alignment(horizontal="left"))
     ]
 
     for col_l, text, bg_color, align in rot_headers:
@@ -1174,10 +1173,9 @@ def generar_excel_orden_fabricacion(
             (5, r["envases_est"], '#,##0', font_data),
             (6, r["d_q4"], '#,##0', font_data),
             (7, r["d_q1_27"], '#,##0', font_data),
-            (8, r["d_6m"], '#,##0', font_data_bold),
-            (9, r["sm_u"], '#,##0', font_data_bold),
-            (10, r["nm_u"], '#,##0', font_data_bold),
-            (11, r["nm_envases"], '#,##0', font_data),
+            (8, r["sm_u"], '#,##0', font_data_bold),
+            (9, r["nm_u"], '#,##0', font_data_bold),
+            (10, r["nm_envases"], '#,##0', font_data),
         ]
 
         for col_i, val_n, n_fmt, f_style in rot_nums:
@@ -1187,7 +1185,7 @@ def generar_excel_orden_fabricacion(
             c_r.alignment = Alignment(horizontal="right")
 
         # Clasificación
-        c_cl = ws_rot.cell(cur_rot_row, 12, r["clasif"])
+        c_cl = ws_rot.cell(cur_rot_row, 11, r["clasif"])
         c_cl.alignment = Alignment(horizontal="center")
         if r["status_rot"] == "NOMOVER":
             c_cl.fill = fill_crit
@@ -1200,32 +1198,32 @@ def generar_excel_orden_fabricacion(
             c_cl.font = font_cov
 
         # Precios y valores
-        c_pr = ws_rot.cell(cur_rot_row, 13, r["precio"])
+        c_pr = ws_rot.cell(cur_rot_row, 12, r["precio"])
         c_pr.number_format = '#,##0.00 €'
         c_pr.font = font_data
         c_pr.alignment = Alignment(horizontal="right")
 
-        c_vnm = ws_rot.cell(cur_rot_row, 14, r["nm_eur"])
+        c_vnm = ws_rot.cell(cur_rot_row, 13, r["nm_eur"])
         c_vnm.number_format = '#,##0.00 €'
         c_vnm.font = font_crit if r["nm_eur"] > 0 else font_data
         c_vnm.alignment = Alignment(horizontal="right")
 
-        c_vsm = ws_rot.cell(cur_rot_row, 15, r["sm_eur"])
+        c_vsm = ws_rot.cell(cur_rot_row, 14, r["sm_eur"])
         c_vsm.number_format = '#,##0.00 €'
         c_vsm.font = font_warn if r["sm_eur"] > 0 else font_data
         c_vsm.alignment = Alignment(horizontal="right")
 
         # Acción recomendada
-        c_ac = ws_rot.cell(cur_rot_row, 16, r["accion"])
+        c_ac = ws_rot.cell(cur_rot_row, 15, r["accion"])
         c_ac.font = font_data
         c_ac.alignment = Alignment(horizontal="left")
 
-        for col_idx in range(1, 12):
+        for col_idx in range(1, 11):
             cell_x = ws_rot.cell(cur_rot_row, col_idx)
             cell_x.fill = fill_row
             cell_x.border = border_thin
-        ws_rot.cell(cur_rot_row, 12).border = border_thin
-        for col_idx in range(13, 17):
+        ws_rot.cell(cur_rot_row, 11).border = border_thin
+        for col_idx in range(12, 16):
             cell_x = ws_rot.cell(cur_rot_row, col_idx)
             cell_x.fill = fill_row
             cell_x.border = border_thin
@@ -1243,8 +1241,8 @@ def generar_excel_orden_fabricacion(
 
     sum_rot_cols = [
         (4, "D", '#,##0'), (5, "E", '#,##0'), (6, "F", '#,##0'), (7, "G", '#,##0'),
-        (8, "H", '#,##0'), (9, "I", '#,##0'), (10, "J", '#,##0'), (11, "K", '#,##0'),
-        (14, "N", '#,##0.00 €'), (15, "O", '#,##0.00 €')
+        (8, "H", '#,##0'), (9, "I", '#,##0'), (10, "J", '#,##0'),
+        (13, "M", '#,##0.00 €'), (14, "N", '#,##0.00 €')
     ]
     for c_idx, letter, n_fmt in sum_rot_cols:
         cell_s = ws_rot.cell(tot_rot_row, c_idx)
@@ -1253,11 +1251,11 @@ def generar_excel_orden_fabricacion(
         cell_s.font = font_total
         cell_s.alignment = Alignment(horizontal="right", vertical="center")
 
+    ws_rot.cell(tot_rot_row, 11, "").alignment = Alignment(horizontal="center")
     ws_rot.cell(tot_rot_row, 12, "").alignment = Alignment(horizontal="center")
-    ws_rot.cell(tot_rot_row, 13, "").alignment = Alignment(horizontal="center")
-    ws_rot.cell(tot_rot_row, 16, "").alignment = Alignment(horizontal="left")
+    ws_rot.cell(tot_rot_row, 15, "").alignment = Alignment(horizontal="left")
 
-    for col_idx in range(1, 17):
+    for col_idx in range(1, 16):
         cell_t = ws_rot.cell(tot_rot_row, col_idx)
         cell_t.fill = fill_total
         cell_t.border = border_total
@@ -1269,25 +1267,24 @@ def generar_excel_orden_fabricacion(
         'A': 16,   # Cód. Base SKU
         'B': 36,   # Descripción Producto
         'C': 18,   # Línea / Formato
-        'D': 16,   # Stock Físico (u)
-        'E': 18,   # Stock Físico (L/Kg)
-        'F': 16,   # Prev. Nac Q4 (u)
-        'G': 18,   # Prev. Nac Q1-27 (u)
-        'H': 20,   # Prev. Nac 6M (u)
-        'I': 16,   # SlowMovers (u)
-        'J': 16,   # NoMovers (u)
-        'K': 18,   # NoMovers (L/Kg)
-        'L': 24,   # Clasificación Rotación
-        'M': 16,   # Precio Ref (€/u)
-        'N': 22,   # Inmovilizado NoMover (€)
-        'O': 22,   # Inmovilizado SlowMover (€)
-        'P': 34    # Acción Comercial Recomendada
+        'D': 16,   # Stock Físico (L/Kg)
+        'E': 16,   # Envases Est. (u)
+        'F': 16,   # (N+2) (L/Kg)
+        'G': 16,   # (N+5) (L/Kg)
+        'H': 16,   # SlowMovers (L/Kg)
+        'I': 16,   # NoMovers (L/Kg)
+        'J': 18,   # Envases NoMover (u)
+        'K': 24,   # Clasificación Rotación
+        'L': 16,   # Precio Ref (€/(L·Kg))
+        'M': 22,   # Inmovilizado NoMover (€)
+        'N': 22,   # Inmovilizado SlowMover (€)
+        'O': 34    # Acción Comercial Recomendada
     }
     for col_l, width in col_widths_rot.items():
         ws_rot.column_dimensions[col_l].width = width
 
     ws_rot.freeze_panes = "A9"
-    ws_rot.auto_filter.ref = f"A8:P{tot_rot_row - 1}"
+    ws_rot.auto_filter.ref = f"A8:O{tot_rot_row - 1}"
 
     # Guardar Excel en web_dashboard y en ruta destino con control de bloqueo
     dashboard_excel_path = os.path.join("web_dashboard", os.path.basename(output_path))

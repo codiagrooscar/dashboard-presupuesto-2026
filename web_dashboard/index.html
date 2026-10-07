@@ -3535,8 +3535,7 @@
           envase_litros: Number(item.envase_litros) || 1.0,
           no_mover_qty: no_mover_qty,
           slow_mover_qty: slow_mover_qty,
-          fast_mover_qty: fast_mover_qty,
-          no_mover_litros: (Number(item.envase_litros) || 1.0) * no_mover_qty,
+          no_mover_litros: no_mover_qty,
           no_mover_eur: (Number(item.precio_unitario) || 0) * no_mover_qty,
           slow_mover_eur: (Number(item.precio_unitario) || 0) * slow_mover_qty,
           is_nomover: is_nomover,
@@ -3932,7 +3931,7 @@
                 📦 Stock Físico Almacén
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
-                ${fmtNum(totals.total_stock)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u env.</span>
+                ${fmtNum(totals.total_stock)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">L/Kg</span>
               </div>
               <div style="font-size:0.75rem;color:#38bdf8;font-weight:700;">
                 🛢️ Granel en Fábrica: 112.599 L/kg (82 tanques)
@@ -3945,7 +3944,7 @@
                 <span class="tab-badge badge-danger" style="font-size:0.6rem;padding:0.1rem 0.3rem;">19.4%</span>
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#ef4444;line-height:1.2;">
-                ${fmtNum(totals.total_nomover_qty)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+                ${fmtNum(totals.total_nomover_qty)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">L/Kg</span>
               </div>
               <div style="font-size:0.75rem;color:var(--muted)">
                 ${totals.nomover_count} SKUs sin demanda en 6 meses (Nac)
@@ -3958,7 +3957,7 @@
                 <span class="tab-badge badge-warning" style="font-size:0.6rem;padding:0.1rem 0.3rem;">15.6%</span>
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#f59e0b;line-height:1.2;">
-                ${fmtNum(totals.total_slowmover_qty)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+                ${fmtNum(totals.total_slowmover_qty)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">L/Kg</span>
               </div>
               <div style="font-size:0.75rem;color:var(--muted)">
                 ${totals.slowmover_count} SKUs absorbibles en Q1-27 (Nac)
@@ -3970,7 +3969,7 @@
                 ${t('mrp_kpi_forecast')}
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
-                ${fmtNum(totals.total_forecast)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+                ${fmtNum(totals.total_forecast)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">L/Kg</span>
               </div>
               <div style="font-size:0.75rem;color:var(--muted)">
                 ${t('mrp_kpi_forecast_sub')} (${selectedMonths.size} meses)
@@ -4178,11 +4177,11 @@
         const novU = Number(mf['2026-11']) || 0;
         const dicU = Number(mf['2026-12']) || 0;
 
-        granelesMap[gCode].stock_envasado_l += (stU * envL);
-        granelesMap[gCode].cartera_l += (peU * envL);
-        granelesMap[gCode].oct_l += (octU * envL);
-        granelesMap[gCode].nov_l += (novU * envL);
-        granelesMap[gCode].dic_l += (dicU * envL);
+        granelesMap[gCode].stock_envasado_l += stU;
+        granelesMap[gCode].cartera_l += peU;
+        granelesMap[gCode].oct_l += octU;
+        granelesMap[gCode].nov_l += novU;
+        granelesMap[gCode].dic_l += dicU;
       });
 
       let granelList = Object.values(granelesMap).map(g => {
@@ -4441,7 +4440,7 @@
       const allStockItems = (productionData.base_skus || []).filter(b => Number(b.stock_actual) > 0);
 
       let rotRows = allStockItems.map(b => {
-        const stU = Number(b.stock_actual) || 0;
+        const stU = Number(b.stock_actual) || 0; // Stock físico real en Litros o Kilos
         const envL = Number(b.envase_litros) || 1.0;
         const pEur = Number(b.precio_unitario) || 0;
         const dQ4 = Number(b.demanda_nac_q4) || 0;
@@ -4465,18 +4464,20 @@
           accion = "Consumo previsto en Q1-27 Nacional";
         }
 
+        const envasesEst = envL > 0 ? Math.round(stU / envL) : stU;
+
         return {
           base_sku: b.base_sku,
           desc: b.desc,
-          formato: b.formato_label || getPackagingFormat(b.envase, b.desc),
-          stock_u: stU,
-          stock_l: stU * envL,
+          formato: b.formato_label || "Formato Estándar",
+          unidad: b.unidad_medida || (b.formato_label && b.formato_label.includes('Kg') ? 'Kg' : 'L'),
+          stock_u: stU, // Stock físico real (L o Kg)
+          envases_u: envasesEst, // Unidades de envase físicas equivalentes
           d_q4: dQ4,
           d_q1: dQ1,
           d_6m: d6M,
           sm_u: smU,
           nm_u: nmU,
-          nm_l: nmU * envL,
           precio: pEur,
           nm_eur: nmU * pEur,
           sm_eur: smU * pEur,
@@ -4526,14 +4527,13 @@
             <td style="font-family:monospace;font-weight:700;color:#38bdf8;">${r.base_sku}</td>
             <td style="font-weight:600;color:#f8fafc;">${r.desc}</td>
             <td style="color:#cbd5e1;">${r.formato}</td>
-            <td class="text-right" style="font-weight:700;color:#f8fafc;">${fmtNum(r.stock_u)}</td>
-            <td class="text-right" style="color:#94a3b8;">${fmtNum(r.stock_l)}</td>
+            <td class="text-right" style="font-weight:700;color:#f8fafc;">${fmtNum(r.stock_u)} <span style="font-size:0.75rem;color:var(--muted);">${r.unidad}</span></td>
+            <td class="text-right" style="color:#94a3b8;">${fmtNum(r.envases_u)}</td>
             <td class="text-right">${fmtNum(r.d_q4)}</td>
             <td class="text-right">${fmtNum(r.d_q1)}</td>
             <td class="text-right" style="font-weight:700;color:#c084fc;">${fmtNum(r.d_6m)}</td>
             <td class="text-right" style="font-weight:700;color:${r.sm_u > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtNum(r.sm_u)}</td>
             <td class="text-right" style="font-weight:800;color:${r.nm_u > 0 ? '#ef4444' : 'var(--muted)'};">${fmtNum(r.nm_u)}</td>
-            <td class="text-right" style="color:#94a3b8;">${fmtNum(r.nm_l)}</td>
             <td style="text-align:center;">
               <span class="tab-badge" style="${badgeStyle};padding:0.2rem 0.5rem;font-size:0.75rem;">
                 ${r.clasif}
@@ -4558,7 +4558,7 @@
             </div>
             <div style="color:#cbd5e1;font-size:0.85rem;line-height:1.45;">
               Para el cálculo de <strong>SlowMovers</strong> y <strong>NoMovers</strong> se toman estrictamente las previsiones del <strong>Mercado Nacional (España)</strong>.
-              La mercancía de <strong>Exportación se fabricará siempre sobre pedido</strong> (Make-to-Order), por lo que el stock en almacén debe ser absorbido por el mercado nacional.
+              El stock importante y todas las métricas están expresadas en <strong>Litros o Kilos (L/Kg)</strong>, independientemente del tipo de envasado (los sólidos en bolsas de kg y los líquidos en garrafas/botellas). La mercancía de <strong>Exportación se fabricará siempre sobre pedido</strong> (Make-to-Order).
             </div>
           </div>
 
@@ -4566,10 +4566,10 @@
           <div class="mrp-kpi-grid">
             <div class="mrp-kpi-card stock">
               <div style="font-size:0.8rem;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:0.04em;">
-                Stock Total Envasado Almacén
+                Stock Total Almacén
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
-                ${fmtNum(totStockU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+                ${fmtNum(totStockU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">L/Kg</span>
               </div>
               <div style="font-size:0.75rem;color:#38bdf8;font-weight:700;">
                 Valoración Total: ${fmtCurr(totStockEur)} (${allStockItems.length} SKUs)
@@ -4582,7 +4582,7 @@
                 <span class="tab-badge badge-danger" style="font-size:0.65rem;">${pctNm.toFixed(1)}%</span>
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#ef4444;line-height:1.2;">
-                ${fmtNum(totNmU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+                ${fmtNum(totNmU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">L/Kg</span>
               </div>
               <div style="font-size:0.75rem;color:#fca5a5;font-weight:700;">
                 ${countNm} SKUs &bull; Inmovilizado: ${fmtCurr(totNmEur)}
@@ -4595,7 +4595,7 @@
                 <span class="tab-badge badge-warning" style="font-size:0.65rem;">${pctSm.toFixed(1)}%</span>
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#f59e0b;line-height:1.2;">
-                ${fmtNum(totSmU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+                ${fmtNum(totSmU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">L/Kg</span>
               </div>
               <div style="font-size:0.75rem;color:#fde68a;font-weight:700;">
                 ${countSm} SKUs &bull; Inmovilizado: ${fmtCurr(totSmEur)}
@@ -4608,7 +4608,7 @@
                 <span class="tab-badge badge-success" style="font-size:0.65rem;">${pctFm.toFixed(1)}%</span>
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#10b981;line-height:1.2;">
-                ${fmtNum(totFmU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+                ${fmtNum(totFmU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">L/Kg</span>
               </div>
               <div style="font-size:0.75rem;color:#6ee7b7;font-weight:700;">
                 ${countFm} SKUs absorbidos en Octubre-Diciembre
@@ -4650,16 +4650,15 @@
                     <th>Cód. Base SKU</th>
                     <th>Descripción Producto</th>
                     <th>Línea / Formato</th>
-                    <th class="text-right">Stock Físico (u)</th>
-                    <th class="text-right">Stock Físico (L)</th>
-                    <th class="text-right">Prev. Nac Q4 (u)</th>
-                    <th class="text-right">Prev. Nac Q1-27 (u)</th>
-                    <th class="text-right">Prev. Nac 6M (u)</th>
-                    <th class="text-right" style="color:#fbbf24;">SlowMovers (u)</th>
-                    <th class="text-right" style="color:#ef4444;">NoMovers (u)</th>
-                    <th class="text-right">NoMovers (L)</th>
+                    <th class="text-right">Stock Físico (L/Kg)</th>
+                    <th class="text-right" style="color:#94a3b8;">Envases Est. (u)</th>
+                    <th class="text-right">Prev. Nac Q4 (L/Kg)</th>
+                    <th class="text-right">Prev. Nac Q1-27 (L/Kg)</th>
+                    <th class="text-right">Prev. Nac 6M (L/Kg)</th>
+                    <th class="text-right" style="color:#fbbf24;">SlowMovers (L/Kg)</th>
+                    <th class="text-right" style="color:#ef4444;">NoMovers (L/Kg)</th>
                     <th style="text-align:center;">Clasificación</th>
-                    <th class="text-right">Precio Ref. (€)</th>
+                    <th class="text-right">Precio Ref. (€/(L·Kg))</th>
                     <th class="text-right" style="color:#ef4444;">Inmovilizado NoMover (€)</th>
                     <th class="text-right" style="color:#fbbf24;">Inmovilizado SlowMover (€)</th>
                     <th>Acción Recomendada</th>
@@ -4671,14 +4670,13 @@
                 <tfoot>
                   <tr style="background:rgba(15,23,42,0.95);font-weight:800;border-top:2px solid #334155;">
                     <td colspan="3" style="color:#f8fafc;">TOTAL ROTACIÓN PLANTA (MERCADO NACIONAL)</td>
-                    <td class="text-right" style="color:#38bdf8;">${fmtNum(totStockU)}</td>
-                    <td class="text-right">${fmtNum(rotRows.reduce((a,b)=>a+b.stock_l,0))}</td>
+                    <td class="text-right" style="color:#38bdf8;">${fmtNum(totStockU)} <span style="font-size:0.75rem;font-weight:normal;">L/Kg</span></td>
+                    <td class="text-right" style="color:#94a3b8;">${fmtNum(rotRows.reduce((a,b)=>a+b.envases_u,0))}</td>
                     <td class="text-right">${fmtNum(rotRows.reduce((a,b)=>a+b.d_q4,0))}</td>
                     <td class="text-right">${fmtNum(rotRows.reduce((a,b)=>a+b.d_q1,0))}</td>
                     <td class="text-right" style="color:#c084fc;">${fmtNum(rotRows.reduce((a,b)=>a+b.d_6m,0))}</td>
                     <td class="text-right" style="color:#fbbf24;">${fmtNum(totSmU)}</td>
                     <td class="text-right" style="color:#ef4444;font-size:1.05rem;">${fmtNum(totNmU)}</td>
-                    <td class="text-right">${fmtNum(rotRows.reduce((a,b)=>a+b.nm_l,0))}</td>
                     <td style="text-align:center;color:var(--muted);font-size:0.75rem;">—</td>
                     <td class="text-right" style="color:var(--muted);">—</td>
                     <td class="text-right" style="color:#ef4444;font-size:1.05rem;">${fmtCurr(totNmEur)}</td>
@@ -5467,11 +5465,11 @@
           const stU = Number(b.stock_actual) || 0;
           const peU = Number(b.pedidos_pendientes) || 0;
 
-          granelesMap[gCode].stock_envasado_l += stU * envL;
-          granelesMap[gCode].cartera_l += peU * envL;
-          granelesMap[gCode].oct_l += (Number(b.monthly_forecast && b.monthly_forecast['2026-10']) || 0) * envL;
-          granelesMap[gCode].nov_l += (Number(b.monthly_forecast && b.monthly_forecast['2026-11']) || 0) * envL;
-          granelesMap[gCode].dic_l += (Number(b.monthly_forecast && b.monthly_forecast['2026-12']) || 0) * envL;
+          granelesMap[gCode].stock_envasado_l += stU;
+          granelesMap[gCode].cartera_l += peU;
+          granelesMap[gCode].oct_l += (Number(b.monthly_forecast && b.monthly_forecast['2026-10']) || 0);
+          granelesMap[gCode].nov_l += (Number(b.monthly_forecast && b.monthly_forecast['2026-11']) || 0);
+          granelesMap[gCode].dic_l += (Number(b.monthly_forecast && b.monthly_forecast['2026-12']) || 0);
         });
 
         const granelesList = Object.values(granelesMap);

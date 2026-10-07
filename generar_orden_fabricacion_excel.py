@@ -21,6 +21,17 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from datetime import datetime
 
+def is_kg_product(desc="", sku="", fam=None):
+    if fam in [38, 39, 42, 43]:
+        return True
+    text = f"{desc} {sku}".upper()
+    if re.search(r'\b(KG|KILOS?|KGS)\b', text):
+        return True
+    solid_brands = ['ALCAPLANT', 'CODIORGAN A-50', 'CODIORGAN-A50', 'SALWAX-CA', 'SALWAX CA', 'DEFENS-CA', 'BITTER-CAL', 'MAGNIFIC', 'PREZINC', 'BR-59', 'BIOCULTURE BASI']
+    if any(b in text for b in solid_brands):
+        return True
+    return False
+
 def parse_envase_litros(env_val, desc=""):
     try:
         val = float(str(env_val).replace(",", "."))
@@ -36,20 +47,34 @@ def parse_envase_litros(env_val, desc=""):
             pass
     return 1.0
 
-def get_packaging_format(env_val, desc=""):
+def get_packaging_format(env_val, desc="", sku="", fam=None):
     l_val = parse_envase_litros(env_val, desc)
-    if l_val >= 900:
-        return "Depósito 1000 L"
-    elif l_val >= 150:
-        return "Depósito 200 L"
-    elif l_val >= 15:
-        return "Garrafas 20L"
-    elif l_val >= 4:
-        return "Garrafas 5L"
-    elif l_val >= 0.9:
-        return "Botellas 1L"
-    elif l_val > 0:
-        return f"Botellas {l_val}L"
+    is_solid = is_kg_product(desc, sku, fam)
+    
+    if is_solid:
+        # Todos los kg van en bolsas (o Big Bag si >= 500)
+        if l_val >= 500:
+            return f"Big Bag {int(l_val) if l_val.is_integer() else l_val} Kg"
+        elif l_val == int(l_val):
+            return f"Bolsas {int(l_val)} Kg"
+        else:
+            return f"Bolsas {l_val} Kg"
+    else:
+        # Formatos líquidos
+        if l_val >= 900:
+            return "Depósito 1000 L"
+        elif l_val >= 150:
+            return "Depósito 200 L"
+        elif l_val >= 15:
+            return "Garrafas 20L"
+        elif l_val >= 4:
+            return "Garrafas 5L"
+        elif l_val >= 0.9:
+            return "Botellas 1L"
+        elif l_val == int(l_val):
+            return f"Botellas {int(l_val)}L"
+        else:
+            return f"Botellas {l_val}L"
     return "Otros Formatos"
 
 def generar_excel_orden_fabricacion(
@@ -199,7 +224,7 @@ def generar_excel_orden_fabricacion(
         desc = b.get("desc", "")
         env_str = str(b.get("envase", ""))
         env_l = parse_envase_litros(env_str, desc)
-        fmt_label = get_packaging_format(env_str, desc)
+        fmt_label = b.get("formato_label") or get_packaging_format(env_str, desc, base_sku)
         granel_stock = float(b.get("granel_stock", 0) or 0)
         stock_total_b = float(b.get("stock_actual", 0) or 0)
 
@@ -260,10 +285,10 @@ def generar_excel_orden_fabricacion(
                 num_batches = math.ceil(falta_envasar_u / batch_size)
                 sug_fab_u = num_batches * batch_size
 
-            # Litros calculados = unidades * litros_por_envase
-            total_dem_l = round(total_dem_u * env_l, 2)
-            sug_fab_l = round(sug_fab_u * env_l, 2)
-            falta_envasar_l = round(falta_envasar_u * env_l, 2)
+            # Las demandas y órdenes están expresadas directamente en Litros o Kilos (L/Kg)
+            total_dem_l = round(total_dem_u, 2)
+            sug_fab_l = round(sug_fab_u, 2)
+            falta_envasar_l = round(falta_envasar_u, 2)
 
             is_nac = bool(d.get("is_nacional", False)) or (d.get("pais", "").upper() in ["ESPAÑA", "ESP", ""])
             tipo_fab = "Para Previsión (Nac)" if is_nac else "Sobre Pedido (Export)"
@@ -675,12 +700,12 @@ def generar_excel_orden_fabricacion(
         nov_u = float(b.get("monthly_forecast", {}).get("2026-11", 0) or 0)
         dic_u = float(b.get("monthly_forecast", {}).get("2026-12", 0) or 0)
         
-        # En graneles multiplicamos por env_l para obtener litros
-        graneles_map[g_code]["stock_envasado_l"] += round(st_u * env_l, 2)
-        graneles_map[g_code]["cartera_l"] += round(pe_u * env_l, 2)
-        graneles_map[g_code]["oct_l"] += round(oct_u * env_l, 2)
-        graneles_map[g_code]["nov_l"] += round(nov_u * env_l, 2)
-        graneles_map[g_code]["dic_l"] += round(dic_u * env_l, 2)
+        # En graneles la demanda y el stock ya están expresados en Litros o Kilos (L/Kg)
+        graneles_map[g_code]["stock_envasado_l"] += round(st_u, 2)
+        graneles_map[g_code]["cartera_l"] += round(pe_u, 2)
+        graneles_map[g_code]["oct_l"] += round(oct_u, 2)
+        graneles_map[g_code]["nov_l"] += round(nov_u, 2)
+        graneles_map[g_code]["dic_l"] += round(dic_u, 2)
 
     graneles_list = list(graneles_map.values())
     for g in graneles_list:
@@ -854,11 +879,15 @@ def generar_excel_orden_fabricacion(
 
     order_priority = {
         "Depósito 1000 L": 1,
-        "Depósito 200 L": 2,
-        "Garrafas 20L": 3,
-        "Garrafas 5L": 4,
-        "Botellas 1L": 5,
-        "Botellas 0.5L": 6
+        "Big Bag 1000 Kg": 2,
+        "Depósito 200 L": 3,
+        "Garrafas 20L": 4,
+        "Bolsas 20 Kg": 5,
+        "Garrafas 5L": 6,
+        "Bolsas 5 Kg": 7,
+        "Botellas 1L": 8,
+        "Bolsas 1 Kg": 9,
+        "Botellas 0.5L": 10
     }
     sorted_formats = sorted(format_agg.keys(), key=lambda x: order_priority.get(x, 99))
 
@@ -953,7 +982,8 @@ def generar_excel_orden_fabricacion(
             continue
         
         env_l = float(b.get("envase_litros", 1.0) or 1.0)
-        st_l = round(st_u * env_l, 2)
+        st_l = st_u  # Stock físico real ya en Litros o Kilos (L/Kg)
+        envases_est = round(st_u / env_l, 1) if env_l > 0 else st_u
         p_eur = float(b.get("precio_unitario", 0) or 0)
         st_eur = round(st_u * p_eur, 2)
         
@@ -965,8 +995,10 @@ def generar_excel_orden_fabricacion(
         sm_u = float(b.get("slow_mover_qty", 0) or 0)
         fm_u = float(b.get("fast_mover_qty", 0) or 0)
         
-        nm_l = round(nm_u * env_l, 2)
-        sm_l = round(sm_u * env_l, 2)
+        nm_l = nm_u
+        sm_l = sm_u
+        nm_envases = round(nm_u / env_l, 1) if env_l > 0 else nm_u
+        sm_envases = round(sm_u / env_l, 1) if env_l > 0 else sm_u
         nm_eur = round(nm_u * p_eur, 2)
         sm_eur = round(sm_u * p_eur, 2)
         
@@ -1000,13 +1032,13 @@ def generar_excel_orden_fabricacion(
             "desc": b.get("desc", ""),
             "formato": b.get("formato_label", ""),
             "stock_u": st_u,
-            "stock_l": st_l,
+            "envases_est": envases_est,
             "d_q4": d_q4,
             "d_q1_27": d_q1_27,
             "d_6m": d_6m,
             "sm_u": sm_u,
             "nm_u": nm_u,
-            "nm_l": nm_l,
+            "nm_envases": nm_envases,
             "clasif": clasif,
             "status_rot": status_rot,
             "precio": p_eur,
@@ -1025,10 +1057,10 @@ def generar_excel_orden_fabricacion(
     pct_fm = (tot_rot_fastmover_u / tot_rot_stock_u * 100) if tot_rot_stock_u > 0 else 0
 
     kpis_rot = [
-        ("A4", "D4", "A5", "D5", "STOCK TOTAL ENVASADO ALMACÉN", f"{tot_rot_stock_u:,.0f} u  ({tot_rot_stock_eur:,.0f} €)".replace(",", "."), font_kpi_val_blue),
-        ("E4", "H4", "E5", "H5", f"🔴 NOMOVERS (>6M NACIONAL) — {pct_nm:.1f}%", f"{tot_rot_nomover_u:,.0f} u  |  {tot_rot_nomover_eur:,.2f} €".replace(",", "."), font_kpi_val_red),
-        ("I4", "L4", "I5", "L5", f"🟡 SLOWMOVERS (3-6M NACIONAL) — {pct_sm:.1f}%", f"{tot_rot_slowmover_u:,.0f} u  |  {tot_rot_slowmover_eur:,.2f} €".replace(",", "."), font_kpi_val_amber),
-        ("M4", "P4", "M5", "P5", f"🟢 ALTA ROTACIÓN (Q4 NACIONAL) — {pct_fm:.1f}%", f"{tot_rot_fastmover_u:,.0f} u  ({count_fastmover_skus} SKUs)".replace(",", "."), font_kpi_val_green)
+        ("A4", "D4", "A5", "D5", "STOCK TOTAL ALMACÉN (L/Kg)", f"{tot_rot_stock_u:,.0f} L/Kg  ({tot_rot_stock_eur:,.0f} €)".replace(",", "."), font_kpi_val_blue),
+        ("E4", "H4", "E5", "H5", f"🔴 NOMOVERS (>6M NACIONAL) — {pct_nm:.1f}%", f"{tot_rot_nomover_u:,.0f} L/Kg  |  {tot_rot_nomover_eur:,.2f} €".replace(",", "."), font_kpi_val_red),
+        ("I4", "L4", "I5", "L5", f"🟡 SLOWMOVERS (3-6M NACIONAL) — {pct_sm:.1f}%", f"{tot_rot_slowmover_u:,.0f} L/Kg  |  {tot_rot_slowmover_eur:,.2f} €".replace(",", "."), font_kpi_val_amber),
+        ("M4", "P4", "M5", "P5", f"🟢 ALTA ROTACIÓN (Q4 NACIONAL) — {pct_fm:.1f}%", f"{tot_rot_fastmover_u:,.0f} L/Kg  ({count_fastmover_skus} SKUs)".replace(",", "."), font_kpi_val_green)
     ]
 
     for top_l, top_r, bot_l, bot_r, label, val_text, val_font in kpis_rot:
@@ -1077,7 +1109,7 @@ def generar_excel_orden_fabricacion(
 
     ws_rot.merge_cells("F7:H7")
     c_rot_g3 = ws_rot["F7"]
-    c_rot_g3.value = "3. PREVISIÓN MERCADO NACIONAL (UNIDADES)"
+    c_rot_g3.value = "3. PREVISIÓN MERCADO NACIONAL (L/KG)"
     c_rot_g3.font = font_grp_header
     c_rot_g3.fill = PatternFill(start_color=COLOR_GRP_DEMAND, end_color=COLOR_GRP_DEMAND, fill_type="solid")
     c_rot_g3.alignment = Alignment(horizontal="center", vertical="center")
@@ -1096,18 +1128,18 @@ def generar_excel_orden_fabricacion(
         ("B", "Descripción Producto", COLOR_GRP_ID, Alignment(horizontal="left")),
         ("C", "Línea / Formato", COLOR_GRP_ID, Alignment(horizontal="left")),
         
-        ("D", "Stock Físico (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("E", "Stock Físico (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("D", "Stock Físico (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("E", "Envases Est. (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
         
-        ("F", "Prev. Nac Q4 (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("G", "Prev. Nac Q1-27 (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("H", "Prev. Nac 6 Meses (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("F", "Prev. Nac Q4 (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("G", "Prev. Nac Q1-27 (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("H", "Prev. Nac 6 Meses (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
         
-        ("I", "SlowMovers (u)", COLOR_GRP_ROT, Alignment(horizontal="right")),
-        ("J", "NoMovers (u)", COLOR_GRP_ROT, Alignment(horizontal="right")),
-        ("K", "NoMovers (L/Kg)", COLOR_GRP_ROT, Alignment(horizontal="right")),
+        ("I", "SlowMovers (L/Kg)", COLOR_GRP_ROT, Alignment(horizontal="right")),
+        ("J", "NoMovers (L/Kg)", COLOR_GRP_ROT, Alignment(horizontal="right")),
+        ("K", "Envases NoMover (u)", COLOR_GRP_ROT, Alignment(horizontal="right")),
         ("L", "Clasificación Rotación", COLOR_GRP_ROT, Alignment(horizontal="center")),
-        ("M", "Precio Ref. (€/u)", COLOR_GRP_ROT, Alignment(horizontal="right")),
+        ("M", "Precio Ref. (€/(L·Kg))", COLOR_GRP_ROT, Alignment(horizontal="right")),
         ("N", "Inmovilizado NoMover (€)", COLOR_GRP_ROT, Alignment(horizontal="right")),
         ("O", "Inmovilizado SlowMover (€)", COLOR_GRP_ROT, Alignment(horizontal="right")),
         ("P", "Acción Comercial Recomendada", COLOR_GRP_ROT, Alignment(horizontal="left"))
@@ -1139,13 +1171,13 @@ def generar_excel_orden_fabricacion(
 
         rot_nums = [
             (4, r["stock_u"], '#,##0', font_data_bold),
-            (5, r["stock_l"], '#,##0', font_data),
+            (5, r["envases_est"], '#,##0', font_data),
             (6, r["d_q4"], '#,##0', font_data),
             (7, r["d_q1_27"], '#,##0', font_data),
             (8, r["d_6m"], '#,##0', font_data_bold),
             (9, r["sm_u"], '#,##0', font_data_bold),
             (10, r["nm_u"], '#,##0', font_data_bold),
-            (11, r["nm_l"], '#,##0', font_data),
+            (11, r["nm_envases"], '#,##0', font_data),
         ]
 
         for col_i, val_n, n_fmt, f_style in rot_nums:

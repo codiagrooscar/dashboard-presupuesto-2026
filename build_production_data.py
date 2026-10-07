@@ -296,6 +296,17 @@ def find_granel_smart(base_sku, desc=''):
         return granel_map[sku]
     return None
 
+def is_kg_product(desc="", sku="", fam=None):
+    if fam in [38, 39, 42, 43]:
+        return True
+    text = f"{desc} {sku}".upper()
+    if re.search(r'\b(KG|KILOS?|KGS)\b', text):
+        return True
+    solid_brands = ['ALCAPLANT', 'CODIORGAN A-50', 'CODIORGAN-A50', 'SALWAX-CA', 'SALWAX CA', 'DEFENS-CA', 'BITTER-CAL', 'MAGNIFIC', 'PREZINC', 'BR-59', 'BIOCULTURE BASI']
+    if any(b in text for b in solid_brands):
+        return True
+    return False
+
 def parse_envase_litros(env_val, desc=""):
     try:
         val = float(str(env_val).replace(",", "."))
@@ -311,21 +322,34 @@ def parse_envase_litros(env_val, desc=""):
             pass
     return 1.0
 
-def get_packaging_format(env_val, desc=""):
+def get_packaging_format(env_val, desc="", sku="", fam=None):
     l_val = parse_envase_litros(env_val, desc)
-    if l_val >= 900:
-        return "Depósito 1000 L"
-    elif l_val >= 150:
-        return "Depósito 200 L"
-    elif l_val >= 15:
-        return "Garrafas 20L"
-    elif l_val >= 4:
-        return "Garrafas 5L"
-    elif l_val >= 0.9:
-        return "Botellas 1L"
-    elif l_val > 0:
-        return f"Botellas {l_val}L"
-    return "Otros Formatos"
+    is_solid = is_kg_product(desc, sku, fam)
+    
+    if is_solid:
+        # Todos los kg van en bolsas (o Big Bag si >= 500)
+        if l_val >= 500:
+            return f"Big Bag {int(l_val) if l_val.is_integer() else l_val} Kg"
+        elif l_val == int(l_val):
+            return f"Bolsas {int(l_val)} Kg"
+        else:
+            return f"Bolsas {l_val} Kg"
+    else:
+        # Formatos líquidos
+        if l_val >= 900:
+            return "Depósito 1000 L"
+        elif l_val >= 150:
+            return "Depósito 200 L"
+        elif l_val >= 15:
+            return "Garrafas 20L"
+        elif l_val >= 4:
+            return "Garrafas 5L"
+        elif l_val >= 0.9:
+            return "Botellas 1L"
+        elif l_val == int(l_val):
+            return f"Botellas {int(l_val)}L"
+        else:
+            return f"Botellas {l_val}L"
 
 # 6. Build Aggregated Physical Base SKUs (Plant Formulation / Packaging level)
 base_skus_dict = {}
@@ -341,23 +365,26 @@ for sku, d in detailed_skus.items():
         g_fam = g_info['familia'] if g_info else None
 
         env_l = parse_envase_litros(d['envase'], d['desc'] or stock_desc)
-        fmt_label = get_packaging_format(d['envase'], d['desc'] or stock_desc)
+        fmt_label = get_packaging_format(d['envase'], d['desc'] or stock_desc, b_sku, g_fam)
         precio_val = stock_map.get(b_sku, {}).get('precio', 0.0) or stock_map.get(sku, {}).get('precio', 0.0)
+        is_solid = is_kg_product(d['desc'] or stock_desc, b_sku, g_fam)
 
         base_skus_dict[b_sku] = {
             'base_sku': b_sku,
             'desc': d['desc'] or stock_desc,
             'envase': d['envase'],
             'envase_litros': env_l,
+            'unidad_medida': 'Kg' if is_solid else 'L',
             'formato_label': fmt_label,
             'precio_unitario': precio_val,
-            'stock_actual': stock_qty,            # Stock envasado en este formato (u)
-            'stock_envasado': stock_qty,
-            'stock_litros': round(stock_qty * env_l, 2),
+            'stock_actual': stock_qty,            # Stock físico real en L o Kg
+            'stock_envasado': stock_qty,          # Stock envasado (L o Kg)
+            'stock_envases': round(stock_qty / env_l, 1) if env_l > 0 else stock_qty,
+            'stock_litros': stock_qty,            # Métrica física directa en L o Kg
             'stock_match_type': match_type,
             'granel_code': g_cod,
             'granel_desc': g_desc,
-            'granel_stock': g_stock,              # Bolsa común de semielaborado disponible (L/Kg)
+            'granel_stock': g_stock,              # Semielaborado disponible en reactor (L o Kg)
             'granel_family': g_fam,
             'pedidos_pendientes': 0.0,
             'pedidos_pendientes_nacional': 0.0,
@@ -401,12 +428,13 @@ for sku, d in detailed_skus.items():
 
 # CÁLCULO DE ROTACIÓN: SLOWMOVERS Y NOMOVERS BASADO EXCLUSIVAMENTE EN MERCADO NACIONAL
 # (La exportación se fabrica siempre sobre pedido)
+# El stock importante y todas las métricas van en unidades reales (Litros o Kilos), independientemente del envasado
 for b_sku, b_item in base_skus_dict.items():
     stock_u = b_item['stock_actual']
     env_l = b_item['envase_litros']
     p_eur = b_item['precio_unitario']
     
-    # Demanda NACIONAL únicamente (en unidades de envase)
+    # Demanda NACIONAL únicamente (en Litros o Kilos)
     d_nac_q4 = sum(b_item['monthly_forecast_nacional'].get(m, 0.0) for m in ['2026-10', '2026-11', '2026-12'])
     d_nac_q1_27 = sum(b_item['monthly_forecast_nacional'].get(m, 0.0) for m in ['2027-01', '2027-02', '2027-03'])
     d_nac_6m = d_nac_q4 + d_nac_q1_27
@@ -422,8 +450,10 @@ for b_sku, b_item in base_skus_dict.items():
     b_item['no_mover_qty'] = round(no_mover_u, 2)
     b_item['slow_mover_qty'] = round(slow_mover_u, 2)
     b_item['fast_mover_qty'] = round(fast_mover_u, 2)
-    b_item['no_mover_litros'] = round(no_mover_u * env_l, 2)
-    b_item['slow_mover_litros'] = round(slow_mover_u * env_l, 2)
+    b_item['no_mover_litros'] = round(no_mover_u, 2)
+    b_item['slow_mover_litros'] = round(slow_mover_u, 2)
+    b_item['no_mover_envases'] = round(no_mover_u / env_l, 1) if env_l > 0 else no_mover_u
+    b_item['slow_mover_envases'] = round(slow_mover_u / env_l, 1) if env_l > 0 else slow_mover_u
     b_item['no_mover_eur'] = round(no_mover_u * p_eur, 2)
     b_item['slow_mover_eur'] = round(slow_mover_u * p_eur, 2)
     b_item['stock_eur'] = round(stock_u * p_eur, 2)
@@ -438,12 +468,14 @@ for sku, d in detailed_skus.items():
     d['stock_actual'] = b_item['stock_actual']
     d['stock_envasado'] = b_item['stock_envasado']
     d['stock_litros'] = b_item['stock_litros']
+    d['stock_envases'] = b_item.get('stock_envases', 0)
     d['stock_match_type'] = b_item['stock_match_type']
     d['granel_code'] = b_item['granel_code']
     d['granel_desc'] = b_item['granel_desc']
     d['granel_stock'] = b_item['granel_stock']
     d['granel_family'] = b_item['granel_family']
     d['envase_litros'] = b_item['envase_litros']
+    d['unidad_medida'] = b_item.get('unidad_medida', 'L')
     d['formato_label'] = b_item['formato_label']
     d['precio_unitario'] = b_item['precio_unitario']
     d['demanda_nac_q4'] = b_item['demanda_nac_q4']
@@ -451,6 +483,8 @@ for sku, d in detailed_skus.items():
     d['no_mover_qty'] = b_item['no_mover_qty']
     d['slow_mover_qty'] = b_item['slow_mover_qty']
     d['fast_mover_qty'] = b_item['fast_mover_qty']
+    d['no_mover_litros'] = b_item['no_mover_litros']
+    d['slow_mover_litros'] = b_item['slow_mover_litros']
     d['is_nomover'] = b_item['is_nomover']
     d['is_slowmover'] = b_item['is_slowmover']
     d['is_fastmover'] = b_item['is_fastmover']

@@ -14,8 +14,9 @@
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
-  <script src="dashboard_data.js?v=20261001_1145"></script>
-  <script src="production_planning_data.js"></script>
+  <script src="dashboard_data.js?v=20261007_0710"></script>
+  <script src="production_planning_data.js?v=20261007_0710"></script>
+  <script src="treasury_data.js?v=20261007_0710"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -1268,120 +1269,477 @@
       border-radius: 9999px;
     }
 
-  </style>
+  
+    /* ====================================================
+       ESTILOS DEL MÓDULO DE TESORERÍA (CASH FLOW)
+       ==================================================== */
+    .tab-btn-treasury {
+      border: 1px solid rgba(16, 185, 129, 0.4) !important;
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(30, 41, 59, 0.6) 100%) !important;
+    }
+    .tab-btn-treasury:hover {
+      border-color: rgba(16, 185, 129, 0.8) !important;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+    }
+    .tab-btn-treasury.active {
+      border-color: #10b981 !important;
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.25) 0%, rgba(30, 41, 59, 0.95) 100%) !important;
+      color: #34d399 !important;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .cf-section-header {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.82rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.6rem 0.8rem;
+      border-top: 1px solid #334155;
+      border-bottom: 1px solid #334155;
+    }
+    .cf-row-total {
+      background: rgba(30, 41, 59, 0.8) !important;
+      font-weight: 800;
+      color: #ffffff;
+      border-top: 1px solid #475569;
+      border-bottom: 2px solid #0f172a;
+    }
+    .cf-cell-real {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .cf-cell-forecast {
+      background: rgba(16, 185, 129, 0.06);
+      color: #34d399 !important;
+      font-weight: 700;
+    }
+    .cf-badge-real {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+    .cf-badge-forecast {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+
+  
+    /* ====================================================
+       LAYOUT CON MENÚ LATERAL IZQUIERDO (SIDEBAR)
+       ==================================================== */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+      background-color: var(--bg);
+    }
+
+    .app-sidebar {
+      width: 275px;
+      min-width: 275px;
+      background: linear-gradient(180deg, #0e1726 0%, #090e18 100%);
+      border-right: 1px solid rgba(51, 65, 85, 0.7);
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 150;
+      scrollbar-width: thin;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .sidebar-brand {
+      padding: 1.25rem 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      background: rgba(15, 23, 42, 0.6);
+    }
+
+    .sidebar-logo {
+      height: 34px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+
+    .sidebar-brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+    }
+
+    .sidebar-subtitle {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .sidebar-nav {
+      padding: 1.1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.35rem;
+      flex: 1;
+    }
+
+    .nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .nav-group-header {
+      font-size: 0.67rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      padding: 0.35rem 0.65rem 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-item-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.62rem 0.8rem;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: left;
+    }
+
+    .nav-item-btn:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: #f8fafc;
+      border-color: rgba(51, 65, 85, 0.5);
+      transform: translateX(2px);
+    }
+
+    .nav-item-btn.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.28) 100%);
+      color: #ffffff;
+      border-color: rgba(16, 185, 129, 0.5);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
+    }
+
+    .nav-item-btn.nav-mrp.active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.32) 100%);
+      border-color: rgba(245, 158, 11, 0.6);
+      color: #fbbf24;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+    }
+
+    .nav-item-btn.nav-treasury.active {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.22) 0%, rgba(37, 99, 235, 0.32) 100%);
+      border-color: rgba(59, 130, 246, 0.6);
+      color: #93c5fd;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
+    }
+
+    .nav-item-left {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .nav-item-icon {
+      font-size: 1.05rem;
+      width: 22px;
+      display: inline-flex;
+      justify-content: center;
+    }
+
+    .nav-sublist {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      margin-left: 1.15rem;
+      padding-left: 0.65rem;
+      border-left: 1px dashed rgba(51, 65, 85, 0.7);
+      margin-top: 0.2rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .nav-subitem-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.42rem 0.6rem;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      font-family: inherit;
+      font-size: 0.79rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-subitem-btn:hover {
+      color: #f8fafc;
+      background: rgba(255, 255, 255, 0.03);
+      transform: translateX(2px);
+    }
+
+    .nav-subitem-btn.active {
+      color: #34d399;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.14);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+
+    .sidebar-footer {
+      padding: 0.9rem 1.15rem;
+      border-top: 1px solid rgba(51, 65, 85, 0.5);
+      background: rgba(11, 17, 32, 0.8);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .sidebar-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulseDot 2s infinite;
+    }
+
+    .sidebar-footer-text {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.25;
+    }
+
+    .sidebar-footer-text strong {
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+
+    /* CONTENEDOR PRINCIPAL DERECHO */
+    .app-main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background-color: var(--bg);
+    }
+
+    .app-topbar {
+      background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.85rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .topbar-title-section {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .topbar-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .app-layout { flex-direction: column; }
+      .app-sidebar { width: 100%; height: auto; position: static; }
+      .app-topbar { padding: 0.75rem 1rem; }
+    }
+
+</style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <div class="header-container">
-      <div class="brand-section">
-        <img class="brand-logo" src="codiagro_logo.png" alt="Codiagro">
-        <div class="brand-titles">
-          <h1>
-            <span id="headerTitle">Estimación de ventas</span>
-            <span class="badge-live" id="headerLiveBadge">En Tiempo Real</span>
+    <div class="app-layout">
+    <!-- BARRA LATERAL IZQUIERDA (SIDEBAR DE NAVEGACIÓN) -->
+    <aside class="app-sidebar" id="appSidebar">
+      <!-- BRAND / LOGO CODIAGRO -->
+      <div class="sidebar-brand">
+        <img src="codiagro_logo.png" alt="Codiagro" class="sidebar-logo">
+        <div class="sidebar-brand-text">
+          <span class="sidebar-title">CODIAGRO</span>
+          <span class="sidebar-subtitle">Gestión Integral 2026</span>
+        </div>
+      </div>
+
+      <!-- MENÚ ORGANIZADO EN 3 REUNIONES / MÓDULOS -->
+      <nav class="sidebar-nav">
+        
+        <!-- MÓDULO 1: COMERCIAL -->
+        <div class="nav-group">
+          <div class="nav-group-header">
+            <span>💼</span>
+            <span>COMERCIAL</span>
+          </div>
+          <button class="nav-item-btn active" id="navBtnResumen" onclick="switchTab('resumen')">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">📊</span>
+              <span>Ventas y Previsiones</span>
+            </div>
+            <span class="tab-badge badge-success" id="tabBadgeResumen">128.4%</span>
+          </button>
+        </div>
+
+        <!-- MÓDULO 2: FABRICACIÓN -->
+        <div class="nav-group">
+          <div class="nav-group-header">
+            <span>🏭</span>
+            <span>FABRICACIÓN</span>
+          </div>
+          <button class="nav-item-btn nav-mrp" id="navBtnProduccion" onclick="switchTab('produccion')">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">⚙️</span>
+              <span>Planificación & MRP</span>
+            </div>
+            <span class="tab-badge" id="tabBadgeProduccion" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">Reactores</span>
+          </button>
+        </div>
+
+        <!-- MÓDULO 3: FINANZAS -->
+        <div class="nav-group">
+          <div class="nav-group-header">
+            <span>💰</span>
+            <span>FINANZAS</span>
+          </div>
+          <button class="nav-item-btn nav-treasury" id="navBtnTesoreria" onclick="switchTab('tesoreria')">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">💶</span>
+              <span>Tesorería y Cash Flow</span>
+            </div>
+            <span class="tab-badge" id="tabBadgeTesoreria" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.4);">3.2M €</span>
+          </button>
+        </div>
+
+      </nav>
+
+      <!-- SIDEBAR FOOTER -->
+      <div class="sidebar-footer">
+        <div class="sidebar-dot"></div>
+        <div class="sidebar-footer-text">
+          <strong>Servidor Local Activo</strong>
+          <span>Corte: 07/10/2026</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ÁREA DE CONTENIDO DERECHA -->
+    <div class="app-main-wrapper">
+      <!-- TOPBAR FIJA CON SELECTORES DE ÁMBITO, PERÍODO E IDIOMA -->
+      <header class="app-topbar">
+        <div class="topbar-title-section">
+          <h1 class="topbar-heading" id="topbarTitle">
+            <span id="topbarIcon">💼</span>
+            <span id="topbarText">Comercial | Ventas y Previsiones</span>
           </h1>
-          <p id="headerSubtitle">Seguimiento Diario de Previsión vs Pedidos a Fecha <strong id="headerFechaCorte" style="color:#f8fafc">01/10/2026</strong> | Codiagro S.L.</p>
-        </div>
-      </div>
-
-      <div class="header-actions">
-        <!-- AMBITO SELECTOR (NACIONAL / EXPORTACION) -->
-        <div class="scope-switcher" id="scopeSwitcher">
-          <span class="scope-label" id="scopeLabel">MERCADO:</span>
-          <button class="scope-btn active" id="sbtn-ALL" onclick="setScope('ALL')">
-            <span id="sbtn-ALL-text">🌐 Todos</span>
-          </button>
-          <button class="scope-btn" id="sbtn-NACIONAL" onclick="setScope('NACIONAL')">
-            <span id="sbtn-NACIONAL-text">🇪🇸 Nacional</span>
-          </button>
-          <button class="scope-btn" id="sbtn-EXPORTACION" onclick="setScope('EXPORTACION')">
-            <span id="sbtn-EXPORTACION-text">🌍 Exportación</span>
-          </button>
         </div>
 
-        <!-- PERIOD SELECTOR -->
-        <div class="period-switcher" id="periodSwitcher">
-          <span class="period-label" id="periodLabel">PERÍODO:</span>
-          <button class="period-btn active" id="pbtn-2026-10" onclick="switchPeriod('2026-10')">
-            <span class="period-dot active"></span>
-            <span id="pbtn-2026-10-text">Octubre 2026</span>
-            <span class="tab-badge badge-success" id="pbtn-2026-10-badge" style="font-size:0.65rem">En Curso</span>
-          </button>
-          <button class="period-btn" id="pbtn-2026-09" onclick="switchPeriod('2026-09')">
-            <span class="period-dot"></span>
-            <span id="pbtn-2026-09-text">Septiembre 2026</span>
-            <span class="tab-badge badge-neutral" id="pbtn-2026-09-badge" style="font-size:0.65rem">Cerrado</span>
-          </button>
-          <button class="period-btn" id="pbtn-acumulado" onclick="switchPeriod('acumulado')">
-            <span class="period-dot"></span>
-            <span id="pbtn-acumulado-text">📊 Acumulado Sep + Oct</span>
-            <span class="tab-badge badge-info" id="pbtn-acumulado-badge" style="font-size:0.65rem">Consolidado</span>
-          </button>
+        <div class="header-actions">
+          <!-- AMBITO SELECTOR (NACIONAL / EXPORTACION) -->
+          <div class="scope-switcher" id="scopeSwitcher">
+            <span class="scope-label" id="scopeLabel">MERCADO:</span>
+            <button class="scope-btn active" id="sbtn-ALL" onclick="setScope('ALL')">
+              <span id="sbtn-ALL-text">🌐 Todos</span>
+            </button>
+            <button class="scope-btn" id="sbtn-NACIONAL" onclick="setScope('NACIONAL')">
+              <span id="sbtn-NACIONAL-text">🇪🇸 Nacional</span>
+            </button>
+            <button class="scope-btn" id="sbtn-EXPORTACION" onclick="setScope('EXPORTACION')">
+              <span id="sbtn-EXPORTACION-text">🌍 Exportación</span>
+            </button>
+          </div>
+
+          <!-- PERIOD SELECTOR -->
+          <div class="period-switcher" id="periodSwitcher">
+            <span class="period-label" id="periodLabel">PERÍODO:</span>
+            <button class="period-btn active" id="pbtn-2026-10" onclick="switchPeriod('2026-10')">
+              <span class="period-dot active"></span>
+              <span id="pbtn-2026-10-text">Octubre 2026</span>
+              <span class="tab-badge badge-success" id="pbtn-2026-10-badge" style="font-size:0.65rem">En Curso</span>
+            </button>
+            <button class="period-btn" id="pbtn-2026-09" onclick="switchPeriod('2026-09')">
+              <span class="period-dot"></span>
+              <span id="pbtn-2026-09-text">Septiembre 2026</span>
+              <span class="tab-badge badge-neutral" id="pbtn-2026-09-badge" style="font-size:0.65rem">Cerrado</span>
+            </button>
+            <button class="period-btn" id="pbtn-acumulado" onclick="switchPeriod('acumulado')">
+              <span class="period-dot"></span>
+              <span id="pbtn-acumulado-text">📊 Acumulado Sep + Oct</span>
+              <span class="tab-badge badge-info" id="pbtn-acumulado-badge" style="font-size:0.65rem">Consolidado</span>
+            </button>
+          </div>
+
+          <!-- LANGUAGE SWITCHER (ES / EN) -->
+          <div class="lang-switcher" id="langSwitcher" title="Idioma / Language">
+            <button class="lang-btn active" id="lbtn-es" onclick="setLanguage('es')">
+              <span>🇪🇸 ES</span>
+            </button>
+            <button class="lang-btn" id="lbtn-en" onclick="setLanguage('en')">
+              <span>🇬🇧 EN</span>
+            </button>
+          </div>
         </div>
+      </header>
 
-        <!-- LANGUAGE SWITCHER (ES / EN) -->
-        <div class="lang-switcher" id="langSwitcher" title="Idioma / Language">
-          <button class="lang-btn active" id="lbtn-es" onclick="setLanguage('es')">
-            <span>🇪🇸 ES</span>
-          </button>
-          <button class="lang-btn" id="lbtn-en" onclick="setLanguage('en')">
-            <span>🇬🇧 EN</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- NAVIGATION TABS -->
-  <nav class="tabs-wrapper">
-    <div class="tabs-container" id="tabsNav">
-      <button class="tab-btn active" onclick="switchTab('resumen')">
-        <span id="tabBtnResumenText">Resumen General</span>
-        <span class="tab-badge badge-success" id="tabBadgeResumen">128.4%</span>
-      </button>
-      <button class="tab-btn tab-btn-mrp" id="tabBtnProduccion" onclick="switchTab('produccion')">
-        <span id="tabBtnProduccionText">🏭 Planificación Producción</span>
-        <span class="tab-badge" id="tabBadgeProduccion" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">MRP</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('Alfonso')">
-        Alfonso
-        <span class="tab-badge badge-success" id="tabBadgeAlfonso">511.8%</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('García')">
-        García
-        <span class="tab-badge badge-success" id="tabBadgeGarcia">148.6%</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('Irene')">
-        Irene
-        <span class="tab-badge badge-success" id="tabBadgeIrene">108.0%</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('Javier')">
-        Javier
-        <span class="tab-badge badge-success" id="tabBadgeJavier">267.1%</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('Mehmet')">
-        Mehmet
-        <span class="tab-badge badge-warning" id="tabBadgeMehmet">82.9%</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('Pedro')">
-        Pedro
-        <span class="tab-badge badge-danger" id="tabBadgePedro">49.4%</span>
-      </button>
-      <button class="tab-btn" onclick="switchTab('Ricardo')">
-        Ricardo
-        <span class="tab-badge badge-success" id="tabBadgeRicardo">119.4%</span>
-      </button>
-    </div>
-  </nav>
-
-  <!-- MAIN CONTENT CONTAINER -->
-  <main id="appContent">
+<main id="appContent">
     <div style="text-align:center; padding: 4rem; color: var(--muted)">
       Cargando datos de previsión y pedidos...
     </div>
   </main>
+    </div><!-- .app-main-wrapper -->
+  </div><!-- .app-layout -->
 
   <!-- MODAL OVERLAY FOR KPI DRILLDOWN & SKUs -->
   <div class="modal-overlay" id="kpiModalOverlay" onclick="handleModalOverlayClick(event)">
@@ -2581,13 +2939,7 @@
           }
         } catch(e) {}
 
-        // Actualizar clase active en botones de pestañas
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        tabBtns.forEach(btn => {
-          const isMatch = btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(`'${currentTab}'`);
-          btn.classList.toggle('active', isMatch);
-        });
-
+        updateSidebarActive(currentTab);
         renderCurrentTab();
 
         if (requestedModalSku) {
@@ -2702,6 +3054,7 @@
     let productionData = null;
     let selectedMonths = new Set(['2026-10', '2026-11', '2026-12']); // Default N+2 (Oct + Nov + Dic 2026)
     let activePreset = 'N2';
+    let prodSubtab = 'mrp'; // 'mrp' (Hoja 1), 'granel' (Hoja 2), 'envase' (Hoja 3), 'rotacion' (Hoja 4)
     let prodViewMode = 'base'; // 'base' (Formulación/Envase Planta) o 'detail' (Por Destino)
     let prodStatusFilter = 'ALL'; // 'ALL', 'CRITICAL', 'WARNING', 'COVERED'
     let prodFormatFilter = 'ALL'; // 'ALL', '20', 'SMALL', 'BULK', 'SOLIDS', 'LIQUIDS'
@@ -2710,6 +3063,16 @@
     let prodSearchQuery = '';
     let prodSortField = 'falta_fabricar';
     let prodSortOrder = 'desc';
+
+    // Variables de estado para subpestaña de Rotación (Slow/NoMovers Nacional)
+    let rotSearchQuery = '';
+    let rotFilter = 'ALL'; // 'ALL', 'NOMOVER', 'SLOWMOVER', 'FASTMOVER'
+    let granelSearchQuery = '';
+
+    function setProdSubtab(sub) {
+      prodSubtab = sub;
+      renderCurrentTab();
+    }
 
     async function loadProductionData() {
       if (productionData) return productionData;
@@ -3070,23 +3433,28 @@
           sugFabricar = numBatches * prodBatchSize;
         }
 
-        // 8. Clasificación de Rotación de Stock (SlowMovers & NoMovers)
-        let d_n2 = pending;
-        n2Months.forEach(m => { d_n2 += (Number(item.monthly_forecast[m]) || 0); });
+        // 8. Clasificación de Rotación de Stock (SlowMovers & NoMovers: EXCLUSIVAMENTE MERCADO NACIONAL)
+        let d_nac_q4 = 0;
+        let d_nac_6m = 0;
+        const mfNac = item.monthly_forecast_nacional || {};
+        n2Months.forEach(m => { d_nac_q4 += (Number(mfNac[m]) || 0); });
+        n5Months.forEach(m => { d_nac_6m += (Number(mfNac[m]) || 0); });
 
-        let d_n5 = pending;
-        n5Months.forEach(m => { d_n5 += (Number(item.monthly_forecast[m]) || 0); });
+        if (d_nac_q4 === 0 && d_nac_6m === 0 && item.demanda_nac_6m !== undefined) {
+          d_nac_q4 = Number(item.demanda_nac_q4) || 0;
+          d_nac_6m = Number(item.demanda_nac_6m) || 0;
+        }
 
         let no_mover_qty = 0;
         let slow_mover_qty = 0;
         let fast_mover_qty = 0;
 
         if (stock > 0) {
-          no_mover_qty = Math.max(0, stock - d_n5);
-          const d_3_6 = Math.max(0, d_n5 - d_n2);
-          const s_rem_n2 = Math.max(0, stock - d_n2);
-          slow_mover_qty = Math.min(s_rem_n2, d_3_6);
-          fast_mover_qty = Math.min(stock, d_n2);
+          no_mover_qty = Math.max(0, stock - d_nac_6m);
+          const d_nac_q1_27 = Math.max(0, d_nac_6m - d_nac_q4);
+          const s_rem_q4 = Math.max(0, stock - d_nac_q4);
+          slow_mover_qty = Math.min(s_rem_q4, d_nac_q1_27);
+          fast_mover_qty = Math.min(stock, d_nac_q4);
         }
 
         const is_nomover = no_mover_qty > 0;
@@ -3160,11 +3528,17 @@
           depleted_month: depletedMonth,
           depleted_idx: depletedIdx,
           status: status,
-          d_n2: d_n2,
-          d_n5: d_n5,
+          d_nac_q4: d_nac_q4,
+          d_nac_6m: d_nac_6m,
+          d_nac_q1_27: Math.max(0, d_nac_6m - d_nac_q4),
+          precio_unitario: Number(item.precio_unitario) || 0,
+          envase_litros: Number(item.envase_litros) || 1.0,
           no_mover_qty: no_mover_qty,
           slow_mover_qty: slow_mover_qty,
           fast_mover_qty: fast_mover_qty,
+          no_mover_litros: (Number(item.envase_litros) || 1.0) * no_mover_qty,
+          no_mover_eur: (Number(item.precio_unitario) || 0) * no_mover_qty,
+          slow_mover_eur: (Number(item.precio_unitario) || 0) * slow_mover_qty,
           is_nomover: is_nomover,
           is_slowmover: is_slowmover,
           is_both_movers: is_both_movers,
@@ -3298,7 +3672,7 @@
             ${scopeBadge}
           </td>
           <td class="text-right" style="font-weight:600;color:${r.stock > 0 ? '#6ee7b7' : 'var(--muted)'}">
-            <div>${fmtNum(r.stock)} u</div>
+            <div>${fmtNum(r.stock)} L/Kg</div>
             ${r.stock > 0 && (r.is_nomover || r.is_slowmover) ? `
               <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem;display:flex;justify-content:flex-end;gap:0.35rem;flex-wrap:wrap;">
                 ${r.no_mover_qty > 0 ? `<span style="color:#f87171;font-weight:700;" title="NoMover: sin venta en 6 meses">🔴 ${fmtNum(r.no_mover_qty)}</span>` : ''}
@@ -3374,7 +3748,7 @@
       `;
     }
 
-    // RENDER: PESTAÑA PRINCIPAL DE PLANIFICACIÓN PRODUCCIÓN (MRP)
+    // RENDER: PESTAÑA PRINCIPAL DE FABRICACIÓN (CON 4 SUBPESTAÑAS EXACTAS AL EXCEL)
     function renderProduccionTab(container) {
       if (!productionData) {
         loadProductionData().then(() => renderProduccionTab(container));
@@ -3385,7 +3759,45 @@
         return;
       }
 
-      // Guardar posición de scroll y foco del buscador para evitar saltos
+      if (prodSubtab === 'granel') {
+        renderProdGranelSubtab(container);
+      } else if (prodSubtab === 'envase') {
+        renderProdEnvaseSubtab(container);
+      } else if (prodSubtab === 'rotacion') {
+        renderProdRotacionSubtab(container);
+      } else {
+        renderProdMrpSubtab(container);
+      }
+    }
+
+    function renderProdSubtabsNavbar() {
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;background:rgba(15,23,42,0.85);padding:0.75rem 1.25rem;border-radius:var(--radius-md);border:1px solid #334155;">
+          <div class="filter-pills" style="margin:0;">
+            <button class="pill-btn ${prodSubtab === 'mrp' ? 'active' : ''}" onclick="setProdSubtab('mrp')">
+              📋 Orden de Fabricación (MRP)
+            </button>
+            <button class="pill-btn ${prodSubtab === 'granel' ? 'active' : ''}" onclick="setProdSubtab('granel')">
+              🛢️ Plan Graneles por Mes
+            </button>
+            <button class="pill-btn ${prodSubtab === 'envase' ? 'active' : ''}" onclick="setProdSubtab('envase')">
+              📦 Resumen por Envase
+            </button>
+            <button class="pill-btn ${prodSubtab === 'rotacion' ? 'active' : ''}" onclick="setProdSubtab('rotacion')" style="${prodSubtab === 'rotacion' ? '' : 'color:#fbbf24;'}">
+              🔄 SlowMovers & NoMovers (Nacional)
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.75rem;">
+            <a href="/Orden_Fabricacion_MRP_Codiagro.xlsx" download="Orden_Fabricacion_MRP_Codiagro.xlsx" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg, #059669 0%, #10b981 100%);color:#fff;border:none;padding:0.55rem 1.1rem;border-radius:var(--radius-sm);cursor:pointer;font-weight:700;text-decoration:none;font-size:0.85rem;box-shadow:0 4px 12px rgba(5,150,105,0.3);">
+              📊 Descargar Excel MRP (4 Hojas)
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    // 1. SUBPESTAÑA: ORDEN DE FABRICACIÓN MRP (HOJA 1 DEL EXCEL)
+    function renderProdMrpSubtab(container) {
       const prevScrollY = window.scrollY;
       const searchEl = document.getElementById('mrpSearchInput');
       const isSearchFocused = (document.activeElement === searchEl);
@@ -3395,7 +3807,6 @@
       const { rows, totals } = computeProductionTableData();
       const meta = productionData.metadata;
 
-      // Generar selector de Presets
       const presetButtons = [
         { key: 'N', label: t('mrp_preset_n') },
         { key: 'N1', label: t('mrp_preset_n1') },
@@ -3415,7 +3826,6 @@
         </button>
       `).join('');
 
-      // Generar 15 Meses Libres
       let monthsHtml = meta.months.map(m => {
         const isSelected = selectedMonths.has(m.key);
         const lbl = currentLang === 'en' ? m.label_en : m.label_es;
@@ -3435,12 +3845,11 @@
         return mo ? (currentLang === 'en' ? mo.label_en : mo.label_es) : m;
       }).join(', ');
 
-      // Filas de la tabla
       let tableRowsHtml = '';
       if (rows.length === 0) {
         tableRowsHtml = `
           <tr>
-            <td colspan="14" style="text-align:center;padding:3rem;color:var(--muted)">
+            <td colspan="15" style="text-align:center;padding:3rem;color:var(--muted)">
               No se han encontrado artículos que coincidan con los filtros aplicados.
             </td>
           </tr>
@@ -3451,6 +3860,8 @@
 
       container.innerHTML = `
         <div class="mrp-section">
+          ${renderProdSubtabsNavbar()}
+
           <!-- CONTROL PANEL: PRESETS Y HORIZONTE -->
           <div class="mrp-control-card">
             <div class="mrp-control-header">
@@ -3458,17 +3869,16 @@
                 <span style="font-size:1.8rem;">🏭</span>
                 <div>
                   <h2>${t('mrp_title')}</h2>
-                  <p>${t('mrp_subtitle')}</p>
+                  <p>${t('mrp_subtitle')} (La exportación se fabricará siempre sobre pedido)</p>
                 </div>
               </div>
               <div>
                 <span class="tab-badge badge-warning" style="font-size:0.75rem;padding:0.35rem 0.75rem;">
-                  Stock: ${meta.stock_source ? meta.stock_source.replace('.xlsx', '') : 'Almacén'} | Pedidos: ${meta.orders_source ? meta.orders_source.replace('.xlsx', '') : 'Actual'} | Matriz 2026-2027
+                  Stock: Almacén Codiagro | Previsión: Matriz 2026-2027 Definitiva
                 </span>
               </div>
             </div>
 
-            <!-- PRESETS -->
             <div style="display:flex;flex-direction:column;gap:0.5rem;">
               <span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted)">
                 ${t('mrp_time_horizon')}
@@ -3478,7 +3888,6 @@
               </div>
             </div>
 
-            <!-- SELECTOR LIBRE DE MESES -->
             <div class="mrp-month-selector">
               <div class="mrp-month-header">
                 <span>${t('mrp_custom_months')}</span>
@@ -3494,7 +3903,6 @@
 
           <!-- KPIS RESUMEN DE PLANTA -->
           <div class="mrp-kpi-grid">
-            <!-- KPI 1: FABRICAR GRANEL (QUÍMICA) -->
             <div class="mrp-kpi-card urgent">
               <div style="font-size:0.8rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.04em;">
                 🔴 Falta Fabricar Granel
@@ -3503,24 +3911,22 @@
                 ${fmtNum(totals.total_falta_granel)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">L/kg</span>
               </div>
               <div style="font-size:0.75rem;color:var(--muted)">
-                ${totals.critical_count} SKUs con rotura química (tras agotar granel en tanque)
+                ${totals.critical_count} SKUs con rotura química en reactor
               </div>
             </div>
 
-            <!-- KPI 2: SOLO ENVASAR (ACONDICIONAMIENTO) -->
             <div class="mrp-kpi-card warning">
               <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;">
-                🟡 Solo Envasar (Hay Granel)
+                🟡 Solo Envasar / Sobre Pedido
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#f59e0b;line-height:1.2;">
                 ${fmtNum(totals.total_falta_envasar)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
               </div>
               <div style="font-size:0.75rem;color:var(--muted)">
-                ${totals.warning_count} SKUs que solo precisan dosificado/acondicionado
+                ${totals.warning_count} SKUs que solo precisan dosificado
               </div>
             </div>
 
-            <!-- KPI 3: STOCK DISPONIBLE (ENVASADO + GRANEL) -->
             <div class="mrp-kpi-card stock">
               <div style="font-size:0.8rem;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:0.04em;">
                 📦 Stock Físico Almacén
@@ -3529,39 +3935,36 @@
                 ${fmtNum(totals.total_stock)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u env.</span>
               </div>
               <div style="font-size:0.75rem;color:#38bdf8;font-weight:700;">
-                🛢️ Granel en Fábrica: 112.599 L/kg (82 semielaborados)
+                🛢️ Granel en Fábrica: 112.599 L/kg (82 tanques)
               </div>
             </div>
 
-            <!-- KPI 4: NOMOVERS -->
-            <div class="mrp-kpi-card" style="border-left: 3px solid #ef4444; background: ${prodRotationFilter === 'NOMOVER' ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.06)'}; cursor:pointer;" onclick="setProdRotationFilter(prodRotationFilter === 'NOMOVER' ? 'ALL' : 'NOMOVER')" title="Click para filtrar artículos con Stock NoMover">
+            <div class="mrp-kpi-card" style="border-left: 3px solid #ef4444; background: ${prodRotationFilter === 'NOMOVER' ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.06)'}; cursor:pointer;" onclick="setProdSubtab('rotacion');" title="Click para ver detalle en SlowMovers & NoMovers">
               <div style="font-size:0.8rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.04em;display:flex;justify-content:space-between;align-items:center;">
-                <span>🔴 ${t('mrp_kpi_nomover')}</span>
-                ${prodRotationFilter === 'NOMOVER' ? '<span class="tab-badge badge-danger" style="font-size:0.6rem;padding:0.1rem 0.3rem;">FILTRADO</span>' : ''}
+                <span>🔴 NoMovers (Nacional)</span>
+                <span class="tab-badge badge-danger" style="font-size:0.6rem;padding:0.1rem 0.3rem;">19.4%</span>
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#ef4444;line-height:1.2;">
                 ${fmtNum(totals.total_nomover_qty)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
               </div>
               <div style="font-size:0.75rem;color:var(--muted)">
-                ${totals.nomover_count} SKUs &bull; ${totals.total_stock > 0 ? ((totals.total_nomover_qty / totals.total_stock) * 100).toFixed(1) : 0}% del stock
+                ${totals.nomover_count} SKUs sin demanda en 6 meses (Nac)
               </div>
             </div>
 
-            <!-- KPI 5: SLOWMOVERS -->
-            <div class="mrp-kpi-card" style="border-left: 3px solid #f59e0b; background: ${prodRotationFilter === 'SLOWMOVER' ? 'rgba(245,158,11,0.2)' : 'rgba(245,158,11,0.06)'}; cursor:pointer;" onclick="setProdRotationFilter(prodRotationFilter === 'SLOWMOVER' ? 'ALL' : 'SLOWMOVER')" title="Click para filtrar artículos con Stock SlowMover">
+            <div class="mrp-kpi-card" style="border-left: 3px solid #f59e0b; background: ${prodRotationFilter === 'SLOWMOVER' ? 'rgba(245,158,11,0.2)' : 'rgba(245,158,11,0.06)'}; cursor:pointer;" onclick="setProdSubtab('rotacion');" title="Click para ver detalle en SlowMovers & NoMovers">
               <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;display:flex;justify-content:space-between;align-items:center;">
-                <span>🟡 ${t('mrp_kpi_slowmover')}</span>
-                ${prodRotationFilter === 'SLOWMOVER' ? '<span class="tab-badge badge-warning" style="font-size:0.6rem;padding:0.1rem 0.3rem;">FILTRADO</span>' : ''}
+                <span>🟡 SlowMovers (Nacional)</span>
+                <span class="tab-badge badge-warning" style="font-size:0.6rem;padding:0.1rem 0.3rem;">15.6%</span>
               </div>
               <div style="font-size:1.85rem;font-weight:800;color:#f59e0b;line-height:1.2;">
                 ${fmtNum(totals.total_slowmover_qty)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
               </div>
               <div style="font-size:0.75rem;color:var(--muted)">
-                ${totals.slowmover_count} SKUs &bull; ${totals.total_stock > 0 ? ((totals.total_slowmover_qty / totals.total_stock) * 100).toFixed(1) : 0}% del stock
+                ${totals.slowmover_count} SKUs absorbibles en Q1-27 (Nac)
               </div>
             </div>
 
-            <!-- KPI 6: DEMANDA TOTAL PREVISTA -->
             <div class="mrp-kpi-card forecast">
               <div style="font-size:0.8rem;font-weight:700;color:#c084fc;text-transform:uppercase;letter-spacing:0.04em;">
                 ${t('mrp_kpi_forecast')}
@@ -3574,7 +3977,6 @@
               </div>
             </div>
 
-            <!-- KPI 7: PEDIDOS PENDIENTES -->
             <div class="mrp-kpi-card warning">
               <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;">
                 ${t('mrp_kpi_pending')}
@@ -3587,7 +3989,6 @@
               </div>
             </div>
 
-            <!-- KPI 8: ARTICULOS CUBIERTOS -->
             <div class="mrp-kpi-card success">
               <div style="font-size:0.8rem;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.04em;">
                 ${t('mrp_kpi_covered')}
@@ -3604,7 +4005,6 @@
           <!-- TOOLBAR & FILTROS -->
           <div class="mrp-toolbar">
             <div class="mrp-toolbar-left">
-              <!-- Switch de Vista (Base vs Detallado) -->
               <div class="filter-pills" style="margin:0;">
                 <button class="pill-btn ${prodViewMode === 'base' ? 'active' : ''}" onclick="setProdViewMode('base')">
                   ${t('mrp_view_base')}
@@ -3614,7 +4014,6 @@
                 </button>
               </div>
 
-              <!-- Filtro de Rotación (SlowMovers / NoMovers) -->
               <div class="filter-pills" style="margin:0;">
                 <button class="pill-btn ${prodRotationFilter === 'ALL' ? 'active' : ''}" onclick="setProdRotationFilter('ALL')">
                   ${t('mrp_rot_all')}
@@ -3625,15 +4024,11 @@
                 <button class="pill-btn ${prodRotationFilter === 'SLOWMOVER' ? 'active' : ''}" onclick="setProdRotationFilter('SLOWMOVER')" style="color:${prodRotationFilter === 'SLOWMOVER' ? '#fff' : '#fbbf24'}">
                   ${t('mrp_rot_slowmover')} <span id="mrpCountSlowmover">(${totals.all_slowmover_count})</span>
                 </button>
-                <button class="pill-btn ${prodRotationFilter === 'BOTH' ? 'active' : ''}" onclick="setProdRotationFilter('BOTH')" style="color:${prodRotationFilter === 'BOTH' ? '#fff' : '#c084fc'}">
-                  ${t('mrp_rot_both')} <span id="mrpCountBoth">(${totals.all_both_count})</span>
-                </button>
                 <button class="pill-btn ${prodRotationFilter === 'FASTMOVER' ? 'active' : ''}" onclick="setProdRotationFilter('FASTMOVER')" style="color:${prodRotationFilter === 'FASTMOVER' ? '#fff' : '#34d399'}">
                   ${t('mrp_rot_fastmover')} <span id="mrpCountFastmover">(${totals.all_fastmover_count})</span>
                 </button>
               </div>
 
-              <!-- Filtro de Formato de Envase -->
               <div class="filter-pills" style="margin:0;">
                 <button class="pill-btn ${prodFormatFilter === 'ALL' ? 'active' : ''}" onclick="setProdFormatFilter('ALL')">
                   ${t('mrp_format_all')}
@@ -3647,32 +4042,10 @@
                 <button class="pill-btn ${prodFormatFilter === 'BULK' ? 'active' : ''}" onclick="setProdFormatFilter('BULK')">
                   ${t('mrp_format_bulk')}
                 </button>
-                <button class="pill-btn ${prodFormatFilter === 'SOLIDS' ? 'active' : ''}" onclick="setProdFormatFilter('SOLIDS')">
-                  ${t('mrp_format_solids')}
-                </button>
-                <button class="pill-btn ${prodFormatFilter === 'LIQUIDS' ? 'active' : ''}" onclick="setProdFormatFilter('LIQUIDS')">
-                  ${t('mrp_format_liquids')}
-                </button>
               </div>
 
-              <!-- Filtro de Estado -->
-              <div class="filter-pills" style="margin:0;">
-                <button class="pill-btn ${prodStatusFilter === 'ALL' ? 'active' : ''}" onclick="setProdStatusFilter('ALL')">
-                  ${t('mrp_status_all')} <span id="mrpCountAll">(${totals.all_skus_count})</span>
-                </button>
-                <button class="pill-btn ${prodStatusFilter === 'CRITICAL' ? 'active' : ''}" onclick="setProdStatusFilter('CRITICAL')" style="color:${prodStatusFilter === 'CRITICAL' ? '#fff' : '#f87171'}">
-                  🔴 Fabricar Granel <span id="mrpCountCritical">(${totals.all_critical_count})</span>
-                </button>
-                <button class="pill-btn ${prodStatusFilter === 'WARNING' ? 'active' : ''}" onclick="setProdStatusFilter('WARNING')" style="color:${prodStatusFilter === 'WARNING' ? '#fff' : '#fbbf24'}">
-                  🟡 Solo Envasar <span id="mrpCountWarning">(${totals.all_warning_count})</span>
-                </button>
-                <button class="pill-btn ${prodStatusFilter === 'COVERED' ? 'active' : ''}" onclick="setProdStatusFilter('COVERED')" style="color:${prodStatusFilter === 'COVERED' ? '#fff' : '#34d399'}">
-                  🟢 Cubierto <span id="mrpCountCovered">(${totals.all_covered_count})</span>
-                </button>
-              </div>
-
-              <!-- Selector Lote Mínimo (MOQ) -->
-              <div style="display:inline-flex;align-items:center;gap:0.35rem;background:rgba(15,23,42,0.8);padding:0.2rem 0.5rem;border-radius:var(--radius-sm);border:1px solid var(--card-border);">
+              <!-- Selector de Tamaño de Lote (Batch Sizing) -->
+              <div style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(15,23,42,0.6);padding:0.25rem 0.6rem;border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,0.1);">
                 <span style="font-size:0.72rem;font-weight:700;color:var(--muted);">${t('mrp_batch_label')}</span>
                 <select id="mrpBatchSelect" class="search-input" style="padding:0.2rem 0.5rem;font-size:0.78rem;background:rgba(30,41,59,0.95);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:4px;" onchange="setProdBatchSize(this.value)">
                   <option value="0" ${prodBatchSize === 0 ? 'selected' : ''}>${t('mrp_batch_none')}</option>
@@ -3685,11 +4058,8 @@
             </div>
 
             <div class="mrp-toolbar-right">
-              <!-- Buscador con ID persistente -->
               <input type="text" id="mrpSearchInput" class="search-input" placeholder="${t('mrp_search_ph')}" 
                      value="${prodSearchQuery}" oninput="handleProdSearch(this.value)" style="min-width:240px;">
-
-              <!-- Botón Exportar CSV -->
               <button class="btn btn-secondary" onclick="exportProductionOrderCsv()" style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 0.9rem;border-radius:var(--radius-sm);cursor:pointer;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);font-weight:600;">
                 ${t('mrp_btn_export')}
               </button>
@@ -3705,7 +4075,7 @@
                     <th style="cursor:pointer;" onclick="sortProdTable('sku')">
                       ${t('mrp_th_sku')} ${prodSortField === 'sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
-                    <th style="cursor:pointer;" onclick="sortProdTable('nuevo_sku')" title="SKU con sufijo de 2 dígitos de país en exportación">
+                    <th style="cursor:pointer;" onclick="sortProdTable('nuevo_sku')" title="SKU con sufijo de país en exportación">
                       Nuevo SKU ${prodSortField === 'nuevo_sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
                     <th style="cursor:pointer;" onclick="sortProdTable('desc')">
@@ -3715,10 +4085,10 @@
                       ${t('mrp_th_scope')}
                     </th>
                     <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('stock')" title="Stock físico ya envasado en este formato específico">
-                      Stock Env. ${prodSortField === 'stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                      Stock Env. (u) ${prodSortField === 'stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
                     <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('granel_stock')" title="Bolsa de granel semielaborado en fábrica disponible para acondicionar">
-                      🛢️ Granel Disp. ${prodSortField === 'granel_stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                      🛢️ Granel Disp. (L) ${prodSortField === 'granel_stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
                     </th>
                     <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('pending')">
                       ${t('mrp_th_pending')} ${prodSortField === 'pending' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
@@ -3758,10 +4128,7 @@
         </div>
       `;
 
-      // Restaurar scroll y foco para que el usuario nunca experimente saltos de pantalla
-      if (prevScrollY > 0) {
-        window.scrollTo(0, prevScrollY);
-      }
+      if (prevScrollY > 0) window.scrollTo(0, prevScrollY);
       if (isSearchFocused) {
         const newSearch = document.getElementById('mrpSearchInput');
         if (newSearch) {
@@ -3769,6 +4136,561 @@
           newSearch.setSelectionRange(selStart, selEnd);
         }
       }
+    }
+
+    // 2. SUBPESTAÑA: PLAN GRANELES POR MES (HOJA 2 DEL EXCEL)
+    function renderProdGranelSubtab(container) {
+      const granelesMap = {};
+      (productionData.graneles || []).forEach(g => {
+        const cod = g.granel_code;
+        granelesMap[cod] = {
+          code: cod,
+          desc: g.granel_desc || `GRANEL ${cod}`,
+          stock_tanque: Number(g.granel_stock) || 0,
+          stock_envasado_l: 0,
+          cartera_l: 0,
+          oct_l: 0,
+          nov_l: 0,
+          dic_l: 0
+        };
+      });
+
+      (productionData.base_skus || []).forEach(b => {
+        const gCode = b.granel_code;
+        if (!gCode) return;
+        if (!granelesMap[gCode]) {
+          granelesMap[gCode] = {
+            code: gCode,
+            desc: b.granel_desc || `GRANEL ${gCode}`,
+            stock_tanque: Number(b.granel_stock) || 0,
+            stock_envasado_l: 0,
+            cartera_l: 0,
+            oct_l: 0,
+            nov_l: 0,
+            dic_l: 0
+          };
+        }
+        const envL = Number(b.envase_litros) || 1.0;
+        const stU = Number(b.stock_actual) || 0;
+        const peU = Number(b.pedidos_pendientes) || 0;
+        const mf = b.monthly_forecast || {};
+        const octU = Number(mf['2026-10']) || 0;
+        const novU = Number(mf['2026-11']) || 0;
+        const dicU = Number(mf['2026-12']) || 0;
+
+        granelesMap[gCode].stock_envasado_l += (stU * envL);
+        granelesMap[gCode].cartera_l += (peU * envL);
+        granelesMap[gCode].oct_l += (octU * envL);
+        granelesMap[gCode].nov_l += (novU * envL);
+        granelesMap[gCode].dic_l += (dicU * envL);
+      });
+
+      let granelList = Object.values(granelesMap).map(g => {
+        const demTot = g.cartera_l + g.oct_l + g.nov_l + g.dic_l;
+        const stTot = g.stock_tanque + g.stock_envasado_l;
+        const bal = stTot - demTot;
+        const falta = Math.max(0, -bal);
+        return {
+          ...g,
+          dem_tot_l: demTot,
+          stock_tot_l: stTot,
+          balance_l: bal,
+          falta_fabricar_l: falta
+        };
+      });
+
+      granelList.sort((a, b) => b.falta_fabricar_l - a.falta_fabricar_l || b.dem_tot_l - a.dem_tot_l);
+
+      if (granelSearchQuery.trim() !== '') {
+        const q = granelSearchQuery.toLowerCase();
+        granelList = granelList.filter(g => g.code.toLowerCase().includes(q) || g.desc.toLowerCase().includes(q));
+      }
+
+      let sumTanque = 0, sumEnvL = 0, sumStTot = 0, sumCart = 0, sumOct = 0, sumNov = 0, sumDic = 0, sumDem = 0, sumBal = 0, sumFalta = 0;
+      granelList.forEach(g => {
+        sumTanque += g.stock_tanque;
+        sumEnvL += g.stock_envasado_l;
+        sumStTot += g.stock_tot_l;
+        sumCart += g.cartera_l;
+        sumOct += g.oct_l;
+        sumNov += g.nov_l;
+        sumDic += g.dic_l;
+        sumDem += g.dem_tot_l;
+        sumBal += g.balance_l;
+        sumFalta += g.falta_fabricar_l;
+      });
+
+      const granelRowsHtml = granelList.map(g => {
+        const isUrgent = g.falta_fabricar_l > 0;
+        return `
+          <tr>
+            <td style="font-family:monospace;font-weight:700;color:#38bdf8;">${g.code}</td>
+            <td style="font-weight:600;color:#f8fafc;">${g.desc}</td>
+            <td class="text-right" style="color:#cbd5e1;">${fmtNum(g.stock_tanque)}</td>
+            <td class="text-right" style="color:#cbd5e1;">${fmtNum(g.stock_envasado_l)}</td>
+            <td class="text-right" style="font-weight:700;color:#f8fafc;">${fmtNum(g.stock_tot_l)}</td>
+            <td class="text-right" style="color:${g.cartera_l > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtNum(g.cartera_l)}</td>
+            <td class="text-right">${fmtNum(g.oct_l)}</td>
+            <td class="text-right">${fmtNum(g.nov_l)}</td>
+            <td class="text-right">${fmtNum(g.dic_l)}</td>
+            <td class="text-right" style="font-weight:700;color:#c084fc;">${fmtNum(g.dem_tot_l)}</td>
+            <td class="text-right" style="font-weight:700;color:${g.balance_l >= 0 ? '#34d399' : '#f87171'};">${fmtNum(g.balance_l)}</td>
+            <td class="text-right" style="font-weight:800;color:${isUrgent ? '#ef4444' : '#34d399'};">${fmtNum(g.falta_fabricar_l)}</td>
+            <td style="text-align:center;">
+              ${isUrgent 
+                ? '<span class="tab-badge badge-danger" style="font-weight:800;padding:0.2rem 0.5rem;">🔴 FABRICAR GRANEL</span>' 
+                : '<span class="tab-badge badge-success" style="font-weight:700;padding:0.2rem 0.5rem;">🟢 CUBIERTO</span>'}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="mrp-section">
+          ${renderProdSubtabsNavbar()}
+
+          <div class="mrp-control-card">
+            <div class="mrp-control-header">
+              <div>
+                <h2 style="font-size:1.35rem;font-weight:800;color:#f8fafc;display:flex;align-items:center;gap:0.6rem;">
+                  🛢️ Plan Maestro de Producción de Graneles (Reactores L/Kg)
+                </h2>
+                <p style="color:var(--muted);font-size:0.86rem;margin-top:0.3rem;">
+                  Balance consolidado de semielaborados químicos en reactores para Octubre, Noviembre y Diciembre 2026.
+                </p>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.75rem;">
+                <input type="text" class="search-input" placeholder="Buscar granel..." value="${granelSearchQuery}" 
+                       oninput="granelSearchQuery = this.value; renderProdGranelSubtab(document.getElementById('appContent'));" style="width:240px;">
+              </div>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cód. Granel</th>
+                    <th>Producto Químico / Granel</th>
+                    <th class="text-right">Stock Tanque (L)</th>
+                    <th class="text-right">Stock Envasado (L)</th>
+                    <th class="text-right">Stock Total (L)</th>
+                    <th class="text-right">Cartera Inmediata (L)</th>
+                    <th class="text-right">Oct-26 (L)</th>
+                    <th class="text-right">Nov-26 (L)</th>
+                    <th class="text-right">Dic-26 (L)</th>
+                    <th class="text-right">Demanda Total (L)</th>
+                    <th class="text-right">Balance Neto (L)</th>
+                    <th class="text-right" style="color:#ef4444;">FALTA FABRICAR (L)</th>
+                    <th style="text-align:center;">Prioridad Reactor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${granelRowsHtml}
+                </tbody>
+                <tfoot>
+                  <tr style="background:rgba(15,23,42,0.95);font-weight:800;border-top:2px solid #334155;">
+                    <td colspan="2" style="color:#f8fafc;">TOTAL PLANTA GRANELES (L/KG)</td>
+                    <td class="text-right">${fmtNum(sumTanque)}</td>
+                    <td class="text-right">${fmtNum(sumEnvL)}</td>
+                    <td class="text-right" style="color:#38bdf8;">${fmtNum(sumStTot)}</td>
+                    <td class="text-right" style="color:#fbbf24;">${fmtNum(sumCart)}</td>
+                    <td class="text-right">${fmtNum(sumOct)}</td>
+                    <td class="text-right">${fmtNum(sumNov)}</td>
+                    <td class="text-right">${fmtNum(sumDic)}</td>
+                    <td class="text-right" style="color:#c084fc;">${fmtNum(sumDem)}</td>
+                    <td class="text-right" style="color:${sumBal >= 0 ? '#34d399' : '#f87171'};">${fmtNum(sumBal)}</td>
+                    <td class="text-right" style="color:#ef4444;font-size:1.05rem;">${fmtNum(sumFalta)} L</td>
+                    <td style="text-align:center;color:var(--muted);font-size:0.75rem;">—</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 3. SUBPESTAÑA: RESUMEN POR LÍNEA DE ENVASADO (HOJA 3 DEL EXCEL)
+    function renderProdEnvaseSubtab(container) {
+      const formatAgg = {};
+      const orderPriority = {
+        "Depósito 1000 L": 1,
+        "Depósito 200 L": 2,
+        "Garrafas 20L": 3,
+        "Garrafas 5L": 4,
+        "Botellas 1L": 5,
+        "Botellas 0.5L": 6
+      };
+
+      (productionData.base_skus || []).forEach(b => {
+        const fmt = b.formato_label || "Otros Formatos";
+        if (!formatAgg[fmt]) {
+          formatAgg[fmt] = { name: fmt, count: 0, stock: 0, pending: 0, oct: 0, nov: 0, dic: 0, demand: 0, sug: 0 };
+        }
+        const mf = b.monthly_forecast || {};
+        const stU = Number(b.stock_actual) || 0;
+        const peU = Number(b.pedidos_pendientes) || 0;
+        const octU = Number(mf['2026-10']) || 0;
+        const novU = Number(mf['2026-11']) || 0;
+        const dicU = Number(mf['2026-12']) || 0;
+        const demTotU = peU + octU + novU + dicU;
+        const sugFabU = Math.max(0, demTotU - stU);
+
+        formatAgg[fmt].count += 1;
+        formatAgg[fmt].stock += stU;
+        formatAgg[fmt].pending += peU;
+        formatAgg[fmt].oct += octU;
+        formatAgg[fmt].nov += novU;
+        formatAgg[fmt].dic += dicU;
+        formatAgg[fmt].demand += demTotU;
+        formatAgg[fmt].sug += sugFabU;
+      });
+
+      const sortedFormats = Object.keys(formatAgg).sort((a, b) => (orderPriority[a] || 99) - (orderPriority[b] || 99));
+
+      let totCount = 0, totStock = 0, totPend = 0, totOct = 0, totNov = 0, totDic = 0, totDem = 0, totSug = 0;
+      sortedFormats.forEach(f => {
+        const a = formatAgg[f];
+        totCount += a.count;
+        totStock += a.stock;
+        totPend += a.pending;
+        totOct += a.oct;
+        totNov += a.nov;
+        totDic += a.dic;
+        totDem += a.demand;
+        totSug += a.sug;
+      });
+
+      const envRowsHtml = sortedFormats.map(fmt => {
+        const a = formatAgg[fmt];
+        return `
+          <tr>
+            <td style="font-weight:700;color:#f8fafc;font-size:0.95rem;">📦 ${a.name}</td>
+            <td style="text-align:center;color:var(--muted);">${a.count}</td>
+            <td class="text-right" style="font-weight:700;color:#38bdf8;">${fmtNum(a.stock)}</td>
+            <td class="text-right" style="color:${a.pending > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtNum(a.pending)}</td>
+            <td class="text-right">${fmtNum(a.oct)}</td>
+            <td class="text-right">${fmtNum(a.nov)}</td>
+            <td class="text-right">${fmtNum(a.dic)}</td>
+            <td class="text-right" style="font-weight:700;color:#c084fc;">${fmtNum(a.demand)}</td>
+            <td class="text-right" style="font-weight:800;color:#ef4444;font-size:1rem;">${fmtNum(a.sug)} u</td>
+          </tr>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="mrp-section">
+          ${renderProdSubtabsNavbar()}
+
+          <div class="mrp-control-card">
+            <div class="mrp-control-header">
+              <div>
+                <h2 style="font-size:1.35rem;font-weight:800;color:#f8fafc;display:flex;align-items:center;gap:0.6rem;">
+                  📦 Resumen de Necesidades por Línea de Envasado y Formato
+                </h2>
+                <p style="color:var(--muted);font-size:0.86rem;margin-top:0.3rem;">
+                  Plan de acondicionamiento de envases físicos en unidades (Depósitos 1000L, 200L, Garrafas 20L, 5L, Botellas 1L).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Línea / Formato de Envasado</th>
+                    <th style="text-align:center;">Nº Registros</th>
+                    <th class="text-right">Stock Envasado (u)</th>
+                    <th class="text-right">Cartera Inmediata (u)</th>
+                    <th class="text-right">Oct-26 (u)</th>
+                    <th class="text-right">Nov-26 (u)</th>
+                    <th class="text-right">Dic-26 (u)</th>
+                    <th class="text-right">Demanda Total (u)</th>
+                    <th class="text-right" style="color:#ef4444;">A Fabricar Sugerido (u)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${envRowsHtml}
+                </tbody>
+                <tfoot>
+                  <tr style="background:rgba(15,23,42,0.95);font-weight:800;border-top:2px solid #334155;">
+                    <td style="color:#f8fafc;">TOTAL PLANTA ENVASADO</td>
+                    <td style="text-align:center;color:var(--muted);">${totCount}</td>
+                    <td class="text-right" style="color:#38bdf8;">${fmtNum(totStock)}</td>
+                    <td class="text-right" style="color:#fbbf24;">${fmtNum(totPend)}</td>
+                    <td class="text-right">${fmtNum(totOct)}</td>
+                    <td class="text-right">${fmtNum(totNov)}</td>
+                    <td class="text-right">${fmtNum(totDic)}</td>
+                    <td class="text-right" style="color:#c084fc;">${fmtNum(totDem)}</td>
+                    <td class="text-right" style="color:#ef4444;font-size:1.05rem;">${fmtNum(totSug)} u</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 4. SUBPESTAÑA: SLOWMOVERS & NOMOVERS (MERCADO NACIONAL - HOJA 4 DEL EXCEL)
+    function renderProdRotacionSubtab(container) {
+      const allStockItems = (productionData.base_skus || []).filter(b => Number(b.stock_actual) > 0);
+
+      let rotRows = allStockItems.map(b => {
+        const stU = Number(b.stock_actual) || 0;
+        const envL = Number(b.envase_litros) || 1.0;
+        const pEur = Number(b.precio_unitario) || 0;
+        const dQ4 = Number(b.demanda_nac_q4) || 0;
+        const dQ1 = Number(b.demanda_nac_q1_27) || 0;
+        const d6M = Number(b.demanda_nac_6m) || 0;
+        const nmU = Number(b.no_mover_qty) || 0;
+        const smU = Number(b.slow_mover_qty) || 0;
+        const fmU = Number(b.fast_mover_qty) || 0;
+
+        let statusRot = "FASTMOVER";
+        let clasif = "🟢 Alta Rotación (0-3M Nac)";
+        let accion = "Rotación Normal en Campaña Q4";
+
+        if (nmU > 0) {
+          statusRot = "NOMOVER";
+          clasif = "🔴 NoMover (>6M Nac)";
+          accion = d6M > 0 ? "Plan Choque Comercial Nac / Oferta" : "Sin Demanda Nacional (Inmovilizado Crítico)";
+        } else if (smU > 0) {
+          statusRot = "SLOWMOVER";
+          clasif = "🟡 SlowMover (3-6M Nac)";
+          accion = "Consumo previsto en Q1-27 Nacional";
+        }
+
+        return {
+          base_sku: b.base_sku,
+          desc: b.desc,
+          formato: b.formato_label || getPackagingFormat(b.envase, b.desc),
+          stock_u: stU,
+          stock_l: stU * envL,
+          d_q4: dQ4,
+          d_q1: dQ1,
+          d_6m: d6M,
+          sm_u: smU,
+          nm_u: nmU,
+          nm_l: nmU * envL,
+          precio: pEur,
+          nm_eur: nmU * pEur,
+          sm_eur: smU * pEur,
+          stock_eur: stU * pEur,
+          status_rot: statusRot,
+          clasif: clasif,
+          accion: accion
+        };
+      });
+
+      const rotPrio = { "NOMOVER": 0, "SLOWMOVER": 1, "FASTMOVER": 2 };
+      rotRows.sort((a, b) => (rotPrio[a.status_rot] || 9) - (rotPrio[b.status_rot] || 9) || b.nm_eur - a.nm_eur || b.nm_u - a.nm_u);
+
+      const totStockU = rotRows.reduce((a, b) => a + b.stock_u, 0);
+      const totStockEur = rotRows.reduce((a, b) => a + b.stock_eur, 0);
+      const totNmU = rotRows.reduce((a, b) => a + b.nm_u, 0);
+      const totNmEur = rotRows.reduce((a, b) => a + b.nm_eur, 0);
+      const totSmU = rotRows.reduce((a, b) => a + b.sm_u, 0);
+      const totSmEur = rotRows.reduce((a, b) => a + b.sm_eur, 0);
+      const totFmU = rotRows.reduce((a, b) => a + (b.status_rot === 'FASTMOVER' ? b.stock_u : 0), 0);
+
+      const countNm = rotRows.filter(r => r.status_rot === 'NOMOVER').length;
+      const countSm = rotRows.filter(r => r.status_rot === 'SLOWMOVER').length;
+      const countFm = rotRows.filter(r => r.status_rot === 'FASTMOVER').length;
+
+      const pctNm = totStockU > 0 ? (totNmU / totStockU * 100) : 0;
+      const pctSm = totStockU > 0 ? (totSmU / totStockU * 100) : 0;
+      const pctFm = totStockU > 0 ? (totFmU / totStockU * 100) : 0;
+
+      let filteredRotRows = rotRows;
+      if (rotFilter === 'NOMOVER') filteredRotRows = rotRows.filter(r => r.status_rot === 'NOMOVER');
+      else if (rotFilter === 'SLOWMOVER') filteredRotRows = rotRows.filter(r => r.status_rot === 'SLOWMOVER');
+      else if (rotFilter === 'FASTMOVER') filteredRotRows = rotRows.filter(r => r.status_rot === 'FASTMOVER');
+
+      if (rotSearchQuery.trim() !== '') {
+        const q = rotSearchQuery.toLowerCase();
+        filteredRotRows = filteredRotRows.filter(r => r.base_sku.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q));
+      }
+
+      const rotRowsHtml = filteredRotRows.map(r => {
+        let badgeStyle = 'background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);';
+        if (r.status_rot === 'NOMOVER') badgeStyle = 'background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.45);font-weight:700;';
+        else if (r.status_rot === 'SLOWMOVER') badgeStyle = 'background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.45);font-weight:700;';
+
+        return `
+          <tr>
+            <td style="font-family:monospace;font-weight:700;color:#38bdf8;">${r.base_sku}</td>
+            <td style="font-weight:600;color:#f8fafc;">${r.desc}</td>
+            <td style="color:#cbd5e1;">${r.formato}</td>
+            <td class="text-right" style="font-weight:700;color:#f8fafc;">${fmtNum(r.stock_u)}</td>
+            <td class="text-right" style="color:#94a3b8;">${fmtNum(r.stock_l)}</td>
+            <td class="text-right">${fmtNum(r.d_q4)}</td>
+            <td class="text-right">${fmtNum(r.d_q1)}</td>
+            <td class="text-right" style="font-weight:700;color:#c084fc;">${fmtNum(r.d_6m)}</td>
+            <td class="text-right" style="font-weight:700;color:${r.sm_u > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtNum(r.sm_u)}</td>
+            <td class="text-right" style="font-weight:800;color:${r.nm_u > 0 ? '#ef4444' : 'var(--muted)'};">${fmtNum(r.nm_u)}</td>
+            <td class="text-right" style="color:#94a3b8;">${fmtNum(r.nm_l)}</td>
+            <td style="text-align:center;">
+              <span class="tab-badge" style="${badgeStyle};padding:0.2rem 0.5rem;font-size:0.75rem;">
+                ${r.clasif}
+              </span>
+            </td>
+            <td class="text-right" style="color:#cbd5e1;">${fmtCurr(r.precio)}</td>
+            <td class="text-right" style="font-weight:800;color:${r.nm_eur > 0 ? '#ef4444' : 'var(--muted)'};">${fmtCurr(r.nm_eur)}</td>
+            <td class="text-right" style="font-weight:700;color:${r.sm_eur > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtCurr(r.sm_eur)}</td>
+            <td style="font-size:0.8rem;color:${r.status_rot === 'NOMOVER' ? '#fca5a5' : '#cbd5e1'};">${r.accion}</td>
+          </tr>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="mrp-section">
+          ${renderProdSubtabsNavbar()}
+
+          <!-- BANNER OFICIAL CON PREMISA DE GESTIÓN -->
+          <div style="background:rgba(30,41,59,0.9);border-left:4px solid #f59e0b;border-radius:var(--radius-sm);padding:0.9rem 1.25rem;margin-bottom:1.25rem;border:1px solid #334155;border-left:4px solid #f59e0b;">
+            <div style="font-size:0.95rem;font-weight:700;color:#fbbf24;display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+              <span>⚠️</span> Premisa de Gestión: Rotación Exclusiva por Demanda Nacional
+            </div>
+            <div style="color:#cbd5e1;font-size:0.85rem;line-height:1.45;">
+              Para el cálculo de <strong>SlowMovers</strong> y <strong>NoMovers</strong> se toman estrictamente las previsiones del <strong>Mercado Nacional (España)</strong>.
+              La mercancía de <strong>Exportación se fabricará siempre sobre pedido</strong> (Make-to-Order), por lo que el stock en almacén debe ser absorbido por el mercado nacional.
+            </div>
+          </div>
+
+          <!-- KPIS EJECUTIVOS DE ROTACIÓN -->
+          <div class="mrp-kpi-grid">
+            <div class="mrp-kpi-card stock">
+              <div style="font-size:0.8rem;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:0.04em;">
+                Stock Total Envasado Almacén
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
+                ${fmtNum(totStockU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:#38bdf8;font-weight:700;">
+                Valoración Total: ${fmtCurr(totStockEur)} (${allStockItems.length} SKUs)
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card urgent">
+              <div style="font-size:0.8rem;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:0.04em;display:flex;justify-content:space-between;">
+                <span>🔴 NoMovers (>6M Nac)</span>
+                <span class="tab-badge badge-danger" style="font-size:0.65rem;">${pctNm.toFixed(1)}%</span>
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#ef4444;line-height:1.2;">
+                ${fmtNum(totNmU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:#fca5a5;font-weight:700;">
+                ${countNm} SKUs &bull; Inmovilizado: ${fmtCurr(totNmEur)}
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card warning">
+              <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;display:flex;justify-content:space-between;">
+                <span>🟡 SlowMovers (3-6M Nac)</span>
+                <span class="tab-badge badge-warning" style="font-size:0.65rem;">${pctSm.toFixed(1)}%</span>
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#f59e0b;line-height:1.2;">
+                ${fmtNum(totSmU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:#fde68a;font-weight:700;">
+                ${countSm} SKUs &bull; Inmovilizado: ${fmtCurr(totSmEur)}
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card success">
+              <div style="font-size:0.8rem;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.04em;display:flex;justify-content:space-between;">
+                <span>🟢 Alta Rotación (Q4 Nac)</span>
+                <span class="tab-badge badge-success" style="font-size:0.65rem;">${pctFm.toFixed(1)}%</span>
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#10b981;line-height:1.2;">
+                ${fmtNum(totFmU)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">u</span>
+              </div>
+              <div style="font-size:0.75rem;color:#6ee7b7;font-weight:700;">
+                ${countFm} SKUs absorbidos en Octubre-Diciembre
+              </div>
+            </div>
+          </div>
+
+          <!-- FILTROS Y BÚSQUEDA -->
+          <div class="mrp-toolbar" style="margin-top:1.25rem;">
+            <div class="mrp-toolbar-left">
+              <div class="filter-pills" style="margin:0;">
+                <button class="pill-btn ${rotFilter === 'ALL' ? 'active' : ''}" onclick="rotFilter = 'ALL'; renderProdRotacionSubtab(document.getElementById('appContent'));">
+                  Todos con Stock (${rotRows.length})
+                </button>
+                <button class="pill-btn ${rotFilter === 'NOMOVER' ? 'active' : ''}" onclick="rotFilter = 'NOMOVER'; renderProdRotacionSubtab(document.getElementById('appContent'));" style="color:${rotFilter === 'NOMOVER' ? '#fff' : '#f87171'};">
+                  🔴 Solo NoMovers (${countNm})
+                </button>
+                <button class="pill-btn ${rotFilter === 'SLOWMOVER' ? 'active' : ''}" onclick="rotFilter = 'SLOWMOVER'; renderProdRotacionSubtab(document.getElementById('appContent'));" style="color:${rotFilter === 'SLOWMOVER' ? '#fff' : '#fbbf24'};">
+                  🟡 Solo SlowMovers (${countSm})
+                </button>
+                <button class="pill-btn ${rotFilter === 'FASTMOVER' ? 'active' : ''}" onclick="rotFilter = 'FASTMOVER'; renderProdRotacionSubtab(document.getElementById('appContent'));" style="color:${rotFilter === 'FASTMOVER' ? '#fff' : '#34d399'};">
+                  🟢 Alta Rotación (${countFm})
+                </button>
+              </div>
+            </div>
+
+            <div class="mrp-toolbar-right">
+              <input type="text" class="search-input" placeholder="Buscar por SKU o producto..." value="${rotSearchQuery}" 
+                     oninput="rotSearchQuery = this.value; renderProdRotacionSubtab(document.getElementById('appContent'));" style="width:260px;">
+            </div>
+          </div>
+
+          <!-- TABLA COMPLETA DE ROTACIÓN -->
+          <div class="table-panel">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cód. Base SKU</th>
+                    <th>Descripción Producto</th>
+                    <th>Línea / Formato</th>
+                    <th class="text-right">Stock Físico (u)</th>
+                    <th class="text-right">Stock Físico (L)</th>
+                    <th class="text-right">Prev. Nac Q4 (u)</th>
+                    <th class="text-right">Prev. Nac Q1-27 (u)</th>
+                    <th class="text-right">Prev. Nac 6M (u)</th>
+                    <th class="text-right" style="color:#fbbf24;">SlowMovers (u)</th>
+                    <th class="text-right" style="color:#ef4444;">NoMovers (u)</th>
+                    <th class="text-right">NoMovers (L)</th>
+                    <th style="text-align:center;">Clasificación</th>
+                    <th class="text-right">Precio Ref. (€)</th>
+                    <th class="text-right" style="color:#ef4444;">Inmovilizado NoMover (€)</th>
+                    <th class="text-right" style="color:#fbbf24;">Inmovilizado SlowMover (€)</th>
+                    <th>Acción Recomendada</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rotRowsHtml}
+                </tbody>
+                <tfoot>
+                  <tr style="background:rgba(15,23,42,0.95);font-weight:800;border-top:2px solid #334155;">
+                    <td colspan="3" style="color:#f8fafc;">TOTAL ROTACIÓN PLANTA (MERCADO NACIONAL)</td>
+                    <td class="text-right" style="color:#38bdf8;">${fmtNum(totStockU)}</td>
+                    <td class="text-right">${fmtNum(rotRows.reduce((a,b)=>a+b.stock_l,0))}</td>
+                    <td class="text-right">${fmtNum(rotRows.reduce((a,b)=>a+b.d_q4,0))}</td>
+                    <td class="text-right">${fmtNum(rotRows.reduce((a,b)=>a+b.d_q1,0))}</td>
+                    <td class="text-right" style="color:#c084fc;">${fmtNum(rotRows.reduce((a,b)=>a+b.d_6m,0))}</td>
+                    <td class="text-right" style="color:#fbbf24;">${fmtNum(totSmU)}</td>
+                    <td class="text-right" style="color:#ef4444;font-size:1.05rem;">${fmtNum(totNmU)}</td>
+                    <td class="text-right">${fmtNum(rotRows.reduce((a,b)=>a+b.nm_l,0))}</td>
+                    <td style="text-align:center;color:var(--muted);font-size:0.75rem;">—</td>
+                    <td class="text-right" style="color:var(--muted);">—</td>
+                    <td class="text-right" style="color:#ef4444;font-size:1.05rem;">${fmtCurr(totNmEur)}</td>
+                    <td class="text-right" style="color:#fbbf24;font-size:1.05rem;">${fmtCurr(totSmEur)}</td>
+                    <td style="color:var(--muted);font-size:0.75rem;">—</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     // MODAL DE DETALLE: EVOLUCIÓN MENSUAL Y AGOTAMIENTO
@@ -4793,21 +5715,30 @@
         }
         wsEnv.getRow(envTotRow).height = 24;
 
-        // ---------------- DESCARGAR ARCHIVO XLSX ----------------
+        // ---------------- DESCARGAR ARCHIVO XLSX (EXCELJS + FALLBACK) ----------------
         const buffer = await wb.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         const filename = `Codiagro_Orden_Fabricacion_MRP_${activePreset}_${new Date().toISOString().slice(0,10)}.xlsx`;
-        link.setAttribute("href", url);
-        link.setAttribute("download", filename);
+        link.href = url;
+        link.download = filename;
         document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        setTimeout(() => {
+          try {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          } catch(e) {}
+        }, 15000);
       } catch (err) {
-        console.error("Error al generar Excel XLSX con ExcelJS:", err);
-        alert("Ocurrio un error al generar el archivo Excel: " + err.message);
+        console.error("Error al generar Excel con ExcelJS, descargando archivo del servidor:", err);
+        const a = document.createElement("a");
+        a.href = "/Orden_Fabricacion_MRP_Codiagro.xlsx?t=" + Date.now();
+        a.download = "Orden_Fabricacion_MRP_Codiagro.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { try { document.body.removeChild(a); } catch(e){} }, 1000);
       }
     }
 
@@ -4853,21 +5784,722 @@
       exportProductionOrderExcel();
     }
 
+    
+    // =========================================================================
+    // MÓDULO DE PREVISIÓN DE TESORERÍA (CASH FLOW 2026)
+    // =========================================================================
+    let treasuryData = null;
+    let treasuryViewMode = 'matrix'; // 'matrix', 'clients_q4', 'terms'
+    let treasuryIncludeExpenses = false; // Por defecto FALSE: 'La previsión de gastos déjala de momento'
+    let treasurySearchQuery = '';
+    let treasuryCanalFilter = 'ALL';
+    let treasuryOrigenFilter = 'ALL'; // 'ALL', 'Venta Real Sep', 'Presupuesto (BG)', 'Cartera Real'
+    let treasuryChartInstance = null;
+
+    function loadTreasuryData() {
+      if (typeof window.TREASURY_DATA !== 'undefined') {
+        treasuryData = window.TREASURY_DATA;
+      }
+    }
+
+    function setTreasuryViewMode(mode) {
+      treasuryViewMode = mode;
+      renderCurrentTab();
+    }
+
+    function toggleTreasuryExpenses(include) {
+      treasuryIncludeExpenses = include;
+      renderCurrentTab();
+    }
+
+    function handleTreasurySearch(val) {
+      treasurySearchQuery = (val || '').toLowerCase().trim();
+      renderCurrentTab();
+    }
+
+    function setTreasuryCanalFilter(canal) {
+      treasuryCanalFilter = canal;
+      renderCurrentTab();
+    }
+
+    function setTreasuryOrigenFilter(origen) {
+      treasuryOrigenFilter = origen;
+      renderCurrentTab();
+    }
+
+    function renderTesoreriaTab(container) {
+      if (!treasuryData) {
+        loadTreasuryData();
+      }
+
+      if (!treasuryData) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <h3>No se han encontrado datos de tesorería</h3>
+            <p>Por favor, asegúrate de haber generado el archivo treasury_data.js.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const meta = treasuryData.metadata;
+      const initialStockSep = meta.saldo_cierre_sep_real; // 3.203.215,24 €
+      const q4Cobros = treasuryData.q4_cobros_proyectados;
+
+      // Calcular totales de cobros proyectados Q4
+      let octCobros = 0, novCobros = 0, dicCobros = 0;
+      if (q4Cobros['2026-10']) octCobros = Object.values(q4Cobros['2026-10']).reduce((a, b) => a + b, 0);
+      if (q4Cobros['2026-11']) novCobros = Object.values(q4Cobros['2026-11']).reduce((a, b) => a + b, 0);
+      if (q4Cobros['2026-12']) dicCobros = Object.values(q4Cobros['2026-12']).reduce((a, b) => a + b, 0);
+      const totalQ4Cobros = octCobros + novCobros + dicCobros; // 3.279.443 €
+
+      // Cobros reales Ene-Sep (Fila Total Cobros con ajuste: Fila 13 o 12)
+      let totRealCobros = 11148973.48;
+      const rCobros = treasuryData.cf_rows.find(r => r.label === 'Total Cobros con ajuste' || r.label === 'Total Cobros');
+      if (rCobros) {
+        totRealCobros = Object.values(rCobros.reales).reduce((a, b) => a + b, 0);
+      }
+
+      const totalCobrosAnualProyectado = totRealCobros + totalQ4Cobros;
+
+      // Tesorería final al 31/12
+      let saldoFinal31Dic = initialStockSep + totalQ4Cobros;
+      if (treasuryIncludeExpenses) {
+        // Restar gastos del budget de Q4
+        let q4Gastos = 0;
+        treasuryData.cf_rows.forEach(r => {
+          if (r.category && r.category !== 'COBROS' && r.category !== 'POSICION DE TESORERIA' && r.category !== 'LIQUIDEZ') {
+            q4Gastos += Object.values(r.budget_q4 || {}).reduce((a, b) => a + b, 0);
+          }
+        });
+        saldoFinal31Dic += q4Gastos; // los gastos vienen en negativo
+      }
+
+      let contentHtml = `
+        <div class="mrp-section">
+          <!-- CABECERA DE CONTROL DE TESORERÍA -->
+          <div class="mrp-control-card">
+            <div class="mrp-control-header">
+              <div>
+                <h2 style="font-size:1.4rem;font-weight:800;color:#f8fafc;display:flex;align-items:center;gap:0.6rem;">
+                  💰 Previsión de Tesorería y Flujo de Caja (Cash Flow 2026)
+                </h2>
+                <p style="color:var(--muted);font-size:0.86rem;margin-top:0.3rem;">
+                  Cierre Real al 30 de Septiembre (Saldo en Bancos: <strong>3.203.215 €</strong>) + Proyección de Cobros Q4 según Formas de Pago de Clientes
+                </p>
+              </div>
+
+              <!-- BOTÓN EXPORTAR EXCEL -->
+              <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+                <a href="/Prevision_Tesoreria_CashFlow_2026.xlsx" download="Prevision_Tesoreria_CashFlow_2026.xlsx" onclick="exportTreasuryExcel(); return false;" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg, #059669 0%, #10b981 100%);color:#fff;border:none;padding:0.6rem 1.1rem;border-radius:var(--radius-sm);cursor:pointer;font-weight:700;text-decoration:none;">
+                  📊 Descargar Cash Flow Excel (XLSX)
+                </a>
+              </div>
+            </div>
+
+            <!-- FILTRO DE GASTOS Q4 & SELECTOR DE VISTAS -->
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+              <!-- Selector de Vistas -->
+              <div class="filter-pills">
+                <button class="pill-btn ${treasuryViewMode === 'matrix' ? 'active' : ''}" onclick="setTreasuryViewMode('matrix')">
+                  📊 Matriz Completa Cash Flow (Ene - Dic)
+                </button>
+                <button class="pill-btn ${treasuryViewMode === 'clients_q4' ? 'active' : ''}" onclick="setTreasuryViewMode('clients_q4')">
+                  📅 Detalle Cobros por Cliente Q4 (${treasuryData.client_vencimientos.filter(x => ['10-2026','11-2026','12-2026'].includes(x.mes_vto)).length})
+                </button>
+                <button class="pill-btn ${treasuryViewMode === 'terms' ? 'active' : ''}" onclick="setTreasuryViewMode('terms')">
+                  🏢 Formas de Pago Clientes (${treasuryData.client_master.length})
+                </button>
+              </div>
+
+              <!-- Toggle de Gastos -->
+              <div style="display:flex;align-items:center;gap:0.6rem;background:rgba(15,23,42,0.8);padding:0.4rem 0.8rem;border-radius:var(--radius-sm);border:1px solid #334155;">
+                <span style="font-size:0.75rem;color:var(--muted);font-weight:700;">PREVISIÓN GASTOS Q4:</span>
+                <button class="pill-btn ${!treasuryIncludeExpenses ? 'active' : ''}" onclick="toggleTreasuryExpenses(false)" style="font-size:0.72rem;padding:0.25rem 0.6rem;">
+                  Solo Ingresos (Gastos = 0 €)
+                </button>
+                <button class="pill-btn ${treasuryIncludeExpenses ? 'active' : ''}" onclick="toggleTreasuryExpenses(true)" style="font-size:0.72rem;padding:0.25rem 0.6rem;">
+                  Incluir Gastos Budget Referencia
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TARJETAS KPI EJECUTIVAS -->
+          <div class="mrp-kpi-grid">
+            <!-- KPI 1: TESORERÍA INICIAL AL 01/10 -->
+            <div class="mrp-kpi-card success">
+              <div style="font-size:0.8rem;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.04em;">
+                Tesorería Inicial al 01/10 (Real)
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
+                ${fmtNum(initialStockSep)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">€</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                Saldo real en cuentas bancarias al 30 de septiembre
+              </div>
+            </div>
+
+            <!-- KPI 2: COBROS PROYECTADOS Q4 -->
+            <div class="mrp-kpi-card primary">
+              <div style="font-size:0.8rem;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:0.04em;">
+                Cobros Previstos Q4 (Oct - Dic)
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#38bdf8;line-height:1.2;">
+                ${fmtNum(totalQ4Cobros)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">€</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                Oct: ${fmtNum(octCobros)} € | Nov: ${fmtNum(novCobros)} € | Dic: ${fmtNum(dicCobros)} €
+              </div>
+            </div>
+
+            <!-- KPI 3: COBROS REALES ACUMULADOS -->
+            <div class="mrp-kpi-card">
+              <div style="font-size:0.8rem;font-weight:700;color:#a5b4fc;text-transform:uppercase;letter-spacing:0.04em;">
+                Cobros Reales Acumulados (Ene - Sep)
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
+                ${fmtNum(totRealCobros)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">€</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                Total ingresos por ventas cobrados hasta la fecha
+              </div>
+            </div>
+
+            <!-- KPI 4: TOTAL COBROS ANUAL PROYECTADO -->
+            <div class="mrp-kpi-card warning">
+              <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;">
+                Total Cobros 2026 Proyectado
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:#fbbf24;line-height:1.2;">
+                ${fmtNum(totalCobrosAnualProyectado)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">€</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                85.4% sobre Presupuesto Anual (16.896.845 €)
+              </div>
+            </div>
+
+            <!-- KPI 5: TESORERÍA FINAL AL 31/12 -->
+            <div class="mrp-kpi-card success">
+              <div style="font-size:0.8rem;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.04em;">
+                Tesorería Proyectada al 31/12
+              </div>
+              <div style="font-size:1.85rem;font-weight:800;color:${saldoFinal31Dic > 0 ? '#34d399' : '#f87171'};line-height:1.2;">
+                ${fmtNum(saldoFinal31Dic)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">€</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--muted)">
+                ${treasuryIncludeExpenses ? 'Con gastos budget deducidos' : 'Sin nuevos gastos en Q4'}
+              </div>
+            </div>
+          </div>
+      `;
+
+      if (treasuryViewMode === 'matrix') {
+        contentHtml += renderTreasuryMatrixHtml();
+      } else if (treasuryViewMode === 'clients_q4') {
+        contentHtml += renderTreasuryClientsQ4Html();
+      } else if (treasuryViewMode === 'terms') {
+        contentHtml += renderTreasuryPaymentTermsHtml();
+      }
+
+      contentHtml += `</div>`;
+      container.innerHTML = contentHtml;
+    }
+
+    // 1. RENDERIZAR MATRIZ COMPLETA DE CASH FLOW
+    function renderTreasuryMatrixHtml() {
+      const rows = treasuryData.cf_rows || [];
+      const q4Cobros = treasuryData.q4_cobros_proyectados;
+      const initialStockSep = treasuryData.metadata.saldo_cierre_sep_real;
+
+      // Calcular filas proyectadas para la sección Cobros y Posición de Tesorería
+      let rowsHtml = '';
+      let currentSection = '';
+
+      // Calculamos el saldo de tesorería mes a mes proyectado
+      let runningTreasury = initialStockSep;
+      const runningBalanceQ4 = {};
+
+      const octCobrosTot = q4Cobros['2026-10'] ? Object.values(q4Cobros['2026-10']).reduce((a, b) => a + b, 0) : 0;
+      const novCobrosTot = q4Cobros['2026-11'] ? Object.values(q4Cobros['2026-11']).reduce((a, b) => a + b, 0) : 0;
+      const dicCobrosTot = q4Cobros['2026-12'] ? Object.values(q4Cobros['2026-12']).reduce((a, b) => a + b, 0) : 0;
+
+      rows.forEach(r => {
+        if (r.category && r.category !== currentSection && r.category !== 'POSICION DE TESORERIA' && r.category !== 'LIQUIDEZ') {
+          currentSection = r.category;
+          rowsHtml += `
+            <tr class="cf-section-header">
+              <td colspan="16" style="padding:0.6rem 0.8rem;background:#0f172a;color:#93c5fd;font-weight:800;">
+                ▶ ${currentSection}
+              </td>
+            </tr>
+          `;
+        }
+
+        const isTotalRow = r.label.includes('Total') || r.label.includes('Cash flow operativo') || r.label.includes('Tesorería');
+        const rowClass = isTotalRow ? 'cf-row-total' : '';
+
+        // Calcular los valores de Oct, Nov, Dic para esta fila
+        let octVal = 0, novVal = 0, dicVal = 0;
+        if (r.label === 'Cobros por canal Clientes nacionales') {
+          octVal = (q4Cobros['2026-10'] && q4Cobros['2026-10']['Cobros por canal Clientes nacionales']) || 0;
+          novVal = (q4Cobros['2026-11'] && q4Cobros['2026-11']['Cobros por canal Clientes nacionales']) || 0;
+          dicVal = (q4Cobros['2026-12'] && q4Cobros['2026-12']['Cobros por canal Clientes nacionales']) || 0;
+        } else if (r.label === 'Cobros por canal Clientes internac.') {
+          octVal = (q4Cobros['2026-10'] && q4Cobros['2026-10']['Cobros por canal Clientes internac.']) || 0;
+          novVal = (q4Cobros['2026-11'] && q4Cobros['2026-11']['Cobros por canal Clientes internac.']) || 0;
+          dicVal = (q4Cobros['2026-12'] && q4Cobros['2026-12']['Cobros por canal Clientes internac.']) || 0;
+        } else if (r.label === 'Cobros por canal U.E.') {
+          octVal = (q4Cobros['2026-10'] && q4Cobros['2026-10']['Cobros por canal U.E.']) || 0;
+          novVal = (q4Cobros['2026-11'] && q4Cobros['2026-11']['Cobros por canal U.E.']) || 0;
+          dicVal = (q4Cobros['2026-12'] && q4Cobros['2026-12']['Cobros por canal U.E.']) || 0;
+        } else if (r.label === 'Total Cobros' || r.label === 'Total Cobros con ajuste') {
+          octVal = octCobrosTot;
+          novVal = novCobrosTot;
+          dicVal = dicCobrosTot;
+        } else if (r.category !== 'COBROS') {
+          // Gastos: si treasuryIncludeExpenses es false, se dejan en 0
+          octVal = treasuryIncludeExpenses ? (r.budget_q4['2026-10'] || 0) : 0;
+          novVal = treasuryIncludeExpenses ? (r.budget_q4['2026-11'] || 0) : 0;
+          dicVal = treasuryIncludeExpenses ? (r.budget_q4['2026-12'] || 0) : 0;
+        }
+
+        // Suma real Ene-Sep
+        let sumReal = 0;
+        for (let i = 1; i <= 9; i++) {
+          sumReal += (r.reales[`2026-${String(i).padStart(2,'0')}`] || 0);
+        }
+
+        // Total Anual Proyectado (Real Ene-Sep + Q4)
+        const totAnual = sumReal + octVal + novVal + dicVal;
+        const desvAnual = totAnual - (r.budget_annual || 0);
+
+        // Generar celdas mensuales reales (Ene a Sep)
+        let realCellsHtml = '';
+        for (let i = 1; i <= 9; i++) {
+          const v = r.reales[`2026-${String(i).padStart(2,'0')}`] || 0;
+          realCellsHtml += `<td class="text-right cf-cell-real" style="${v < 0 ? 'color:#f87171;' : ''}">${v !== 0 ? fmtNum(v) : '-'}</td>`;
+        }
+
+        // Celdas Q4 Proyectadas
+        const q4CellsHtml = `
+          <td class="text-right cf-cell-forecast">${octVal !== 0 ? fmtNum(octVal) : '-'}</td>
+          <td class="text-right cf-cell-forecast">${novVal !== 0 ? fmtNum(novVal) : '-'}</td>
+          <td class="text-right cf-cell-forecast">${dicVal !== 0 ? fmtNum(dicVal) : '-'}</td>
+        `;
+
+        rowsHtml += `
+          <tr class="${rowClass}">
+            <td style="font-weight:${isTotalRow ? '800' : '600'};color:${isTotalRow ? '#f8fafc' : '#cbd5e1'};white-space:nowrap;">
+              ${r.label}
+            </td>
+            <td class="text-right" style="color:var(--muted);font-weight:600;">
+              ${r.budget_annual ? fmtNum(r.budget_annual) : '-'}
+            </td>
+            ${realCellsHtml}
+            ${q4CellsHtml}
+            <td class="text-right" style="font-weight:800;color:${totAnual < 0 ? '#f87171' : '#34d399'};">
+              ${totAnual !== 0 ? fmtNum(totAnual) : '-'}
+            </td>
+            <td class="text-right" style="font-size:0.75rem;color:${desvAnual >= 0 ? '#34d399' : '#f87171'};">
+              ${r.budget_annual ? (desvAnual > 0 ? '+' : '') + fmtNum(desvAnual) : '-'}
+            </td>
+          </tr>
+        `;
+      });
+
+      // Añadimos la sección de POSICIÓN DE TESORERÍA proyectada
+      const saldoOctIni = initialStockSep;
+      const saldoOctFin = saldoOctIni + octCobrosTot + (treasuryIncludeExpenses ? -328832 : 0);
+      const saldoNovIni = saldoOctFin;
+      const saldoNovFin = saldoNovIni + novCobrosTot + (treasuryIncludeExpenses ? -424231 : 0);
+      const saldoDicIni = saldoNovFin;
+      const saldoDicFin = saldoDicIni + dicCobrosTot + (treasuryIncludeExpenses ? -271749 : 0);
+
+      const tesoreriaRealInicios = [786774, 927606, 1327382, 887120, 1206220, 1097457, 1705006, 2547276, 2824682];
+      const tesoreriaRealFinales = [927606, 1327382, 887120, 1206220, 1097457, 1705006, 2547276, 2824682, 3203215];
+
+      rowsHtml += `
+        <tr class="cf-section-header">
+          <td colspan="16" style="padding:0.6rem 0.8rem;background:#0f172a;color:#34d399;font-weight:800;">
+            ▶ POSICIÓN DE TESORERÍA Y SALDO EN BANCOS
+          </td>
+        </tr>
+        <tr class="cf-row-total" style="background:rgba(16,185,129,0.08) !important;">
+          <td style="font-weight:800;color:#34d399;">Tesorería Inicial</td>
+          <td class="text-right" style="color:var(--muted)">786.774</td>
+          ${tesoreriaRealInicios.map(v => `<td class="text-right" style="font-weight:700;">${fmtNum(v)}</td>`).join('')}
+          <td class="text-right cf-cell-forecast">${fmtNum(saldoOctIni)}</td>
+          <td class="text-right cf-cell-forecast">${fmtNum(saldoNovIni)}</td>
+          <td class="text-right cf-cell-forecast">${fmtNum(saldoDicIni)}</td>
+          <td class="text-right" style="font-weight:800;color:#34d399;">${fmtNum(saldoOctIni)}</td>
+          <td class="text-right">-</td>
+        </tr>
+        <tr class="cf-row-total" style="background:rgba(16,185,129,0.15) !important;">
+          <td style="font-weight:800;color:#34d399;">Tesorería Final</td>
+          <td class="text-right" style="color:var(--muted)">6.500.444</td>
+          ${tesoreriaRealFinales.map(v => `<td class="text-right" style="font-weight:800;color:#34d399;">${fmtNum(v)}</td>`).join('')}
+          <td class="text-right cf-cell-forecast" style="font-weight:800;">${fmtNum(saldoOctFin)}</td>
+          <td class="text-right cf-cell-forecast" style="font-weight:800;">${fmtNum(saldoNovFin)}</td>
+          <td class="text-right cf-cell-forecast" style="font-weight:800;">${fmtNum(saldoDicFin)}</td>
+          <td class="text-right" style="font-weight:800;color:#34d399;">${fmtNum(saldoDicFin)}</td>
+          <td class="text-right" style="color:#34d399;">${fmtNum(saldoDicFin - 6500444)}</td>
+        </tr>
+      `;
+
+      return `
+        <div class="table-panel">
+          <div style="margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+            <div style="font-size:0.85rem;color:var(--muted);">
+              Mostrando meses <strong>01 a 09 con datos REALES</strong> cerrados y <strong>10 a 12 con INGRESOS PROYECTADOS</strong> por vencimientos de clientes.
+            </div>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+              <span class="cf-badge-real">Meses 01 - 09: REAL</span>
+              <span class="cf-badge-forecast">Meses 10 - 12: PROYECCIÓN COBROS</span>
+            </div>
+          </div>
+
+          <div class="table-container" style="max-height:680px;overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+              <thead style="position:sticky;top:0;background:#0f172a;z-index:3;">
+                <tr>
+                  <th style="padding:0.6rem 0.8rem;text-align:left;min-width:260px;">Concepto / Partida</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;min-width:110px;">Presupuesto 2026</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">Ene (R)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">Feb (R)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">Mar (R)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">Abr (R)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">May (R)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">Jun (R)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">Jul (R)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">Ago (R)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">Sep (R)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;background:#065f46;color:#fff;">Oct (P)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;background:#065f46;color:#fff;">Nov (P)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;background:#065f46;color:#fff;">Dic (P)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;min-width:120px;">Total 2026</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;min-width:110px;">Desv. vs Ppto</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // 2. RENDERIZAR DETALLE DE VENCIMIENTOS POR CLIENTE (Q4)
+    function renderTreasuryClientsQ4Html() {
+      const vencimientos = (treasuryData.client_vencimientos || []).filter(v => {
+        const mv = v.mes_vto;
+        return mv === '10-2026' || mv === '11-2026' || mv === '12-2026';
+      });
+
+      // Filtros
+      let filtered = vencimientos;
+      if (treasuryCanalFilter !== 'ALL') {
+        filtered = filtered.filter(v => v.canal === treasuryCanalFilter);
+      }
+      if (treasuryOrigenFilter !== 'ALL') {
+        filtered = filtered.filter(v => (v.tipo_origen || 'Presupuesto (BG)') === treasuryOrigenFilter);
+      }
+      if (treasurySearchQuery) {
+        filtered = filtered.filter(v => 
+          (v.cliente || '').toLowerCase().includes(treasurySearchQuery) || 
+          (v.pais || '').toLowerCase().includes(treasurySearchQuery) ||
+          (v.canal || '').toLowerCase().includes(treasurySearchQuery) ||
+          (v.tipo_origen || '').toLowerCase().includes(treasurySearchQuery)
+        );
+      }
+
+      // Ordenar por mes de vencimiento y luego cliente
+      filtered.sort((a, b) => a.mes_vto.localeCompare(b.mes_vto) || a.cliente.localeCompare(b.cliente));
+
+      const totOct = filtered.filter(x => x.mes_vto === '10-2026').reduce((a, b) => a + b.importe, 0);
+      const totNov = filtered.filter(x => x.mes_vto === '11-2026').reduce((a, b) => a + b.importe, 0);
+      const totDic = filtered.filter(x => x.mes_vto === '12-2026').reduce((a, b) => a + b.importe, 0);
+      const totFiltrado = totOct + totNov + totDic;
+
+      let rowsHtml = '';
+      filtered.forEach(v => {
+        const canalColor = v.canal.includes('nacionales') ? '#34d399' : (v.canal.includes('internac') ? '#38bdf8' : '#fbbf24');
+        const badgeMes = v.mes_vto === '10-2026' ? 'Oct 2026' : (v.mes_vto === '11-2026' ? 'Nov 2026' : 'Dic 2026');
+        
+        let origenBadge = '';
+        if (v.tipo_origen === 'Cartera Real Pendiente') {
+          origenBadge = '<span class="tab-badge" style="background:rgba(52,211,153,0.18);color:#34d399;border:1px solid #34d399;font-size:0.68rem;font-weight:700;">📑 Cartera Real (Ageing)</span>';
+        } else if (v.tipo_origen === 'Venta Prevista Q4') {
+          origenBadge = '<span class="tab-badge" style="background:rgba(56,189,248,0.18);color:#38bdf8;border:1px solid #38bdf8;font-size:0.68rem;font-weight:700;">📋 Prev. Venta Q4</span>';
+        } else {
+          origenBadge = `<span class="tab-badge" style="background:rgba(251,191,36,0.18);color:#fbbf24;border:1px solid #fbbf24;font-size:0.68rem;font-weight:700;">${v.tipo_origen || 'Previsión'}</span>`;
+        }
+
+        const fechaOp = v.fecha_operacion || v.fecha_factura || v.mes_venta || '-';
+        const dPact = v.dias_pactados !== undefined ? v.dias_pactados : v.dias;
+        const dEfec = v.dias_efectivos !== undefined ? v.dias_efectivos : v.dias;
+        const ret = dEfec - dPact;
+        const retBadge = ret > 0 ? `<span style="color:#fbbf24;font-size:0.7rem;margin-left:4px;">(+${ret}d)</span>` : (ret < 0 ? `<span style="color:#34d399;font-size:0.7rem;margin-left:4px;">(${ret}d)</span>` : '');
+        const fraLabel = v.num_factura ? `<div style="font-size:0.72rem;color:var(--muted);font-weight:normal;">Fra: ${v.num_factura}</div>` : '';
+
+        rowsHtml += `
+          <tr>
+            <td style="text-align:center;">${origenBadge}</td>
+            <td style="font-weight:700;color:#f8fafc;">${v.cliente}${fraLabel}</td>
+            <td style="text-align:center;color:var(--muted);">${v.comercial || '—'}</td>
+            <td><span class="tab-badge" style="background:rgba(255,255,255,0.06);color:${canalColor};border:1px solid ${canalColor};font-size:0.7rem;">${v.canal.replace('Cobros por canal ', '')}</span></td>
+            <td style="text-align:center;"><span class="tab-badge badge-neutral" style="font-size:0.7rem;">${v.pais}</span></td>
+            <td style="text-align:center;color:var(--muted);">${dPact} d</td>
+            <td style="text-align:center;font-weight:700;color:#c084fc;">${dEfec} d ${retBadge}</td>
+            <td style="text-align:center;color:var(--muted);">${fechaOp}</td>
+            <td style="text-align:center;color:var(--muted);">${v.vto_fecha || '-'}</td>
+            <td style="text-align:center;"><span class="cf-badge-forecast">${badgeMes}</span></td>
+            <td class="text-right" style="color:var(--muted);">${fmtNum(v.facturacion)} €</td>
+            <td class="text-right" style="color:var(--muted);">${fmtNum(v.iva)} €</td>
+            <td class="text-right" style="font-weight:800;color:#38bdf8;font-size:0.9rem;">${fmtNum(v.importe)} €</td>
+          </tr>
+        `;
+      });
+
+      return `
+        <div class="table-panel">
+          <div class="mrp-toolbar" style="margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem;">
+            <div class="mrp-toolbar-left" style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
+              <div class="filter-pills" style="margin:0;">
+                <button class="pill-btn ${treasuryCanalFilter === 'ALL' ? 'active' : ''}" onclick="setTreasuryCanalFilter('ALL')">
+                  Todos Canales
+                </button>
+                <button class="pill-btn ${treasuryCanalFilter === 'Cobros por canal Clientes nacionales' ? 'active' : ''}" onclick="setTreasuryCanalFilter('Cobros por canal Clientes nacionales')">
+                  🇪🇸 Nacional
+                </button>
+                <button class="pill-btn ${treasuryCanalFilter === 'Cobros por canal Clientes internac.' ? 'active' : ''}" onclick="setTreasuryCanalFilter('Cobros por canal Clientes internac.')">
+                  🌍 Internacional
+                </button>
+                <button class="pill-btn ${treasuryCanalFilter === 'Cobros por canal U.E.' ? 'active' : ''}" onclick="setTreasuryCanalFilter('Cobros por canal U.E.')">
+                  🇪🇺 U.E.
+                </button>
+              </div>
+
+              <!-- Filtro de Origen -->
+              <div class="filter-pills" style="margin:0;">
+                <button class="pill-btn ${treasuryOrigenFilter === 'ALL' ? 'active' : ''}" onclick="setTreasuryOrigenFilter('ALL')">
+                  Todos Orígenes
+                </button>
+                <button class="pill-btn ${treasuryOrigenFilter === 'Cartera Real Pendiente' ? 'active' : ''}" onclick="setTreasuryOrigenFilter('Cartera Real Pendiente')">
+                  📑 Cartera Real (Ageing)
+                </button>
+                <button class="pill-btn ${treasuryOrigenFilter === 'Venta Prevista Q4' ? 'active' : ''}" onclick="setTreasuryOrigenFilter('Venta Prevista Q4')">
+                  📋 Previsión Venta Q4
+                </button>
+              </div>
+            </div>
+            <div class="mrp-toolbar-right">
+              <input type="text" class="search-input" placeholder="Buscar cliente, comercial, país..." value="${treasurySearchQuery}" oninput="handleTreasurySearch(this.value)">
+            </div>
+          </div>
+
+          <!-- Resumen de Totales Filtrados -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:0.75rem;margin-bottom:1rem;">
+            <div style="background:rgba(30,41,59,0.7);padding:0.75rem 1rem;border-radius:var(--radius-sm);border:1px solid #334155;">
+              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;">Cobros Octubre 2026</div>
+              <div style="font-size:1.25rem;font-weight:800;color:#38bdf8;">${fmtNum(totOct)} €</div>
+            </div>
+            <div style="background:rgba(30,41,59,0.7);padding:0.75rem 1rem;border-radius:var(--radius-sm);border:1px solid #334155;">
+              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;">Cobros Noviembre 2026</div>
+              <div style="font-size:1.25rem;font-weight:800;color:#38bdf8;">${fmtNum(totNov)} €</div>
+            </div>
+            <div style="background:rgba(30,41,59,0.7);padding:0.75rem 1rem;border-radius:var(--radius-sm);border:1px solid #334155;">
+              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;">Cobros Diciembre 2026</div>
+              <div style="font-size:1.25rem;font-weight:800;color:#38bdf8;">${fmtNum(totDic)} €</div>
+            </div>
+            <div style="background:rgba(30,41,59,0.7);padding:0.75rem 1rem;border-radius:var(--radius-sm);border:1px solid #334155;">
+              <div style="font-size:0.72rem;color:#34d399;font-weight:700;text-transform:uppercase;">Total Cobros Q4 Seleccionados</div>
+              <div style="font-size:1.25rem;font-weight:800;color:#34d399;">${fmtNum(totFiltrado)} €</div>
+            </div>
+          </div>
+
+          <div class="table-container" style="max-height:600px;overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+              <thead style="position:sticky;top:0;background:#0f172a;z-index:3;">
+                <tr>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Origen / Tipo</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:left;">Cliente</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Comercial</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:left;">Canal</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">País</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Pactado</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Real/Retraso</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Fecha Factura</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Fecha Vto.</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Mes Cobro</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">Facturación (€)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">IVA (€)</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;color:#38bdf8;">Total Cobro (€)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // 3. RENDERIZAR MAESTRO DE FORMAS DE PAGO (CATÁLOGO OFICIAL CON RETRASOS)
+    function renderTreasuryPaymentTermsHtml() {
+      const clients = treasuryData.client_master || [];
+      let filtered = clients;
+      if (treasurySearchQuery) {
+        filtered = filtered.filter(c => 
+          (c.cliente || '').toLowerCase().includes(treasurySearchQuery) || 
+          (c.comercial || '').toLowerCase().includes(treasurySearchQuery) || 
+          (c.codigo || '').toLowerCase().includes(treasurySearchQuery) || 
+          (c.pais || '').toLowerCase().includes(treasurySearchQuery)
+        );
+      }
+      filtered.sort((a, b) => (a.codigo || '').localeCompare(b.codigo || '') || a.cliente.localeCompare(b.cliente));
+
+      let rowsHtml = '';
+      filtered.forEach((c, idx) => {
+        const canalBadge = (c.canal || '').includes('nacionales') ? '🇪🇸 Nacional' : ((c.canal || '').includes('internac') ? '🌍 Internacional' : '🇪🇺 U.E.');
+        const dPact = c.dias_pactados !== undefined ? c.dias_pactados : (c.dias || 0);
+        const dObs = c.dias_reales_obs !== undefined && c.dias_reales_obs !== null ? `${c.dias_reales_obs.toFixed(1)} d` : '—';
+        const dEf = c.dias_efectivos !== undefined ? c.dias_efectivos : (c.dias || 0);
+        const ret = c.retraso_dias !== undefined ? c.retraso_dias : (dEf - dPact);
+        const retStr = ret > 0 ? `<span style="color:#fbbf24;font-weight:700;">+${ret} d</span>` : (ret < 0 ? `<span style="color:#34d399;font-weight:700;">${ret} d</span>` : `<span style="color:var(--muted);">0 d</span>`);
+
+        rowsHtml += `
+          <tr>
+            <td style="color:var(--muted);text-align:center;">${idx + 1}</td>
+            <td style="color:#38bdf8;font-family:monospace;font-size:0.75rem;text-align:center;">${c.codigo || '—'}</td>
+            <td style="font-weight:700;color:#f8fafc;">${c.cliente}</td>
+            <td style="text-align:center;color:#e2e8f0;">${c.comercial || '—'}</td>
+            <td><span class="tab-badge badge-neutral" style="font-size:0.7rem;">${canalBadge}</span></td>
+            <td style="color:#cbd5e1;font-size:0.78rem;">${c.forma_pago || '—'}</td>
+            <td style="text-align:center;color:var(--muted);">${dPact} d</td>
+            <td style="text-align:center;color:#f8fafc;font-weight:600;">${dObs}</td>
+            <td style="text-align:center;font-weight:800;color:#c084fc;font-size:0.85rem;">${dEf} d</td>
+            <td style="text-align:center;">${retStr}</td>
+            <td class="text-right" style="color:var(--muted);">${fmtNum(c.total_facturacion)} €</td>
+            <td class="text-right" style="font-weight:700;color:#38bdf8;">${fmtNum(c.total_cobros)} €</td>
+          </tr>
+        `;
+      });
+
+      return `
+        <div class="table-panel">
+          <div class="mrp-toolbar" style="margin-bottom:1rem;">
+            <div class="mrp-toolbar-left">
+              <span style="font-size:0.9rem;font-weight:700;color:#f8fafc;">
+                Catálogo de Condiciones de Pago y Retrasos Empíricos (${filtered.length} Clientes)
+              </span>
+            </div>
+            <div class="mrp-toolbar-right">
+              <input type="text" class="search-input" placeholder="Buscar cliente, código, comercial..." value="${treasurySearchQuery}" oninput="handleTreasurySearch(this.value)">
+            </div>
+          </div>
+
+          <div class="table-container" style="max-height:600px;overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+              <thead style="position:sticky;top:0;background:#0f172a;z-index:3;">
+                <tr>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;width:35px;">#</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;width:95px;">Código</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:left;">Razón Social / Cliente</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Comercial</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:left;">Canal Asignado</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:left;">Forma de Pago Acordada</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Pactado</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Real Histórico</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;color:#c084fc;">Efectivo Modelo</th>
+                  <th style="padding:0.6rem 0.8rem;text-align:center;">Retraso</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;">Facturación 2026</th>
+                  <th class="text-right" style="padding:0.6rem 0.8rem;color:#38bdf8;">Total Cobros 2026</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // 4. EXPORTACIÓN DE TESORERÍA A EXCEL (DESCARGA DIRECTA DEL SERVIDOR)
+    async function exportTreasuryExcel() {
+      const filename = "Prevision_Tesoreria_CashFlow_2026.xlsx";
+      try {
+        const res = await fetch("/" + filename + "?t=" + Date.now());
+        if (!res.ok) throw new Error("HTTP error " + res.status);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          try {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          } catch(e) {}
+        }, 15000);
+      } catch (err) {
+        console.error("Error al descargar Cash Flow via Blob, usando descarga directa:", err);
+        const a = document.createElement("a");
+        a.href = "/" + filename + "?t=" + Date.now();
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { try { document.body.removeChild(a); } catch(e){} }, 1000);
+      }
+    }
+
     function switchTab(tabKey) {
       currentTab = tabKey;
       searchQuery = '';
       currentFilter = 'ALL';
 
-      // Update active tab buttons
-      const buttons = document.querySelectorAll('.tab-btn');
-      buttons.forEach(btn => {
-        const isMatch = btn.getAttribute('onclick').includes(`'${tabKey}'`);
-        btn.classList.toggle('active', isMatch);
-      });
+      // Sincronizar estado visual del menú lateral izquierdo
+      updateSidebarActive(tabKey);
 
       renderCurrentTab();
       if (typeof window.scrollTo === 'function') {
         try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e){}
+      }
+    }
+
+    function updateSidebarActive(tabKey) {
+      document.querySelectorAll('.nav-item-btn').forEach(btn => btn.classList.remove('active'));
+
+      const titleIconEl = document.getElementById('topbarIcon');
+      const titleTextEl = document.getElementById('topbarText');
+
+      if (tabKey === 'resumen') {
+        const b = document.getElementById('navBtnResumen');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '💼';
+        if (titleTextEl) titleTextEl.textContent = 'Comercial | Ventas y Previsiones';
+      } else if (tabKey === 'produccion') {
+        const b = document.getElementById('navBtnProduccion');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '🏭';
+        if (titleTextEl) titleTextEl.textContent = 'Fabricación | Planificación & MRP';
+      } else if (tabKey === 'tesoreria') {
+        const b = document.getElementById('navBtnTesoreria');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '💰';
+        if (titleTextEl) titleTextEl.textContent = 'Finanzas | Tesorería y Cash Flow';
+      } else {
+        // Comercial específico seleccionado desde la tabla
+        const parentBtn = document.getElementById('navBtnResumen');
+        if (parentBtn) parentBtn.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '👤';
+        if (titleTextEl) titleTextEl.textContent = `Comercial | Detalle: ${tabKey}`;
       }
     }
 
@@ -4878,6 +6510,8 @@
         renderResumenTab(container);
       } else if (currentTab === 'produccion') {
         renderProduccionTab(container);
+      } else if (currentTab === 'tesoreria') {
+        renderTesoreriaTab(container);
       } else {
         renderComercialTab(container, currentTab);
       }

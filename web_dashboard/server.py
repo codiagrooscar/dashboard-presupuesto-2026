@@ -13,6 +13,45 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(BASE_DIR), **kwargs)
 
+    def do_HEAD(self):
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+
+        if path in ['/download/treasury', '/download/tesoreria', '/Prevision_Tesoreria_CashFlow_2026.xlsx']:
+            target_file = BASE_DIR / 'Prevision_Tesoreria_CashFlow_2026.xlsx'
+            v2_file = BASE_DIR / 'Prevision_Tesoreria_CashFlow_2026_v2.xlsx'
+            if v2_file.exists() and (not target_file.exists() or v2_file.stat().st_mtime > target_file.stat().st_mtime):
+                target_file = v2_file
+            elif not target_file.exists():
+                target_file = PROJECT_DIR / 'Prevision_Tesoreria_CashFlow_2026.xlsx'
+            if target_file.exists():
+                size = target_file.stat().st_size
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                self.send_header('Content-Disposition', 'attachment; filename="Prevision_Tesoreria_CashFlow_2026.xlsx"')
+                self.send_header('Content-Length', str(size))
+                self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                return
+
+        elif path in ['/download/mrp', '/download/fabricacion', '/Orden_Fabricacion_MRP_Codiagro.xlsx']:
+            target_file = BASE_DIR / 'Orden_Fabricacion_MRP_Codiagro.xlsx'
+            if not target_file.exists():
+                target_file = PROJECT_DIR / 'Orden_Fabricacion_MRP_Codiagro.xlsx'
+            if target_file.exists():
+                size = target_file.stat().st_size
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                self.send_header('Content-Disposition', 'attachment; filename="Orden_Fabricacion_MRP_Codiagro.xlsx"')
+                self.send_header('Content-Length', str(size))
+                self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                return
+
+        return super().do_HEAD()
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
@@ -20,7 +59,6 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if path == '/api/data':
             json_file = PROJECT_DIR / 'dashboard_data.json'
             if not json_file.exists():
-                # Generate if not exists
                 from build_dataset import build_dataset
                 data = build_dataset()
                 with open(json_file, 'w', encoding='utf-8') as f:
@@ -33,8 +71,51 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(content)))
             self.send_header('Cache-Control', 'no-cache')
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(content)
+            return
+
+        elif path in ['/download/treasury', '/download/tesoreria', '/Prevision_Tesoreria_CashFlow_2026.xlsx']:
+            target_file = BASE_DIR / 'Prevision_Tesoreria_CashFlow_2026.xlsx'
+            v2_file = BASE_DIR / 'Prevision_Tesoreria_CashFlow_2026_v2.xlsx'
+            if v2_file.exists() and (not target_file.exists() or v2_file.stat().st_mtime > target_file.stat().st_mtime):
+                target_file = v2_file
+            elif not target_file.exists():
+                target_file = PROJECT_DIR / 'Prevision_Tesoreria_CashFlow_2026.xlsx'
+            
+            with open(target_file, 'rb') as f:
+                data = f.read()
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            self.send_header('Content-Disposition', 'attachment; filename="Prevision_Tesoreria_CashFlow_2026.xlsx"')
+            self.send_header('Content-Length', str(len(data)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
+            return
+
+        elif path in ['/download/mrp', '/download/fabricacion', '/Orden_Fabricacion_MRP_Codiagro.xlsx']:
+            target_file = BASE_DIR / 'Orden_Fabricacion_MRP_Codiagro.xlsx'
+            if not target_file.exists():
+                target_file = PROJECT_DIR / 'Orden_Fabricacion_MRP_Codiagro.xlsx'
+            if not target_file.exists():
+                self.send_error(404, "Fichero Orden de Fabricacion no encontrado")
+                return
+
+            with open(target_file, 'rb') as f:
+                data = f.read()
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            self.send_header('Content-Disposition', 'attachment; filename="Orden_Fabricacion_MRP_Codiagro.xlsx"')
+            self.send_header('Content-Length', str(len(data)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(data)
             return
 
         elif path == '/download/excel':
@@ -52,6 +133,8 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             self.send_header('Content-Disposition', 'attachment; filename="Seguimiento_Presupuesto_Sep_2026.xlsx"')
             self.send_header('Content-Length', str(len(data)))
+            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(data)
             return

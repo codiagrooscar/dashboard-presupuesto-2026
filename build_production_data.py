@@ -296,6 +296,37 @@ def find_granel_smart(base_sku, desc=''):
         return granel_map[sku]
     return None
 
+def parse_envase_litros(env_val, desc=""):
+    try:
+        val = float(str(env_val).replace(",", "."))
+        if val > 0:
+            return val
+    except (ValueError, TypeError):
+        pass
+    m = re.search(r'(\d+[\.,]?\d*)\s*(?:L|KG|LITROS|KILOS)', str(desc), re.I)
+    if m:
+        try:
+            return float(m.group(1).replace(",", "."))
+        except (ValueError, TypeError):
+            pass
+    return 1.0
+
+def get_packaging_format(env_val, desc=""):
+    l_val = parse_envase_litros(env_val, desc)
+    if l_val >= 900:
+        return "Depósito 1000 L"
+    elif l_val >= 150:
+        return "Depósito 200 L"
+    elif l_val >= 15:
+        return "Garrafas 20L"
+    elif l_val >= 4:
+        return "Garrafas 5L"
+    elif l_val >= 0.9:
+        return "Botellas 1L"
+    elif l_val > 0:
+        return f"Botellas {l_val}L"
+    return "Otros Formatos"
+
 # 6. Build Aggregated Physical Base SKUs (Plant Formulation / Packaging level)
 base_skus_dict = {}
 
@@ -309,54 +340,120 @@ for sku, d in detailed_skus.items():
         g_stock = g_info['stock'] if g_info else 0.0
         g_fam = g_info['familia'] if g_info else None
 
+        env_l = parse_envase_litros(d['envase'], d['desc'] or stock_desc)
+        fmt_label = get_packaging_format(d['envase'], d['desc'] or stock_desc)
+        precio_val = stock_map.get(b_sku, {}).get('precio', 0.0) or stock_map.get(sku, {}).get('precio', 0.0)
+
         base_skus_dict[b_sku] = {
             'base_sku': b_sku,
             'desc': d['desc'] or stock_desc,
             'envase': d['envase'],
-            'stock_actual': stock_qty,            # Stock envasado en este formato
+            'envase_litros': env_l,
+            'formato_label': fmt_label,
+            'precio_unitario': precio_val,
+            'stock_actual': stock_qty,            # Stock envasado en este formato (u)
             'stock_envasado': stock_qty,
+            'stock_litros': round(stock_qty * env_l, 2),
             'stock_match_type': match_type,
             'granel_code': g_cod,
             'granel_desc': g_desc,
-            'granel_stock': g_stock,              # Bolsa común de semielaborado disponible
+            'granel_stock': g_stock,              # Bolsa común de semielaborado disponible (L/Kg)
             'granel_family': g_fam,
             'pedidos_pendientes': 0.0,
+            'pedidos_pendientes_nacional': 0.0,
+            'pedidos_pendientes_export': 0.0,
             'monthly_forecast': {m: 0.0 for m in month_keys},
+            'monthly_forecast_nacional': {m: 0.0 for m in month_keys},
+            'monthly_forecast_export': {m: 0.0 for m in month_keys},
             'destinos': [],
             'has_nacional': False,
             'has_export': False
         }
     
     b_item = base_skus_dict[b_sku]
-    b_item['pedidos_pendientes'] += d['pendientes_uds']
+    p_uds = float(d.get('pendientes_uds', 0) or 0)
+    b_item['pedidos_pendientes'] += p_uds
     if d['is_nacional']:
         b_item['has_nacional'] = True
+        b_item['pedidos_pendientes_nacional'] += p_uds
     else:
         b_item['has_export'] = True
+        b_item['pedidos_pendientes_export'] += p_uds
         
     for m in month_keys:
-        b_item['monthly_forecast'][m] += d['monthly_forecast'][m]
+        f_val = float(d['monthly_forecast'].get(m, 0) or 0)
+        b_item['monthly_forecast'][m] += f_val
+        if d['is_nacional']:
+            b_item['monthly_forecast_nacional'][m] += f_val
+        else:
+            b_item['monthly_forecast_export'][m] += f_val
         
     b_item['destinos'].append({
         'sku': d['sku'],
         'desc': d['desc'],
         'pais': d['pais'],
         'ambito': d['ambito'],
+        'is_nacional': d['is_nacional'],
+        'fabricacion_tipo': 'Para Stock / Previsión Nacional' if d['is_nacional'] else 'Sobre Pedido (Exportación)',
         'pendientes_uds': d['pendientes_uds'],
         'monthly_forecast': d['monthly_forecast']
     })
 
-# Also assign stock and granel to detailed items
+# CÁLCULO DE ROTACIÓN: SLOWMOVERS Y NOMOVERS BASADO EXCLUSIVAMENTE EN MERCADO NACIONAL
+# (La exportación se fabrica siempre sobre pedido)
+for b_sku, b_item in base_skus_dict.items():
+    stock_u = b_item['stock_actual']
+    env_l = b_item['envase_litros']
+    p_eur = b_item['precio_unitario']
+    
+    # Demanda NACIONAL únicamente (en unidades de envase)
+    d_nac_q4 = sum(b_item['monthly_forecast_nacional'].get(m, 0.0) for m in ['2026-10', '2026-11', '2026-12'])
+    d_nac_q1_27 = sum(b_item['monthly_forecast_nacional'].get(m, 0.0) for m in ['2027-01', '2027-02', '2027-03'])
+    d_nac_6m = d_nac_q4 + d_nac_q1_27
+    
+    no_mover_u = max(0.0, stock_u - d_nac_6m) if stock_u > 0 else 0.0
+    s_rem_q4 = max(0.0, stock_u - d_nac_q4) if stock_u > 0 else 0.0
+    slow_mover_u = min(s_rem_q4, d_nac_q1_27) if stock_u > 0 else 0.0
+    fast_mover_u = min(stock_u, d_nac_q4) if stock_u > 0 else 0.0
+    
+    b_item['demanda_nac_q4'] = round(d_nac_q4, 2)
+    b_item['demanda_nac_q1_27'] = round(d_nac_q1_27, 2)
+    b_item['demanda_nac_6m'] = round(d_nac_6m, 2)
+    b_item['no_mover_qty'] = round(no_mover_u, 2)
+    b_item['slow_mover_qty'] = round(slow_mover_u, 2)
+    b_item['fast_mover_qty'] = round(fast_mover_u, 2)
+    b_item['no_mover_litros'] = round(no_mover_u * env_l, 2)
+    b_item['slow_mover_litros'] = round(slow_mover_u * env_l, 2)
+    b_item['no_mover_eur'] = round(no_mover_u * p_eur, 2)
+    b_item['slow_mover_eur'] = round(slow_mover_u * p_eur, 2)
+    b_item['stock_eur'] = round(stock_u * p_eur, 2)
+    b_item['is_nomover'] = no_mover_u > 0
+    b_item['is_slowmover'] = slow_mover_u > 0
+    b_item['is_fastmover'] = stock_u > 0 and no_mover_u == 0 and slow_mover_u == 0
+
+# Also assign stock, granel and rotation to detailed items
 for sku, d in detailed_skus.items():
     b_sku = d['base_sku']
     b_item = base_skus_dict[b_sku]
     d['stock_actual'] = b_item['stock_actual']
     d['stock_envasado'] = b_item['stock_envasado']
+    d['stock_litros'] = b_item['stock_litros']
     d['stock_match_type'] = b_item['stock_match_type']
     d['granel_code'] = b_item['granel_code']
     d['granel_desc'] = b_item['granel_desc']
     d['granel_stock'] = b_item['granel_stock']
     d['granel_family'] = b_item['granel_family']
+    d['envase_litros'] = b_item['envase_litros']
+    d['formato_label'] = b_item['formato_label']
+    d['precio_unitario'] = b_item['precio_unitario']
+    d['demanda_nac_q4'] = b_item['demanda_nac_q4']
+    d['demanda_nac_6m'] = b_item['demanda_nac_6m']
+    d['no_mover_qty'] = b_item['no_mover_qty']
+    d['slow_mover_qty'] = b_item['slow_mover_qty']
+    d['fast_mover_qty'] = b_item['fast_mover_qty']
+    d['is_nomover'] = b_item['is_nomover']
+    d['is_slowmover'] = b_item['is_slowmover']
+    d['is_fastmover'] = b_item['is_fastmover']
 
 print(f"Consolidated into {len(base_skus_dict)} Physical Base SKUs and {len(detailed_skus)} Detailed SKUs.")
 

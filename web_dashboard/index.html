@@ -3653,97 +3653,71 @@
       }
 
       return `
-        <tr style="cursor:pointer;" data-sku="${r.key}" onclick="openProdSkuModal(this.getAttribute('data-sku'))" title="Click para ver desglose mensual, granel y proyección de agotamiento">
-          <td style="font-family:monospace;font-weight:700;color:#38bdf8;white-space:nowrap;">
+        <tr style="cursor:pointer;" data-sku="${r.key}" onclick="openProdSkuModal(this.getAttribute('data-sku'))" title="Click para ver evolución mensual y necesidades">
+          <td style="font-family:monospace;font-weight:700;color:#38bdf8;white-space:nowrap;padding:0.4rem 0.35rem;">
             ${r.sku}
           </td>
-          <td style="font-family:monospace;font-weight:600;color:${(r.nuevo_sku && r.nuevo_sku !== r.sku) ? '#c084fc' : '#94a3b8'};font-size:0.83rem;white-space:nowrap;" title="Nuevo SKU con sufijo cuando es destino de un único país">
+          <td style="font-family:monospace;font-weight:600;color:${(r.nuevo_sku && r.nuevo_sku !== r.sku) ? '#c084fc' : '#94a3b8'};font-size:0.8rem;white-space:nowrap;padding:0.4rem 0.35rem;" title="Nuevo SKU cuando es destino de un único país">
             ${r.nuevo_sku || r.sku}
           </td>
-          <td>
-            <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
-              <span style="font-weight:600;color:#f8fafc">${r.desc}</span>
-              <span class="tab-badge badge-neutral" style="font-size:0.65rem;padding:0.1rem 0.35rem;border:1px solid rgba(255,255,255,0.15)">
-                ${r.pkg.badge}
-              </span>
+          <td style="padding:0.4rem 0.35rem;max-width:160px;">
+            <div style="font-weight:600;color:#f8fafc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${r.desc}">${r.desc}</div>
+            <div style="font-size:0.7rem;color:var(--muted);display:flex;gap:0.3rem;align-items:center;">
+              <span>${r.envase || '—'}</span>
               ${rotationBadges}
             </div>
-            ${r.envase ? `<div style="font-size:0.72rem;color:var(--muted)">Formato: ${r.envase}</div>` : ''}
           </td>
-          <td style="text-align:center;">
+          <td style="text-align:center;padding:0.4rem 0.25rem;">
             ${scopeBadge}
           </td>
-          <td class="text-right" style="font-weight:600;color:${r.stock > 0 ? '#6ee7b7' : 'var(--muted)'}">
-            <div>${fmtNum(r.stock)} L/Kg</div>
-            ${r.stock > 0 && (r.is_nomover || r.is_slowmover) ? `
-              <div style="font-size:0.68rem;color:var(--muted);margin-top:0.2rem;display:flex;justify-content:flex-end;gap:0.35rem;flex-wrap:wrap;">
-                ${r.no_mover_qty > 0 ? `<span style="color:#f87171;font-weight:700;" title="NoMover: sin venta en 6 meses">🔴 ${fmtNum(r.no_mover_qty)}</span>` : ''}
-                ${r.slow_mover_qty > 0 ? `<span style="color:#fbbf24;font-weight:700;" title="SlowMover: venta meses 3 a 6">🟡 ${fmtNum(r.slow_mover_qty)}</span>` : ''}
-                ${r.fast_mover_qty > 0 ? `<span style="color:#34d399;font-weight:600;" title="Alta Rotación N+2: venta meses 0 a 3">⚡ ${fmtNum(r.fast_mover_qty)}</span>` : ''}
-              </div>
-            ` : ''}
+          <td class="text-right" style="font-weight:600;color:${r.stock > 0 ? '#6ee7b7' : 'var(--muted)'};padding:0.4rem 0.35rem;white-space:nowrap;">
+            <div>${fmtNum(r.stock)} <span style="font-size:0.68rem;color:var(--muted)">${r.pkg && r.pkg.label && r.pkg.label.includes('Kg') ? 'Kg' : 'L'}</span></div>
           </td>
-          <td class="text-right">
+          <td class="text-right" style="padding:0.4rem 0.35rem;white-space:nowrap;">
             ${r.granel_code ? `
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.15rem;">
-                <span class="tab-badge" style="background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.35);font-size:0.75rem;padding:0.15rem 0.45rem;font-weight:800;" title="Semielaborado ${r.granel_code} (${r.granel_desc}): ${fmtNum(r.granel_stock)} L/kg listos para acondicionar en 1, 5, 20, 200, 1000">
-                  🛢️ ${fmtNum(r.granel_stock)}
-                </span>
-                <span style="font-size:0.68rem;color:var(--muted);">${r.granel_code}</span>
-              </div>
-            ` : `
-              <span style="color:var(--muted);font-size:0.75rem;">—</span>
-            `}
+              <span class="tab-badge" style="background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.35);font-size:0.72rem;padding:0.1rem 0.35rem;font-weight:800;" title="${r.granel_code} (${r.granel_desc}): ${fmtNum(r.granel_stock)} L/Kg">
+                ${fmtNum(r.granel_stock)}
+              </span>
+            ` : `<span style="color:var(--muted);font-size:0.72rem;">—</span>`}
           </td>
-          <td class="text-right" style="color:${r.pending > 0 ? '#fbbf24' : 'var(--muted)'};font-weight:${r.pending > 0 ? '700' : 'normal'}">
+          <td class="text-right" style="color:${r.pending > 0 ? '#fbbf24' : 'var(--muted)'};font-weight:${r.pending > 0 ? '700' : 'normal'};padding:0.4rem 0.3rem;">
             ${fmtNum(r.pending)}
           </td>
-          <td class="text-right" style="color:#c084fc;font-weight:600">
+          <td class="text-right" style="color:#c084fc;font-weight:600;padding:0.4rem 0.3rem;">
             ${fmtNum(r.forecast)}
           </td>
-          <td class="text-right" style="font-weight:700;color:#f8fafc">
+          <td class="text-right" style="font-weight:700;color:#f8fafc;padding:0.4rem 0.3rem;">
             ${fmtNum(r.total_demand)}
           </td>
-          <td class="text-right" style="color:${r.net_balance < 0 ? '#f87171' : '#34d399'};font-weight:700">
+          <td class="text-right" style="color:${r.net_balance < 0 ? '#f87171' : '#34d399'};font-weight:700;padding:0.4rem 0.3rem;white-space:nowrap;">
             ${r.net_balance > 0 ? '+' : ''}${fmtNum(r.net_balance)}
           </td>
-          <td class="text-right">
+          <td class="text-right" style="padding:0.4rem 0.35rem;white-space:nowrap;">
             ${r.status === 'CRITICAL' ? `
-              <div style="background:rgba(239,68,68,0.12);padding:0.25rem 0.5rem;border-radius:4px;border:1px solid rgba(239,68,68,0.35);display:inline-block;text-align:right;">
-                <div style="color:#f87171;font-weight:800;font-size:0.82rem;">🔴 Fab. Granel: ${fmtNum(r.falta_fabricar_granel)}</div>
-                <div style="color:#fbbf24;font-size:0.7rem;font-weight:700;margin-top:0.1rem;">🟡 Envasar: ${fmtNum(r.falta_envasar)} u</div>
+              <div style="font-size:0.75rem;line-height:1.2;">
+                <span style="color:#f87171;font-weight:800;" title="Fabricar Granel">🔴 ${fmtNum(r.falta_fabricar_granel)}</span><br>
+                <span style="color:#fbbf24;font-size:0.68rem;font-weight:700;" title="Envasar">🟡 ${fmtNum(r.falta_envasar)} u</span>
               </div>
             ` : (r.status === 'WARNING' ? `
-              <div style="background:rgba(245,158,11,0.1);padding:0.25rem 0.5rem;border-radius:4px;border:1px solid rgba(245,158,11,0.3);display:inline-block;text-align:right;">
-                <div style="color:#fbbf24;font-weight:800;font-size:0.82rem;">🟡 Solo Envasar: ${fmtNum(r.falta_envasar)} u</div>
-                <div style="color:#34d399;font-size:0.68rem;font-weight:600;margin-top:0.1rem;">✓ Granel cubre 100%</div>
-              </div>
+              <span style="color:#fbbf24;font-size:0.75rem;font-weight:800;" title="Solo Envasar">🟡 ${fmtNum(r.falta_envasar)} u</span>
             ` : `
-              <span style="color:var(--muted);font-size:0.85rem;">—</span>
+              <span style="color:var(--muted);font-size:0.75rem;">—</span>
             `)}
-            ${prodBatchSize > 0 && r.falta_fabricar > 0 ? `
-              <div style="font-size:0.7rem;color:#a78bfa;font-weight:700;margin-top:0.25rem;">
-                ↳ ${fmtNum(r.sug_fabricar)} u (${r.num_batches} ${r.num_batches === 1 ? 'lote' : 'lotes'})
-              </div>
-            ` : ''}
           </td>
-          <td style="text-align:right;">
-            <span style="font-size:0.8rem;font-weight:700;color:${barColor}">
+          <td style="text-align:center;padding:0.4rem 0.25rem;white-space:nowrap;">
+            <span style="font-size:0.76rem;font-weight:800;color:${barColor};">
               ${r.coverage_pct.toFixed(0)}%
             </span>
-            <span class="coverage-bar-track">
-              <span class="coverage-bar-fill" style="width:${barWidth}%;background:${barColor};display:block;"></span>
-            </span>
           </td>
-          <td style="text-align:center;white-space:nowrap;">
+          <td style="text-align:center;padding:0.4rem 0.25rem;white-space:nowrap;">
             ${depletionBadge}
           </td>
-          <td style="text-align:center;">
+          <td style="text-align:center;padding:0.4rem 0.25rem;white-space:nowrap;">
             ${statusBadge}
           </td>
-          <td style="text-align:center;">
-            <button class="pill-btn" style="padding:0.2rem 0.5rem;font-size:0.75rem;" data-sku="${r.key}" onclick="event.stopPropagation(); openProdSkuModal(this.getAttribute('data-sku'))">
-              ${t('kpi_breakdown')}
+          <td style="text-align:center;padding:0.4rem 0.2rem;">
+            <button class="pill-btn" style="padding:0.15rem 0.4rem;font-size:0.75rem;" data-sku="${r.key}" onclick="event.stopPropagation(); openProdSkuModal(this.getAttribute('data-sku'))" title="Ver evolución detallada y lotes">
+              ↗
             </button>
           </td>
         </tr>
@@ -4069,63 +4043,62 @@
           </div>
 
           <!-- TABLA DE PLANIFICACIÓN -->
-          <div class="table-panel">
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th style="cursor:pointer;white-space:nowrap;min-width:100px;width:110px;" onclick="sortProdTable('sku')">
-                      ${t('mrp_th_sku')} ${prodSortField === 'sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th style="cursor:pointer;white-space:nowrap;min-width:105px;width:115px;" onclick="sortProdTable('nuevo_sku')" title="SKU con sufijo cuando es destino de un único país">
-                      Nuevo SKU ${prodSortField === 'nuevo_sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th style="cursor:pointer;min-width:180px;" onclick="sortProdTable('desc')">
-                      ${t('mrp_th_product')} ${prodSortField === 'desc' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th style="text-align:center;">
-                      ${t('mrp_th_scope')}
-                    </th>
-                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('stock')" title="Stock físico ya envasado en este formato específico">
-                      Stock Env. (u) ${prodSortField === 'stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('granel_stock')" title="Bolsa de granel semielaborado en fábrica disponible para acondicionar">
-                      🛢️ Granel Disp. (L) ${prodSortField === 'granel_stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('pending')">
-                      ${t('mrp_th_pending')} ${prodSortField === 'pending' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('forecast')">
-                      ${t('mrp_th_forecast')} ${prodSortField === 'forecast' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('total_demand')">
-                      ${t('mrp_th_demand')} ${prodSortField === 'total_demand' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('net_balance')">
-                      ${t('mrp_th_balance')} ${prodSortField === 'net_balance' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('falta_fabricar')">
-                      Falta Fab. / Env. ${prodSortField === 'falta_fabricar' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th class="text-right" style="cursor:pointer;" onclick="sortProdTable('coverage_pct')">
-                      ${t('mrp_th_coverage')} ${prodSortField === 'coverage_pct' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th style="cursor:pointer;text-align:center;" onclick="sortProdTable('depleted_idx')">
-                      ${t('mrp_th_depletion')} ${prodSortField === 'depleted_idx' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
-                    </th>
-                    <th style="text-align:center;">
-                      Acción MRP
-                    </th>
-                    <th style="text-align:center;">
-                      ${t('mrp_th_detail')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody id="mrpTableBody">
-                  ${tableRowsHtml}
-                </tbody>
-              </table>
-            </div>
+          <!-- TABLA DE PLANIFICACIÓN -->
+          <div class="table-wrapper" style="overflow-x:auto;max-width:100%;margin-top:0.75rem;border-radius:var(--radius-sm);border:1px solid var(--card-border);">
+            <table style="width:100%;min-width:1080px;font-size:0.77rem;">
+              <thead>
+                <tr>
+                  <th style="cursor:pointer;white-space:nowrap;width:75px;padding:0.45rem 0.35rem;" onclick="sortProdTable('sku')">
+                    ${t('mrp_th_sku')} ${prodSortField === 'sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th style="cursor:pointer;white-space:nowrap;width:80px;padding:0.45rem 0.35rem;" onclick="sortProdTable('nuevo_sku')" title="SKU con sufijo cuando es destino de un único país">
+                    Nuevo SKU ${prodSortField === 'nuevo_sku' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th style="cursor:pointer;min-width:150px;padding:0.45rem 0.35rem;" onclick="sortProdTable('desc')">
+                    ${t('mrp_th_product')} ${prodSortField === 'desc' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th style="text-align:center;width:55px;padding:0.45rem 0.25rem;">
+                    Merc.
+                  </th>
+                  <th class="text-right" style="cursor:pointer;white-space:nowrap;width:75px;padding:0.45rem 0.35rem;" onclick="sortProdTable('stock')" title="Stock físico ya envasado en este formato">
+                    Stock Env. ${prodSortField === 'stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th class="text-right" style="cursor:pointer;white-space:nowrap;width:75px;padding:0.45rem 0.35rem;" onclick="sortProdTable('granel_stock')" title="Bolsa de granel semielaborado disponible">
+                    🛢️ Granel ${prodSortField === 'granel_stock' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th class="text-right" style="cursor:pointer;width:55px;padding:0.45rem 0.3rem;" onclick="sortProdTable('pending')" title="Pedidos pendientes / cartera">
+                    Cartera ${prodSortField === 'pending' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th class="text-right" style="cursor:pointer;width:60px;padding:0.45rem 0.3rem;" onclick="sortProdTable('forecast')" title="Previsión de demanda para el periodo">
+                    Prev. ${prodSortField === 'forecast' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th class="text-right" style="cursor:pointer;width:65px;padding:0.45rem 0.3rem;" onclick="sortProdTable('total_demand')" title="Demanda total = Cartera + Previsión">
+                    Demanda ${prodSortField === 'total_demand' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th class="text-right" style="cursor:pointer;width:65px;padding:0.45rem 0.3rem;" onclick="sortProdTable('net_balance')" title="Balance neto disponible">
+                    Balance ${prodSortField === 'net_balance' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th class="text-right" style="cursor:pointer;white-space:nowrap;width:85px;padding:0.45rem 0.35rem;" onclick="sortProdTable('falta_fabricar')" title="Necesidad de fabricación y envasado">
+                    Falta Fab. ${prodSortField === 'falta_fabricar' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th class="text-center" style="cursor:pointer;width:50px;padding:0.45rem 0.25rem;" onclick="sortProdTable('coverage_pct')">
+                    Cob.% ${prodSortField === 'coverage_pct' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th style="cursor:pointer;text-align:center;white-space:nowrap;width:75px;padding:0.45rem 0.25rem;" onclick="sortProdTable('depleted_idx')">
+                    Agotamiento ${prodSortField === 'depleted_idx' ? (prodSortOrder === 'asc' ? '▲' : '▼') : ''}
+                  </th>
+                  <th style="text-align:center;width:75px;padding:0.45rem 0.25rem;">
+                    Acción
+                  </th>
+                  <th style="text-align:center;width:35px;padding:0.45rem 0.2rem;">
+                    Ver
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="mrpTableBody">
+                ${tableRowsHtml}
+              </tbody>
+            </table>
           </div>
         </div>
       `;

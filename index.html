@@ -1734,7 +1734,7 @@
         <div class="sidebar-dot"></div>
         <div class="sidebar-footer-text">
           <strong>Servidor Local Activo</strong>
-          <span>Corte: 07/10/2026</span>
+          <span id="sidebarCorteDate">Corte: 08/10/2026</span>
         </div>
       </div>
     </aside>
@@ -3056,6 +3056,10 @@
       const elDate = document.getElementById('headerFechaCorte');
       if (elDate && appData.global_kpis && appData.global_kpis.fecha_corte) {
         elDate.innerText = appData.global_kpis.fecha_corte;
+      }
+      const elSidebarDate = document.getElementById('sidebarCorteDate');
+      if (elSidebarDate && appData.global_kpis && appData.global_kpis.fecha_corte) {
+        elSidebarDate.innerText = 'Corte: ' + appData.global_kpis.fecha_corte;
       }
       const elSub = document.getElementById('headerSubtitle');
       if (elSub) {

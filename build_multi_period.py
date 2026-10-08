@@ -693,9 +693,12 @@ def build_all():
         # Mantener window.DASHBOARD_DATA apuntando por defecto a Octubre (período en curso)
         f.write("window.DASHBOARD_DATA = window.DASHBOARD_PERIODS_DATA.periods['2026-10'];\n")
 
-    # Sincronizar directorio raíz
+    # Sincronizar directorio raíz y web_dashboard_direccion
     shutil.copy2('web_dashboard/dashboard_data.json', 'dashboard_data.json')
     shutil.copy2('web_dashboard/dashboard_data.js', 'dashboard_data.js')
+    if os.path.exists('web_dashboard_direccion'):
+        shutil.copy2('web_dashboard/dashboard_data.json', 'web_dashboard_direccion/dashboard_data.json')
+        shutil.copy2('web_dashboard/dashboard_data.js', 'web_dashboard_direccion/dashboard_data.js')
 
     # Actualizar también módulo de planificación de producción (MRP)
     try:

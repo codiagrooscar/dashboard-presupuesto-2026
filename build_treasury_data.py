@@ -562,8 +562,10 @@ def build_treasury_dataset():
         'client_vencimientos': client_vencimientos
     }
 
-    out_json = 'web_dashboard/treasury_data.json'
-    out_js = 'web_dashboard/treasury_data.js'
+    out_dir = 'web_dashboard_direccion'
+    os.makedirs(out_dir, exist_ok=True)
+    out_json = os.path.join(out_dir, 'treasury_data.json')
+    out_js = os.path.join(out_dir, 'treasury_data.js')
 
     with open(out_json, 'w', encoding='utf-8') as f:
         json.dump(output_data, f, ensure_ascii=False, indent=2)

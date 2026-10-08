@@ -607,9 +607,11 @@ def build_profitability_data():
         "cliente_detalle": cliente_detalle
     }
 
-    # Guardar en raíz y en web_dashboard
-    out_json = os.path.join("web_dashboard", "profitability_data.json")
-    out_js = os.path.join("web_dashboard", "profitability_data.js")
+    # Guardar en web_dashboard_direccion
+    out_dir = "web_dashboard_direccion"
+    os.makedirs(out_dir, exist_ok=True)
+    out_json = os.path.join(out_dir, "profitability_data.json")
+    out_js = os.path.join(out_dir, "profitability_data.js")
 
     with open(out_json, "w", encoding="utf-8") as f:
         json.dump(output_data, f, ensure_ascii=False, indent=2)

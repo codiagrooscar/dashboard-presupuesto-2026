@@ -1286,13 +1286,21 @@ def generar_excel_orden_fabricacion(
     ws_rot.freeze_panes = "A9"
     ws_rot.auto_filter.ref = f"A8:O{tot_rot_row - 1}"
 
-    # Guardar Excel en web_dashboard y en ruta destino con control de bloqueo
+    # Guardar Excel en web_dashboard, web_dashboard_direccion y en ruta destino con control de bloqueo
     dashboard_excel_path = os.path.join("web_dashboard", os.path.basename(output_path))
     try:
         wb.save(dashboard_excel_path)
         print(f"Archivo guardado exitosamente en: {dashboard_excel_path}")
     except Exception as e:
         print(f"Aviso guardando en dashboard: {e}")
+
+    dir_dashboard_excel_path = os.path.join("web_dashboard_direccion", os.path.basename(output_path))
+    try:
+        if os.path.exists("web_dashboard_direccion"):
+            wb.save(dir_dashboard_excel_path)
+            print(f"Archivo guardado exitosamente en: {dir_dashboard_excel_path}")
+    except Exception as e:
+        print(f"Aviso guardando en dashboard direccion: {e}")
 
     saved_path = output_path
     try:

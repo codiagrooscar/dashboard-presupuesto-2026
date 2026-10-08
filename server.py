@@ -17,25 +17,7 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
 
-        if path in ['/download/treasury', '/download/tesoreria', '/Prevision_Tesoreria_CashFlow_2026.xlsx']:
-            target_file = BASE_DIR / 'Prevision_Tesoreria_CashFlow_2026.xlsx'
-            v2_file = BASE_DIR / 'Prevision_Tesoreria_CashFlow_2026_v2.xlsx'
-            if v2_file.exists() and (not target_file.exists() or v2_file.stat().st_mtime > target_file.stat().st_mtime):
-                target_file = v2_file
-            elif not target_file.exists():
-                target_file = PROJECT_DIR / 'Prevision_Tesoreria_CashFlow_2026.xlsx'
-            if target_file.exists():
-                size = target_file.stat().st_size
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                self.send_header('Content-Disposition', 'attachment; filename="Prevision_Tesoreria_CashFlow_2026.xlsx"')
-                self.send_header('Content-Length', str(size))
-                self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                return
-
-        elif path in ['/download/mrp', '/download/fabricacion', '/Orden_Fabricacion_MRP_Codiagro.xlsx']:
+        if path in ['/download/mrp', '/download/fabricacion', '/Orden_Fabricacion_MRP_Codiagro.xlsx']:
             target_file = BASE_DIR / 'Orden_Fabricacion_MRP_Codiagro.xlsx'
             if not target_file.exists():
                 target_file = PROJECT_DIR / 'Orden_Fabricacion_MRP_Codiagro.xlsx'
@@ -74,27 +56,6 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(content)
-            return
-
-        elif path in ['/download/treasury', '/download/tesoreria', '/Prevision_Tesoreria_CashFlow_2026.xlsx']:
-            target_file = BASE_DIR / 'Prevision_Tesoreria_CashFlow_2026.xlsx'
-            v2_file = BASE_DIR / 'Prevision_Tesoreria_CashFlow_2026_v2.xlsx'
-            if v2_file.exists() and (not target_file.exists() or v2_file.stat().st_mtime > target_file.stat().st_mtime):
-                target_file = v2_file
-            elif not target_file.exists():
-                target_file = PROJECT_DIR / 'Prevision_Tesoreria_CashFlow_2026.xlsx'
-            
-            with open(target_file, 'rb') as f:
-                data = f.read()
-
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            self.send_header('Content-Disposition', 'attachment; filename="Prevision_Tesoreria_CashFlow_2026.xlsx"')
-            self.send_header('Content-Length', str(len(data)))
-            self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.end_headers()
-            self.wfile.write(data)
             return
 
         elif path in ['/download/mrp', '/download/fabricacion', '/Orden_Fabricacion_MRP_Codiagro.xlsx']:

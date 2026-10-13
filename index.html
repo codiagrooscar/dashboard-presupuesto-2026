@@ -14,8 +14,8 @@
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
-  <script src="dashboard_data.js?v=20261007_0710"></script>
-  <script src="production_planning_data.js?v=20261007_0710"></script>
+  <script src="dashboard_data.js?v=20261013_0745"></script>
+  <script src="production_planning_data.js?v=20261013_0745"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -5756,7 +5756,7 @@
         const parentBtn = document.getElementById('navBtnResumen');
         if (parentBtn) parentBtn.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '👤';
-        if (titleTextEl) titleTextEl.textContent = Comercial | Detalle: ;
+        if (titleTextEl) titleTextEl.textContent = `Comercial | Detalle: ${tabKey}`;
       }
     }
 

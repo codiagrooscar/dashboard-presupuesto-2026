@@ -572,13 +572,23 @@ out_js_file = 'web_dashboard/production_planning_data.js'
 with open(out_js_file, 'w', encoding='utf-8') as f:
     f.write("window.PRODUCTION_PLANNING_DATA = " + json.dumps(output_data, ensure_ascii=False) + ";\n")
 
+def safe_copy(src, dst):
+    try:
+        shutil.copy2(src, dst)
+    except Exception:
+        try:
+            with open(src, 'rb') as f_in, open(dst, 'wb') as f_out:
+                f_out.write(f_in.read())
+        except Exception as e:
+            print(f"Aviso copiando {src} a {dst}: {e}")
+
 # Keep root and web_dashboard_direccion in sync
-shutil.copy2(out_file, 'production_planning_data.json')
-shutil.copy2(out_js_file, 'production_planning_data.js')
+safe_copy(out_file, 'production_planning_data.json')
+safe_copy(out_js_file, 'production_planning_data.js')
 
 dir_dir = 'web_dashboard_direccion'
 if os.path.exists(dir_dir):
-    shutil.copy2(out_file, os.path.join(dir_dir, 'production_planning_data.json'))
-    shutil.copy2(out_js_file, os.path.join(dir_dir, 'production_planning_data.js'))
+    safe_copy(out_file, os.path.join(dir_dir, 'production_planning_data.json'))
+    safe_copy(out_js_file, os.path.join(dir_dir, 'production_planning_data.js'))
 
 print(f"Successfully generated {out_file} and {out_js_file} ({len(output_data['base_skus'])} base SKUs, {len(output_data['detailed_skus'])} detailed SKUs)")

@@ -693,12 +693,22 @@ def build_all():
         # Mantener window.DASHBOARD_DATA apuntando por defecto a Octubre (período en curso)
         f.write("window.DASHBOARD_DATA = window.DASHBOARD_PERIODS_DATA.periods['2026-10'];\n")
 
+    def safe_copy(src, dst):
+        try:
+            shutil.copy2(src, dst)
+        except Exception:
+            try:
+                with open(src, 'rb') as f_in, open(dst, 'wb') as f_out:
+                    f_out.write(f_in.read())
+            except Exception as e:
+                print(f"Aviso copiando {src} a {dst}: {e}")
+
     # Sincronizar directorio raíz y web_dashboard_direccion
-    shutil.copy2('web_dashboard/dashboard_data.json', 'dashboard_data.json')
-    shutil.copy2('web_dashboard/dashboard_data.js', 'dashboard_data.js')
+    safe_copy('web_dashboard/dashboard_data.json', 'dashboard_data.json')
+    safe_copy('web_dashboard/dashboard_data.js', 'dashboard_data.js')
     if os.path.exists('web_dashboard_direccion'):
-        shutil.copy2('web_dashboard/dashboard_data.json', 'web_dashboard_direccion/dashboard_data.json')
-        shutil.copy2('web_dashboard/dashboard_data.js', 'web_dashboard_direccion/dashboard_data.js')
+        safe_copy('web_dashboard/dashboard_data.json', 'web_dashboard_direccion/dashboard_data.json')
+        safe_copy('web_dashboard/dashboard_data.js', 'web_dashboard_direccion/dashboard_data.js')
 
     # Actualizar también módulo de planificación de producción (MRP)
     try:

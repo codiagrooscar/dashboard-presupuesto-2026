@@ -6379,6 +6379,17 @@
       else if (currentScope === 'EXPORTACION') scopeNotice = ` <span class="tab-badge badge-info" style="font-size:0.68rem">${t('export_market')}</span>`;
 
       let html = `
+        <!-- BOTÓN VOLVER AL RESUMEN -->
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; flex-wrap:wrap; gap:0.75rem;">
+          <button class="pill-btn active" onclick="switchTab('resumen')" style="display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; padding:0.5rem 1.1rem; font-size:0.88rem; cursor:pointer; background:rgba(30,41,59,0.95); border:1px solid rgba(255,255,255,0.25); border-radius:8px; color:#ffffff; box-shadow:0 2px 6px rgba(0,0,0,0.25);">
+            <span>←</span> <span>${currentLang === 'en' ? 'Back to Summary Overview' : 'Volver a la Pantalla Resumen'}</span>
+          </button>
+          <div style="font-size:0.85rem; color:var(--muted); display:inline-flex; align-items:center; gap:0.4rem;">
+            <span>${currentLang === 'en' ? 'Commercial Rep:' : 'Comercial:'}</span>
+            <span class="tab-badge badge-info" style="font-size:0.8rem; font-weight:700;">${comName}</span>
+          </div>
+        </div>
+
         <!-- KPI GRID INTERACTIVO COMERCIAL -->
         <div class="kpi-grid">
           <div class="kpi-card accent-blue clickable" onclick="openKpiModal('budget', '${comName}')" title="${t('kpi_budget_hint')}">

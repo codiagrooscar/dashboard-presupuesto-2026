@@ -4184,6 +4184,18 @@
       }
     }
 
+    function handleGranelSearch(val) {
+      granelSearchQuery = val;
+      const input = document.getElementById('granelSearchInput');
+      const cursorPos = input ? input.selectionStart : (val ? val.length : 0);
+      renderProdGranelSubtab(document.getElementById('appContent'));
+      const newInput = document.getElementById('granelSearchInput');
+      if (newInput) {
+        newInput.focus();
+        try { newInput.setSelectionRange(cursorPos, cursorPos); } catch(e){}
+      }
+    }
+
     // 2. SUBPESTAÑA: PLAN GRANELES POR MES (HOJA 2 DEL EXCEL)
     function renderProdGranelSubtab(container) {
       const granelesMap = {};
@@ -4306,8 +4318,8 @@
                 </p>
               </div>
               <div style="display:flex;align-items:center;gap:0.75rem;">
-                <input type="text" class="search-input" placeholder="Buscar granel..." value="${granelSearchQuery}" 
-                       oninput="granelSearchQuery = this.value; renderProdGranelSubtab(document.getElementById('appContent'));" style="width:240px;">
+                <input type="text" id="granelSearchInput" class="search-input" placeholder="Buscar granel..." value="${granelSearchQuery}" 
+                       oninput="handleGranelSearch(this.value);" style="width:240px;">
               </div>
             </div>
           </div>
@@ -5902,8 +5914,15 @@
     }
 
     function handleTreasurySearch(val) {
-      treasurySearchQuery = (val || '').toLowerCase().trim();
+      treasurySearchQuery = val;
+      const input = document.getElementById('treasurySearchInput');
+      const cursorPos = input ? input.selectionStart : (val ? val.length : 0);
       renderCurrentTab();
+      const newInput = document.getElementById('treasurySearchInput');
+      if (newInput) {
+        newInput.focus();
+        try { newInput.setSelectionRange(cursorPos, cursorPos); } catch(e){}
+      }
     }
 
     function setTreasuryCanalFilter(canal) {
@@ -6385,7 +6404,7 @@
               </div>
             </div>
             <div class="mrp-toolbar-right">
-              <input type="text" class="search-input" placeholder="Buscar cliente, comercial, país..." value="${treasurySearchQuery}" oninput="handleTreasurySearch(this.value)">
+              <input type="text" id="treasurySearchInput" class="search-input" placeholder="Buscar cliente, comercial, país..." value="${treasurySearchQuery}" oninput="handleTreasurySearch(this.value)">
             </div>
           </div>
 
@@ -6487,7 +6506,7 @@
               </span>
             </div>
             <div class="mrp-toolbar-right">
-              <input type="text" class="search-input" placeholder="Buscar cliente, código, comercial..." value="${treasurySearchQuery}" oninput="handleTreasurySearch(this.value)">
+              <input type="text" id="treasurySearchInput" class="search-input" placeholder="Buscar cliente, código, comercial..." value="${treasurySearchQuery}" oninput="handleTreasurySearch(this.value)">
             </div>
           </div>
 

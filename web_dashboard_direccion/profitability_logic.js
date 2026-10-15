@@ -337,6 +337,7 @@ function renderProfitRadarView() {
         <div style="flex:1; min-width:260px; max-width:400px; position:relative">
           <input 
             type="text" 
+            id="profitRadarSearchInput"
             placeholder="Buscar por SKU, producto, cliente, comercial o país..." 
             value="${profitRadarSearch}" 
             oninput="handleProfitRadarSearch(this.value)" 
@@ -452,8 +453,15 @@ function renderProfitRadarView() {
 function handleProfitRadarSearch(val) {
   profitRadarSearch = val;
   profitRadarPage = 1;
+  const input = document.getElementById('profitRadarSearchInput');
+  const cursorPos = input ? input.selectionStart : (val ? val.length : 0);
   const content = document.getElementById('profitSubtabContent');
   if (content) content.innerHTML = renderProfitRadarView();
+  const newInput = document.getElementById('profitRadarSearchInput');
+  if (newInput) {
+    newInput.focus();
+    try { newInput.setSelectionRange(cursorPos, cursorPos); } catch(e){}
+  }
 }
 function setProfitRadarType(type) {
   profitRadarType = type;
@@ -591,6 +599,7 @@ function renderProfitClientesView() {
         <div style="flex:1; min-width:240px; max-width:380px; position:relative">
           <input 
             type="text" 
+            id="profitClientSearchInput"
             placeholder="Buscar por cliente, país o comercial..." 
             value="${profitClientSearch}" 
             oninput="handleProfitClientSearch(this.value)" 
@@ -679,8 +688,15 @@ function renderProfitClientesView() {
 
 function handleProfitClientSearch(val) {
   profitClientSearch = val;
+  const input = document.getElementById('profitClientSearchInput');
+  const cursorPos = input ? input.selectionStart : (val ? val.length : 0);
   const content = document.getElementById('profitSubtabContent');
   if (content) content.innerHTML = renderProfitClientesView();
+  const newInput = document.getElementById('profitClientSearchInput');
+  if (newInput) {
+    newInput.focus();
+    try { newInput.setSelectionRange(cursorPos, cursorPos); } catch(e){}
+  }
 }
 function setProfitClientFilter(flt) {
   profitClientFilter = flt;
@@ -1081,6 +1097,7 @@ function renderProfitProductosView() {
         <div style="flex:1; min-width:240px; max-width:380px; position:relative">
           <input 
             type="text" 
+            id="profitProdSearchInput"
             placeholder="Buscar por SKU, producto o familia..." 
             value="${profitProdSearch}" 
             oninput="handleProfitProdSearch(this.value)" 
@@ -1158,8 +1175,15 @@ function renderProfitProductosView() {
 
 function handleProfitProdSearch(val) {
   profitProdSearch = val;
+  const input = document.getElementById('profitProdSearchInput');
+  const cursorPos = input ? input.selectionStart : (val ? val.length : 0);
   const content = document.getElementById('profitSubtabContent');
   if (content) content.innerHTML = renderProfitProductosView();
+  const newInput = document.getElementById('profitProdSearchInput');
+  if (newInput) {
+    newInput.focus();
+    try { newInput.setSelectionRange(cursorPos, cursorPos); } catch(e){}
+  }
 }
 function setProfitProdFormatFilter(fmt) {
   profitProdFormatFilter = fmt;
@@ -1260,6 +1284,7 @@ function renderProfitMercadosView() {
         <div style="flex:1; min-width:240px; max-width:380px; position:relative">
           <input 
             type="text" 
+            id="profitCountrySearchInput"
             placeholder="Buscar por país..." 
             value="${profitCountrySearch}" 
             oninput="handleProfitCountrySearch(this.value)" 
@@ -1334,8 +1359,15 @@ function renderProfitMercadosView() {
 
 function handleProfitCountrySearch(val) {
   profitCountrySearch = val;
+  const input = document.getElementById('profitCountrySearchInput');
+  const cursorPos = input ? input.selectionStart : (val ? val.length : 0);
   const content = document.getElementById('profitSubtabContent');
   if (content) content.innerHTML = renderProfitMercadosView();
+  const newInput = document.getElementById('profitCountrySearchInput');
+  if (newInput) {
+    newInput.focus();
+    try { newInput.setSelectionRange(cursorPos, cursorPos); } catch(e){}
+  }
 }
 function setProfitMarketFilter(flt) {
   profitMarketFilter = flt;

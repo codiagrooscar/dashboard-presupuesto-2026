@@ -306,8 +306,14 @@ function renderProfitRadarView() {
   const startIdx = (profitRadarPage - 1) * profitRadarPageSize;
   const pageItems = filtered.slice(startIdx, startIdx + profitRadarPageSize);
 
-  const lossCount = alertas.filter(a => a.es_perdida).length;
-  const rojoCount = alertas.filter(a => !a.es_perdida && a.margen_pct < 60.0).length;
+  const yearAlertas = alertas.filter(a => {
+    if (profitRadarYear !== 'ALL' && String(a.year) !== String(profitRadarYear)) return false;
+    return true;
+  });
+  const totalCount = yearAlertas.length;
+  const lossCount = yearAlertas.filter(a => a.es_perdida).length;
+  const rojoCount = yearAlertas.filter(a => !a.es_perdida && a.margen_pct < 60.0).length;
+  const allYearsLossCount = alertas.filter(a => a.es_perdida).length;
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.25rem;">
@@ -348,7 +354,7 @@ function renderProfitRadarView() {
 
         <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap">
           <button class="pill-btn ${profitRadarType === 'ALL' ? 'active' : ''}" onclick="setProfitRadarType('ALL')">
-            Todas (${alertas.length})
+            Todas (${totalCount})
           </button>
           <button class="pill-btn ${profitRadarType === 'LOSS' ? 'active' : ''}" onclick="setProfitRadarType('LOSS')" style="${profitRadarType === 'LOSS' ? 'border-color:#ef4444; color:#f87171;' : ''}">
             🔴 Ventas a Pérdida (${lossCount})
@@ -369,6 +375,18 @@ function renderProfitRadarView() {
           <span>📥</span> <span>Exportar CSV</span>
         </button>
       </div>
+
+      ${(profitRadarType === 'LOSS' && profitRadarYear !== 'ALL' && allYearsLossCount > lossCount) ? `
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 0.65rem 1.1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+          <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.83rem; color:#fca5a5;">
+            <span>ℹ️</span>
+            <span>Viendo la venta a pérdida de <strong>${profitRadarYear === '2027' ? '2027 Presupuesto' : '2026 Real'}</strong>. Hay otra venta a pérdida en <strong>${profitRadarYear === '2027' ? '2026 Real' : '2027 Presupuesto'}</strong> (mismo producto y cliente).</span>
+          </div>
+          <button class="pill-btn active" onclick="setProfitRadarYear('ALL')" style="font-size:0.75rem; padding:0.3rem 0.85rem; cursor:pointer; background:rgba(239,68,68,0.25); border-color:rgba(239,68,68,0.5); color:#fff; font-weight:700;">
+            Ver las 2 ventas a pérdida (Ambos Años)
+          </button>
+        </div>
+      ` : ''}
 
       <!-- TABLA DE ALERTAS -->
       <div class="table-card">

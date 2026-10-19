@@ -8,8 +8,8 @@
       "verde": "> 66%"
     },
     "skus_costes_count": 440,
-    "alertas_radar_count": 1324,
-    "ventas_perdida_count": 2
+    "alertas_radar_count": 1322,
+    "ventas_perdida_count": 0
   },
   "totales_empresa": {
     "ventas_2026": 15180000.01,
@@ -25,42 +25,6 @@
     "clientes_verde": 50
   },
   "alertas_radar": [
-    {
-      "year": 2026,
-      "mes": "Feb-26",
-      "sku": "PT0020",
-      "desc": "AGROPOTASION, 20 L",
-      "cliente": "AGROVEYCA,S.L",
-      "pais": "ESPAÑA",
-      "comercial": "Alfonso",
-      "unidades": 633.1,
-      "precio_venta": 0.81,
-      "cogs_medio": 1.04,
-      "importe_venta": 514.4,
-      "cogs_total": 658.44,
-      "margen_eur": -144.03,
-      "margen_pct": -28.0,
-      "es_perdida": true,
-      "semaforo": "ROJO"
-    },
-    {
-      "year": 2027,
-      "mes": "Feb-27",
-      "sku": "PT0020",
-      "desc": "AGROPOTASION, 20 L",
-      "cliente": "AGROVEYCA,S.L",
-      "pais": "ESPAÑA",
-      "comercial": "Alfonso",
-      "unidades": 700.0,
-      "precio_venta": 0.85,
-      "cogs_medio": 1.04,
-      "importe_venta": 592.85,
-      "cogs_total": 728.0,
-      "margen_eur": -135.15,
-      "margen_pct": -22.8,
-      "es_perdida": true,
-      "semaforo": "ROJO"
-    },
     {
       "year": 2026,
       "mes": "Mar-26",
@@ -24433,7 +24397,7 @@
       "margen_2027_pct": 62.5,
       "matriz_estrategica": "Core Estable (Alto Vol. / Margen Medio)",
       "semaforo": "AMARILLO",
-      "lineas_peligro": 38
+      "lineas_peligro": 36
     },
     {
       "cliente": "DOTRA GULF TRADING COMPANY",
@@ -35596,7 +35560,7 @@
       "cogs_2027": 221067.71,
       "margen_2027_eur": 416623.16,
       "margen_2027_pct": 65.3,
-      "lineas_rojas": 268
+      "lineas_rojas": 266
     }
   ],
   "paises": [

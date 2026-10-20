@@ -39,16 +39,20 @@ def build_profitability_data():
         tot_med = float(r[8] or 0)
         estado = str(r[9]).strip() if r[9] else 'Completo'
 
+        # Usar tot_med oficial del Excel (incluye formulación, packaging y el canon/suplemento de 0,0042 € en los 362 SKUs)
+        cogs_med_val = tot_med if tot_med > 0 else (form_med + pkg_med)
+        cogs_max_val = tot_max if tot_max > 0 else (form_max + pkg_max)
+
         costes_map[sku] = {
             "sku": sku,
             "familia": fam,
             "pais": pais,
             "form_med": round(form_med, 4),
             "pkg_med": round(pkg_med, 4),
-            "cogs_medio": round(form_med + pkg_med, 4),
+            "cogs_medio": round(cogs_med_val, 4),
             "form_max": round(form_max, 4),
             "pkg_max": round(pkg_max, 4),
-            "cogs_max": round(form_max + pkg_max, 4),
+            "cogs_max": round(cogs_max_val, 4),
             "estado": estado
         }
 
@@ -175,8 +179,21 @@ def build_profitability_data():
 
     for row_idx in range(2, ws_p.max_row + 1):
         r = [ws_p.cell(row_idx, c).value for c in range(1, len(header) + 1)]
-        sku = str(r[idx_sku]).strip().upper() if r[idx_sku] else ''
-        if not sku: continue
+        sku_raw = str(r[idx_sku]).strip().upper() if r[idx_sku] else ''
+        if not sku_raw: continue
+
+        desc = str(r[idx_desc]).strip() if r[idx_desc] else sku_raw
+        sku = sku_raw
+
+        # Desdoblar código provisional 'NAZ' (Azerbaiyán) en sus dos productos reales diferenciados
+        if sku == 'NAZ':
+            d_up = desc.upper()
+            if 'AMINO' in d_up:
+                sku = 'AMGF0001AZ'
+                desc = 'AMINOG AL , 1L (Azerbaiyán)'
+            elif 'AQUOM' in d_up:
+                sku = 'AQUOM0005'
+                desc = 'Aquom 5L (Azerbaiyán)'
 
         year = int(r[idx_year]) if r[idx_year] else 2026
         mes = str(r[idx_mes]).strip() if r[idx_mes] else ''
@@ -184,17 +201,16 @@ def build_profitability_data():
         pais = str(r[idx_pais]).strip().upper() if r[idx_pais] else 'ESPAÑA'
         client = str(r[idx_client]).strip() if r[idx_client] else 'Cliente General'
         cl_tipo = str(r[idx_cl_tipo]).strip() if r[idx_cl_tipo] else 'Estándar'
-        desc = str(r[idx_desc]).strip() if r[idx_desc] else sku
         env_val = float(r[idx_env] or 1.0) if idx_env is not None and r[idx_env] is not None else 1.0
         uds = float(r[idx_uds] or 0.0)
         pr_unit = float(r[idx_pr_med] or 0.0)
 
         # Importe venta
         imp_venta = uds * pr_unit
-        if uds <= 0 and imp_venta <= 0:
+        if uds == 0.0 and imp_venta == 0.0:
             continue
 
-        es_rappel = (pr_unit == 0.0 and uds > 0)
+        es_rappel = (pr_unit == 0.0 and uds != 0)
 
         cogs_info = get_cogs(sku, pais, desc)
         cogs_u = cogs_info["cogs_medio"] if cogs_info else 0.0
@@ -202,7 +218,7 @@ def build_profitability_data():
         pkg_u = cogs_info["pkg_med"] if cogs_info else 0.0
         cogs_total = uds * cogs_u
         margen_eur = imp_venta - cogs_total
-        margen_pct = (margen_eur / imp_venta * 100.0) if imp_venta > 0 else 0.0
+        margen_pct = (margen_eur / imp_venta * 100.0) if imp_venta > 0 else (0.0 if (imp_venta == 0 and cogs_total == 0) else -100.0)
 
         # Semáforo de Margen (Regla Oficial del Usuario):
         # Rojo: < 60%
@@ -398,23 +414,23 @@ def build_profitability_data():
         m27_comm_eur = round(v27 - c27_comm, 2)
         m27_comm_pct = round((m27_comm_eur / v27 * 100), 1) if v27 > 0 else 0.0
 
-        # Clasificación matriz estratégica y semáforo comercial sobre ventas efectivas
+        # Clasificación matriz estratégica y semáforo comercial sobre el margen neto mostrado (que ya absorbe entregas gratuitas / rappels)
         v_ref = v27 if v27 > 0 else v26
-        m_ref_comm = m27_comm_pct if v27 > 0 else m26_comm_pct
-        if v_ref >= 50000 and m_ref_comm >= 66.0:
+        m_ref = m27_pct if v27 > 0 else m26_pct
+        if v_ref >= 50000 and m_ref >= 66.0:
             matriz = "Estrella (Alto Vol. / Alto Margen)"
-        elif v_ref >= 50000 and m_ref_comm < 60.0:
+        elif v_ref >= 50000 and m_ref < 60.0:
             matriz = "Volumen de Riesgo (Alto Vol. / Bajo Margen)"
         elif v_ref >= 50000:
             matriz = "Core Estable (Alto Vol. / Margen Medio)"
-        elif v_ref < 50000 and m_ref_comm >= 66.0:
+        elif v_ref < 50000 and m_ref >= 66.0:
             matriz = "Boutique / Potencial (Bajo Vol. / Alto Margen)"
-        elif v_ref < 50000 and m_ref_comm < 60.0:
+        elif v_ref < 50000 and m_ref < 60.0:
             matriz = "Crítico / Déficit (Bajo Vol. / Bajo Margen)"
         else:
             matriz = "Desarrollo (Margen Medio)"
 
-        sem_cl = "ROJO" if m_ref_comm < 60.0 else ("AMARILLO" if m_ref_comm <= 66.0 else "VERDE")
+        sem_cl = "ROJO" if m_ref < 60.0 else ("AMARILLO" if m_ref <= 66.0 else "VERDE")
 
         clientes_list.append({
             "cliente": c_name,
@@ -591,9 +607,10 @@ def build_profitability_data():
         # Si no hay facturación (precio venta = 0), es una entrega 100% de rappel/promoción en especie
         if v <= 0:
             pr_med = 0.0
-            m_eur = 0.0
-            m_pct = 0.0
-            es_perdida = False
+            # El margen en euros refleja el coste asumido por la empresa (-cogs) para que la suma del desglose concilie con el total del cliente
+            m_eur = round(v - cogs_tot, 2)
+            m_pct = -100.0 if cogs_tot > 0 else 0.0
+            es_perdida = (cogs_tot > 0)
             es_rappel = True
             sem = "RAPPEL"
         else:

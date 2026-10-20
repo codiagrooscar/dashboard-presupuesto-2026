@@ -148,12 +148,12 @@ async function renderRentabilidadTab(container) {
       <div class="kpi-card accent-emerald">
         <div class="kpi-header">
           <span class="kpi-title">MARGEN BRUTO EMPRESA</span>
-          <span class="tab-badge badge-success" style="font-weight:800;font-size:0.75rem">${tot.margen_2027_pct}%</span>
+          <span class="tab-badge ${tot.margen_2027_pct >= 66 ? 'badge-success' : (tot.margen_2027_pct >= 60 ? 'badge-warning' : 'badge-danger')}" style="font-weight:800;font-size:0.75rem">${tot.margen_2027_pct}%</span>
         </div>
-        <div class="kpi-value" style="color:#34d399">${fmtEur(tot.margen_2027_eur)}</div>
+        <div class="kpi-value" style="color:${tot.margen_2027_pct >= 66 ? '#34d399' : (tot.margen_2027_pct >= 60 ? '#fbbf24' : '#f87171')}">${fmtEur(tot.margen_2027_eur)}</div>
         <div class="kpi-detail">
-          <span>Semáforo: <strong style="color:#34d399">🟢 VERDE (&gt;66%)</strong></span>
-          <span style="color:var(--muted)">2026: ${tot.margen_2026_pct}%</span>
+          <span>Semáforo: <strong style="color:${tot.margen_2027_pct >= 66 ? '#34d399' : (tot.margen_2027_pct >= 60 ? '#fbbf24' : '#f87171')}">${tot.margen_2027_pct >= 66 ? '🟢 VERDE (&gt;66%)' : (tot.margen_2027_pct >= 60 ? '🟡 AMARILLO (60-66%)' : '🔴 ROJO (&lt;60%)')}</strong></span>
+          <span style="color:var(--muted)">2026 (Cierre Est.): ${tot.margen_2026_pct}%</span>
         </div>
       </div>
 
@@ -652,8 +652,8 @@ function renderProfitClientesView() {
                 <th onclick="toggleSortClients('cogs_2027')" style="cursor:pointer; text-align:right; width:115px">COGS 2027</th>
                 <th onclick="toggleSortClients('margen_2027_eur')" style="cursor:pointer; text-align:right; width:125px">Margen € 2027 ${getSortIcon('margen_2027_eur', profitClientSort, profitClientOrder)}</th>
                 <th onclick="toggleSortClients('margen_2027_pct')" style="cursor:pointer; text-align:right; width:105px">Margen % 2027 ${getSortIcon('margen_2027_pct', profitClientSort, profitClientOrder)}</th>
-                <th style="text-align:right; width:110px">Venta 2026</th>
-                <th style="text-align:right; width:95px">Margen % 26</th>
+                <th style="text-align:right; width:120px" title="Cierre Estimado 2026 (Real Sep + Previsión Q4)">Venta Cierre 2026</th>
+                <th style="text-align:right; width:100px" title="Margen 2026 neto">Margen % 2026</th>
                 <th style="text-align:center; width:100px">Semáforo</th>
                 <th style="width:160px">Matriz Estratégica</th>
                 <th style="width:85px; text-align:center">Acción</th>

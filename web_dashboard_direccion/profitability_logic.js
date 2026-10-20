@@ -33,6 +33,8 @@ let profitSelectedClient = null;
 // Estado Subpestaña 3: Comparador SKU
 let profitSelectedSku = '';
 let profitSkuSearch = '';
+let profitOnlyHighDispersion = false;
+let profitShowDispersionRanking = false;
 
 // Estado Subpestaña 4: Productos y Formatos
 let profitProdSearch = '';
@@ -902,19 +904,87 @@ function exportProfitClientesCsv() {
 // =========================================================================
 // SUBPESTAÑA 3: COMPARADOR DE PRECIOS Y MÁRGENES ENTRE CLIENTES (MISMO SKU)
 // =========================================================================
+function toggleProfitOnlyHighDispersion() {
+  profitOnlyHighDispersion = !profitOnlyHighDispersion;
+  const content = document.getElementById('profitSubtabContent');
+  if (content) content.innerHTML = renderProfitComparadorView();
+}
+
+function toggleProfitDispersionRanking() {
+  profitShowDispersionRanking = !profitShowDispersionRanking;
+  const content = document.getElementById('profitSubtabContent');
+  if (content) content.innerHTML = renderProfitComparadorView();
+}
+
 function renderProfitComparadorView() {
   const compMap = profitData.sku_comparador || {};
   const productos = profitData.productos || [];
+  const prodMap = {};
+  productos.forEach(p => { prodMap[p.sku] = p; });
 
-  // Si no hay SKU seleccionado, seleccionar el producto con más ventas por defecto
-  if (!profitSelectedSku && productos.length > 0) {
-    profitSelectedSku = productos[0].sku;
+  // 1. Calcular dispersión de precios para TODOS los SKUs con 2 o más compradores
+  const dispersionList = [];
+  Object.entries(compMap).forEach(([sku, clients]) => {
+    const valid = clients.filter(c => c.precio_medio > 0 && c.uds > 0);
+    if (valid.length >= 2) {
+      let prMin = Infinity, prMax = -Infinity, prSuma = 0, udsSuma = 0;
+      let clMin = null, clMax = null;
+      valid.forEach(c => {
+        if (c.precio_medio < prMin) { prMin = c.precio_medio; clMin = c; }
+        if (c.precio_medio > prMax) { prMax = c.precio_medio; clMax = c; }
+        prSuma += c.ventas_eur;
+        udsSuma += c.uds;
+      });
+      const diffEur = prMax - prMin;
+      const diffPct = prMin > 0 ? ((diffEur / prMin) * 100) : 0;
+      const prodInfo = prodMap[sku] || {};
+      dispersionList.push({
+        sku,
+        desc: prodInfo.desc || sku,
+        ventas_2027: prodInfo.ventas_2027 || prSuma,
+        num_clientes: valid.length,
+        pr_min: prMin,
+        pr_max: prMax,
+        pr_med_pond: udsSuma > 0 ? (prSuma / udsSuma) : 0,
+        diff_eur: diffEur,
+        diff_pct: diffPct,
+        cl_min: clMin ? clMin.cliente : '',
+        cl_max: clMax ? clMax.cliente : '',
+        cogs_medio: prodInfo.cogs_medio || 0
+      });
+    }
+  });
+
+  // Ordenar de mayor a menor diferencia porcentual
+  dispersionList.sort((a, b) => b.diff_pct - a.diff_pct);
+
+  const dispMap = {};
+  dispersionList.forEach(d => { dispMap[d.sku] = d; });
+
+  const highDispList = dispersionList.filter(x => x.diff_pct >= 25.0);
+  const highDispCount = highDispList.length;
+  const topDispersions = dispersionList.slice(0, 8);
+
+  // Lista visible de productos para el dropdown
+  let visibleProds = productos;
+  if (profitOnlyHighDispersion) {
+    visibleProds = productos.filter(p => dispMap[p.sku] && dispMap[p.sku].diff_pct >= 25.0);
   }
 
-  const selectedProd = productos.find(p => p.sku === profitSelectedSku) || {};
-  const clientesList = compMap[profitSelectedSku] || [];
+  // Si no hay SKU seleccionado o ya no está en la lista visible
+  if (!profitSelectedSku || (profitOnlyHighDispersion && !visibleProds.some(p => p.sku === profitSelectedSku))) {
+    if (visibleProds.length > 0) {
+      profitSelectedSku = visibleProds[0].sku;
+    } else if (productos.length > 0) {
+      profitSelectedSku = productos[0].sku;
+    }
+  }
 
-  // Calcular métricas de dispersión de precios para este SKU
+  const selectedProd = prodMap[profitSelectedSku] || {};
+  const clientesList = compMap[profitSelectedSku] || [];
+  const curDisp = dispMap[profitSelectedSku];
+
+  // Calcular métricas de dispersión de precios para este SKU seleccionado
   let prMin = Infinity, prMax = -Infinity, prSuma = 0, udsSuma = 0;
   clientesList.forEach(cl => {
     if (cl.precio_medio > 0) {
@@ -930,35 +1000,165 @@ function renderProfitComparadorView() {
   const dispersionEur = prMax - prMin;
   const dispersionPct = prMin > 0 ? ((dispersionEur / prMin) * 100) : 0;
 
+  const dispBadgeClass = dispersionPct >= 50 ? 'badge-danger' : (dispersionPct >= 25 ? 'badge-warning' : 'badge-neutral');
+  const dispBadgeText = dispersionPct >= 50 ? '🔴 Brecha Extrema (>50%)' : (dispersionPct >= 25 ? '🟡 Brecha Alta (25-50%)' : '🟢 Dispersión Moderada');
+
   return `
     <div style="display:flex; flex-direction:column; gap:1.25rem;">
-      <!-- SELECTOR Y BUSCADOR DE PRODUCTO -->
+      <!-- 1. BANNER DE ALERTAS DE DISPERSIÓN DE TARIFAS -->
+      <div style="background:linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95)); border:1px solid rgba(245,158,11,0.4); border-radius:var(--radius-md); padding:1rem 1.25rem; display:flex; flex-direction:column; gap:0.75rem; box-shadow:0 4px 16px rgba(0,0,0,0.25)">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem">
+          <div style="display:flex; align-items:center; gap:0.6rem">
+            <span style="font-size:1.3rem">🚨</span>
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem">
+                <h3 style="margin:0; font-size:1rem; font-family:'Outfit',sans-serif; color:#fff">
+                  Radar de Disparidad de Tarifas entre Clientes
+                </h3>
+                <span class="tab-badge badge-warning" style="font-size:0.72rem; font-weight:800">
+                  ${highDispCount} SKUs con brecha &gt; 25%
+                </span>
+              </div>
+              <p style="margin:0; font-size:0.78rem; color:#94a3b8; margin-top:0.2rem">
+                Productos vendidos a precios muy dispares según el cliente (mismo producto con diferencias de tarifa significativas). Haz clic en cualquiera para auditarlo:
+              </p>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem">
+            <button 
+              type="button"
+              class="pill-btn ${profitShowDispersionRanking ? 'active' : ''}" 
+              onclick="toggleProfitDispersionRanking()"
+              style="padding:0.45rem 0.85rem; font-size:0.78rem; font-weight:700"
+            >
+              ${profitShowDispersionRanking ? '✖ Ocultar Ranking' : `📋 Ver Ranking Completo (${dispersionList.length} SKUs)`}
+            </button>
+          </div>
+        </div>
+
+        <!-- TOP CHIPS DE ACCESO DIRECTO -->
+        <div style="display:flex; align-items:center; gap:0.45rem; flex-wrap:wrap">
+          <span style="font-size:0.75rem; color:var(--muted); font-weight:700">Top Brechas:</span>
+          ${topDispersions.map(td => {
+            const isSel = td.sku === profitSelectedSku;
+            return `
+              <button 
+                type="button"
+                onclick="handleSelectProfitSku('${td.sku}')"
+                style="background:${isSel ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(15,23,42,0.85)'}; color:${isSel ? '#000' : '#f8fafc'}; border:1px solid ${isSel ? '#f59e0b' : 'rgba(245,158,11,0.35)'}; border-radius:var(--radius-xs); padding:0.25rem 0.6rem; font-size:0.75rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:0.35rem; transition:all 0.15s ease"
+                title="${td.desc}&#10;Mínimo: ${fmtEur(td.pr_min)} (${td.cl_min})&#10;Máximo: ${fmtEur(td.pr_max)} (${td.cl_max})&#10;Brecha: +${td.diff_pct.toFixed(1)}% (${fmtEur(td.diff_eur)}/u)"
+              >
+                <span>${td.sku}</span>
+                <span style="background:${isSel ? 'rgba(0,0,0,0.25)' : 'rgba(239,68,68,0.25)'}; color:${isSel ? '#000' : '#f87171'}; padding:0.05rem 0.35rem; border-radius:3px; font-weight:800">
+                  +${td.diff_pct.toFixed(0)}%
+                </span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- 2. TABLA RANKING COMPLETO DE DISPERSIÓN (COLAPSABLE) -->
+      ${profitShowDispersionRanking ? `
+        <div class="table-card" style="border:1px solid rgba(245,158,11,0.4); animation:fadeIn 0.25s ease">
+          <div style="padding:0.85rem 1.25rem; background:rgba(30,41,59,0.7); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem">
+            <div style="display:flex; align-items:center; gap:0.5rem">
+              <span style="font-weight:700; color:#fbbf24; font-size:0.9rem">📋 Ranking de Productos por Dispersión de Precios entre Clientes</span>
+              <span class="tab-badge badge-neutral" style="font-size:0.72rem">${dispersionList.length} productos analizados</span>
+            </div>
+            <span style="font-size:0.75rem; color:var(--muted)">Pulsa en "Auditar" para cargar ese producto abajo</span>
+          </div>
+          <div class="table-container" style="max-height:360px; overflow-y:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:105px">Código SKU</th>
+                  <th>Descripción Artículo</th>
+                  <th style="text-align:center; width:80px">Clientes</th>
+                  <th style="text-align:right; width:110px">Precio Mín.</th>
+                  <th>Cliente Más Barato</th>
+                  <th style="text-align:right; width:110px">Precio Máx.</th>
+                  <th>Cliente Más Caro</th>
+                  <th style="text-align:right; width:100px">Diferencia €</th>
+                  <th style="text-align:right; width:95px">Brecha %</th>
+                  <th style="text-align:center; width:90px">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${dispersionList.map(item => {
+                  const isSel = item.sku === profitSelectedSku;
+                  const bColor = item.diff_pct >= 50 ? '#f87171' : (item.diff_pct >= 25 ? '#fbbf24' : '#94a3b8');
+                  return `
+                    <tr style="${isSel ? 'background:rgba(56,189,248,0.12); outline:1px solid rgba(56,189,248,0.3)' : ''}">
+                      <td><strong style="color:#38bdf8">${item.sku}</strong></td>
+                      <td><span style="color:#fff">${item.desc}</span></td>
+                      <td style="text-align:center"><span class="tab-badge badge-neutral" style="font-size:0.72rem">${item.num_clientes}</span></td>
+                      <td style="text-align:right; font-weight:700; color:#f87171">${fmtEur(item.pr_min)}</td>
+                      <td><span style="font-size:0.78rem; color:#cbd5e1">${item.cl_min}</span></td>
+                      <td style="text-align:right; font-weight:700; color:#34d399">${fmtEur(item.pr_max)}</td>
+                      <td><span style="font-size:0.78rem; color:#cbd5e1">${item.cl_max}</span></td>
+                      <td style="text-align:right; font-weight:700; color:${bColor}">${fmtEur(item.diff_eur)}</td>
+                      <td style="text-align:right; font-weight:800; color:${bColor}">+${item.diff_pct.toFixed(1)}%</td>
+                      <td style="text-align:center">
+                        <button class="btn-table-action" onclick="handleSelectProfitSku('${item.sku}')" style="padding:0.25rem 0.55rem; font-size:0.75rem; ${isSel ? 'background:#0ea5e9; color:#fff;' : ''}">
+                          ${isSel ? 'Viendo ✓' : 'Auditar ➔'}
+                        </button>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- 3. SELECTOR Y BUSCADOR DE PRODUCTO -->
       <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius-md); padding:1.25rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem">
         <div style="flex:1; min-width:300px">
-          <label style="display:block; font-size:0.75rem; font-weight:800; color:var(--muted); margin-bottom:0.4rem; letter-spacing:0.05em">
-            SELECCIONA O BUSCA UN PRODUCTO / SKU PARA COMPARAR ENTRE CLIENTES:
-          </label>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem">
+            <label style="font-size:0.75rem; font-weight:800; color:var(--muted); letter-spacing:0.05em">
+              SELECCIONA O BUSCA UN PRODUCTO / SKU PARA COMPARAR ENTRE CLIENTES:
+            </label>
+            ${curDisp && curDisp.diff_pct >= 25 ? `
+              <span class="tab-badge badge-warning" style="font-size:0.7rem; font-weight:800">
+                🚨 Brecha de tarifa de este SKU: +${curDisp.diff_pct.toFixed(1)}% (${fmtEur(curDisp.diff_eur)}/u)
+              </span>
+            ` : ''}
+          </div>
           <div style="display:flex; gap:0.5rem">
             <select 
               id="profitSkuSelect" 
               onchange="handleSelectProfitSku(this.value)" 
               style="flex:1; padding:0.6rem 0.85rem; background:rgba(15,23,42,0.9); border:1px solid var(--card-border); border-radius:var(--radius-sm); color:#fff; font-size:0.88rem; font-weight:600"
             >
-              ${productos.map(p => `
-                <option value="${p.sku}" ${p.sku === profitSelectedSku ? 'selected' : ''}>
-                  ${p.sku} - ${p.desc} (${fmtEur(p.ventas_2027)})
-                </option>
-              `).join('')}
+              ${visibleProds.map(p => {
+                const disp = dispMap[p.sku];
+                const flag = disp && disp.diff_pct >= 25 ? `🚨 [+${disp.diff_pct.toFixed(0)}% brecha] ` : '';
+                return `
+                  <option value="${p.sku}" ${p.sku === profitSelectedSku ? 'selected' : ''}>
+                    ${flag}${p.sku} - ${p.desc} (${fmtEur(p.ventas_2027)})
+                  </option>
+                `;
+              }).join('')}
             </select>
           </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:0.5rem">
+        <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap">
+          <button 
+            type="button" 
+            onclick="toggleProfitOnlyHighDispersion()"
+            class="pill-btn ${profitOnlyHighDispersion ? 'active' : ''}"
+            style="padding:0.5rem 0.85rem; font-size:0.78rem; font-weight:700; white-space:nowrap; border:1px solid ${profitOnlyHighDispersion ? '#f59e0b' : 'var(--card-border)'}"
+          >
+            🚨 Solo Alta Dispersión (&gt;25%) (${highDispCount})
+          </button>
           <span style="font-size:0.82rem; color:var(--muted)">Mostrando <strong>${clientesList.length}</strong> clientes compradores</span>
         </div>
       </div>
 
-      <!-- TARJETAS DE SÍNTESIS DEL PRODUCTO Y DISPERSIÓN DE PRECIOS -->
+      <!-- 4. TARJETAS DE SÍNTESIS DEL PRODUCTO Y DISPERSIÓN DE PRECIOS -->
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem">
         <!-- COGS MEDIO -->
         <div class="kpi-card accent-amber">
@@ -982,7 +1182,7 @@ function renderProfitComparadorView() {
           </div>
           <div class="kpi-value" style="color:${prMin < selectedProd.cogs_medio ? '#f87171' : '#fff'}">${fmtEur(prMin)}</div>
           <div class="kpi-detail">
-            <span>Cliente más barato</span>
+            <span title="${curDisp ? curDisp.cl_min : ''}">Cliente más barato: <strong>${curDisp && curDisp.cl_min ? (curDisp.cl_min.length > 20 ? curDisp.cl_min.slice(0,18)+'...' : curDisp.cl_min) : 'n/a'}</strong></span>
           </div>
         </div>
 
@@ -994,7 +1194,7 @@ function renderProfitComparadorView() {
           </div>
           <div class="kpi-value" style="color:#34d399">${fmtEur(prMax)}</div>
           <div class="kpi-detail">
-            <span>Cliente con tarifa más alta</span>
+            <span title="${curDisp ? curDisp.cl_max : ''}">Cliente más alto: <strong>${curDisp && curDisp.cl_max ? (curDisp.cl_max.length > 20 ? curDisp.cl_max.slice(0,18)+'...' : curDisp.cl_max) : 'n/a'}</strong></span>
           </div>
         </div>
 
@@ -1011,24 +1211,31 @@ function renderProfitComparadorView() {
         </div>
 
         <!-- DISPERSIÓN DE PRECIOS -->
-        <div class="kpi-card">
+        <div class="kpi-card ${dispersionPct >= 50 ? 'accent-rose' : (dispersionPct >= 25 ? 'accent-amber' : '')}">
           <div class="kpi-header">
             <span class="kpi-title">DISPERSIÓN DE PRECIOS</span>
-            <span class="tab-badge badge-neutral">Brecha</span>
+            <span class="tab-badge ${dispBadgeClass}">${dispBadgeText}</span>
           </div>
-          <div class="kpi-value" style="color:#e2e8f0">${fmtEur(dispersionEur)}</div>
+          <div class="kpi-value" style="color:${dispersionPct >= 50 ? '#f87171' : (dispersionPct >= 25 ? '#fbbf24' : '#e2e8f0')}">${fmtEur(dispersionEur)}</div>
           <div class="kpi-detail">
-            <span style="color:#fbbf24; font-weight:700">+${dispersionPct.toFixed(1)}% diferencia entre extremos</span>
+            <span style="color:${dispersionPct >= 25 ? '#fbbf24' : '#94a3b8'}; font-weight:700">+${dispersionPct.toFixed(1)}% diferencia entre extremos</span>
           </div>
         </div>
       </div>
 
-      <!-- TABLA COMPARATIVA DE CLIENTES PARA EL PRODUCTO SELECCIONADO -->
+      <!-- 5. TABLA COMPARATIVA DE CLIENTES PARA EL PRODUCTO SELECCIONADO -->
       <div class="table-card">
         <div style="padding:1rem 1.25rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem">
-          <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.05rem; color:#fff">
-            Comparativa de Precios y Márgenes por Cliente para: <span style="color:#38bdf8">${selectedProd.sku} - ${selectedProd.desc}</span>
-          </h3>
+          <div>
+            <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.05rem; color:#fff">
+              Comparativa de Precios y Márgenes por Cliente para: <span style="color:#38bdf8">${selectedProd.sku} - ${selectedProd.desc}</span>
+            </h3>
+            ${dispersionPct >= 25 ? `
+              <span style="font-size:0.75rem; color:#fbbf24; font-weight:600">
+                ⚠️ Este producto presenta una brecha de ${fmtEur(dispersionEur)}/u (+${dispersionPct.toFixed(1)}%) entre el cliente con mejor tarifa y el que compra más caro.
+              </span>
+            ` : ''}
+          </div>
           <span style="font-size:0.75rem; color:var(--muted)">
             Ordenado por volumen de ventas descendente
           </span>
@@ -1043,6 +1250,7 @@ function renderProfitComparadorView() {
                 <th style="width:110px">Comercial</th>
                 <th style="text-align:right; width:95px">Unidades (u)</th>
                 <th style="text-align:right; width:110px">Precio Venta</th>
+                <th style="text-align:center; width:130px">Condición Tarifa</th>
                 <th style="text-align:right; width:100px">COGS Medio</th>
                 <th style="text-align:right; width:105px">Margen Unit. €</th>
                 <th style="text-align:right; width:115px">Ventas 2027</th>
@@ -1053,13 +1261,27 @@ function renderProfitComparadorView() {
             </thead>
             <tbody>
               ${clientesList.length === 0 ? `
-                <tr><td colspan="11" style="text-align:center; padding:3rem; color:var(--muted)">Ningún cliente tiene presupuestado este SKU para 2027.</td></tr>
+                <tr><td colspan="12" style="text-align:center; padding:3rem; color:var(--muted)">Ningún cliente tiene presupuestado este SKU para 2027.</td></tr>
               ` : clientesList.map(cl => {
                 const isRappel = cl.es_rappel || cl.semaforo === 'RAPPEL' || cl.precio_medio === 0;
                 const isLoss = !isRappel && cl.es_perdida;
                 const mColor = isRappel ? '#c084fc' : (isLoss ? '#f87171' : (cl.margen_pct < 60 ? '#fb923c' : (cl.margen_pct <= 66 ? '#fbbf24' : '#34d399')));
                 const semBadge = isRappel ? 'badge-info' : (cl.semaforo === 'ROJO' ? 'badge-danger' : (cl.semaforo === 'AMARILLO' ? 'badge-warning' : 'badge-success'));
                 const mUnit = isRappel ? 0 : (cl.precio_medio - cl.cogs_medio);
+
+                // Badge y cálculo de desviación de tarifa
+                let tarifaBadge = '<span style="color:var(--muted); font-size:0.75rem">—</span>';
+                if (!isRappel && cl.precio_medio > 0 && clientesList.length > 1) {
+                  if (cl.precio_medio === prMin) {
+                    tarifaBadge = `<span class="tab-badge badge-danger" style="font-size:0.68rem; font-weight:800" title="Cliente con la tarifa más baja del producto">🔴 Tarifa Mínima</span>`;
+                  } else if (cl.precio_medio === prMax) {
+                    tarifaBadge = `<span class="tab-badge badge-success" style="font-size:0.68rem; font-weight:800" title="Cliente con la tarifa más alta del producto">🟢 Tarifa Máxima</span>`;
+                  } else {
+                    const dev = prMedPond > 0 ? ((cl.precio_medio - prMedPond) / prMedPond * 100) : 0;
+                    const devSign = dev >= 0 ? '+' : '';
+                    tarifaBadge = `<span style="font-size:0.75rem; color:#94a3b8">${devSign}${dev.toFixed(1)}% vs media</span>`;
+                  }
+                }
 
                 return `
                   <tr style="${isLoss ? 'background:rgba(239,68,68,0.1)' : (isRappel ? 'background:rgba(168,85,247,0.06)' : '')}">
@@ -1068,6 +1290,7 @@ function renderProfitComparadorView() {
                     <td><strong class="tag-commercial">${cl.comercial}</strong></td>
                     <td style="text-align:right; font-weight:600">${fmtNumLocal(cl.uds)}</td>
                     <td style="text-align:right; font-weight:700; color:#fff">${isRappel ? '<span style="color:#c084fc; font-weight:600">0,00 €</span>' : fmtEur(cl.precio_medio)}</td>
+                    <td style="text-align:center">${tarifaBadge}</td>
                     <td style="text-align:right; color:#94a3b8">${fmtEur(cl.cogs_medio)}</td>
                     <td style="text-align:right; font-weight:700; color:${mColor}">${isRappel ? '<span style="color:#c084fc">—</span>' : fmtEur(mUnit)}</td>
                     <td style="text-align:right; font-weight:600">${fmtEur(cl.ventas_eur)}</td>

@@ -226,18 +226,21 @@ def build_data():
         "clientes": clientes
     }
 
-    out_dir = "web_dashboard_direccion"
-    json_path = os.path.join(out_dir, "marta_tracking_data.json")
-    js_path = os.path.join(out_dir, "marta_tracking_data.js")
+    # Guardar en web_dashboard_direccion y en web_dashboard (versión reducida comerciales)
+    target_dirs = ["web_dashboard_direccion", "web_dashboard"]
+    for out_dir in target_dirs:
+        os.makedirs(out_dir, exist_ok=True)
+        json_path = os.path.join(out_dir, "marta_tracking_data.json")
+        js_path = os.path.join(out_dir, "marta_tracking_data.js")
 
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, ensure_ascii=False, indent=2)
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(output_data, f, ensure_ascii=False, indent=2)
 
-    with open(js_path, 'w', encoding='utf-8') as f:
-        f.write("// Datos generados en UNIDADES para Cierre 2026 & Termómetro Q4\n")
-        f.write("window.MARTA_TRACKING_DATA = ")
-        json.dump(output_data, f, ensure_ascii=False, indent=2)
-        f.write(";\n")
+        with open(js_path, 'w', encoding='utf-8') as f:
+            f.write("// Datos generados en UNIDADES para Cierre 2026 & Termómetro Q4\n")
+            f.write("window.MARTA_TRACKING_DATA = ")
+            json.dump(output_data, f, ensure_ascii=False, indent=2)
+            f.write(";\n")
 
     print(f"\nGeneración completada en UNIDADES:")
     print(f"  * Total Estimación: {tot_est26:,.2f} u")

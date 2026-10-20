@@ -24,10 +24,16 @@ def get_latest_pedidos_file():
         f for f in os.listdir('.')
         if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
     ]
+    if os.path.exists('Pedidos') and os.path.isdir('Pedidos'):
+        candidates += [
+            os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
+            if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
+        ]
     if not candidates:
         return 'Pedidos 23.09 budget.xlsx'
     def sort_key(f):
-        m = re.search(r'(\d{1,2})\.(\d{1,2})', f)
+        base_f = os.path.basename(f)
+        m = re.search(r'(\d{1,2})\.(\d{1,2})', base_f)
         if m:
             return (int(m.group(2)), int(m.group(1)), os.path.getmtime(f))
         return (0, 0, os.path.getmtime(f))

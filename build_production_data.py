@@ -38,9 +38,15 @@ def get_latest_october_file():
         f for f in os.listdir('.')
         if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
     ]
+    if os.path.exists('Pedidos') and os.path.isdir('Pedidos'):
+        candidates += [
+            os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
+            if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
+        ]
     oct_candidates = []
     for f in candidates:
-        m = re.search(r'(\d{1,2})\.(\d{1,2})', f)
+        base_f = os.path.basename(f)
+        m = re.search(r'(\d{1,2})\.(\d{1,2})', base_f)
         if m:
             day, month = int(m.group(1)), int(m.group(2))
             if month == 10 and day >= 2:

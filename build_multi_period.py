@@ -26,6 +26,10 @@ def clean_budget_sku(row):
     return sku
 
 def safe_read_excel(filepath, sheet_name=0):
+    if not os.path.exists(filepath):
+        alt = os.path.join('Pedidos', os.path.basename(filepath))
+        if os.path.exists(alt):
+            filepath = alt
     try:
         return pd.read_excel(filepath, sheet_name=sheet_name)
     except Exception:
@@ -40,10 +44,16 @@ def get_latest_october_file():
         f for f in os.listdir('.')
         if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
     ]
+    if os.path.exists('Pedidos') and os.path.isdir('Pedidos'):
+        candidates += [
+            os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
+            if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
+        ]
     # October files have day 02 or higher of month 10
     oct_candidates = []
     for f in candidates:
-        m = re.search(r'(\d{1,2})\.(\d{1,2})', f)
+        base_f = os.path.basename(f)
+        m = re.search(r'(\d{1,2})\.(\d{1,2})', base_f)
         if m:
             day, month = int(m.group(1)), int(m.group(2))
             if month == 10 and day >= 2:
@@ -83,7 +93,13 @@ def load_data_sources():
     client_map[norm('TÉCNICAS AGRÍCOLAS, S.A.')] = 'Ricardo'
 
     # 2. Pedidos Septiembre (Cierre oficial Pedidos 01.10 comerciales.xlsx)
-    sep_file = 'Pedidos 01.10 comerciales.xlsx' if os.path.exists('Pedidos 01.10 comerciales.xlsx') else 'Pedidos 30.09 comerciales.xlsx'
+    sep_candidates = [
+        'Pedidos 01.10 comerciales.xlsx',
+        os.path.join('Pedidos', 'Pedidos 01.10 comerciales.xlsx'),
+        'Pedidos 30.09 comerciales.xlsx',
+        os.path.join('Pedidos', 'Pedidos 30.09 comerciales.xlsx'),
+    ]
+    sep_file = next((f for f in sep_candidates if os.path.exists(f)), 'Pedidos 01.10 comerciales.xlsx')
     df_ped_sep = safe_read_excel(sep_file)
     df_ped_sep['Cliente'] = df_ped_sep['Cliente'].apply(map_client_name)
     df_ped_sep['CLIENTE_NORM'] = df_ped_sep['Cliente'].apply(norm)

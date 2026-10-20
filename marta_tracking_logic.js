@@ -186,31 +186,75 @@
       </div>
 
       <!-- CLIENTS DETAIL SECTION EN UNIDADES -->
+    `;
+
+    // 1. Clientes base para el comercial seleccionado y búsqueda (sin filtrar todavía por valoración)
+    const baseClientsForCommercial = data.clientes.filter(c => {
+      if (selectedCommercial !== 'ALL' && c.comercial !== selectedCommercial) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const matchName = (c.cliente || '').toLowerCase().includes(q);
+        const matchPais = (c.pais || '').toLowerCase().includes(q);
+        const matchCom = (c.comercial || '').toLowerCase().includes(q);
+        if (!matchName && !matchPais && !matchCom) return false;
+      }
+      return true;
+    });
+
+    // 2. Conteo dinámico de clientes por estado según el comercial seleccionado
+    const dynamicCounts = {
+      'Ya cumplido': 0,
+      'Alcanzable': 0,
+      'Exigente': 0,
+      'Poco realista': 0,
+      'Sin base 2025': 0,
+      'Sin estimación': 0
+    };
+    baseClientsForCommercial.forEach(c => {
+      const v = c.valoracion || 'Sin estimación';
+      if (dynamicCounts[v] !== undefined) {
+        dynamicCounts[v]++;
+      } else {
+        dynamicCounts[v] = 1;
+      }
+    });
+
+    // 3. Clientes finales aplicando el filtro de valoración (si está activo)
+    const filteredClients = baseClientsForCommercial.filter(c => {
+      if (selectedValuation !== 'ALL' && c.valoracion !== selectedValuation) return false;
+      return true;
+    });
+
+    const headingLabel = selectedCommercial !== 'ALL'
+      ? `📋 Detalle de Clientes en Unidades (${baseClientsForCommercial.length} · ${selectedCommercial})`
+      : `📋 Detalle de Clientes en Unidades (${data.clientes.length})`;
+
+    html += `
       <div class="marta-clients-panel">
         <div class="panel-top-controls">
           <div class="controls-left">
-            <span class="panel-heading">📋 Detalle de Clientes en Unidades (114)</span>
+            <span class="panel-heading">${headingLabel}</span>
             <div class="valuation-chips-row">
               <button class="v-chip ${selectedValuation === 'ALL' ? 'active' : ''}" onclick="window.filterMartaValuation('ALL')">
-                Todos (${data.clientes.length})
+                Todos (${baseClientsForCommercial.length})
               </button>
               <button class="v-chip chip-achieved ${selectedValuation === 'Ya cumplido' ? 'active' : ''}" onclick="window.filterMartaValuation('Ya cumplido')">
-                🟢 Ya cumplido (${data.metadata.conteos_valoracion['Ya cumplido'] || 0})
+                🟢 Ya cumplido (${dynamicCounts['Ya cumplido'] || 0})
               </button>
               <button class="v-chip chip-achievable ${selectedValuation === 'Alcanzable' ? 'active' : ''}" onclick="window.filterMartaValuation('Alcanzable')">
-                🟢 Alcanzable (${data.metadata.conteos_valoracion['Alcanzable'] || 0})
+                🟢 Alcanzable (${dynamicCounts['Alcanzable'] || 0})
               </button>
               <button class="v-chip chip-demanding ${selectedValuation === 'Exigente' ? 'active' : ''}" onclick="window.filterMartaValuation('Exigente')">
-                🟡 Exigente (${data.metadata.conteos_valoracion['Exigente'] || 0})
+                🟡 Exigente (${dynamicCounts['Exigente'] || 0})
               </button>
               <button class="v-chip chip-unrealistic ${selectedValuation === 'Poco realista' ? 'active' : ''}" onclick="window.filterMartaValuation('Poco realista')">
-                🔴 Poco realista (${data.metadata.conteos_valoracion['Poco realista'] || 0})
+                🔴 Poco realista (${dynamicCounts['Poco realista'] || 0})
               </button>
               <button class="v-chip chip-neutral ${selectedValuation === 'Sin base 2025' ? 'active' : ''}" onclick="window.filterMartaValuation('Sin base 2025')">
-                ⚪ Sin base (${data.metadata.conteos_valoracion['Sin base 2025'] || 0})
+                ⚪ Sin base (${dynamicCounts['Sin base 2025'] || 0})
               </button>
               <button class="v-chip chip-no-est ${selectedValuation === 'Sin estimación' ? 'active' : ''}" onclick="window.filterMartaValuation('Sin estimación')">
-                ⚪ Sin ppto (${data.metadata.conteos_valoracion['Sin estimación'] || 0})
+                ⚪ Sin ppto (${dynamicCounts['Sin estimación'] || 0})
               </button>
             </div>
           </div>
@@ -247,20 +291,6 @@
             </thead>
             <tbody>
     `;
-
-    // Filtrar clientes
-    const filteredClients = data.clientes.filter(c => {
-      if (selectedCommercial !== 'ALL' && c.comercial !== selectedCommercial) return false;
-      if (selectedValuation !== 'ALL' && c.valoracion !== selectedValuation) return false;
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        const matchName = c.cliente.toLowerCase().includes(q);
-        const matchPais = c.pais.toLowerCase().includes(q);
-        const matchCom = c.comercial.toLowerCase().includes(q);
-        if (!matchName && !matchPais && !matchCom) return false;
-      }
-      return true;
-    });
 
     if (filteredClients.length === 0) {
       html += `<tr><td colspan="11" class="text-center py-6 text-muted">No se encontraron clientes con los filtros aplicados.</td></tr>`;
@@ -316,6 +346,7 @@
     } else {
       selectedCommercial = com;
     }
+    selectedValuation = 'ALL';
     renderTrackingDashboard();
   };
 

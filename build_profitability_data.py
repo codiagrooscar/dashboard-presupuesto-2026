@@ -598,62 +598,64 @@ def build_profitability_data():
     sku_comparador = defaultdict(list)
     cliente_detalle = defaultdict(lambda: {"2026": [], "2027": []})
     for (yr, s, c), d in ventas_por_sku_cliente.items():
-        v = round(d["ventas_eur"], 2)
-        u = round(d["uds"], 1)
-        cogs_tot = round(d["cogs_eur"], 2)
+        u_comm = d.get("uds_comercial", 0.0)
+        v_comm = d.get("ventas_comercial", 0.0)
+        c_comm = d.get("cogs_comercial", 0.0)
+        u_rap = d.get("uds_rappel", 0.0)
+        c_rap = d.get("cogs_rappel", 0.0)
         cogs_u = d["cogs_medio"]
         yr_str = str(yr)
         
-        # Si no hay facturación (precio venta = 0), es una entrega 100% de rappel/promoción en especie
-        if v <= 0:
-            pr_med = 0.0
-            # El margen en euros refleja el coste asumido por la empresa (-cogs) para que la suma del desglose concilie con el total del cliente
-            m_eur = round(v - cogs_tot, 2)
-            m_pct = -100.0 if cogs_tot > 0 else 0.0
-            es_perdida = (cogs_tot > 0)
-            es_rappel = True
-            sem = "RAPPEL"
-        else:
-            # Ventas comerciales facturadas (con o sin rappel promediado en el año)
-            pr_med = round(v / u, 2) if u > 0 else 0.0
-            m_eur = round(v - cogs_tot, 2)
-            m_pct = round((m_eur / v * 100), 1) if v > 0 else 0.0
+        # Las unidades a coste 0 / bonificaciones no computan para el precio de venta ni para el margen comercial
+        if u_comm > 0 and v_comm > 0:
+            pr_med = round(v_comm / u_comm, 2)
+            m_eur = round(v_comm - c_comm, 2)
+            m_pct = round((m_eur / v_comm * 100), 1)
             es_perdida = (pr_med < cogs_u) and (cogs_u > 0)
             sem = "ROJO" if (m_pct < 60.0 or m_eur < 0) else ("AMARILLO" if m_pct <= 66.0 else "VERDE")
             es_rappel = False
+            u_show = round(u_comm, 1)
+            v_show = round(v_comm, 2)
+            c_show = round(c_comm, 2)
+        else:
+            # Entrega 100% de bonificación / rappel a coste/precio 0
+            pr_med = 0.0
+            m_eur = round(-c_rap, 2)
+            m_pct = 0.0
+            es_perdida = False
+            es_rappel = True
+            sem = "RAPPEL"
+            u_show = round(u_rap, 1)
+            v_show = 0.0
+            c_show = round(c_rap, 2)
+        
+        comp_item = {
+            "cliente": c,
+            "pais": d["pais"],
+            "comercial": d["comercial"],
+            "uds": u_show,
+            "uds_comercial": round(u_comm, 1),
+            "uds_rappel": round(u_rap, 1),
+            "precio_medio": pr_med,
+            "cogs_medio": cogs_u,
+            "ventas_eur": v_show,
+            "cogs_eur": c_show,
+            "cogs_rappel": round(c_rap, 2),
+            "margen_eur": m_eur,
+            "margen_pct": m_pct,
+            "es_perdida": es_perdida,
+            "es_rappel": es_rappel,
+            "semaforo": sem
+        }
         
         if yr == 2027:
-            sku_comparador[s].append({
-                "cliente": c,
-                "pais": d["pais"],
-                "comercial": d["comercial"],
-                "uds": u,
-                "precio_medio": pr_med,
-                "cogs_medio": cogs_u,
-                "ventas_eur": v,
-                "cogs_eur": cogs_tot,
-                "margen_eur": m_eur,
-                "margen_pct": m_pct,
-                "es_perdida": es_perdida,
-                "es_rappel": es_rappel,
-                "semaforo": sem
-            })
+            sku_comparador[s].append(comp_item)
         
         if yr_str in ["2026", "2027"]:
-            cliente_detalle[c][yr_str].append({
-                "sku": s,
-                "desc": d["desc"],
-                "uds": u,
-                "precio_medio": pr_med,
-                "cogs_medio": cogs_u,
-                "ventas_eur": v,
-                "cogs_eur": cogs_tot,
-                "margen_eur": m_eur,
-                "margen_pct": m_pct,
-                "es_perdida": es_perdida,
-                "es_rappel": es_rappel,
-                "semaforo": sem
-            })
+            det_item = dict(comp_item)
+            det_item["sku"] = s
+            det_item["desc"] = d["desc"]
+            cliente_detalle[c][yr_str].append(det_item)
 
     for s in sku_comparador:
         sku_comparador[s].sort(key=lambda x: x["ventas_eur"], reverse=True)

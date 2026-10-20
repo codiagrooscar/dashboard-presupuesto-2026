@@ -854,7 +854,10 @@ function openProfitClientModal(clientName, targetYear) {
                   <tr style="${isLoss ? 'background:rgba(239,68,68,0.1)' : (isRappel ? 'background:rgba(168,85,247,0.06)' : '')}">
                     <td><strong style="color:#38bdf8; font-family:monospace">${s.sku}</strong></td>
                     <td style="font-weight:500">${s.desc}</td>
-                    <td style="text-align:right; font-weight:600">${fmtNumLocal(s.uds)}</td>
+                    <td style="text-align:right; font-weight:600">
+                      ${fmtNumLocal(s.uds)}
+                      ${s.uds_rappel > 0 ? `<div style="font-size:0.68rem; color:#c084fc; font-weight:700" title="${fmtNumLocal(s.uds_rappel)} unidades bonificadas a coste 0 (no diluyen precio ni margen)">🎁 +${fmtNumLocal(s.uds_rappel)} bonif.</div>` : ''}
+                    </td>
                     <td style="text-align:right; font-weight:700; color:#fff">${isRappel ? '<span style="color:#c084fc; font-weight:600">0,00 €</span>' : fmtEur(s.precio_medio)}</td>
                     <td style="text-align:right; color:#94a3b8">${fmtEur(s.cogs_medio)}</td>
                     <td style="text-align:right; font-weight:600">${fmtEur(s.ventas_eur)}</td>
@@ -1288,7 +1291,10 @@ function renderProfitComparadorView() {
                     <td><strong style="color:#fff">${cl.cliente}</strong></td>
                     <td><span style="font-size:0.78rem">${cl.pais}</span></td>
                     <td><strong class="tag-commercial">${cl.comercial}</strong></td>
-                    <td style="text-align:right; font-weight:600">${fmtNumLocal(cl.uds)}</td>
+                    <td style="text-align:right; font-weight:600">
+                      ${fmtNumLocal(cl.uds)}
+                      ${cl.uds_rappel > 0 ? `<div style="font-size:0.68rem; color:#c084fc; font-weight:700" title="${fmtNumLocal(cl.uds_rappel)} unidades bonificadas a coste 0 (no diluyen precio ni margen)">🎁 +${fmtNumLocal(cl.uds_rappel)} bonif.</div>` : ''}
+                    </td>
                     <td style="text-align:right; font-weight:700; color:#fff">${isRappel ? '<span style="color:#c084fc; font-weight:600">0,00 €</span>' : fmtEur(cl.precio_medio)}</td>
                     <td style="text-align:center">${tarifaBadge}</td>
                     <td style="text-align:right; color:#94a3b8">${fmtEur(cl.cogs_medio)}</td>

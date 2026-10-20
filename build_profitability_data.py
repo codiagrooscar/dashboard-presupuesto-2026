@@ -45,47 +45,67 @@ def build_profitability_data():
             "pais": pais,
             "form_med": round(form_med, 4),
             "pkg_med": round(pkg_med, 4),
-            "cogs_medio": round(tot_med, 4),
+            "cogs_medio": round(form_med + pkg_med, 4),
             "form_max": round(form_max, 4),
             "pkg_max": round(pkg_max, 4),
-            "cogs_max": round(tot_max, 4),
+            "cogs_max": round(form_max + pkg_max, 4),
             "estado": estado
         }
 
     print(f"Total SKUs con costes cargados: {len(costes_map)}")
 
-    # Mapeos directos de variantes conocidas
+    # Mapeos directos de variantes conocidas y códigos comerciales
     equivalencias = {
         "A-50TR": "A-50BBTR",
         "SPCE20001CR": "SPCE0001CR",
         "SPCE20005CR": "SPCE0005CR",
         "A-50BB": "A-50BBTR",
+        "AGXKAEP0001": "AGXKAE0001RO",
     }
 
-    def get_cogs(sku_code, pais_code=""):
+    def get_cogs(sku_code, pais_code="", desc_text=""):
         sku_clean = str(sku_code).strip().upper()
+        p_up = pais_code.strip().upper()
+        d_up = str(desc_text).strip().upper()
+
+        # Corrección de códigos huérfanos específicos (ej. Azerbaiyán)
+        if sku_clean == 'NAZ':
+            if 'AMINO' in d_up:
+                sku_clean = 'AMGF0001AZ'
+            elif 'AQUOM' in d_up:
+                sku_clean = 'AQUOM0005'
+
         if sku_clean in equivalencias:
             sku_clean = equivalencias[sku_clean]
         
         if sku_clean in costes_map:
             return costes_map[sku_clean]
 
-        # Si no está directo, buscar combinación SKU base + Sufijo país
-        p_up = pais_code.strip().upper()
-        # Intentar buscar variaciones que comiencen con sku_clean
+        # Si no está directo, buscar candidatos por coincidencia de prefijo
         candidatos = [c for c in costes_map.keys() if c.startswith(sku_clean) or sku_clean.startswith(c)]
         if candidatos:
-            # Si hay uno cuyo país coincida
+            # 1. Prioridad: Coincidencia exacta de país
             for c in candidatos:
                 if costes_map[c]["pais"] == p_up:
                     return costes_map[c]
+            # 2. Prioridad: Estándar nacional (ESPAÑA) para no arrastrar costes de exportación
+            for c in candidatos:
+                if costes_map[c]["pais"] == 'ESPAÑA':
+                    return costes_map[c]
+            # 3. Primer candidato disponible
             return costes_map[candidatos[0]]
             
         return None
 
     print("\n=== 2. Procesando Ventas Reales y Presupuesto (Presupuesto_Ventas_2027_Definitivo.xlsx) ===")
     p_path = "Presupuesto_Ventas_2027_Definitivo.xlsx"
-    wb_p = openpyxl.load_workbook(p_path, data_only=True)
+    try:
+        wb_p = openpyxl.load_workbook(p_path, data_only=True)
+    except PermissionError:
+        import subprocess
+        temp_p = "temp_safe_read_profit.xlsx"
+        subprocess.run(['powershell', '-Command', 'Copy-Item', p_path, temp_p, '-Force'], check=True)
+        wb_p = openpyxl.load_workbook(temp_p, data_only=True)
     ws_p = wb_p['Detalle Líneas Clasificadas']
 
     header = [cell.value for cell in ws_p[1]]
@@ -112,6 +132,9 @@ def build_profitability_data():
         "cliente": "", "pais": "", "comercial": "", "clasif": "",
         "ventas_2026": 0.0, "cogs_2026": 0.0, "uds_2026": 0.0,
         "ventas_2027": 0.0, "cogs_2027": 0.0, "uds_2027": 0.0,
+        "cogs_comercial_2026": 0.0, "cogs_comercial_2027": 0.0,
+        "cogs_rappel_2026": 0.0, "cogs_rappel_2027": 0.0,
+        "uds_rappel_2026": 0.0, "uds_rappel_2027": 0.0,
         "skus_comprados": set(), "lineas_peligro": 0
     })
 
@@ -171,7 +194,9 @@ def build_profitability_data():
         if uds <= 0 and imp_venta <= 0:
             continue
 
-        cogs_info = get_cogs(sku, pais)
+        es_rappel = (pr_unit == 0.0 and uds > 0)
+
+        cogs_info = get_cogs(sku, pais, desc)
         cogs_u = cogs_info["cogs_medio"] if cogs_info else 0.0
         form_u = cogs_info["form_med"] if cogs_info else 0.0
         pkg_u = cogs_info["pkg_med"] if cogs_info else 0.0
@@ -183,14 +208,17 @@ def build_profitability_data():
         # Rojo: < 60%
         # Amarillo: 60% a 66%
         # Verde: > 66%
-        if margen_pct < 60.0 or margen_eur < 0:
-            semaforo = "ROJO"
-        elif 60.0 <= margen_pct <= 66.0:
-            semaforo = "AMARILLO"
+        if es_rappel:
+            semaforo = "RAPPEL"
+            es_perdida = False
         else:
-            semaforo = "VERDE"
-
-        es_perdida = (pr_unit < cogs_u) and (cogs_u > 0)
+            if margen_pct < 60.0 or margen_eur < 0:
+                semaforo = "ROJO"
+            elif 60.0 <= margen_pct <= 66.0:
+                semaforo = "AMARILLO"
+            else:
+                semaforo = "VERDE"
+            es_perdida = (pr_unit < cogs_u) and (cogs_u > 0)
 
         # Formato agrupado (20L/Kg, 5L/Kg, 1L/Kg, IBC/Granel, etc.)
         if env_val >= 900:
@@ -217,11 +245,23 @@ def build_profitability_data():
             c_entry["ventas_2026"] += imp_venta
             c_entry["cogs_2026"] += cogs_total
             c_entry["uds_2026"] += uds
+            if es_rappel:
+                c_entry["cogs_rappel_2026"] += cogs_total
+                c_entry["uds_rappel_2026"] += uds
+            else:
+                c_entry["cogs_comercial_2026"] += cogs_total
         else:
             c_entry["ventas_2027"] += imp_venta
             c_entry["cogs_2027"] += cogs_total
             c_entry["uds_2027"] += uds
-        if semaforo == "ROJO":
+            if es_rappel:
+                c_entry["cogs_rappel_2027"] += cogs_total
+                c_entry["uds_rappel_2027"] += uds
+            else:
+                c_entry["cogs_comercial_2027"] += cogs_total
+
+        # Solo ventas comerciales bajo tarifa pueden ser línea de peligro
+        if semaforo == "ROJO" and not es_rappel:
             c_entry["lineas_peligro"] += 1
 
         # Acumular producto
@@ -239,10 +279,16 @@ def build_profitability_data():
             p_entry["ventas_2026"] += imp_venta
             p_entry["cogs_2026"] += cogs_total
             p_entry["uds_2026"] += uds
+            if es_rappel:
+                p_entry["cogs_rappel_2026"] = p_entry.get("cogs_rappel_2026", 0.0) + cogs_total
+                p_entry["uds_rappel_2026"] = p_entry.get("uds_rappel_2026", 0.0) + uds
         else:
             p_entry["ventas_2027"] += imp_venta
             p_entry["cogs_2027"] += cogs_total
             p_entry["uds_2027"] += uds
+            if es_rappel:
+                p_entry["cogs_rappel_2027"] = p_entry.get("cogs_rappel_2027", 0.0) + cogs_total
+                p_entry["uds_rappel_2027"] = p_entry.get("uds_rappel_2027", 0.0) + uds
 
         # Acumular comercial
         com_entry = ventas_por_comercial[com]
@@ -257,7 +303,7 @@ def build_profitability_data():
             com_entry["ventas_2027"] += imp_venta
             com_entry["cogs_2027"] += cogs_total
             com_entry["uds_2027"] += uds
-        if semaforo == "ROJO":
+        if semaforo == "ROJO" and not es_rappel:
             com_entry["lineas_rojas"] += 1
 
         # Acumular país
@@ -287,22 +333,29 @@ def build_profitability_data():
             fmt_entry["cogs_2027"] += cogs_total
             fmt_entry["uds_2027"] += uds
 
-        # Acumular detalle por combinación (SKU, Cliente) para 2027
-        if year == 2027:
-            pair_key = (sku, client)
-            pair_entry = ventas_por_sku_cliente[pair_key]
-            pair_entry["sku"] = sku
-            pair_entry["desc"] = desc
-            pair_entry["cliente"] = client
-            pair_entry["pais"] = pais
-            pair_entry["comercial"] = com
-            pair_entry["uds_2027"] += uds
-            pair_entry["ventas_2027"] += imp_venta
-            pair_entry["cogs_2027"] += cogs_total
-            pair_entry["cogs_medio"] = cogs_u
+        # Acumular detalle por combinación (Año, SKU, Cliente)
+        pair_key = (year, sku, client)
+        pair_entry = ventas_por_sku_cliente[pair_key]
+        pair_entry["year"] = year
+        pair_entry["sku"] = sku
+        pair_entry["desc"] = desc
+        pair_entry["cliente"] = client
+        pair_entry["pais"] = pais
+        pair_entry["comercial"] = com
+        pair_entry["uds"] = pair_entry.get("uds", 0.0) + uds
+        pair_entry["ventas_eur"] = pair_entry.get("ventas_eur", 0.0) + imp_venta
+        pair_entry["cogs_eur"] = pair_entry.get("cogs_eur", 0.0) + cogs_total
+        pair_entry["cogs_medio"] = cogs_u
+        if es_rappel:
+            pair_entry["uds_rappel"] = pair_entry.get("uds_rappel", 0.0) + uds
+            pair_entry["cogs_rappel"] = pair_entry.get("cogs_rappel", 0.0) + cogs_total
+        else:
+            pair_entry["uds_comercial"] = pair_entry.get("uds_comercial", 0.0) + uds
+            pair_entry["ventas_comercial"] = pair_entry.get("ventas_comercial", 0.0) + imp_venta
+            pair_entry["cogs_comercial"] = pair_entry.get("cogs_comercial", 0.0) + cogs_total
 
-        # Alerta para el Radar (solo si es pérdida o margen < 60%)
-        if semaforo == "ROJO" and imp_venta > 0:
+        # Alerta para el Radar (solo si es pérdida o margen < 60% en ventas comerciales regulares)
+        if semaforo == "ROJO" and not es_rappel and imp_venta > 0:
             radar_alertas.append({
                 "year": year,
                 "mes": mes,
@@ -329,32 +382,39 @@ def build_profitability_data():
     for c_name, d in ventas_por_cliente.items():
         v26 = round(d["ventas_2026"], 2)
         c26 = round(d["cogs_2026"], 2)
+        c26_comm = round(d["cogs_comercial_2026"], 2)
+        c26_rap = round(d["cogs_rappel_2026"], 2)
         m26_eur = round(v26 - c26, 2)
         m26_pct = round((m26_eur / v26 * 100), 1) if v26 > 0 else 0.0
+        m26_comm_eur = round(v26 - c26_comm, 2)
+        m26_comm_pct = round((m26_comm_eur / v26 * 100), 1) if v26 > 0 else 0.0
 
         v27 = round(d["ventas_2027"], 2)
         c27 = round(d["cogs_2027"], 2)
+        c27_comm = round(d["cogs_comercial_2027"], 2)
+        c27_rap = round(d["cogs_rappel_2027"], 2)
         m27_eur = round(v27 - c27, 2)
         m27_pct = round((m27_eur / v27 * 100), 1) if v27 > 0 else 0.0
+        m27_comm_eur = round(v27 - c27_comm, 2)
+        m27_comm_pct = round((m27_comm_eur / v27 * 100), 1) if v27 > 0 else 0.0
 
-        # Clasificación matriz estratégica
-        # Alto volumen: > 50.000 €; Alto margen: > 66%
+        # Clasificación matriz estratégica y semáforo comercial sobre ventas efectivas
         v_ref = v27 if v27 > 0 else v26
-        m_ref = m27_pct if v27 > 0 else m26_pct
-        if v_ref >= 50000 and m_ref >= 66.0:
+        m_ref_comm = m27_comm_pct if v27 > 0 else m26_comm_pct
+        if v_ref >= 50000 and m_ref_comm >= 66.0:
             matriz = "Estrella (Alto Vol. / Alto Margen)"
-        elif v_ref >= 50000 and m_ref < 60.0:
+        elif v_ref >= 50000 and m_ref_comm < 60.0:
             matriz = "Volumen de Riesgo (Alto Vol. / Bajo Margen)"
         elif v_ref >= 50000:
             matriz = "Core Estable (Alto Vol. / Margen Medio)"
-        elif v_ref < 50000 and m_ref >= 66.0:
+        elif v_ref < 50000 and m_ref_comm >= 66.0:
             matriz = "Boutique / Potencial (Bajo Vol. / Alto Margen)"
-        elif v_ref < 50000 and m_ref < 60.0:
+        elif v_ref < 50000 and m_ref_comm < 60.0:
             matriz = "Crítico / Déficit (Bajo Vol. / Bajo Margen)"
         else:
             matriz = "Desarrollo (Margen Medio)"
 
-        sem_cl = "ROJO" if m_ref < 60.0 else ("AMARILLO" if m_ref <= 66.0 else "VERDE")
+        sem_cl = "ROJO" if m_ref_comm < 60.0 else ("AMARILLO" if m_ref_comm <= 66.0 else "VERDE")
 
         clientes_list.append({
             "cliente": c_name,
@@ -364,12 +424,22 @@ def build_profitability_data():
             "skus_count": len(d["skus_comprados"]),
             "ventas_2026": v26,
             "cogs_2026": c26,
+            "cogs_comercial_2026": c26_comm,
+            "cogs_rappel_2026": c26_rap,
+            "uds_rappel_2026": round(d["uds_rappel_2026"], 1),
             "margen_2026_eur": m26_eur,
             "margen_2026_pct": m26_pct,
+            "margen_comercial_2026_eur": m26_comm_eur,
+            "margen_comercial_2026_pct": m26_comm_pct,
             "ventas_2027": v27,
             "cogs_2027": c27,
+            "cogs_comercial_2027": c27_comm,
+            "cogs_rappel_2027": c27_rap,
+            "uds_rappel_2027": round(d["uds_rappel_2027"], 1),
             "margen_2027_eur": m27_eur,
             "margen_2027_pct": m27_pct,
+            "margen_comercial_2027_eur": m27_comm_eur,
+            "margen_comercial_2027_pct": m27_comm_pct,
             "matriz_estrategica": matriz,
             "semaforo": sem_cl,
             "lineas_peligro": d["lineas_peligro"]
@@ -510,51 +580,69 @@ def build_profitability_data():
 
     # Construir sku_comparador y cliente_detalle para drilldown y comparativa
     sku_comparador = defaultdict(list)
-    cliente_detalle = defaultdict(list)
-    for (s, c), d in ventas_por_sku_cliente.items():
-        v27 = round(d["ventas_2027"], 2)
-        u27 = round(d["uds_2027"], 1)
-        c27 = round(d["cogs_2027"], 2)
-        pr_med = round(v27 / u27, 2) if u27 > 0 else 0.0
-        m_eur = round(v27 - c27, 2)
-        m_pct = round((m_eur / v27 * 100), 1) if v27 > 0 else 0.0
+    cliente_detalle = defaultdict(lambda: {"2026": [], "2027": []})
+    for (yr, s, c), d in ventas_por_sku_cliente.items():
+        v = round(d["ventas_eur"], 2)
+        u = round(d["uds"], 1)
+        cogs_tot = round(d["cogs_eur"], 2)
         cogs_u = d["cogs_medio"]
-        es_perdida = (pr_med < cogs_u) and (cogs_u > 0)
-        sem = "ROJO" if (m_pct < 60.0 or m_eur < 0) else ("AMARILLO" if m_pct <= 66.0 else "VERDE")
+        yr_str = str(yr)
         
-        sku_comparador[s].append({
-            "cliente": c,
-            "pais": d["pais"],
-            "comercial": d["comercial"],
-            "uds": u27,
-            "precio_medio": pr_med,
-            "cogs_medio": cogs_u,
-            "ventas_eur": v27,
-            "cogs_eur": c27,
-            "margen_eur": m_eur,
-            "margen_pct": m_pct,
-            "es_perdida": es_perdida,
-            "semaforo": sem
-        })
+        # Si no hay facturación (precio venta = 0), es una entrega 100% de rappel/promoción en especie
+        if v <= 0:
+            pr_med = 0.0
+            m_eur = 0.0
+            m_pct = 0.0
+            es_perdida = False
+            es_rappel = True
+            sem = "RAPPEL"
+        else:
+            # Ventas comerciales facturadas (con o sin rappel promediado en el año)
+            pr_med = round(v / u, 2) if u > 0 else 0.0
+            m_eur = round(v - cogs_tot, 2)
+            m_pct = round((m_eur / v * 100), 1) if v > 0 else 0.0
+            es_perdida = (pr_med < cogs_u) and (cogs_u > 0)
+            sem = "ROJO" if (m_pct < 60.0 or m_eur < 0) else ("AMARILLO" if m_pct <= 66.0 else "VERDE")
+            es_rappel = False
         
-        cliente_detalle[c].append({
-            "sku": s,
-            "desc": d["desc"],
-            "uds": u27,
-            "precio_medio": pr_med,
-            "cogs_medio": cogs_u,
-            "ventas_eur": v27,
-            "cogs_eur": c27,
-            "margen_eur": m_eur,
-            "margen_pct": m_pct,
-            "es_perdida": es_perdida,
-            "semaforo": sem
-        })
+        if yr == 2027:
+            sku_comparador[s].append({
+                "cliente": c,
+                "pais": d["pais"],
+                "comercial": d["comercial"],
+                "uds": u,
+                "precio_medio": pr_med,
+                "cogs_medio": cogs_u,
+                "ventas_eur": v,
+                "cogs_eur": cogs_tot,
+                "margen_eur": m_eur,
+                "margen_pct": m_pct,
+                "es_perdida": es_perdida,
+                "es_rappel": es_rappel,
+                "semaforo": sem
+            })
+        
+        if yr_str in ["2026", "2027"]:
+            cliente_detalle[c][yr_str].append({
+                "sku": s,
+                "desc": d["desc"],
+                "uds": u,
+                "precio_medio": pr_med,
+                "cogs_medio": cogs_u,
+                "ventas_eur": v,
+                "cogs_eur": cogs_tot,
+                "margen_eur": m_eur,
+                "margen_pct": m_pct,
+                "es_perdida": es_perdida,
+                "es_rappel": es_rappel,
+                "semaforo": sem
+            })
 
     for s in sku_comparador:
         sku_comparador[s].sort(key=lambda x: x["ventas_eur"], reverse=True)
     for c in cliente_detalle:
-        cliente_detalle[c].sort(key=lambda x: x["ventas_eur"], reverse=True)
+        for y in cliente_detalle[c]:
+            cliente_detalle[c][y].sort(key=lambda x: x["ventas_eur"], reverse=True)
 
     # Totales globales de la empresa
     tot_v26 = sum(c["ventas_2026"] for c in clientes_list)

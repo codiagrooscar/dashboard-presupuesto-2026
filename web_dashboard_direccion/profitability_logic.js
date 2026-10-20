@@ -737,39 +737,90 @@ function getSortIcon(col, currentCol, currentOrder) {
 }
 
 // Modal Drilldown de Cliente
-function openProfitClientModal(clientName) {
+let profitClientModalYear = '2026';
+
+function openProfitClientModal(clientName, targetYear) {
+  if (targetYear) {
+    profitClientModalYear = targetYear;
+  }
+  const yr = profitClientModalYear || '2026';
+  const is2026 = (yr === '2026');
+
   const detalleMap = profitData.cliente_detalle || {};
-  const skus = detalleMap[clientName] || [];
+  const clientDetalleObj = detalleMap[clientName] || {};
+  const skus = Array.isArray(clientDetalleObj)
+    ? clientDetalleObj
+    : (clientDetalleObj[yr] || clientDetalleObj['2026'] || []);
+
   const clientObj = profitData.clientes.find(c => c.cliente === clientName) || {};
 
   const overlay = document.getElementById('profitClientModalOverlay');
   const body = document.getElementById('profitClientModalBody');
   if (!overlay || !body) return;
 
+  // Cifras según el año activo (2026 Real vs 2027 Presupuesto)
+  const facturacion = is2026 ? clientObj.ventas_2026 : clientObj.ventas_2027;
+  const mComEur = is2026 ? (clientObj.margen_comercial_2026_eur || clientObj.margen_2026_eur) : (clientObj.margen_comercial_2027_eur || clientObj.margen_2027_eur);
+  const mComPct = is2026 ? (clientObj.margen_comercial_2026_pct || clientObj.margen_2026_pct) : (clientObj.margen_comercial_2027_pct || clientObj.margen_2027_pct);
+  const cogsRappel = is2026 ? clientObj.cogs_rappel_2026 : clientObj.cogs_rappel_2027;
+  const mNetEur = is2026 ? clientObj.margen_2026_eur : clientObj.margen_2027_eur;
+  const mNetPct = is2026 ? clientObj.margen_2026_pct : clientObj.margen_2027_pct;
+
+  // Semáforo según año
+  const semYear = is2026
+    ? (mComPct < 60 ? 'ROJO' : (mComPct <= 66 ? 'AMARILLO' : 'VERDE'))
+    : (clientObj.semaforo || 'VERDE');
+
+  const semBadge = semYear === 'ROJO' ? 'badge-danger' : (semYear === 'AMARILLO' ? 'badge-warning' : 'badge-success');
+
   body.innerHTML = `
-    <div style="padding:1.25rem 1.75rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; background:rgba(15,23,42,0.8)">
+    <div style="padding:1.25rem 1.75rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; background:rgba(15,23,42,0.85); flex-wrap:wrap; gap:1rem">
       <div>
-        <div style="display:flex; align-items:center; gap:0.6rem">
+        <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap">
           <span style="font-size:1.3rem">👤</span>
           <h2 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">${clientName}</h2>
-          <span class="tab-badge badge-${clientObj.semaforo === 'ROJO' ? 'danger' : (clientObj.semaforo === 'AMARILLO' ? 'warning' : 'success')}">
-            ${clientObj.semaforo} (${clientObj.margen_2027_pct}%)
+          <span class="tab-badge ${semBadge}">
+            ${semYear} (${mComPct}%)
           </span>
         </div>
-        <div style="font-size:0.83rem; color:var(--muted); margin-top:0.25rem">
+        <div style="font-size:0.83rem; color:var(--muted); margin-top:0.35rem; display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center">
           <span>País: <strong>${clientObj.pais}</strong></span> &bull;
           <span>Comercial: <strong>${clientObj.comercial}</strong></span> &bull;
-          <span>Facturación 2027: <strong>${fmtEur(clientObj.ventas_2027)}</strong></span> &bull;
-          <span>Margen Bruto: <strong style="color:#34d399">${fmtEur(clientObj.margen_2027_eur)}</strong></span>
+          <span>Facturación ${yr}: <strong>${fmtEur(facturacion)}</strong></span> &bull;
+          <span>Margen Comercial: <strong style="color:#34d399">${fmtEur(mComEur)} (${mComPct}%)</strong></span>
+          ${cogsRappel > 0 ? ` &bull; <span>Previsión Rappels en Especie: <strong style="color:#c084fc">(${fmtEur(cogsRappel)})</strong></span> &bull; <span>Margen Neto Tras Rappels: <strong style="color:#94a3b8">${fmtEur(mNetEur)} (${mNetPct}%)</strong></span>` : ''}
         </div>
       </div>
-      <button onclick="closeProfitClientModal()" style="background:transparent; border:none; color:var(--muted); font-size:1.6rem; cursor:pointer">&times;</button>
+
+      <div style="display:flex; align-items:center; gap:0.75rem">
+        <!-- SELECTOR DE AÑO -->
+        <div style="display:inline-flex; background:rgba(30,41,59,0.8); padding:0.25rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); gap:0.3rem">
+          <button 
+            type="button"
+            onclick="openProfitClientModal('${clientName.replace(/'/g, "\\'")}', '2026')"
+            style="background:${is2026 ? 'linear-gradient(135deg, #0ea5e9, #0284c7)' : 'transparent'}; color:${is2026 ? '#fff' : 'var(--muted)'}; border:none; padding:0.35rem 0.85rem; border-radius:var(--radius-xs); font-size:0.8rem; font-weight:700; cursor:pointer; box-shadow:${is2026 ? '0 2px 8px rgba(14,165,233,0.4)' : 'none'}; transition:all 0.15s ease"
+          >
+            📅 2026 Real
+          </button>
+          <button 
+            type="button"
+            onclick="openProfitClientModal('${clientName.replace(/'/g, "\\'")}', '2027')"
+            style="background:${!is2026 ? 'linear-gradient(135deg, #0ea5e9, #0284c7)' : 'transparent'}; color:${!is2026 ? '#fff' : 'var(--muted)'}; border:none; padding:0.35rem 0.85rem; border-radius:var(--radius-xs); font-size:0.8rem; font-weight:700; cursor:pointer; box-shadow:${!is2026 ? '0 2px 8px rgba(14,165,233,0.4)' : 'none'}; transition:all 0.15s ease"
+          >
+            📅 2027 Presupuesto
+          </button>
+        </div>
+
+        <button onclick="closeProfitClientModal()" style="background:transparent; border:none; color:var(--muted); font-size:1.6rem; cursor:pointer; line-height:1">&times;</button>
+      </div>
     </div>
 
     <div style="padding:1rem 1.75rem; overflow-y:auto; max-height:calc(85vh - 120px)">
-      <div style="margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center">
-        <h4 style="margin:0; color:#cbd5e1; font-size:0.95rem">Desglose de SKUs Presupuestados para 2027 (${skus.length} productos)</h4>
-        <span style="font-size:0.75rem; color:var(--muted)">Semáforo: Rojo &lt;60% | Amarillo 60-66% | Verde &gt;66%</span>
+      <div style="margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem">
+        <h4 style="margin:0; color:#cbd5e1; font-size:0.95rem">
+          Desglose de SKUs ${is2026 ? 'Reales de 2026' : 'Presupuestados para 2027'} (${skus.length} productos)
+        </h4>
+        <span style="font-size:0.75rem; color:var(--muted)">Semáforo: Rojo &lt;60% | Amarillo 60-66% | Verde &gt;66% | 🎁 Previsión Rappel en Especie</span>
       </div>
 
       <div class="table-card">
@@ -782,33 +833,34 @@ function openProfitClientModal(clientName) {
                 <th style="text-align:right; width:85px">Unidades</th>
                 <th style="text-align:right; width:95px">Pr. Venta</th>
                 <th style="text-align:right; width:95px">COGS Medio</th>
-                <th style="text-align:right; width:110px">Venta 2027</th>
+                <th style="text-align:right; width:110px">Venta ${yr}</th>
                 <th style="text-align:right; width:110px">Margen €</th>
                 <th style="text-align:right; width:95px">Margen %</th>
-                <th style="text-align:center; width:100px">Semáforo</th>
+                <th style="text-align:center; width:120px">Semáforo</th>
               </tr>
             </thead>
             <tbody>
               ${skus.length === 0 ? `
-                <tr><td colspan="9" style="text-align:center; padding:2rem; color:var(--muted)">Sin productos registrados para 2027.</td></tr>
+                <tr><td colspan="9" style="text-align:center; padding:2rem; color:var(--muted)">Sin productos registrados para ${yr}.</td></tr>
               ` : skus.map(s => {
-                const isLoss = s.es_perdida;
-                const mColor = isLoss ? '#f87171' : (s.margen_pct < 60 ? '#fb923c' : (s.margen_pct <= 66 ? '#fbbf24' : '#34d399'));
-                const semBadge = s.semaforo === 'ROJO' ? 'badge-danger' : (s.semaforo === 'AMARILLO' ? 'badge-warning' : 'badge-success');
+                const isRappel = s.es_rappel || s.semaforo === 'RAPPEL' || s.precio_medio === 0;
+                const isLoss = !isRappel && s.es_perdida;
+                const mColor = isRappel ? '#c084fc' : (isLoss ? '#f87171' : (s.margen_pct < 60 ? '#fb923c' : (s.margen_pct <= 66 ? '#fbbf24' : '#34d399')));
+                const semBadge = isRappel ? 'badge-info' : (s.semaforo === 'ROJO' ? 'badge-danger' : (s.semaforo === 'AMARILLO' ? 'badge-warning' : 'badge-success'));
 
                 return `
-                  <tr style="${isLoss ? 'background:rgba(239,68,68,0.1)' : ''}">
+                  <tr style="${isLoss ? 'background:rgba(239,68,68,0.1)' : (isRappel ? 'background:rgba(168,85,247,0.06)' : '')}">
                     <td><strong style="color:#38bdf8; font-family:monospace">${s.sku}</strong></td>
                     <td style="font-weight:500">${s.desc}</td>
                     <td style="text-align:right; font-weight:600">${fmtNumLocal(s.uds)}</td>
-                    <td style="text-align:right; font-weight:700; color:#fff">${fmtEur(s.precio_medio)}</td>
+                    <td style="text-align:right; font-weight:700; color:#fff">${isRappel ? '<span style="color:#c084fc; font-weight:600">0,00 €</span>' : fmtEur(s.precio_medio)}</td>
                     <td style="text-align:right; color:#94a3b8">${fmtEur(s.cogs_medio)}</td>
                     <td style="text-align:right; font-weight:600">${fmtEur(s.ventas_eur)}</td>
-                    <td style="text-align:right; font-weight:700; color:${mColor}">${fmtEur(s.margen_eur)}</td>
-                    <td style="text-align:right; font-weight:800; color:${mColor}">${s.margen_pct}%</td>
+                    <td style="text-align:right; font-weight:700; color:${mColor}">${isRappel ? `<span style="color:#c084fc; font-size:0.8rem" title="Coste COGS del rappel en especie">(${fmtEur(s.cogs_eur)})</span>` : fmtEur(s.margen_eur)}</td>
+                    <td style="text-align:right; font-weight:800; color:${mColor}">${isRappel ? '<span style="color:#c084fc">—</span>' : `${s.margen_pct}%`}</td>
                     <td style="text-align:center">
-                      <span class="tab-badge ${semBadge}" style="font-size:0.7rem; font-weight:800">
-                        ${isLoss ? '🔴 Pérdida' : (s.semaforo === 'ROJO' ? '🔴 &lt;60%' : (s.semaforo === 'AMARILLO' ? '🟡 60-66%' : '🟢 &gt;66%'))}
+                      <span class="tab-badge ${semBadge}" style="font-size:0.7rem; font-weight:800; ${isRappel ? 'background:rgba(168,85,247,0.2); color:#c084fc; border:1px solid rgba(168,85,247,0.4);' : ''}">
+                        ${isRappel ? '🎁 Previsión Rappel' : (isLoss ? '🔴 Pérdida' : (s.semaforo === 'ROJO' ? '🔴 &lt;60%' : (s.semaforo === 'AMARILLO' ? '🟡 60-66%' : '🟢 &gt;66%')))}
                       </span>
                     </td>
                   </tr>
@@ -1003,26 +1055,27 @@ function renderProfitComparadorView() {
               ${clientesList.length === 0 ? `
                 <tr><td colspan="11" style="text-align:center; padding:3rem; color:var(--muted)">Ningún cliente tiene presupuestado este SKU para 2027.</td></tr>
               ` : clientesList.map(cl => {
-                const isLoss = cl.es_perdida;
-                const mColor = isLoss ? '#f87171' : (cl.margen_pct < 60 ? '#fb923c' : (cl.margen_pct <= 66 ? '#fbbf24' : '#34d399'));
-                const semBadge = cl.semaforo === 'ROJO' ? 'badge-danger' : (cl.semaforo === 'AMARILLO' ? 'badge-warning' : 'badge-success');
-                const mUnit = cl.precio_medio - cl.cogs_medio;
+                const isRappel = cl.es_rappel || cl.semaforo === 'RAPPEL' || cl.precio_medio === 0;
+                const isLoss = !isRappel && cl.es_perdida;
+                const mColor = isRappel ? '#c084fc' : (isLoss ? '#f87171' : (cl.margen_pct < 60 ? '#fb923c' : (cl.margen_pct <= 66 ? '#fbbf24' : '#34d399')));
+                const semBadge = isRappel ? 'badge-info' : (cl.semaforo === 'ROJO' ? 'badge-danger' : (cl.semaforo === 'AMARILLO' ? 'badge-warning' : 'badge-success'));
+                const mUnit = isRappel ? 0 : (cl.precio_medio - cl.cogs_medio);
 
                 return `
-                  <tr style="${isLoss ? 'background:rgba(239,68,68,0.1)' : ''}">
+                  <tr style="${isLoss ? 'background:rgba(239,68,68,0.1)' : (isRappel ? 'background:rgba(168,85,247,0.06)' : '')}">
                     <td><strong style="color:#fff">${cl.cliente}</strong></td>
                     <td><span style="font-size:0.78rem">${cl.pais}</span></td>
                     <td><strong class="tag-commercial">${cl.comercial}</strong></td>
                     <td style="text-align:right; font-weight:600">${fmtNumLocal(cl.uds)}</td>
-                    <td style="text-align:right; font-weight:700; color:#fff">${fmtEur(cl.precio_medio)}</td>
+                    <td style="text-align:right; font-weight:700; color:#fff">${isRappel ? '<span style="color:#c084fc; font-weight:600">0,00 €</span>' : fmtEur(cl.precio_medio)}</td>
                     <td style="text-align:right; color:#94a3b8">${fmtEur(cl.cogs_medio)}</td>
-                    <td style="text-align:right; font-weight:700; color:${mColor}">${fmtEur(mUnit)}</td>
+                    <td style="text-align:right; font-weight:700; color:${mColor}">${isRappel ? '<span style="color:#c084fc">—</span>' : fmtEur(mUnit)}</td>
                     <td style="text-align:right; font-weight:600">${fmtEur(cl.ventas_eur)}</td>
-                    <td style="text-align:right; font-weight:700; color:${mColor}">${fmtEur(cl.margen_eur)}</td>
-                    <td style="text-align:right; font-weight:800; color:${mColor}">${cl.margen_pct}%</td>
+                    <td style="text-align:right; font-weight:700; color:${mColor}">${isRappel ? `<span style="color:#c084fc; font-size:0.8rem">(${fmtEur(cl.cogs_eur)})</span>` : fmtEur(cl.margen_eur)}</td>
+                    <td style="text-align:right; font-weight:800; color:${mColor}">${isRappel ? '<span style="color:#c084fc">—</span>' : `${cl.margen_pct}%`}</td>
                     <td style="text-align:center">
-                      <span class="tab-badge ${semBadge}" style="font-size:0.7rem; font-weight:800">
-                        ${isLoss ? '🔴 Pérdida' : (cl.semaforo === 'ROJO' ? '🔴 &lt;60%' : (cl.semaforo === 'AMARILLO' ? '🟡 60-66%' : '🟢 &gt;66%'))}
+                      <span class="tab-badge ${semBadge}" style="font-size:0.7rem; font-weight:800; ${isRappel ? 'background:rgba(168,85,247,0.2); color:#c084fc; border:1px solid rgba(168,85,247,0.4);' : ''}">
+                        ${isRappel ? '🎁 Previsión Rappel' : (isLoss ? '🔴 Pérdida' : (cl.semaforo === 'ROJO' ? '🔴 &lt;60%' : (cl.semaforo === 'AMARILLO' ? '🟡 60-66%' : '🟢 &gt;66%')))}
                       </span>
                     </td>
                   </tr>

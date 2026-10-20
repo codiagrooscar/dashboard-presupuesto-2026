@@ -19,6 +19,9 @@
   <script src="treasury_data.js?v=20261016_0715"></script>
   <script src="profitability_data.js?v=20261016_0715"></script>
   <script src="profitability_logic.js?v=20261016_0715"></script>
+  <link rel="stylesheet" href="marta_tracking.css">
+  <script src="marta_tracking_data.js"></script>
+  <script src="marta_tracking_logic.js"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -1679,6 +1682,13 @@
               <span>Ventas y Previsiones</span>
             </div>
             <span class="tab-badge badge-success" id="tabBadgeResumen">128.4%</span>
+          </button>
+          <button class="nav-item-btn" id="navBtnTrackingMarta" onclick="switchTab('tracking_marta')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">🎯</span>
+              <span>Cierre 2026</span>
+            </div>
+            <span class="tab-badge" id="tabBadgeTrackingMarta" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">Unidades</span>
           </button>
         </div>
 
@@ -6592,6 +6602,11 @@
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '💼';
         if (titleTextEl) titleTextEl.textContent = 'Comercial | Ventas y Previsiones';
+      } else if (tabKey === 'tracking_marta') {
+        const b = document.getElementById('navBtnTrackingMarta');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '🎯';
+        if (titleTextEl) titleTextEl.textContent = 'Comercial | Cierre 2026 & Termómetro Q4 (Unidades)';
       } else if (tabKey === 'produccion') {
         const b = document.getElementById('navBtnProduccion');
         if (b) b.classList.add('active');
@@ -6616,11 +6631,20 @@
       }
     }
 
+    function renderTrackingMartaTab(container) {
+      container.innerHTML = '<div id="view-tracking_marta" class="tab-content" style="display:block; animation:fadeIn 0.3s ease;"></div>';
+      if (typeof window.initMartaTracking === 'function') {
+        window.initMartaTracking();
+      }
+    }
+
     function renderCurrentTab() {
       if (!appData) return;
       const container = document.getElementById('appContent');
       if (currentTab === 'resumen') {
         renderResumenTab(container);
+      } else if (currentTab === 'tracking_marta') {
+        renderTrackingMartaTab(container);
       } else if (currentTab === 'produccion') {
         renderProduccionTab(container);
       } else if (currentTab === 'tesoreria') {

@@ -4,7 +4,7 @@
     "2026-10": {
       "id": "2026-10",
       "nombre": "Octubre 2026",
-      "subtitulo": "En Curso (Corte a 21/10/2026)",
+      "subtitulo": "En Curso (Corte a 22/10/2026)",
       "estado_periodo": "En Curso",
       "badge_class": "badge-success",
       "is_active": true,
@@ -27,8 +27,8 @@
         "pct_consec_nacional": 44.29935222608022,
         "forecast_accuracy_nacional": 16.317733503120223,
         "importe_neto": 564280.54,
-        "fecha_corte": "21/10/2026",
-        "fecha_generacion": "21/10/2026 08:19"
+        "fecha_corte": "22/10/2026",
+        "fecha_generacion": "22/10/2026 08:22"
       },
       "resumen_comerciales": [
         {
@@ -4548,7 +4548,7 @@
         "forecast_accuracy_nacional": 0.0,
         "importe_neto": 735161.03,
         "fecha_corte": "30/09/2026",
-        "fecha_generacion": "21/10/2026 08:19"
+        "fecha_generacion": "22/10/2026 08:22"
       },
       "resumen_comerciales": [
         {
@@ -9675,7 +9675,7 @@
     "acumulado": {
       "id": "acumulado",
       "nombre": "Acumulado Campaña (Sep + Oct)",
-      "subtitulo": "Consolidado histórico bimestral 2026 (Corte a 21/10/2026)",
+      "subtitulo": "Consolidado histórico bimestral 2026 (Corte a 22/10/2026)",
       "estado_periodo": "Consolidado",
       "badge_class": "badge-info",
       "is_active": false,
@@ -9698,8 +9698,8 @@
         "pct_consec_nacional": 76.50673355047576,
         "forecast_accuracy_nacional": 3.899693996718223,
         "importe_neto": 1299441.57,
-        "fecha_corte": "21/10/2026",
-        "fecha_generacion": "21/10/2026 08:19"
+        "fecha_corte": "22/10/2026",
+        "fecha_generacion": "22/10/2026 08:22"
       },
       "resumen_comerciales": [
         {

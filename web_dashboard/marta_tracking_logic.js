@@ -48,12 +48,155 @@
     renderTrackingDashboard();
   }
 
+  function getFilteredClientData() {
+    const data = window.MARTA_TRACKING_DATA;
+    if (!data) return { baseClients: [], dynamicCounts: {}, filteredClients: [] };
+
+    const q = (searchQuery || '').trim().toLowerCase();
+    const baseClients = data.clientes.filter(c => {
+      if (selectedCommercial !== 'ALL' && c.comercial !== selectedCommercial) return false;
+      if (q) {
+        const matchName = (c.cliente || '').toLowerCase().includes(q);
+        const matchPais = (c.pais || '').toLowerCase().includes(q);
+        const matchCom = (c.comercial || '').toLowerCase().includes(q);
+        const matchClas = (c.clasificacion || '').toLowerCase().includes(q);
+        if (!matchName && !matchPais && !matchCom && !matchClas) return false;
+      }
+      return true;
+    });
+
+    const dynamicCounts = {
+      'Ya cumplido': 0,
+      'Alcanzable': 0,
+      'Exigente': 0,
+      'Poco realista': 0,
+      'Sin base 2025': 0,
+      'Sin estimación': 0
+    };
+    baseClients.forEach(c => {
+      const v = c.valoracion || 'Sin estimación';
+      if (dynamicCounts[v] !== undefined) {
+        dynamicCounts[v]++;
+      } else {
+        dynamicCounts[v] = 1;
+      }
+    });
+
+    const filteredClients = baseClients.filter(c => {
+      if (selectedValuation !== 'ALL' && c.valoracion !== selectedValuation) return false;
+      return true;
+    });
+
+    return { baseClients, dynamicCounts, filteredClients };
+  }
+
+  function renderTableRowsHtml(filteredClients) {
+    if (!filteredClients || filteredClients.length === 0) {
+      return `<tr><td colspan="11" class="text-center py-6 text-muted">No se encontraron clientes con los filtros aplicados.</td></tr>`;
+    }
+    return filteredClients.map(c => {
+      const pend = c.pendiente_oct_dic;
+      const crec = c.crec_nec_oct_pct;
+      const pct = c.pct_vendido;
+
+      return `
+        <tr class="marta-row-${c.valoracion ? c.valoracion.toLowerCase().replace(/ /g, '-') : 'none'}">
+          <td><span class="badge-comercial-tag">${c.comercial}</span></td>
+          <td><span class="flag-text">${c.pais}</span></td>
+          <td class="client-name-cell"><strong>${c.cliente}</strong></td>
+          <td><span class="clasif-pill">${c.clasificacion || '-'}</span></td>
+          <td class="num">${formatUnits(c.ventas_2025_tot)}</td>
+          <td class="num text-accent"><strong>${formatUnits(c.ventas_2026_sep)}</strong></td>
+          <td class="num">${formatUnits(c.estimacion_2026)}</td>
+          <td class="num ${pend <= 0 ? 'text-accent' : (pend > 50000 ? 'text-orange font-bold' : '')}">
+            ${formatUnits(pend)}
+          </td>
+          <td class="num ${crec > 100 ? 'text-danger font-bold' : (crec > 30 ? 'text-warn' : (crec < 0 ? 'text-accent' : ''))}">
+            ${crec !== null ? (crec > 0 ? '+' : '') + formatPct(crec) : 'n/a'}
+          </td>
+          <td class="num font-bold ${pct >= 100 ? 'text-accent' : (pct < 70 ? 'text-warn' : '')}">
+            ${formatPct(pct)}
+          </td>
+          <td>${getValuationBadge(c.valoracion)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderChipsHtml(baseClients, dynamicCounts) {
+    return `
+      <button class="v-chip ${selectedValuation === 'ALL' ? 'active' : ''}" onclick="window.filterMartaValuation('ALL')">
+        Todos (${baseClients.length})
+      </button>
+      <button class="v-chip chip-achieved ${selectedValuation === 'Ya cumplido' ? 'active' : ''}" onclick="window.filterMartaValuation('Ya cumplido')">
+        🟢 Ya cumplido (${dynamicCounts['Ya cumplido'] || 0})
+      </button>
+      <button class="v-chip chip-achievable ${selectedValuation === 'Alcanzable' ? 'active' : ''}" onclick="window.filterMartaValuation('Alcanzable')">
+        🟢 Alcanzable (${dynamicCounts['Alcanzable'] || 0})
+      </button>
+      <button class="v-chip chip-demanding ${selectedValuation === 'Exigente' ? 'active' : ''}" onclick="window.filterMartaValuation('Exigente')">
+        🟡 Exigente (${dynamicCounts['Exigente'] || 0})
+      </button>
+      <button class="v-chip chip-unrealistic ${selectedValuation === 'Poco realista' ? 'active' : ''}" onclick="window.filterMartaValuation('Poco realista')">
+        🔴 Poco realista (${dynamicCounts['Poco realista'] || 0})
+      </button>
+      <button class="v-chip chip-neutral ${selectedValuation === 'Sin base 2025' ? 'active' : ''}" onclick="window.filterMartaValuation('Sin base 2025')">
+        ⚪ Sin base (${dynamicCounts['Sin base 2025'] || 0})
+      </button>
+      <button class="v-chip chip-no-est ${selectedValuation === 'Sin estimación' ? 'active' : ''}" onclick="window.filterMartaValuation('Sin estimación')">
+        ⚪ Sin ppto (${dynamicCounts['Sin estimación'] || 0})
+      </button>
+    `;
+  }
+
+  /**
+   * Actualiza en tiempo real la tabla y contadores de chips
+   * SIN destruir el input del buscador, evitando la pérdida de foco.
+   */
+  function updateMartaClientsTable() {
+    const data = window.MARTA_TRACKING_DATA;
+    if (!data) return;
+
+    const panel = document.querySelector('.marta-clients-panel');
+    if (!panel) {
+      renderTrackingDashboard();
+      return;
+    }
+
+    const { baseClients, dynamicCounts, filteredClients } = getFilteredClientData();
+
+    // 1. Actualizar título/conteo
+    const headingEl = panel.querySelector('.panel-heading');
+    if (headingEl) {
+      headingEl.textContent = selectedCommercial !== 'ALL'
+        ? `📋 Detalle de Clientes en Unidades (${baseClients.length} · ${selectedCommercial})`
+        : `📋 Detalle de Clientes en Unidades (${data.clientes.length})`;
+    }
+
+    // 2. Actualizar botones de chips
+    const chipsRow = panel.querySelector('.valuation-chips-row');
+    if (chipsRow) {
+      chipsRow.innerHTML = renderChipsHtml(baseClients, dynamicCounts);
+    }
+
+    // 3. Actualizar filas de la tabla
+    const tbody = panel.querySelector('.marta-data-table tbody');
+    if (tbody) {
+      tbody.innerHTML = renderTableRowsHtml(filteredClients);
+    }
+  }
+
   function renderTrackingDashboard() {
     const container = document.getElementById('view-tracking_marta');
     if (!container) return;
 
     const data = window.MARTA_TRACKING_DATA;
     if (!data) return;
+
+    // Guardar estado de foco si el buscador estaba activo
+    const existingInput = document.getElementById('martaClientSearch');
+    const isSearchFocused = document.activeElement === existingInput;
+    const cursorPos = existingInput ? existingInput.selectionStart : (searchQuery ? searchQuery.length : 0);
 
     const totales = data.metadata.totales;
     const sas = data.metadata.sas_info;
@@ -188,45 +331,10 @@
       <!-- CLIENTS DETAIL SECTION EN UNIDADES -->
     `;
 
-    // 1. Clientes base para el comercial seleccionado y búsqueda (sin filtrar todavía por valoración)
-    const baseClientsForCommercial = data.clientes.filter(c => {
-      if (selectedCommercial !== 'ALL' && c.comercial !== selectedCommercial) return false;
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        const matchName = (c.cliente || '').toLowerCase().includes(q);
-        const matchPais = (c.pais || '').toLowerCase().includes(q);
-        const matchCom = (c.comercial || '').toLowerCase().includes(q);
-        if (!matchName && !matchPais && !matchCom) return false;
-      }
-      return true;
-    });
-
-    // 2. Conteo dinámico de clientes por estado según el comercial seleccionado
-    const dynamicCounts = {
-      'Ya cumplido': 0,
-      'Alcanzable': 0,
-      'Exigente': 0,
-      'Poco realista': 0,
-      'Sin base 2025': 0,
-      'Sin estimación': 0
-    };
-    baseClientsForCommercial.forEach(c => {
-      const v = c.valoracion || 'Sin estimación';
-      if (dynamicCounts[v] !== undefined) {
-        dynamicCounts[v]++;
-      } else {
-        dynamicCounts[v] = 1;
-      }
-    });
-
-    // 3. Clientes finales aplicando el filtro de valoración (si está activo)
-    const filteredClients = baseClientsForCommercial.filter(c => {
-      if (selectedValuation !== 'ALL' && c.valoracion !== selectedValuation) return false;
-      return true;
-    });
+    const { baseClients, dynamicCounts, filteredClients } = getFilteredClientData();
 
     const headingLabel = selectedCommercial !== 'ALL'
-      ? `📋 Detalle de Clientes en Unidades (${baseClientsForCommercial.length} · ${selectedCommercial})`
+      ? `📋 Detalle de Clientes en Unidades (${baseClients.length} · ${selectedCommercial})`
       : `📋 Detalle de Clientes en Unidades (${data.clientes.length})`;
 
     html += `
@@ -235,27 +343,7 @@
           <div class="controls-left">
             <span class="panel-heading">${headingLabel}</span>
             <div class="valuation-chips-row">
-              <button class="v-chip ${selectedValuation === 'ALL' ? 'active' : ''}" onclick="window.filterMartaValuation('ALL')">
-                Todos (${baseClientsForCommercial.length})
-              </button>
-              <button class="v-chip chip-achieved ${selectedValuation === 'Ya cumplido' ? 'active' : ''}" onclick="window.filterMartaValuation('Ya cumplido')">
-                🟢 Ya cumplido (${dynamicCounts['Ya cumplido'] || 0})
-              </button>
-              <button class="v-chip chip-achievable ${selectedValuation === 'Alcanzable' ? 'active' : ''}" onclick="window.filterMartaValuation('Alcanzable')">
-                🟢 Alcanzable (${dynamicCounts['Alcanzable'] || 0})
-              </button>
-              <button class="v-chip chip-demanding ${selectedValuation === 'Exigente' ? 'active' : ''}" onclick="window.filterMartaValuation('Exigente')">
-                🟡 Exigente (${dynamicCounts['Exigente'] || 0})
-              </button>
-              <button class="v-chip chip-unrealistic ${selectedValuation === 'Poco realista' ? 'active' : ''}" onclick="window.filterMartaValuation('Poco realista')">
-                🔴 Poco realista (${dynamicCounts['Poco realista'] || 0})
-              </button>
-              <button class="v-chip chip-neutral ${selectedValuation === 'Sin base 2025' ? 'active' : ''}" onclick="window.filterMartaValuation('Sin base 2025')">
-                ⚪ Sin base (${dynamicCounts['Sin base 2025'] || 0})
-              </button>
-              <button class="v-chip chip-no-est ${selectedValuation === 'Sin estimación' ? 'active' : ''}" onclick="window.filterMartaValuation('Sin estimación')">
-                ⚪ Sin ppto (${dynamicCounts['Sin estimación'] || 0})
-              </button>
+              ${renderChipsHtml(baseClients, dynamicCounts)}
             </div>
           </div>
 
@@ -290,41 +378,7 @@
               </tr>
             </thead>
             <tbody>
-    `;
-
-    if (filteredClients.length === 0) {
-      html += `<tr><td colspan="11" class="text-center py-6 text-muted">No se encontraron clientes con los filtros aplicados.</td></tr>`;
-    } else {
-      filteredClients.forEach(c => {
-        const pend = c.pendiente_oct_dic;
-        const crec = c.crec_nec_oct_pct;
-        const pct = c.pct_vendido;
-
-        html += `
-          <tr class="marta-row-${c.valoracion ? c.valoracion.toLowerCase().replace(/ /g, '-') : 'none'}">
-            <td><span class="badge-comercial-tag">${c.comercial}</span></td>
-            <td><span class="flag-text">${c.pais}</span></td>
-            <td class="client-name-cell"><strong>${c.cliente}</strong></td>
-            <td><span class="clasif-pill">${c.clasificacion || '-'}</span></td>
-            <td class="num">${formatUnits(c.ventas_2025_tot)}</td>
-            <td class="num text-accent"><strong>${formatUnits(c.ventas_2026_sep)}</strong></td>
-            <td class="num">${formatUnits(c.estimacion_2026)}</td>
-            <td class="num ${pend <= 0 ? 'text-accent' : (pend > 50000 ? 'text-orange font-bold' : '')}">
-              ${formatUnits(pend)}
-            </td>
-            <td class="num ${crec > 100 ? 'text-danger font-bold' : (crec > 30 ? 'text-warn' : (crec < 0 ? 'text-accent' : ''))}">
-              ${crec !== null ? (crec > 0 ? '+' : '') + formatPct(crec) : 'n/a'}
-            </td>
-            <td class="num font-bold ${pct >= 100 ? 'text-accent' : (pct < 70 ? 'text-warn' : '')}">
-              ${formatPct(pct)}
-            </td>
-            <td>${getValuationBadge(c.valoracion)}</td>
-          </tr>
-        `;
-      });
-    }
-
-    html += `
+              ${renderTableRowsHtml(filteredClients)}
             </tbody>
           </table>
         </div>
@@ -332,6 +386,17 @@
     `;
 
     container.innerHTML = html;
+
+    // Restaurar el foco y posición del cursor si el buscador estaba activo
+    if (isSearchFocused) {
+      const newInput = document.getElementById('martaClientSearch');
+      if (newInput) {
+        newInput.focus();
+        try {
+          newInput.setSelectionRange(cursorPos, cursorPos);
+        } catch (e) {}
+      }
+    }
   }
 
   // Métodos expuestos globalmente para interactividad
@@ -352,12 +417,24 @@
 
   window.filterMartaValuation = function (val) {
     selectedValuation = val;
-    renderTrackingDashboard();
+    // Si el panel de clientes ya está montado, actualizamos in-situ sin tocar el buscador
+    const panel = document.querySelector('.marta-clients-panel');
+    if (panel) {
+      updateMartaClientsTable();
+    } else {
+      renderTrackingDashboard();
+    }
   };
 
   window.searchMartaClient = function (val) {
-    searchQuery = val.trim();
-    renderTrackingDashboard();
+    searchQuery = val;
+    // Actualización instantánea in-situ de la tabla para mantener el foco inalterado
+    const panel = document.querySelector('.marta-clients-panel');
+    if (panel) {
+      updateMartaClientsTable();
+    } else {
+      renderTrackingDashboard();
+    }
   };
 
   window.exportMartaExcel = function () {

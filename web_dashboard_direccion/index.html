@@ -962,6 +962,79 @@
       margin-top: auto;
     }
 
+    /* ESTILOS PARA PRODUCTOS CLICABLES Y MODAL DE DIAGNÓSTICO */
+    .sku-clickable-tag {
+      font-family: monospace;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.16rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 700;
+      color: #f8fafc;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      transition: all 0.2s ease;
+    }
+    .sku-clickable-tag:hover {
+      background: rgba(56, 189, 248, 0.22);
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.5);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25);
+    }
+    .product-clickable-link {
+      color: #cbd5e1;
+      cursor: pointer;
+      border-bottom: 1px dotted rgba(203, 213, 225, 0.45);
+      transition: all 0.2s ease;
+    }
+    .product-clickable-link:hover {
+      color: #38bdf8;
+      border-bottom-color: #38bdf8;
+    }
+    .diag-cause-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.22rem 0.6rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .diag-cause-badge.cause-warehouse {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .diag-cause-badge.cause-unforeseen {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.45);
+    }
+    .diag-cause-badge.cause-short-forecast {
+      background: rgba(249, 115, 22, 0.2);
+      color: #fb923c;
+      border: 1px solid rgba(249, 115, 22, 0.45);
+    }
+    .diag-cause-badge.cause-packaging {
+      background: rgba(168, 85, 247, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.45);
+    }
+    .diag-cause-badge.cause-plant {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.45);
+    }
+    .diag-cause-badge.cause-served {
+      background: rgba(16, 185, 129, 0.12);
+      color: #a7f3d0;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
     /* RESPONSIVE MOBILE STYLES */
     @media (max-width: 768px) {
       header {
@@ -1931,6 +2004,74 @@
       <div class="modal-footer-bar" style="padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--card-border); background:rgba(15,23,42,0.6);">
         <span id="mrpModalFooterSummary" style="font-size:0.85rem; color:var(--muted);"></span>
         <button class="btn btn-secondary" onclick="closeProdSkuModal()" style="padding:0.45rem 1.25rem; border-radius:var(--radius-sm); cursor:pointer; background:rgba(51,65,85,0.6); color:#fff; border:1px solid #475569; font-weight:600;">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DIAGNÓSTICO DE MOTIVO DE PENDIENTES Y STOCK POR PRODUCTO -->
+  <div class="modal-overlay" id="productDiagnosticModal" style="z-index:1060;" onclick="handleDiagnosticOverlayClick(event)">
+    <div class="modal-container" role="dialog" aria-modal="true" style="max-width:1050px; width:95%;">
+      <div class="modal-header">
+        <div class="modal-titles">
+          <h2>
+            <span>🔍</span>
+            <span id="diagModalTitle">Diagnóstico de Producto & Stock</span>
+          </h2>
+          <div class="modal-subtitle" id="diagModalSubtitle">
+            <span>Octubre 2026</span> &bull; <span>Desglose por Comercial y Motivo</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeProductDiagnosticModal()" title="Cerrar ventana (Esc)">&times;</button>
+      </div>
+
+      <div class="modal-body" style="padding:1.25rem 1.5rem; max-height:calc(85vh - 120px); overflow-y:auto; display:flex; flex-direction:column; gap:1.25rem;">
+        <!-- Top Metrics Cards -->
+        <div id="diagKpiGrid" class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 0.75rem; margin-bottom: 0;">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Main Diagnostic Alert Banner -->
+        <div id="diagMainBanner">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Table of Breakdown by Commercial -->
+        <div class="table-panel" style="margin: 0; background: rgba(15, 23, 42, 0.45); border: 1px solid var(--card-border);">
+          <div class="panel-header" style="padding: 0.75rem 1rem;">
+            <div class="panel-title" style="font-size: 0.95rem; display:flex; align-items:center; gap:0.5rem;">
+              <span>👥</span>
+              <span>Desglose por Comercial, Clientes y Unidades</span>
+            </div>
+            <span id="diagCommercialsCountBadge" class="panel-badge">1 comercial</span>
+          </div>
+
+          <div class="table-wrapper" style="border:none;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 14%;">Comercial</th>
+                  <th style="width: 25%;">Detalle Clientes</th>
+                  <th class="text-right" style="width: 9%;">Previsión</th>
+                  <th class="text-right" style="width: 9%;">Pedidos</th>
+                  <th class="text-right" style="width: 8%;">Servidas</th>
+                  <th class="text-right" style="width: 9%;">Pendientes</th>
+                  <th style="width: 26%;">Motivo / Diagnóstico</th>
+                </tr>
+              </thead>
+              <tbody id="diagTableBody">
+                <!-- Injected via JS -->
+              </tbody>
+              <tfoot id="diagTableFoot">
+                <!-- Injected via JS -->
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer-bar" style="padding:0.85rem 1.5rem; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--card-border); background:rgba(15,23,42,0.6);">
+        <span id="diagFooterSummary" style="font-size:0.82rem; color:var(--muted);"></span>
+        <button class="btn btn-secondary" onclick="closeProductDiagnosticModal()" style="padding:0.45rem 1.25rem; border-radius:var(--radius-sm); cursor:pointer; background:rgba(51,65,85,0.6); color:#fff; border:1px solid #475569; font-weight:600;">Cerrar</button>
       </div>
     </div>
   </div>
@@ -6908,10 +7049,80 @@
             </table>
           </div>
         </div>
+
+        <!-- MONITOR Y BUSCADOR DE PRODUCTOS (PENDIENTES Y CATÁLOGO COMPLETO) -->
+        <div class="table-panel" id="productSearchPanel" style="margin-top: 1.5rem;">
+          <div class="panel-header" style="flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+            <div>
+              <div class="panel-title" style="display:flex; align-items:center; gap:0.5rem;">
+                <span>🔍 ${currentLang === 'en' ? 'Product Search & Order Status Monitor' : 'Monitor y Buscador de Productos'}</span>
+              </div>
+              <div style="font-size:0.78rem; color:var(--muted); margin-top:0.25rem;">
+                ${currentLang === 'en' 
+                  ? 'Tracking of pending orders to serve, physical factory stock and direct lookup for any catalog product.' 
+                  : 'Seguimiento de pedidos pendientes de servir, stock físico en fábrica y consulta directa de cualquier artículo del catálogo.'}
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <span class="panel-badge" id="prodPendingCountBadge" style="background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); font-weight:700;">—</span>
+              <span class="panel-badge" id="prodTotalPendingUnitsBadge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); font-weight:700;">—</span>
+              <span class="panel-badge" id="prodTotalCatalogBadge" style="color:#94a3b8;">—</span>
+            </div>
+          </div>
+
+          <!-- TOOLBAR: BUSCADOR Y FILTROS -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.85rem; padding: 0.85rem 1.25rem; background:rgba(15,23,42,0.4); border-bottom:1px solid var(--card-border);">
+            <div style="position:relative; display:flex; align-items:center; flex:1; min-width:280px; max-width:500px;">
+              <span style="position:absolute; left:0.85rem; color:#94a3b8; font-size:0.95rem; pointer-events:none;">🔍</span>
+              <input type="text" id="globalProductSearchInput" class="search-input" style="width:100%; padding-left:2.3rem; padding-right:2rem; font-size:0.85rem;" placeholder="${currentLang === 'en' ? 'Search any product, SKU (e.g. C-CU0005), description or package size...' : 'Buscar cualquier producto, SKU (ej: C-CU0005), descripción o formato...'}" value="${escapeHtml(window.productSearchState ? window.productSearchState.query : '')}" oninput="handleGlobalProductSearch(this.value)">
+              <button id="clearGlobalProductSearchBtn" onclick="clearGlobalProductSearch()" style="position:absolute; right:0.6rem; background:transparent; border:none; color:#94a3b8; font-size:1rem; cursor:pointer; display:${window.productSearchState && window.productSearchState.query ? 'block' : 'none'}; padding:0.2rem 0.4rem;" title="${currentLang === 'en' ? 'Clear search' : 'Limpiar búsqueda'}">✕</button>
+            </div>
+
+            <!-- FILTROS RÁPIDOS -->
+            <div class="filter-pills" id="prodFilterPills" style="margin:0;">
+              <button class="pill-btn ${(window.productSearchState ? window.productSearchState.filter : 'PENDIENTES') === 'PENDIENTES' ? 'active' : ''}" id="pillFilterPendientes" onclick="setProductFilterMode('PENDIENTES')">⚠️ ${currentLang === 'en' ? 'Pending to Serve' : 'Pendientes de Servir'}</button>
+              <button class="pill-btn ${(window.productSearchState ? window.productSearchState.filter : '') === 'TODOS' ? 'active' : ''}" id="pillFilterTodos" onclick="setProductFilterMode('TODOS')">📦 ${currentLang === 'en' ? 'All Products' : 'Todos los Productos'}</button>
+              <button class="pill-btn ${(window.productSearchState ? window.productSearchState.filter : '') === 'ALMACEN' ? 'active' : ''}" id="pillFilterAlmacen" onclick="setProductFilterMode('ALMACEN')">🟢 ${currentLang === 'en' ? 'Ready in Warehouse' : 'Listo en Almacén'}</button>
+              <button class="pill-btn ${(window.productSearchState ? window.productSearchState.filter : '') === 'FABRICACION' ? 'active' : ''}" id="pillFilterFabricacion" onclick="setProductFilterMode('FABRICACION')">🔴 ${currentLang === 'en' ? 'Manufacturing Needed' : 'Falta Fabricación'}</button>
+            </div>
+          </div>
+
+          <!-- TABLA DE PRODUCTOS -->
+          <div class="table-wrapper" style="max-height: 520px; overflow-y: auto;">
+            <table id="globalProductsTable" style="margin-bottom:0;">
+              <thead style="position:sticky; top:0; z-index:10; background:#0f172a; box-shadow:0 1px 0 var(--card-border);">
+                <tr>
+                  <th style="width: 11%;">SKU</th>
+                  <th style="width: 25%;">${currentLang === 'en' ? 'Article / Description' : 'Artículo / Descripción'}</th>
+                  <th style="width: 12%;">${currentLang === 'en' ? 'Sales Reps' : 'Comerciales'}</th>
+                  <th class="text-right" style="width: 8%;">${t('th_estimate')}</th>
+                  <th class="text-right" style="width: 8%;">${t('th_orders')}</th>
+                  <th class="text-right" style="width: 8%;">${t('th_delivered')}</th>
+                  <th class="text-right" style="width: 9%; color:#fbbf24;">${t('th_pending')}</th>
+                  <th class="text-right" style="width: 8%;">${currentLang === 'en' ? 'Stock Plant' : 'Stock Fábrica'}</th>
+                  <th class="text-center" style="width: 11%;">${t('th_status')}</th>
+                  <th class="text-center" style="width: 5%;">${t('th_view')}</th>
+                </tr>
+              </thead>
+              <tbody id="globalProductsTableBody">
+                 <!-- Dynamic rows -->
+              </tbody>
+              <tfoot id="globalProductsTableFoot" style="position:sticky; bottom:0; z-index:10; background:#0f172a; box-shadow:0 -1px 0 var(--card-border);">
+                 <!-- Summary row -->
+              </tfoot>
+            </table>
+          </div>
+          
+          <div id="productSearchFooterHelp" style="padding:0.6rem 1.25rem; font-size:0.75rem; color:var(--muted); background:rgba(15,23,42,0.6); border-top:1px solid rgba(51,65,85,0.4); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <span>💡 ${currentLang === 'en' ? 'Click on any SKU or the "🔍 View" button to open the diagnostic modal (breakdown by sales reps, customers and bulk/packaged stock).' : 'Haz clic en cualquier SKU o en el botón <strong>"🔍 Ver"</strong> para abrir el diagnóstico detallado (desglose por comerciales, clientes y existencias de granel).'}</span>
+            <span id="productSearchCountLabel" style="font-weight:600; color:#e2e8f0;"></span>
+          </div>
+        </div>
       `;
 
       container.innerHTML = html;
       initResumenCharts(resList);
+      renderGlobalProductsTable();
     }
 
     function initResumenCharts(resList) {
@@ -7036,6 +7247,375 @@
             }
           }
         });
+      }
+    }
+
+    // ==========================================
+    // BUSCADOR Y MONITOR DE PRODUCTOS (VENTAS Y PREVISIONES)
+    // ==========================================
+    window.productSearchState = window.productSearchState || {
+      query: '',
+      filter: 'PENDIENTES' // 'PENDIENTES' | 'TODOS' | 'ALMACEN' | 'FABRICACION'
+    };
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function setProductFilterMode(filterMode) {
+      window.productSearchState.filter = filterMode;
+      const pillMap = {
+        'PENDIENTES': 'pillFilterPendientes',
+        'TODOS': 'pillFilterTodos',
+        'ALMACEN': 'pillFilterAlmacen',
+        'FABRICACION': 'pillFilterFabricacion'
+      };
+      Object.keys(pillMap).forEach(key => {
+        const el = document.getElementById(pillMap[key]);
+        if (el) {
+          if (key === filterMode) el.classList.add('active');
+          else el.classList.remove('active');
+        }
+      });
+      renderGlobalProductsTable();
+    }
+
+    function handleGlobalProductSearch(val) {
+      window.productSearchState.query = (val || '').trim();
+      const clearBtn = document.getElementById('clearGlobalProductSearchBtn');
+      if (clearBtn) {
+        clearBtn.style.display = window.productSearchState.query ? 'block' : 'none';
+      }
+      renderGlobalProductsTable();
+    }
+
+    function clearGlobalProductSearch() {
+      const inp = document.getElementById('globalProductSearchInput');
+      if (inp) {
+        inp.value = '';
+        inp.focus();
+      }
+      handleGlobalProductSearch('');
+    }
+
+    function renderGlobalProductsTable() {
+      const tbody = document.getElementById('globalProductsTableBody');
+      const tfoot = document.getElementById('globalProductsTableFoot');
+      const helpLabel = document.getElementById('productSearchCountLabel');
+      const countPendingBadge = document.getElementById('prodPendingCountBadge');
+      const countUnitsBadge = document.getElementById('prodTotalPendingUnitsBadge');
+      const countCatalogBadge = document.getElementById('prodTotalCatalogBadge');
+      if (!tbody) return;
+
+      if (!appData) {
+        tbody.innerHTML = '<tr><td colspan="10" class="text-center" style="padding:2rem;color:var(--muted)">Cargando datos del período...</td></tr>';
+        return;
+      }
+
+      // 1. Extraer y consolidar catálogo completo de productos
+      const prodMap = new Map();
+
+      // Líneas de los comerciales en el período actual
+      Object.keys(appData.comerciales || {}).forEach(comKey => {
+        const comObj = appData.comerciales[comKey];
+        (comObj.lineas || []).forEach(l => {
+          const sku = (l.sku || '').trim().toUpperCase();
+          if (!sku) return;
+          const baseSku = (l.sku_base || l.sku || '').trim().toUpperCase();
+
+          if (!prodMap.has(sku)) {
+            prodMap.set(sku, {
+              sku: l.sku,
+              sku_base: baseSku,
+              descripcion: l.descripcion || sku,
+              formato: l.formato || '',
+              is_nacional: l.is_nacional !== undefined ? l.is_nacional : true,
+              budget_uds: 0,
+              pedidos_uds: 0,
+              servidas_uds: 0,
+              pendientes_uds: 0,
+              comerciales: new Set(),
+              clientes: new Set(),
+              stock_envasado: 0,
+              granel_stock: 0,
+              granel_code: '',
+              granel_desc: '',
+              formato_label: ''
+            });
+          }
+
+          const p = prodMap.get(sku);
+          p.budget_uds += (l.budget_uds || 0);
+          p.pedidos_uds += (l.pedidos_uds || 0);
+          p.servidas_uds += (l.servidas_uds || 0);
+          p.pendientes_uds += (l.pendientes_uds || 0);
+          if ((l.pedidos_uds || 0) > 0 || (l.budget_uds || 0) > 0 || (l.pendientes_uds || 0) > 0) {
+            p.comerciales.add(comKey);
+            if (l.cliente) p.clientes.add(l.cliente);
+          }
+          if ((!p.descripcion || p.descripcion === p.sku) && l.descripcion) p.descripcion = l.descripcion;
+          if (!p.formato && l.formato) p.formato = l.formato;
+        });
+      });
+
+      // Cruzar con window.PRODUCTION_PLANNING_DATA
+      if (window.PRODUCTION_PLANNING_DATA) {
+        const pp = window.PRODUCTION_PLANNING_DATA;
+        const detailed = pp.detailed_skus || [];
+        const baseList = pp.base_skus || [];
+
+        const baseMap = new Map();
+        baseList.forEach(b => {
+          if (b.base_sku) baseMap.set(b.base_sku.trim().toUpperCase(), b);
+        });
+
+        detailed.forEach(det => {
+          const detSku = (det.sku || '').trim().toUpperCase();
+          const detBase = (det.base_sku || '').trim().toUpperCase();
+          const bas = baseMap.get(detBase);
+
+          if (prodMap.has(detSku)) {
+            const p = prodMap.get(detSku);
+            p.stock_envasado = det.stock_envasado !== undefined ? det.stock_envasado : (bas ? bas.stock_envasado : 0);
+            p.granel_code = det.granel_code || (bas ? bas.granel_code : '');
+            p.granel_desc = det.granel_desc || (bas ? bas.granel_desc : '');
+            p.granel_stock = det.granel_stock !== undefined ? det.granel_stock : (bas ? bas.granel_stock : 0);
+            p.formato_label = det.formato_label || (bas ? bas.formato_label : p.formato);
+            if ((!p.descripcion || p.descripcion === p.sku) && det.desc) p.descripcion = det.desc;
+          } else {
+            // Producto en catálogo general sin pedidos este período
+            prodMap.set(detSku, {
+              sku: det.sku,
+              sku_base: det.base_sku || det.sku,
+              descripcion: det.desc || det.sku,
+              formato: det.formato_label || '',
+              is_nacional: det.is_nacional !== undefined ? det.is_nacional : (!det.sku.includes('_') && !/[A-Z]{2}$/.test(det.sku)),
+              budget_uds: 0,
+              pedidos_uds: 0,
+              servidas_uds: 0,
+              pendientes_uds: 0,
+              comerciales: new Set(),
+              clientes: new Set(),
+              stock_envasado: det.stock_envasado || 0,
+              granel_stock: det.granel_stock !== undefined ? det.granel_stock : (bas ? bas.granel_stock : 0),
+              granel_code: det.granel_code || (bas ? bas.granel_code : ''),
+              granel_desc: det.granel_desc || (bas ? bas.granel_desc : ''),
+              formato_label: det.formato_label || ''
+            });
+          }
+        });
+      }
+
+      const allList = Array.from(prodMap.values());
+      const totalCatalogCount = allList.length;
+
+      // Calcular totales globales de pendientes
+      let totalPendingSkus = 0;
+      let totalPendingUnits = 0;
+      allList.forEach(p => {
+        if (p.pendientes_uds > 0) {
+          totalPendingSkus++;
+          totalPendingUnits += p.pendientes_uds;
+        }
+      });
+
+      if (countPendingBadge) countPendingBadge.innerText = `${totalPendingSkus} productos con pendientes`;
+      if (countUnitsBadge) countUnitsBadge.innerText = `${fmtNum(totalPendingUnits)} u pendientes totales`;
+      if (countCatalogBadge) countCatalogBadge.innerText = `${totalCatalogCount} artículos en catálogo`;
+
+      // 2. Filtrar y ordenar
+      const query = (window.productSearchState.query || '').toLowerCase();
+      const filter = window.productSearchState.filter || 'PENDIENTES';
+
+      let filtered = allList.filter(p => {
+        // Filtrado por ámbito si aplica
+        if (currentScope === 'NACIONAL' && !p.is_nacional) return false;
+        if (currentScope === 'EXPORTACION' && p.is_nacional) return false;
+
+        // Si hay texto de búsqueda, buscar en SKU, base, descripción, formato, comerciales y clientes
+        if (query) {
+          const matchSku = (p.sku || '').toLowerCase().includes(query);
+          const matchBase = (p.sku_base || '').toLowerCase().includes(query);
+          const matchDesc = (p.descripcion || '').toLowerCase().includes(query);
+          const matchFormato = (p.formato || p.formato_label || '').toLowerCase().includes(query);
+          const matchComs = Array.from(p.comerciales).some(c => c.toLowerCase().includes(query));
+          const matchClients = Array.from(p.clientes).some(c => c.toLowerCase().includes(query));
+          if (!matchSku && !matchBase && !matchDesc && !matchFormato && !matchComs && !matchClients) {
+            return false;
+          }
+        }
+
+        // Si NO hay búsqueda por texto, aplicar la píldora de filtro seleccionada
+        if (!query) {
+          if (filter === 'PENDIENTES') {
+            return p.pendientes_uds > 0;
+          } else if (filter === 'ALMACEN') {
+            return p.pendientes_uds > 0 && p.stock_envasado >= p.pendientes_uds;
+          } else if (filter === 'FABRICACION') {
+            return p.pendientes_uds > 0 && p.stock_envasado < p.pendientes_uds;
+          }
+          // 'TODOS' pasa todo
+        }
+
+        return true;
+      });
+
+      // Ordenación:
+      // Si el usuario busca o filtra por pendientes: primero los que tienen más pendientes descendente, luego pedidos desc
+      filtered.sort((a, b) => {
+        if (b.pendientes_uds !== a.pendientes_uds) {
+          return b.pendientes_uds - a.pendientes_uds;
+        }
+        if (b.pedidos_uds !== a.pedidos_uds) {
+          return b.pedidos_uds - a.pedidos_uds;
+        }
+        return (a.sku || '').localeCompare(b.sku || '');
+      });
+
+      // 3. Renderizar Filas
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" style="text-align:center; padding:2.5rem; color:var(--muted)">
+              No se encontraron productos que coincidan con <strong>"${escapeHtml(query || filter)}"</strong>.<br>
+              <button class="pill-btn" style="margin-top:0.75rem" onclick="clearGlobalProductSearch(); setProductFilterMode('TODOS');">Ver Catálogo Completo</button>
+            </td>
+          </tr>
+        `;
+        if (tfoot) tfoot.innerHTML = '';
+        if (helpLabel) helpLabel.innerText = '0 resultados encontrados';
+        return;
+      }
+
+      let sumBudget = 0, sumPedidos = 0, sumServidas = 0, sumPendientes = 0, sumStock = 0;
+      let rowsHtml = '';
+
+      filtered.forEach(p => {
+        sumBudget += p.budget_uds;
+        sumPedidos += p.pedidos_uds;
+        sumServidas += p.servidas_uds;
+        sumPendientes += p.pendientes_uds;
+        sumStock += p.stock_envasado;
+
+        // Diagnóstico sintético
+        let diagBadgeClass = '';
+        let diagText = '';
+        let diagTitle = '';
+
+        if (p.pendientes_uds > 0) {
+          if (p.stock_envasado >= p.pendientes_uds) {
+            diagBadgeClass = 'cause-warehouse';
+            diagText = 'Listo en Almacén';
+            diagTitle = `Hay ${fmtNum(p.stock_envasado)} u fabricadas en stock para ${fmtNum(p.pendientes_uds)} u pendientes`;
+          } else if (p.stock_envasado + (p.granel_stock || 0) >= p.pendientes_uds) {
+            diagBadgeClass = 'cause-packaging';
+            diagText = 'Granel Disp. (Envasar)';
+            diagTitle = `Falta envasar. Hay ${fmtNum(p.granel_stock)} ${p.granel_code || 'L/Kg'} de granel en planta`;
+          } else {
+            diagBadgeClass = 'cause-plant';
+            diagText = 'Falta Fabricación';
+            diagTitle = `Stock envasado insuficiente (${fmtNum(p.stock_envasado)} u) y sin granel para cubrir ${fmtNum(p.pendientes_uds)} u`;
+          }
+        } else {
+          if (p.pedidos_uds > 0) {
+            diagBadgeClass = 'cause-served';
+            diagText = '100% Servido';
+            diagTitle = `${fmtNum(p.servidas_uds)} u entregadas`;
+          } else {
+            diagBadgeClass = 'badge-neutral';
+            diagText = 'Sin Pedido';
+            diagTitle = 'Sin demanda en el período';
+          }
+        }
+
+        const comsList = Array.from(p.comerciales);
+        let comsDisplay = '—';
+        if (comsList.length > 0) {
+          if (comsList.length <= 2) {
+            comsDisplay = comsList.map(c => `<span class="tag-commercial" onclick="switchTab('${c}')" style="font-size:0.75rem;">${c}</span>`).join(', ');
+          } else {
+            comsDisplay = comsList.slice(0, 2).map(c => `<span class="tag-commercial" onclick="switchTab('${c}')" style="font-size:0.75rem;">${c}</span>`).join(', ') + 
+                          ` <span style="color:var(--muted); font-size:0.72rem;" title="${comsList.join(', ')}">+${comsList.length - 2}</span>`;
+          }
+        }
+
+        const isNacBadge = p.is_nacional ? '<span style="color:#10b981; font-size:0.7rem;" title="Mercado Nacional">🇪🇸</span>' : '<span style="color:#38bdf8; font-size:0.7rem;" title="Mercado Exportación">🌍</span>';
+        const pendColor = p.pendientes_uds > 0 ? '#fbbf24' : 'var(--muted)';
+        const pendWeight = p.pendientes_uds > 0 ? '700' : 'normal';
+
+        // Stock vs Pendientes color
+        let stockDisplay = `${fmtNum(p.stock_envasado)}`;
+        if (p.pendientes_uds > 0) {
+          if (p.stock_envasado >= p.pendientes_uds) {
+            stockDisplay = `<strong style="color:#34d399">${fmtNum(p.stock_envasado)} u</strong>`;
+          } else {
+            stockDisplay = `<strong style="color:#f87171">${fmtNum(p.stock_envasado)} u</strong>`;
+          }
+        } else {
+          stockDisplay = `${fmtNum(p.stock_envasado)} u`;
+        }
+
+        rowsHtml += `
+          <tr>
+            <td>
+              <span class="sku-clickable-tag" onclick="openProductDiagnosticModal('${(p.sku || '').replace(/'/g, "\\'")}', '${(p.sku_base || p.sku || '').replace(/'/g, "\\'")}')" title="🔍 Ver diagnóstico de existencias y clientes">${p.sku}</span>
+            </td>
+            <td>
+              <span class="product-clickable-link" onclick="openProductDiagnosticModal('${(p.sku || '').replace(/'/g, "\\'")}', '${(p.sku_base || p.sku || '').replace(/'/g, "\\'")}')" title="🔍 Ver diagnóstico de existencias y clientes">
+                <strong>${escapeHtml(p.descripcion || p.sku)}</strong>
+              </span>
+              <span style="margin-left:0.35rem;">${isNacBadge}</span>
+              ${p.formato || p.formato_label ? `<span style="font-size:0.7rem; color:var(--muted); margin-left:0.25rem;">(${escapeHtml(p.formato || p.formato_label)})</span>` : ''}
+            </td>
+            <td>${comsDisplay}</td>
+            <td class="text-right">${fmtNum(p.budget_uds, 2)}</td>
+            <td class="text-right" style="font-weight:700">${fmtNum(p.pedidos_uds, 2)}</td>
+            <td class="text-right">${fmtNum(p.servidas_uds, 2)}</td>
+            <td class="text-right" style="color:${pendColor}; font-weight:${pendWeight}; font-size:${p.pendientes_uds > 0 ? '0.92rem' : 'inherit'}">
+              ${p.pendientes_uds > 0 ? '⚠️ ' : ''}${fmtNum(p.pendientes_uds, 2)}
+            </td>
+            <td class="text-right">${stockDisplay}</td>
+            <td class="text-center">
+              <span class="diag-cause-badge ${diagBadgeClass}" title="${diagTitle}">${diagText}</span>
+            </td>
+            <td class="text-center">
+              <button class="btn-table-action" onclick="openProductDiagnosticModal('${(p.sku || '').replace(/'/g, "\\'")}', '${(p.sku_base || p.sku || '').replace(/'/g, "\\'")}')" title="Abrir diagnóstico">🔍 Ver</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = rowsHtml;
+
+      if (tfoot) {
+        tfoot.innerHTML = `
+          <tr>
+            <td><strong>TOTAL FILTRADO</strong></td>
+            <td colspan="2"><strong>${filtered.length} productos mostrados</strong></td>
+            <td class="text-right">${fmtNum(sumBudget, 2)}</td>
+            <td class="text-right">${fmtNum(sumPedidos, 2)}</td>
+            <td class="text-right">${fmtNum(sumServidas, 2)}</td>
+            <td class="text-right" style="color:#fbbf24; font-weight:800; font-size:0.95rem;">${fmtNum(sumPendientes, 2)}</td>
+            <td class="text-right" style="color:#38bdf8">${fmtNum(sumStock)} u</td>
+            <td colspan="2"></td>
+          </tr>
+        `;
+      }
+
+      if (helpLabel) {
+        if (query) {
+          helpLabel.innerHTML = `Búsqueda activa: <strong>"${escapeHtml(query)}"</strong> &bull; Mostrando <strong>${filtered.length}</strong> de ${totalCatalogCount} artículos en catálogo`;
+        } else if (filter === 'PENDIENTES') {
+          helpLabel.innerHTML = `Mostrando los <strong>${filtered.length}</strong> artículos con pedidos pendientes de servir`;
+        } else {
+          helpLabel.innerHTML = `Mostrando <strong>${filtered.length}</strong> artículos`;
+        }
       }
     }
 
@@ -7433,10 +8013,10 @@
             <tr>
               <td><strong>${l.cliente}</strong></td>
               <td>
-                <span style="font-family:monospace; background:rgba(255,255,255,0.06); padding:0.15rem 0.4rem; border-radius:4px; font-weight:600">${l.sku}</span>
+                <span class="sku-clickable-tag" onclick="openProductDiagnosticModal('${(l.sku || '').replace(/'/g, "\\'")}', '${(l.sku_base || l.sku || '').replace(/'/g, "\\'")}')" title="🔍 Haz clic para ver stock en fábrica y motivo de pendientes">${l.sku}</span>
                 <span class="tab-badge ${l.is_nacional ? 'badge-success' : 'badge-info'}" style="font-size:0.62rem; padding:0.1rem 0.35rem; margin-left:4px" title="${l.is_nacional ? 'Producto Nacional' : 'Producto Exportación'}">${ambitoTag}</span>
               </td>
-              <td><span style="color:#cbd5e1" title="${l.descripcion}">${l.descripcion || '—'}</span></td>
+              <td><span class="product-clickable-link" onclick="openProductDiagnosticModal('${(l.sku || '').replace(/'/g, "\\'")}', '${(l.sku_base || l.sku || '').replace(/'/g, "\\'")}')" title="🔍 Haz clic para ver stock en fábrica, comerciales y motivo de pendientes">${l.descripcion || '—'}</span></td>
               <td class="text-right">${fmtNum(l.budget_uds, 2)}</td>
               <td class="text-right" style="font-weight:700; color:${l.pedidos_uds > 0 ? '#f8fafc' : 'var(--muted)'}">${fmtNum(l.pedidos_uds, 2)}</td>
               <td class="text-right">${fmtNum(l.servidas_uds, 2)}</td>
@@ -7846,9 +8426,9 @@
         rowsHtml += `
           <tr>
             <td>
-              <span style="font-family:monospace; background:rgba(255,255,255,0.06); padding:0.18rem 0.45rem; border-radius:4px; font-weight:700; color:#f8fafc">${s.sku}</span>
+              <span class="sku-clickable-tag" onclick="openProductDiagnosticModal('${(s.sku || '').replace(/'/g, "\\'")}', '${(s.sku_base || s.sku || '').replace(/'/g, "\\'")}')" title="🔍 Haz clic para ver stock en fábrica y motivo de pendientes">${s.sku}</span>
             </td>
-            <td><span style="color:#cbd5e1" title="${s.descripcion}">${s.descripcion || '—'}</span></td>
+            <td><span class="product-clickable-link" onclick="openProductDiagnosticModal('${(s.sku || '').replace(/'/g, "\\'")}', '${(s.sku_base || s.sku || '').replace(/'/g, "\\'")}')" title="🔍 Haz clic para ver stock en fábrica, comerciales y motivo de pendientes">${s.descripcion || '—'}</span></td>
             <td class="text-center">
               <span class="tab-badge ${s.ambitoClass}" style="font-size:0.65rem; padding:0.15rem 0.4rem; white-space:nowrap;">
                 ${s.ambitoText}
@@ -7943,10 +8523,368 @@
       document.body.removeChild(link);
     }
 
-    // Tecla Escape para cerrar modal
+    // ==========================================
+    // MODAL DE DIAGNÓSTICO: DESGLOSE POR COMERCIAL, STOCK Y MOTIVO DE PENDIENTES
+    // ==========================================
+    function openProductDiagnosticModal(sku, baseSku) {
+      if (!appData) return;
+
+      const targetSku = (sku || '').trim().toUpperCase();
+      const targetBase = (baseSku || sku || '').trim().toUpperCase();
+
+      const modalOverlay = document.getElementById('productDiagnosticModal');
+      if (!modalOverlay) return;
+
+      // 1. Buscar todas las líneas de este producto en el período actual entre todos los comerciales
+      const matchingLines = [];
+      let prodDesc = '';
+      let isNac = true;
+
+      Object.keys(appData.comerciales || {}).forEach(com => {
+        const comLines = appData.comerciales[com].lineas || [];
+        comLines.forEach(l => {
+          const lSku = (l.sku || '').trim().toUpperCase();
+          const lBase = (l.sku_base || l.sku || '').trim().toUpperCase();
+          if (lSku === targetSku || (targetBase && (lBase === targetBase || lSku === targetBase))) {
+            matchingLines.push({ ...l, comercial: com });
+            if (!prodDesc && l.descripcion) prodDesc = l.descripcion;
+            if (l.is_nacional !== undefined) isNac = l.is_nacional;
+          }
+        });
+      });
+
+      // 2. Extraer datos de Stock y Granel de Fabricación (window.PRODUCTION_PLANNING_DATA)
+      let stockEnvasado = 0;
+      let granelCode = '';
+      let granelDesc = '';
+      let granelStock = 0;
+      let formatoLabel = '';
+
+      if (window.PRODUCTION_PLANNING_DATA) {
+        const pp = window.PRODUCTION_PLANNING_DATA;
+        const det = (pp.detailed_skus || []).find(s => (s.sku || '').trim().toUpperCase() === targetSku);
+        const bas = (pp.base_skus || []).find(s => (s.base_sku || '').trim().toUpperCase() === targetBase || (det && (s.base_sku || '').trim().toUpperCase() === (det.base_sku || '').trim().toUpperCase()));
+
+        if (det) {
+          stockEnvasado = det.stock_envasado || 0;
+          granelCode = det.granel_code || (bas ? bas.granel_code : '');
+          granelDesc = det.granel_desc || (bas ? bas.granel_desc : '');
+          granelStock = det.granel_stock !== undefined ? det.granel_stock : (bas ? bas.granel_stock : 0);
+          formatoLabel = det.formato_label || (bas ? bas.formato_label : '');
+          if (!prodDesc && det.desc) prodDesc = det.desc;
+        } else if (bas) {
+          stockEnvasado = bas.stock_envasado || 0;
+          granelCode = bas.granel_code || '';
+          granelDesc = bas.granel_desc || '';
+          granelStock = bas.granel_stock || 0;
+          formatoLabel = bas.formato_label || '';
+          if (!prodDesc && bas.desc) prodDesc = bas.desc;
+        }
+      }
+
+      // 3. Agrupar por Comercial
+      const comMap = new Map();
+      matchingLines.forEach(l => {
+        const com = l.comercial;
+        if (!comMap.has(com)) {
+          comMap.set(com, {
+            comercial: com,
+            budget_uds: 0,
+            pedidos_uds: 0,
+            servidas_uds: 0,
+            pendientes_uds: 0,
+            clients: []
+          });
+        }
+        const cObj = comMap.get(com);
+        cObj.budget_uds += (l.budget_uds || 0);
+        cObj.pedidos_uds += (l.pedidos_uds || 0);
+        cObj.servidas_uds += (l.servidas_uds || 0);
+        cObj.pendientes_uds += (l.pendientes_uds || 0);
+        cObj.clients.push({
+          cliente: l.cliente,
+          budget_uds: l.budget_uds || 0,
+          pedidos_uds: l.pedidos_uds || 0,
+          servidas_uds: l.servidas_uds || 0,
+          pendientes_uds: l.pendientes_uds || 0
+        });
+      });
+
+      // 4. Totales Consolidados
+      let totalBudget = 0, totalPedidos = 0, totalServidas = 0, totalPendientes = 0;
+      comMap.forEach(c => {
+        totalBudget += c.budget_uds;
+        totalPedidos += c.pedidos_uds;
+        totalServidas += c.servidas_uds;
+        totalPendientes += c.pendientes_uds;
+      });
+
+      const commercials = Array.from(comMap.values());
+      // Ordenar por pendientes descendente, luego pedidos descendente
+      commercials.sort((a, b) => b.pendientes_uds - a.pendientes_uds || b.pedidos_uds - a.pedidos_uds);
+
+      // 5. Rellenar Título y Subtítulo
+      const titleEl = document.getElementById('diagModalTitle');
+      const subEl = document.getElementById('diagModalSubtitle');
+      const ambitoTag = isNac ? (currentLang === 'en' ? '🇪🇸 Domestic' : '🇪🇸 Nacional') : (currentLang === 'en' ? '🌍 Export' : '🌍 Exportación');
+      const ambitoBadgeClass = isNac ? 'badge-success' : 'badge-info';
+
+      if (titleEl) {
+        titleEl.innerHTML = `<span style="font-family:monospace; background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); padding:0.15rem 0.5rem; border-radius:4px;">${sku}</span> <span>${prodDesc || sku}</span> <span class="tab-badge ${ambitoBadgeClass}" style="font-size:0.72rem; vertical-align:middle;">${ambitoTag}</span>`;
+      }
+      if (subEl) {
+        const periodName = appData.nombre || currentPeriod;
+        subEl.innerHTML = `<span>${periodName}</span> &bull; <span>${formatoLabel || 'Producto Terminado'}</span> &bull; <span style="color:${totalPendientes > 0 ? '#fbbf24' : '#34d399'}; font-weight:700">${fmtNum(totalPendientes)} u pendientes de servir</span>`;
+      }
+
+      // 6. Rellenar Grid Superior de KPIs
+      const kpiGrid = document.getElementById('diagKpiGrid');
+      if (kpiGrid) {
+        kpiGrid.innerHTML = `
+          <div class="kpi-card accent-blue" style="padding:0.75rem 1rem;">
+            <div class="kpi-header" style="margin-bottom:0.25rem;"><span class="kpi-title" style="font-size:0.75rem;">Estimación Planificada</span></div>
+            <div class="kpi-value" style="font-size:1.35rem;">${fmtNum(totalBudget)} <span style="font-size:0.85rem;color:var(--muted)">u</span></div>
+          </div>
+          <div class="kpi-card accent-emerald" style="padding:0.75rem 1rem;">
+            <div class="kpi-header" style="margin-bottom:0.25rem;"><span class="kpi-title" style="font-size:0.75rem;">Pedidos Totales</span></div>
+            <div class="kpi-value" style="font-size:1.35rem; color:#34d399;">${fmtNum(totalPedidos)} <span style="font-size:0.85rem;color:var(--muted)">u</span></div>
+          </div>
+          <div class="kpi-card accent-emerald" style="padding:0.75rem 1rem;">
+            <div class="kpi-header" style="margin-bottom:0.25rem;"><span class="kpi-title" style="font-size:0.75rem;">Servidas / Entregadas</span></div>
+            <div class="kpi-value" style="font-size:1.35rem; color:#34d399;">${fmtNum(totalServidas)} <span style="font-size:0.85rem;color:var(--muted)">u</span></div>
+          </div>
+          <div class="kpi-card ${totalPendientes > 0 ? 'accent-amber' : 'accent-emerald'}" style="padding:0.75rem 1rem;">
+            <div class="kpi-header" style="margin-bottom:0.25rem;"><span class="kpi-title" style="font-size:0.75rem;">Pendientes de Servir</span></div>
+            <div class="kpi-value" style="font-size:1.35rem; color:${totalPendientes > 0 ? '#fbbf24' : '#34d399'};">${fmtNum(totalPendientes)} <span style="font-size:0.85rem;color:var(--muted)">u</span></div>
+          </div>
+          <div class="kpi-card ${stockEnvasado >= totalPendientes && totalPendientes > 0 ? 'accent-emerald' : 'accent-blue'}" style="padding:0.75rem 1rem;">
+            <div class="kpi-header" style="margin-bottom:0.25rem;"><span class="kpi-title" style="font-size:0.75rem;">Stock Envasado Almacén</span></div>
+            <div class="kpi-value" style="font-size:1.35rem; color:${stockEnvasado > 0 ? '#38bdf8' : 'var(--muted)'};">${fmtNum(stockEnvasado)} <span style="font-size:0.85rem;color:var(--muted)">u</span></div>
+          </div>
+          <div class="kpi-card accent-blue" style="padding:0.75rem 1rem;">
+            <div class="kpi-header" style="margin-bottom:0.25rem;"><span class="kpi-title" style="font-size:0.75rem;">Granel en Planta</span></div>
+            <div class="kpi-value" style="font-size:1.35rem; color:${granelStock > 0 ? '#a78bfa' : 'var(--muted)'};">${fmtNum(granelStock)} <span style="font-size:0.85rem;color:var(--muted)">${granelCode ? granelCode : 'L/Kg'}</span></div>
+          </div>
+        `;
+      }
+
+      // 7. Rellenar Banner Diagnóstico Global Sintético
+      const bannerEl = document.getElementById('diagMainBanner');
+      if (bannerEl) {
+        let bIcon = '📦';
+        let bTitle = '';
+        let bDesc = '';
+        let bBg = 'rgba(15, 23, 42, 0.7)';
+        let bBorder = 'var(--card-border)';
+
+        if (totalPendientes === 0) {
+          if (totalPedidos > 0) {
+            bIcon = '🎉';
+            bTitle = 'Sin Unidades Pendientes: Pedidos 100% Servidos';
+            bDesc = 'No hay ninguna unidad retenida ni pendiente de expedición para este producto en el período actual.';
+            bBg = 'linear-gradient(135deg, rgba(16,185,129,0.18) 0%, rgba(15,23,42,0.85) 100%)';
+            bBorder = '1px solid rgba(16,185,129,0.5)';
+          } else {
+            bIcon = '📦';
+            bTitle = 'Artículo en Catálogo (Sin Demanda en el Período)';
+            bDesc = `No constan previsiones ni pedidos registrados para este artículo en ${appData.nombre || currentPeriod}. Existencias en fábrica: ${fmtNum(stockEnvasado)} u envasadas en almacén y ${fmtNum(granelStock)} ${granelCode ? granelCode : 'L/Kg'} de granel en planta.`;
+            bBg = 'linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(15,23,42,0.85) 100%)';
+            bBorder = '1px solid rgba(56,189,248,0.5)';
+          }
+        } else if (stockEnvasado >= totalPendientes) {
+          bIcon = '📦';
+          bTitle = `Stock Disponible en Almacén (${fmtNum(stockEnvasado)} u fabricadas para ${fmtNum(totalPendientes)} u pendientes)`;
+          bDesc = `El producto ya está completamente fabricado y envasado en los almacenes de Codiagro. No se debe a un error de previsión comercial ni a falta de capacidad de Planta. Está pendiente de transporte, consolidación de carga en camión/contenedor con otros pedidos del cliente o fecha de entrega acordada.`;
+          bBg = 'linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(15,23,42,0.85) 100%)';
+          bBorder = '1px solid rgba(56,189,248,0.5)';
+        } else {
+          // No hay stock envasado suficiente
+          const anyUnforeseen = commercials.some(c => c.budget_uds === 0 && c.pendientes_uds > 0);
+          const anyExceeded = commercials.some(c => c.pedidos_uds > c.budget_uds && c.pendientes_uds > 0);
+
+          if (anyUnforeseen && !anyExceeded && totalBudget === 0) {
+            bIcon = '⚠️';
+            bTitle = 'Venta Imprevista (Sin Previsión Comercial en el Presupuesto)';
+            bDesc = `Los pedidos entraron sin ninguna previsión mensual presupuestada (0 u estimadas). Planta de fabricación no tenía programados los lotes envasados al inicio del mes para cubrir esta demanda no planificada.`;
+            bBg = 'linear-gradient(135deg, rgba(245,158,11,0.18) 0%, rgba(15,23,42,0.85) 100%)';
+            bBorder = '1px solid rgba(245,158,11,0.5)';
+          } else if (anyExceeded) {
+            bIcon = '📈';
+            bTitle = 'Previsión Comercial Corta (Sobredemanda frente al Plan)';
+            bDesc = `La demanda comercial superó la previsión planificada (+${fmtNum(Math.max(0, totalPedidos - totalBudget))} u sobre el presupuesto). Fábrica dimensionó su envasado conforme a la previsión oficial y el exceso de pedidos ha generado el pendiente.`;
+            bBg = 'linear-gradient(135deg, rgba(249,115,22,0.18) 0%, rgba(15,23,42,0.85) 100%)';
+            bBorder = '1px solid rgba(249,115,22,0.5)';
+          } else if (granelStock > 0) {
+            bIcon = '⚙️';
+            bTitle = `Pendiente de Envasado en Línea (Hay Granel Disponible: ${fmtNum(granelStock)} ${granelCode ? granelCode : 'L/Kg'})`;
+            bDesc = `La previsión comercial fue registrada a tiempo y existe granel formulado disponible en tanques/reactores (${granelCode ? granelCode + ' - ' + granelDesc : 'Granel'}). El motivo del pendiente es la cola de envasado y paletizado en línea para este formato específico.`;
+            bBg = 'linear-gradient(135deg, rgba(168,85,247,0.18) 0%, rgba(15,23,42,0.85) 100%)';
+            bBorder = '1px solid rgba(168,85,247,0.5)';
+          } else {
+            bIcon = '🏭';
+            bTitle = 'Rotura de Stock / Retraso en Fabricación de Planta';
+            bDesc = `Los comerciales previeron las ventas correctamente en el presupuesto, pero en Planta no se ha formulado el granel ni existe stock envasado suficiente (posible cuello de botella en reactores o cola de materias primas).`;
+            bBg = 'linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(15,23,42,0.85) 100%)';
+            bBorder = '1px solid rgba(239,68,68,0.5)';
+          }
+        }
+
+        bannerEl.innerHTML = `
+          <div style="background:${bBg}; border:${bBorder}; border-radius:var(--radius-sm); padding:1rem 1.25rem; display:flex; align-items:flex-start; gap:0.9rem; box-shadow:0 4px 16px rgba(0,0,0,0.3);">
+            <div style="font-size:2rem; line-height:1; flex-shrink:0;">${bIcon}</div>
+            <div>
+              <strong style="color:#ffffff; font-size:1.02rem; display:block; margin-bottom:0.3rem;">${bTitle}</strong>
+              <div style="color:#cbd5e1; font-size:0.86rem; line-height:1.55;">${bDesc}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 8. Rellenar Tabla de Comerciales
+      const badgeCountEl = document.getElementById('diagCommercialsCountBadge');
+      if (badgeCountEl) {
+        badgeCountEl.innerText = `${commercials.length} ${commercials.length === 1 ? 'comercial' : 'comerciales'}`;
+      }
+
+      const tbody = document.getElementById('diagTableBody');
+      const tfoot = document.getElementById('diagTableFoot');
+
+      if (tbody) {
+        if (commercials.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2.5rem; color:var(--muted)">No constan líneas registradas para este producto en el período actual.</td></tr>`;
+        } else {
+          let rowsHtml = '';
+          commercials.forEach(c => {
+            let cBadgeClass = '';
+            let cBadgeText = '';
+            let cDesc = '';
+
+            if (c.pendientes_uds === 0) {
+              if (c.pedidos_uds > 0) {
+                cBadgeClass = 'cause-served';
+                cBadgeText = 'Servido 100%';
+                cDesc = `Pedidos servidos (${fmtNum(c.servidas_uds)} u entregadas).`;
+              } else {
+                cBadgeClass = 'badge-neutral';
+                cBadgeText = 'Sin Pedido';
+                cDesc = `Presupuestó ${fmtNum(c.budget_uds)} u, sin pedidos registrados aún.`;
+              }
+            } else {
+              if (stockEnvasado >= totalPendientes) {
+                cBadgeClass = 'cause-warehouse';
+                cBadgeText = 'Listo en Almacén';
+                cDesc = `Hay stock en fábrica (${fmtNum(stockEnvasado)} u). Pendiente de logística/expedición o fecha acordada.`;
+              } else if (c.budget_uds === 0 && c.pedidos_uds > 0) {
+                cBadgeClass = 'cause-unforeseen';
+                cBadgeText = 'Sin Previsión';
+                cDesc = `Venta imprevista: presupuestó 0 u y entraron ${fmtNum(c.pedidos_uds)} u.`;
+              } else if (c.pedidos_uds > c.budget_uds) {
+                const diff = c.pedidos_uds - c.budget_uds;
+                cBadgeClass = 'cause-short-forecast';
+                cBadgeText = `Previsión Corta (+${fmtNum(diff)} u)`;
+                cDesc = `Demanda desbordada: vendió +${fmtNum(diff)} u por encima de su previsión (${fmtNum(c.budget_uds)} u).`;
+              } else {
+                if (granelStock > 0) {
+                  cBadgeClass = 'cause-packaging';
+                  cBadgeText = 'Falta Envasado';
+                  cDesc = `Previsión correcta (${fmtNum(c.budget_uds)} u). Hay granel en tanques (${fmtNum(granelStock)} L/Kg), pendiente de envasar.`;
+                } else {
+                  cBadgeClass = 'cause-plant';
+                  cBadgeText = 'Falta Fabricación';
+                  cDesc = `Previsión correcta (${fmtNum(c.budget_uds)} u). Planta no ha formulado el granel o hay rotura de stock.`;
+                }
+              }
+            }
+
+            const clientsHtml = c.clients.map(cl => `
+              <div style="font-size:0.77rem; display:flex; justify-content:space-between; align-items:center; gap:0.5rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); padding:0.2rem 0.45rem; border-radius:4px; margin-bottom:0.2rem;">
+                <span style="color:#cbd5e1; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px;" title="${cl.cliente}">${cl.cliente}</span>
+                <span style="white-space:nowrap; font-size:0.73rem;">
+                  <span style="color:#94a3b8">${fmtNum(cl.pedidos_uds)} u ped</span>
+                  ${cl.pendientes_uds > 0 ? `&bull; <strong style="color:#fbbf24">${fmtNum(cl.pendientes_uds)} u pend</strong>` : (cl.pedidos_uds > 0 ? `&bull; <span style="color:#34d399">servido</span>` : '')}
+                </span>
+              </div>
+            `).join('');
+
+            rowsHtml += `
+              <tr>
+                <td>
+                  <strong class="tag-commercial" style="cursor:default; font-size:0.88rem;">${c.comercial}</strong>
+                </td>
+                <td>
+                  <div style="display:flex; flex-direction:column;">
+                    ${clientsHtml}
+                  </div>
+                </td>
+                <td class="text-right" style="color:var(--muted);">${fmtNum(c.budget_uds, 2)}</td>
+                <td class="text-right" style="font-weight:700; color:${c.pedidos_uds > 0 ? '#f8fafc' : 'var(--muted)'}">${fmtNum(c.pedidos_uds, 2)}</td>
+                <td class="text-right" style="color:#34d399;">${fmtNum(c.servidas_uds, 2)}</td>
+                <td class="text-right" style="font-weight:700; color:${c.pendientes_uds > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtNum(c.pendientes_uds, 2)}</td>
+                <td>
+                  <div style="display:flex; flex-direction:column; gap:0.25rem;">
+                    <div><span class="diag-cause-badge ${cBadgeClass}">${cBadgeText}</span></div>
+                    <span style="color:#cbd5e1; font-size:0.78rem; line-height:1.4;">${cDesc}</span>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+          tbody.innerHTML = rowsHtml;
+        }
+      }
+
+      if (tfoot) {
+        tfoot.innerHTML = `
+          <tr style="background: rgba(15, 23, 42, 0.95); font-weight: 700; border-top: 2px solid var(--card-border);">
+            <td>TOTAL PRODUCTO</td>
+            <td style="color:var(--muted); font-size:0.78rem;">${commercials.length} ${commercials.length === 1 ? 'comercial' : 'comerciales'} &bull; ${matchingLines.length} líneas de pedido</td>
+            <td class="text-right">${fmtNum(totalBudget, 2)}</td>
+            <td class="text-right" style="color:#f8fafc; font-weight:800;">${fmtNum(totalPedidos, 2)}</td>
+            <td class="text-right" style="color:#34d399; font-weight:800;">${fmtNum(totalServidas, 2)}</td>
+            <td class="text-right" style="color:${totalPendientes > 0 ? '#fbbf24' : '#34d399'}; font-weight:800;">${fmtNum(totalPendientes, 2)}</td>
+            <td style="color:var(--muted); font-size:0.78rem;">Stock: ${fmtNum(stockEnvasado)} u env / ${fmtNum(granelStock)} L granel</td>
+          </tr>
+        `;
+      }
+
+      const footerSummaryEl = document.getElementById('diagFooterSummary');
+      if (footerSummaryEl) {
+        footerSummaryEl.innerHTML = `<span>Codiagro S.L. &bull; Diagnóstico cruzado entre Pedidos Comerciales, Presupuesto Oficial y Stock Físico</span>`;
+      }
+
+      modalOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeProductDiagnosticModal() {
+      const modalOverlay = document.getElementById('productDiagnosticModal');
+      if (modalOverlay) {
+        modalOverlay.classList.remove('active');
+        const kpiOverlay = document.getElementById('kpiModalOverlay');
+        const mrpOverlay = document.getElementById('mrpSkuModal');
+        const isAnyOtherModalOpen = (kpiOverlay && kpiOverlay.classList.contains('active')) || (mrpOverlay && mrpOverlay.classList.contains('active'));
+        if (!isAnyOtherModalOpen) {
+          document.body.style.overflow = '';
+        }
+      }
+    }
+
+    function handleDiagnosticOverlayClick(e) {
+      if (e.target && e.target.id === 'productDiagnosticModal') {
+        closeProductDiagnosticModal();
+      }
+    }
+
+    // Tecla Escape para cerrar modales
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        const diagModal = document.getElementById('productDiagnosticModal');
+        if (diagModal && diagModal.classList.contains('active')) {
+          closeProductDiagnosticModal();
+          return;
+        }
         closeKpiModal();
+        if (typeof closeProdSkuModal === 'function') closeProdSkuModal();
       }
     });
 

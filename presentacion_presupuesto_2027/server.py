@@ -4,7 +4,7 @@ import os
 import sys
 from pathlib import Path
 
-PORT = 3030
+PORT = 3035
 BASE_DIR = Path(__file__).resolve().parent
 
 class PresentationHandler(http.server.SimpleHTTPRequestHandler):

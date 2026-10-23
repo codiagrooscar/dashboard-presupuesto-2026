@@ -1,5 +1,6 @@
 import sys
 import os
+# pyrefly: ignore[missing-import]
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
@@ -138,10 +139,10 @@ def create_presentation():
     add_header(s2, "Resumen Ejecutivo: Los 5 Pilares del Presupuesto 2027")
 
     pillars = [
-        ("1. Crecimiento Sostenido", "17,74 M€", "+16,9% (+2,56 M€)", "Incremento del volumen comercial (+9,9% en unidades) y mejora de precios medios y mix por productos de alta tecnología nutricional.", NAVY_LIGHT),
-        ("2. EBITDA Récord", "7,37 M€", "41,5% Margen", "El beneficio operativo crece +945 k€ (+14,7% vs 2026), preservando un margen de rentabilidad superior al 41,5% sobre ingresos.", GREEN),
-        ("3. Margen Bruto Fuerte", "63,9%", "11,33 M€ Bruto", "Absorción íntegra de la inflación de materias primas (+4,5%) gracias a economías de escala fabriles y optimización en compras.", NAVY_LIGHT),
-        ("4. Eficiencia de OPEX", "12,6%", "Coste Personal/Vtas", "Gastos de estructura bajo control. La masa salarial (2,23 M€) baja su peso relativo en ventas del 13,2% (2026) al 12,6% (2027).", NAVY_LIGHT),
+        ("1. Crecimiento Sostenido", "17,18 M€", "+13,2% (+2,00 M€)", "Incremento del volumen comercial (+8,1% en unidades) y consolidación de precios medios y mix por productos de alta tecnología nutricional.", NAVY_LIGHT),
+        ("2. EBITDA Récord", "7,30 M€", "42,5% Margen", "El beneficio operativo crece +874 k€ (+13,6% vs 2026), preservando un margen de rentabilidad récord del 42,5% sobre ingresos.", GREEN),
+        ("3. Margen Bruto Fuerte", "65,5%", "11,26 M€ Bruto", "Absorción íntegra de la inflación de materias primas (+4,5%) gracias a economías de escala fabriles y optimización en compras.", NAVY_LIGHT),
+        ("4. Eficiencia de OPEX", "13,0%", "Coste Personal/Vtas", "Gastos de estructura bajo control. La masa salarial (2,23 M€) reduce su peso relativo en ventas del 13,2% (2026) al 13,0% (2027).", NAVY_LIGHT),
         ("5. Tracción Inmediata", "129,8%", "Cierre Sep-26", "La demanda actual valida la ambición del plan: Septiembre 2026 cierra con 236.105 uds pedidas vs 181.966 presupuestadas (+29,8%).", GREEN),
     ]
 
@@ -213,16 +214,16 @@ def create_presentation():
 
     pnl_data = [
         ("Línea P&L (en miles de €)", "2026 FC", "% Vtas", "2027 B", "% Vtas", "Var (€ / %)"),
-        ("1. Cifra Neta de Negocios (Ventas)", "15.180", "100,0%", "17.738", "100,0%", "+2.558 (+16,9%)"),
-        ("2. Coste de las Ventas (COGS)", "-5.234", "34,5%", "-6.407", "36,1%", "-1.174 (+22,4%)"),
-        ("3. Margen Bruto (Gross Profit)", "9.946", "65,5%", "11.331", "63,9%", "+1.384 (+13,9%)"),
-        ("4. Gastos de Personal", "-2.007", "13,2%", "-2.229", "12,6%", "-222 (+11,1%)"),
-        ("5. Otros Ingresos Operativos (Export Transp)", "+169", "1,1%", "+305", "1,7%", "+137 (+81,1%)"),
-        ("6. Otros Gastos Operativos (Opex)", "-1.684", "11,1%", "-2.038", "11,5%", "-355 (+21,0%)"),
-        ("7. Total Gastos Fijos (OPEX Neto)", "-3.522", "23,2%", "-3.962", "22,3%", "-440 (+12,5%)"),
-        ("8. EBITDA Ajustado", "6.424", "42,3%", "7.369", "41,5%", "+945 (+14,7%)"),
+        ("1. Cifra Neta de Negocios (Ventas)", "15.180", "100,0%", "17.180", "100,0%", "+2.000 (+13,2%)"),
+        ("2. Coste de las Ventas (COGS)", "-5.234", "34,5%", "-5.919", "34,5%", "-686 (+13,1%)"),
+        ("3. Margen Bruto (Gross Profit)", "9.946", "65,5%", "11.261", "65,5%", "+1.315 (+13,2%)"),
+        ("4. Gastos de Personal", "-2.007", "13,2%", "-2.229", "13,0%", "-222 (+11,1%)"),
+        ("5. Otros Ingresos Operativos (Export Transp)", "+169", "1,1%", "+305", "1,8%", "+137 (+81,1%)"),
+        ("6. Otros Gastos Operativos (Opex)", "-1.684", "11,1%", "-2.038", "11,9%", "-355 (+21,0%)"),
+        ("7. Total Gastos Fijos (OPEX Neto)", "-3.522", "23,2%", "-3.962", "23,1%", "-440 (+12,5%)"),
+        ("8. EBITDA Ajustado", "6.424", "42,3%", "7.299", "42,5%", "+874 (+13,6%)"),
         ("9. Amortizaciones y Depreciaciones (D&A)", "-230", "1,5%", "-231", "1,3%", "-1 (+0,4%)"),
-        ("10. EBIT Ajustado (Resultado Operativo)", "6.201", "40,8%", "7.138", "40,2%", "+938 (+15,1%)"),
+        ("10. EBIT Ajustado (Resultado Operativo)", "6.195", "40,8%", "7.068", "41,1%", "+873 (+14,1%)"),
     ]
 
     for r_idx, row in enumerate(pnl_data):
@@ -264,12 +265,12 @@ def create_presentation():
     p.font.bold = True
     p.font.color.rgb = GREEN_ACCENT
     p1 = tf1.add_paragraph()
-    p1.text = "7,37 M€"
+    p1.text = "7,30 M€"
     p1.font.size = Pt(28)
     p1.font.bold = True
     p1.font.color.rgb = NAVY
     p2 = tf1.add_paragraph()
-    p2.text = "EBITDA récord en la historia de la compañía (+14,7% vs 2026), manteniendo un margen excelente del 41,5% a pesar del impacto inflacionario y el refuerzo en formación."
+    p2.text = "EBITDA récord en la historia de la compañía (+13,6% vs 2026), preservando un margen excelente del 42,5% a pesar de la inflación de suministros y refuerzos operativos."
     p2.font.size = Pt(10)
     p2.font.color.rgb = DARK_TEXT
 
@@ -283,12 +284,12 @@ def create_presentation():
     p.font.bold = True
     p.font.color.rgb = NAVY_LIGHT
     p1 = tf2.add_paragraph()
-    p1.text = "+2,56 M€"
+    p1.text = "+2,00 M€"
     p1.font.size = Pt(28)
     p1.font.bold = True
     p1.font.color.rgb = NAVY
     p2 = tf2.add_paragraph()
-    p2.text = "Crecimiento en ingresos (+16,9%) impulsado por expansión de red comercial y mayor cuota en clientes estratégicos, convirtiendo cada euro extra en 38 céntimos de EBITDA."
+    p2.text = "Crecimiento en ingresos (+13,2%) sostenido en España y mercados clave de exportación, convirtiendo cada euro extra de venta en 44 céntimos de EBITDA adicional."
     p2.font.size = Pt(10)
     p2.font.color.rgb = DARK_TEXT
 
@@ -310,14 +311,14 @@ def create_presentation():
 
     com_data = [
         ("Comercial", "2026 (€)", "2027 (€)", "Var (€)", "Var (Uds)", "Cuota '27", "Mercado Clave"),
-        ("García", "5.852.629", "6.723.769", "+14,9%", "+9,9%", "37,9%", "España Centro-Sur / Clientes A"),
-        ("Ricardo", "3.821.151", "4.401.918", "+15,2%", "+10,9%", "24,8%", "Levante / Distribución"),
-        ("Mehmet", "1.828.039", "2.167.769", "+18,6%", "+13,8%", "12,2%", "Exportación Internacional"),
-        ("Pedro", "1.245.386", "1.413.541", "+13,5%", "+8,3%", "8,0%", "Zona Norte / Agroindustria"),
-        ("Irene", "1.092.517", "1.251.434", "+14,5%", "+9,0%", "7,1%", "Bioestimulantes / Especialidades"),
-        ("Javier", "1.009.061", "1.142.039", "+13,2%", "+9,0%", "6,4%", "Cultivos Leñosos y Frutales"),
-        ("Alfonso", "535.366", "637.691", "+19,1%", "+12,5%", "3,6%", "Nuevas Cuentas / Expansión"),
-        ("TOTAL CODIAGRO", "15.384.149", "17.738.160", "+15,3%", "+10,3%", "100,0%", "Consolidado Comercial")
+        ("García", "5.758.078", "6.425.613", "+11,6%", "+7,6%", "37,4%", "España Centro-Sur / Clientes A"),
+        ("Ricardo", "3.824.612", "4.281.919", "+12,0%", "+6,6%", "24,9%", "Levante / Distribución"),
+        ("Mehmet", "1.778.148", "2.027.764", "+14,0%", "+7,5%", "11,8%", "Exportación Internacional"),
+        ("Pedro", "1.239.220", "1.413.541", "+14,1%", "+9,3%", "8,2%", "Zona Norte / Agroindustria"),
+        ("Irene", "1.077.392", "1.251.434", "+16,2%", "+11,2%", "7,3%", "Bioestimulantes / Especialidades"),
+        ("Javier", "973.009", "1.142.039", "+17,4%", "+13,6%", "6,6%", "Cultivos Leñosos y Frutales"),
+        ("Alfonso", "529.543", "637.691", "+20,4%", "+13,8%", "3,7%", "Nuevas Cuentas / Expansión"),
+        ("TOTAL CODIAGRO", "15.180.000", "17.180.000", "+13,2%", "+8,1%", "100,0%", "Consolidado Comercial")
     ]
 
     for r_idx, row in enumerate(com_data):
@@ -361,10 +362,10 @@ def create_presentation():
     p.space_after = Pt(10)
 
     bullets = [
-        ("Liderazgo Consolidado:", "García y Ricardo representan el 62,7% de la cifra global (11,12 M€), garantizando solidez en el negocio recurrente."),
-        ("Acelerador Exportación:", "Mehmet lidera el crecimiento relativo internacional (+18,6% en € / +13,8% en volumen), consolidando mercados exteriores clave."),
-        ("Dinamismo en Red:", "Alfonso (+19,1%) e Irene (+14,5%) potencian la venta técnica de gamas biológicas de mayor margen unitario."),
-        ("Efecto Mix y Precio:", "El crecimiento en facturación (+15,3%) supera al de unidades (+10,3%), reflejando el incremento del precio medio ponderado.")
+        ("Liderazgo Consolidado:", "García y Ricardo representan el 62,3% de la cifra global (10,71 M€), garantizando solidez y tracción en el negocio recurrente."),
+        ("Acelerador Exportación:", "Mehmet supera los 2,02 M€ (+14,0% en € / +7,5% en volumen), consolidando mercados exteriores clave con ratios ajustados."),
+        ("Dinamismo en Red:", "Alfonso (+20,4%), Javier (+17,4%) e Irene (+16,2%) potencian la venta técnica de gamas biológicas de alto margen."),
+        ("Ajuste Quirúrgico Opción 4:", "El plan 2027 refleja el ajuste a 17,18 M€, eliminando sobreexpectativas en Turquía, Egipto, Chile y Grecia.")
     ]
     for b_title, b_desc in bullets:
         p1 = tf_ci.add_paragraph()
@@ -386,10 +387,10 @@ def create_presentation():
     add_header(s5, "Estructura de Aprovisionamientos y Margen Bruto (COGS)")
 
     cogs_items = [
-        ("Materias Primas (601)", "4.585 k€", "25,85% s/ventas", "Consumo directo en formulación química. Se traslada un +4,5% por actualización de índices inflacionarios en 2027.", NAVY_LIGHT),
-        ("Envases y Embalajes (602001)", "956 k€", "5,39% s/ventas", "Bidones, garrafas y contenedores IBC. Unificación de criterios de imputación tras integración de cuentas satélite.", NAVY_LIGHT),
-        ("Etiquetas y Palets (602002/3)", "320 k€", "1,80% s/ventas", "Materiales auxiliares y consumibles logísticos vinculados al envasado en planta.", NAVY_LIGHT),
-        ("Subcontratación y Fabril (607)", "546 k€", "3,08% s/ventas", "Refuerzo puntual en picos de demanda estacional para maximizar servicio sin sobrecargar estructura fija.", NAVY_LIGHT),
+        ("Materias Primas (601)", "4.462 k€", "25,97% s/ventas", "Consumo directo en formulación química. Se traslada un +4,5% de inflación contenida en 2027.", NAVY_LIGHT),
+        ("Envases y Embalajes (602001)", "921 k€", "5,36% s/ventas", "Bidones, garrafas y contenedores IBC. Optimización de compras con acuerdos marco.", NAVY_LIGHT),
+        ("Etiquetas y Palets (602002/3)", "303 k€", "1,76% s/ventas", "Materiales auxiliares y consumibles logísticos vinculados al envasado en planta.", NAVY_LIGHT),
+        ("Subcontratación y Fabril (607)", "233 k€", "1,36% s/ventas", "Refuerzo puntual en picos de demanda estacional para maximizar servicio sin sobrecargar estructura fija.", NAVY_LIGHT),
     ]
 
     for i, (title, val, ratio, desc, color) in enumerate(cogs_items):
@@ -424,23 +425,23 @@ def create_presentation():
     p.font.color.rgb = GREEN
 
     p_val = tf_gp.add_paragraph()
-    p_val.text = "63,9%"
+    p_val.text = "67,3%"
     p_val.font.size = Pt(36)
     p_val.font.bold = True
     p_val.font.color.rgb = NAVY
     p_val.space_before = Pt(6)
 
     p_sub = tf_gp.add_paragraph()
-    p_sub.text = "11.330.914 € de Gross Profit"
+    p_sub.text = "11.565.940 € de Gross Profit"
     p_sub.font.size = Pt(12)
     p_sub.font.bold = True
     p_sub.font.color.rgb = GREEN_ACCENT
     p_sub.space_after = Pt(14)
 
     p_pts = [
-        "A pesar de absorber una subida de costes del +22,4% (por inflación de MP y mayor producción), el Gross Profit en euros crece un +13,9% (+1,38 M€).",
-        "El apalancamiento de volumen compensa con creces el ligero ajuste de margen porcentual (de 65,5% a 63,9%).",
-        "Política de compras con contratos a plazo en materias primas clave para asegurar precio y suministro continuo en campaña."
+        "El Gross Profit en euros se incrementa en +1,45 M€ (+14,3% vs cierre 2026), alcanzando una tasa récord del 67,32% sobre ventas.",
+        "La contención del incremento de compras al +4,5% estricto de inflación preserva intacto el valor añadido generado en fábrica.",
+        "Mayor aportación del mix de bioestimulantes y formulaciones de alto rendimiento tecnológico en cartera."
     ]
     for pt in p_pts:
         p_item = tf_gp.add_paragraph()
@@ -455,10 +456,9 @@ def create_presentation():
     s6 = prs.slides.add_slide(blank_layout)
     add_header(s6, "Estructura Operativa: Gastos de Personal y Gastos Fijos (OPEX)")
 
-    # 3 Cards horizontal
     cards_opex = [
-        ("Gastos de Personal", "2.228.610 €", "12,56% de Ventas", "Incremento de +222 k€ (+11,1% vs 2026) motivado por:\n• Actualización salarial convenio químico y antigüedad.\n• Refuerzo del equipo técnico de desarrollo agronómico en campo.\n• Nueva incorporación en planta para absorber mayor ritmo de envasado.\n• Mejora de eficiencia: el peso s/ventas se reduce del 13,2% al 12,6%."),
-        ("Otros Gastos Operativos", "2.038.489 €", "11,49% de Ventas", "Partidas de funcionamiento diario y red comercial:\n• Formación no bonificada: 53.215 € (4.435 €/mes).\n• Gastos comerciales: 92.400 € (Pere, Ricardo y García a 2.000 €/m; Javier 1.200 €/m; Irene y Pedro 600 €/m; Ago 50%, Ene/Dic 75%).\n• Marketing y Ferias: 266 k€ | Regulatory: 234 k€ | Transporte neto: 246 k€."),
+        ("Gastos de Personal", "2.228.610 €", "12,97% de Ventas", "Incremento de +222 k€ (+11,1% vs 2026) motivado por:\n• Actualización salarial convenio químico y antigüedad.\n• Refuerzo del equipo técnico de desarrollo agronómico en campo.\n• Nueva incorporación en planta para absorber mayor ritmo de envasado.\n• Mejora de eficiencia: el peso s/ventas se reduce del 13,22% al 12,97%."),
+        ("Otros Gastos Operativos", "2.038.489 €", "11,87% de Ventas", "Partidas de funcionamiento diario y red comercial:\n• Formación no bonificada: 53.215 € (4.435 €/mes).\n• Gastos comerciales: 92.400 € (Pere, Ricardo y García a 2.000 €/m; Javier 1.200 €/m; Irene y Pedro 600 €/m; Ago 50%, Ene/Dic 75%).\n• Marketing y Ferias: 266 k€ | Regulatory: 234 k€ | Transporte neto: 246 k€."),
         ("Otros Ingresos Operativos", "305.223 €", "Compensación Export", "Salvedad contable de transporte:\n• Los fletes marítimos y aéreos de exportación se facturan íntegramente al cliente exterior en factura de venta (700001624).\n• Impacto en EBITDA: Totalmente neutro.\n• Transparencia y rigor normativo PGC.")
     ]
 
@@ -511,12 +511,12 @@ def create_presentation():
 
     dept_rows = [
         ("Departamento / Área", "Ppto Depto (€)", "Ppto P&L (€)", "Diferencia (€)", "Criterio de Conciliación PGC"),
-        ("Compras y Aprovisionamientos", "6.254.129", "6.036.996", "+217.133", "Ajuste de consumo real vs compras con stock"),
+        ("Compras y Aprovisionamientos", "6.120.000", "5.919.283", "+200.717", "Ajuste de consumo real vs compras con stock"),
         ("Transportes (Neto Codiagro)", "245.670", "301.549", "-55.879", "Exportación (305 k€) repercutida al cliente"),
         ("Marketing y Comunicación", "266.072", "49.697", "+216.375", "Reclasificación ferias y campañas directas"),
         ("Regulatory y Registros", "233.918", "105.551", "+128.367", "Registro de marcas UE activable (203/623)"),
         ("Mantenimiento de Fábrica", "91.234", "197.422", "-106.188", "Subcontratación repuestos y revisiones"),
-        ("TOTAL GASTOS DEPARTAMENTOS", "7.091.023", "6.691.215", "+399.808", "Conciliado con Estados Financieros")
+        ("TOTAL GASTOS DEPARTAMENTOS", "6.956.894", "6.573.502", "+383.392", "Conciliado con Estados Financieros")
     ]
 
     for r_idx, row in enumerate(dept_rows):
@@ -642,7 +642,7 @@ def create_presentation():
     insights = [
         "Confianza del Mercado: El salto de demanda anticipa una excelente campaña agrícola 2026/27.",
         "Aceptación de Tarifas: La actualización de precios no ha erosionado la cartera de pedidos de los distribuidores.",
-        "Respaldo al Plan 2027: Los 17,74 M€ presupuestados para 2027 no son una cifra teórica; están respaldados por tracción de compra inmediata.",
+        "Respaldo al Plan 2027: Los 17,18 M€ presupuestados para 2027 están sólidamente fundamentados en tracción real de compra.",
         "Control en Tiempo Real: El nuevo dashboard automatizado permite detectar desviaciones a nivel cliente y SKU al día siguiente."
     ]
     for ins in insights:
@@ -660,9 +660,9 @@ def create_presentation():
 
     # 3 Scenarios
     scenarios = [
-        ("Escenario Optimista (+5% Ventas)", "18,63 M€", "EBITDA: 7,95 M€ (42,7%)", "Mayor penetración internacional y campaña agronómica adelantada.", GREEN),
-        ("Escenario Base Presupuestado", "17,74 M€", "EBITDA: 7,40 M€ (41,7%)", "Hipótesis central aprobada, con crecimiento del +16,9% y control de costes.", NAVY_LIGHT),
-        ("Escenario Conservador (-5% Ventas)", "16,85 M€", "EBITDA: 6,85 M€ (40,7%)", "Retraso en pedidos climáticos; margen EBITDA preservado por flexibilidad fabril.", GOLD),
+        ("Escenario Optimista (+5% Ventas)", "18,04 M€", "EBITDA: 7,85 M€ (43,5%)", "Mayor penetración internacional y campaña agronómica adelantada.", GREEN),
+        ("Escenario Base Presupuestado", "17,18 M€", "EBITDA: 7,30 M€ (42,5%)", "Hipótesis central aprobada, con crecimiento del +13,2% y control de costes.", NAVY_LIGHT),
+        ("Escenario Conservador (-5% Ventas)", "16,32 M€", "EBITDA: 6,75 M€ (41,4%)", "Retraso en pedidos climáticos; margen EBITDA preservado por flexibilidad fabril.", GOLD),
     ]
 
     for i, (name, rev, ebitda, text, color) in enumerate(scenarios):
@@ -741,11 +741,11 @@ def create_presentation():
     phases = [
         ("Q1 2027 · Arranque y Campaña", "Ene - Mar", [
             "Lanzamiento de nuevas tarifas y contratos anuales.",
-            "Revisión de consumo de materias primas frente al ratio 25,85%.",
+            "Revisión de consumo de materias primas frente al ratio 25,97%.",
             "Cierre y balance del primer trimestre con análisis de desviaciones."
         ]),
         ("Q2 2027 · Pico de Ventas y Envasado", "Abr - Jun", [
-            "Meses clave de volumen fabril (Mayo y Junio >800 k€ en compras).",
+            "Meses clave de volumen fabril (Mayo y Junio >750 k€ en compras).",
             "Control riguroso de subcontratación y horas de planta.",
             "Revisión semestral del plan de marketing y asistencia a ferias."
         ]),
@@ -798,9 +798,9 @@ def create_presentation():
     # 3 Big Recommendation Cards
     decisions = [
         ("1. Aprobación del Marco Financiero 2027", "Presupuesto Oficial", [
-            "Aprobar la meta de Cifra Neta de Negocios en 17,74 M€ (+16,9% vs 2026).",
-            "Ratificar el objetivo de EBITDA Ajustado en 7,40 M€ (41,7% de margen).",
-            "Validar el techo de gasto de aprovisionamientos (COGS) en 6,41 M€."
+            "Aprobar la meta de Cifra Neta de Negocios en 17,18 M€ (+13,2% vs 2026).",
+            "Ratificar el objetivo de EBITDA Ajustado en 7,30 M€ (42,5% de margen).",
+            "Validar el techo de gasto de aprovisionamientos (COGS) en 5,92 M€."
         ], GREEN),
         ("2. Autorización de Inversiones y Estructura", "Plan de Recursos", [
             "Aprobar el presupuesto de personal de 2,23 M€ con refuerzo técnico y fabril.",

@@ -118,7 +118,8 @@ def load_data_sources():
         df_ped_oct['SKU_CLEAN'] = df_ped_oct['CodigoArticulo'].astype(str).str.strip().str.upper()
         df_ped_oct = df_ped_oct[~df_ped_oct['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
         if 'FechaPedido' in df_ped_oct.columns:
-            df_ped_oct = df_ped_oct[pd.to_datetime(df_ped_oct['FechaPedido']).dt.month == 10].copy()
+            dt_s = pd.to_datetime(df_ped_oct['FechaPedido'], errors='coerce')
+            df_ped_oct = df_ped_oct[(dt_s.dt.month == 10) | (df_ped_oct['FechaPedido'].isna())].copy()
         df_ped_oct['Comercial'] = df_ped_oct['CLIENTE_NORM'].map(client_map).fillna('Sin Asignar')
     else:
         df_ped_oct = df_ped_sep.iloc[0:0].copy()

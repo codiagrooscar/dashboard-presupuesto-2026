@@ -14,14 +14,14 @@
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
-  <script src="dashboard_data.js?v=20261016_0715"></script>
-  <script src="production_planning_data.js?v=20261016_0715"></script>
-  <script src="treasury_data.js?v=20261016_0715"></script>
-  <script src="profitability_data.js?v=20261016_0715"></script>
-  <script src="profitability_logic.js?v=20261016_0715"></script>
+  <script src="dashboard_data.js?v=20261026_0835"></script>
+  <script src="production_planning_data.js?v=20261026_0835"></script>
+  <script src="treasury_data.js?v=20261026_0835"></script>
+  <script src="profitability_data.js?v=20261026_0835"></script>
+  <script src="profitability_logic.js?v=20261026_0835"></script>
   <link rel="stylesheet" href="marta_tracking.css">
-  <script src="marta_tracking_data.js"></script>
-  <script src="marta_tracking_logic.js"></script>
+  <script src="marta_tracking_data.js?v=20261026_0835"></script>
+  <script src="marta_tracking_logic.js?v=20261026_0835"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -3062,42 +3062,40 @@
 
     async function loadData() {
       try {
-        if (window.DASHBOARD_PERIODS_DATA && window.DASHBOARD_PERIODS_DATA.periods) {
+        let resp = null;
+        const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        if (isLocal) {
+          try {
+            const r = await fetch('/api/data?t=' + Date.now(), { cache: 'no-store' });
+            if (r.ok) resp = r;
+          } catch (e) {}
+        }
+        if (!resp) {
+          const urlsToTry = [
+            'dashboard_data.json?t=' + Date.now(),
+            './dashboard_data.json?t=' + Date.now()
+          ];
+          for (const u of urlsToTry) {
+            try {
+              const r = await fetch(u, { cache: 'no-store' });
+              if (r.ok) { resp = r; break; }
+            } catch (e) {}
+          }
+        }
+        if (resp) {
+          const fetched = await resp.json();
+          if (fetched.periods) {
+            allPeriodsData = fetched;
+          } else {
+            allPeriodsData = {
+              default_period: '2026-10',
+              periods: { '2026-10': fetched }
+            };
+          }
+        } else if (window.DASHBOARD_PERIODS_DATA && window.DASHBOARD_PERIODS_DATA.periods) {
           allPeriodsData = window.DASHBOARD_PERIODS_DATA;
         } else if (window.DASHBOARD_DATA && window.DASHBOARD_DATA.periods) {
           allPeriodsData = window.DASHBOARD_DATA;
-        } else {
-          let resp = null;
-          const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-          if (isLocal) {
-            try {
-              const r = await fetch('/api/data?t=' + Date.now(), { cache: 'no-store' });
-              if (r.ok) resp = r;
-            } catch (e) {}
-          }
-          if (!resp) {
-            const urlsToTry = [
-              'dashboard_data.json?t=' + Date.now(),
-              './dashboard_data.json?t=' + Date.now()
-            ];
-            for (const u of urlsToTry) {
-              try {
-                const r = await fetch(u);
-                if (r.ok) { resp = r; break; }
-              } catch (e) {}
-            }
-          }
-          if (resp) {
-            const fetched = await resp.json();
-            if (fetched.periods) {
-              allPeriodsData = fetched;
-            } else {
-              allPeriodsData = {
-                default_period: '2026-10',
-                periods: { '2026-10': fetched }
-              };
-            }
-          }
         }
 
         if (!allPeriodsData) {

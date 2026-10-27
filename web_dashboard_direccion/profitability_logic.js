@@ -968,7 +968,16 @@ function closeProfitClientModal(event) {
 
 function exportProfitClientesCsv() {
   if (!profitData || !profitData.clientes) return;
-  const list = profitData.clientes;
+  const activeScope = getProfitCurrentScope();
+  const list = profitData.clientes.filter(c => {
+    if (!matchesProfitScope(c.pais, activeScope)) return false;
+    if (profitClientFilter !== 'ALL' && c.semaforo !== profitClientFilter) return false;
+    if (profitClientSearch) {
+      const q = profitClientSearch.toLowerCase();
+      if (!c.cliente.toLowerCase().includes(q) && !c.pais.toLowerCase().includes(q) && !c.comercial.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
   let csv = 'Cliente;Pais;Comercial;Clasificacion;SKUs_Count;Ventas_2027;COGS_2027;Margen_2027_Eur;Margen_2027_Pct;Ventas_2026;COGS_2026;Margen_2026_Eur;Margen_2026_Pct;Semaforo;Matriz_Estrategica\n';
   list.forEach(c => {
     csv += `"${c.cliente.replace(/"/g, '""')}";"${c.pais}";"${c.comercial}";"${c.clasif_cliente}";${c.skus_count};${c.ventas_2027};${c.cogs_2027};${c.margen_2027_eur};${c.margen_2027_pct};${c.ventas_2026};${c.cogs_2026};${c.margen_2026_eur};${c.margen_2026_pct};"${c.semaforo}";"${c.matriz_estrategica}"\n`;
@@ -2219,8 +2228,10 @@ window.exportFullcostClientesCsv = function() {
   const scope = (typeof currentScope !== 'undefined') ? currentScope : (typeof window !== 'undefined' ? window.currentScope : 'ALL');
 
   const filteredClientes = fc.clientes.filter(c => {
-    if (scope === 'NACIONAL' && c.pais !== 'España') return false;
-    if (scope === 'EXPORT' && c.pais === 'España') return false;
+    const pUpper = (c.pais || '').toUpperCase().trim();
+    const isEspana = pUpper === 'ESPAÑA' || pUpper === 'ESPANA';
+    if (scope === 'NACIONAL' && !isEspana) return false;
+    if ((scope === 'EXPORT' || scope === 'EXPORTACION') && isEspana) return false;
     if (search && !c.cliente.toLowerCase().includes(search) && !c.comercial.toLowerCase().includes(search) && !c.pais.toLowerCase().includes(search)) return false;
     if (filter !== 'ALL' && c.semaforo !== filter) return false;
     return true;

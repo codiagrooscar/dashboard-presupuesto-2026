@@ -22,7 +22,7 @@
   <script src="profitability_logic.js?v=20261027_0855"></script>
   <script src="bi_intelligence_data.js?v=20261027_0907"></script>
   <script src="cockpit_inicio_logic.js?v=20261027_0907"></script>
-  <script src="bi_intelligence_logic.js?v=20261027_1020"></script>
+  <script src="bi_intelligence_logic.js?v=20261027_1025"></script>
   <link rel="stylesheet" href="marta_tracking.css">
   <script src="marta_tracking_data.js?v=20261027_0855"></script>
   <script src="marta_tracking_logic.js?v=20261027_0855"></script>
@@ -1991,7 +1991,9 @@
         </div>
       </header>
 
-<main id="appContent">
+<!-- MEJORA 20: AUDITORÍA DE USABILIDAD Y FLUJOS DIRECTIVOS GUIADOS -->
+      <div id="directorialWorkflowBannerContainer" style="padding: 0.75rem 2rem 0 2rem;"></div>
+      <main id="appContent">
     <div style="text-align:center; padding: 4rem; color: var(--muted)">
       Cargando datos de previsión y pedidos...
     </div>
@@ -6964,6 +6966,10 @@
 
     function renderCurrentTab() {
       if (!appData) return;
+      const bannerEl = document.getElementById('directorialWorkflowBannerContainer');
+      if (bannerEl && typeof renderWorkflowAuditBannerHtml === 'function') {
+        bannerEl.innerHTML = renderWorkflowAuditBannerHtml();
+      }
       const container = document.getElementById('appContent');
       if (currentTab === 'inicio') {
         renderCockpitInicioTab(container);

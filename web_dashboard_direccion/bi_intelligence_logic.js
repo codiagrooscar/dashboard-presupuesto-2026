@@ -1,5 +1,181 @@
 
 // -------------------------------------------------------------------------
+// MEJORA 19: COMPONENTE UNIVERSAL DE ESTADOS EXPLÍCITOS DE PANTALLA
+// -------------------------------------------------------------------------
+
+window.renderExplicitState = function(type, title, message, actionText, actionFn) {
+  let icon = 'ℹ️';
+  let color = '#38bdf8';
+  let defaultTitle = 'Información del Sistema';
+  let defaultMsg = 'No hay información adicional para mostrar.';
+
+  if (type === 'LOADING') {
+    icon = '⏳';
+    defaultTitle = 'Cargando datos contables conciliados...';
+    defaultMsg = 'Consultando registros del Libro Mayor y agregaciones de costes.';
+  } else if (type === 'NO_RESULTS') {
+    icon = '🔍';
+    color = '#fbbf24';
+    defaultTitle = 'Sin resultados con estos filtros';
+    defaultMsg = 'No se encontraron registros que coincidan con los criterios seleccionados. Prueba a flexibilizar la búsqueda.';
+  } else if (type === 'EMPTY_PERIOD') {
+    icon = '📅';
+    color = '#94a3b8';
+    defaultTitle = 'Sin movimientos en este período';
+    defaultMsg = 'No se han registrado operaciones comerciales ni productivas para las fechas seleccionadas.';
+  } else if (type === 'NO_DATA') {
+    icon = '📂';
+    color = '#ef4444';
+    defaultTitle = 'Sin datos cargados en el sistema';
+    defaultMsg = 'El fichero contable o staging aún no ha sido importado para este ejercicio.';
+  }
+
+  return `
+    <div class="explicit-state-box" style="padding:3.5rem 1.5rem; text-align:center; background:rgba(15,23,42,0.4); border:1px dashed var(--card-border); border-radius:var(--radius-md); margin:1.5rem 0;">
+      <div style="font-size:2.6rem; margin-bottom:0.6rem;">${icon}</div>
+      <h4 style="margin:0 0 0.35rem 0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.15rem;">
+        ${title || defaultTitle}
+      </h4>
+      <p style="margin:0 0 1.25rem 0; font-size:0.86rem; color:var(--muted); max-width:500px; margin-left:auto; margin-right:auto;">
+        ${message || defaultMsg}
+      </p>
+      ${actionText && actionFn ? `
+        <button class="pill-btn active" onclick="${actionFn}" style="padding:0.45rem 1.3rem; font-size:0.82rem; cursor:pointer;">
+          ${actionText}
+        </button>
+      ` : ''}
+    </div>
+  `;
+};
+
+
+// -------------------------------------------------------------------------
+// MEJORA 20: COMPROBACIÓN DE USABILIDAD MEDIANTE FLUJOS REALES GUIADOS
+// -------------------------------------------------------------------------
+
+window.DIRECTORIAL_FLOWS = [
+  {
+    id: 'FLOW_COMERCIAL',
+    nombre: 'Flujo 1: Plan de Choque Comercial (Fuga de Clientes)',
+    rol: 'Director Comercial',
+    pasos: [
+      '1. Apertura del panel de Clientes en Fuga (Churn Alert).',
+      '2. Filtrado interactivo por nivel de severidad (Crítica >50%).',
+      '3. Inspección del soporte de origen Nivel 3 (Factura de venta).',
+      '4. Retorno conservando la posición y filtros activos.'
+    ],
+    execute: function() {
+      if (typeof switchTab === 'function') switchTab('bi_churn');
+      setTimeout(() => {
+        if (typeof setChurnFilter === 'function') setChurnFilter('severidad', 'CRÍTICA');
+        showWorkflowToast('Paso 2/4: Filtro de severidad Crítica aplicado. Abriendo soporte Nivel 3...');
+        setTimeout(() => {
+          if (typeof openDocumentTraceability === 'function') {
+            openDocumentTraceability('FACTURA', 'FAC-2026-CHURN', 'AGRIPOOL IBERICA S.L.');
+            showWorkflowToast('Paso 3/4: Trazabilidad documental Nivel 3 visible. Pulsa Volver cuando quieras.');
+          }
+        }, 800);
+      }, 300);
+    }
+  },
+  {
+    id: 'FLOW_FINANCIERO',
+    nombre: 'Flujo 2: Auditoría y Cierre de Período (0,00 €)',
+    rol: 'Director Financiero',
+    pasos: [
+      '1. Consulta del Libro Mayor y comprobación del descuadre 0,00 €.',
+      '2. Explicación metodológica del cálculo y tolerancias.',
+      '3. Acceso a los Snapshots inmutables congelados.',
+      '4. Consulta del glosario de términos contables (RAI / CECO).'
+    ],
+    execute: function() {
+      if (typeof switchTab === 'function') switchTab('controles');
+      showWorkflowToast('Paso 1/4: Pantalla de Controles y Conciliación Contable cargada.');
+      setTimeout(() => {
+        if (typeof showKpiHelpModal === 'function') {
+          showKpiHelpModal('CONTROLES_DESCUADRE');
+          showWorkflowToast('Paso 2/4: Transparencia metodológica del Descuadre Contable desplegada.');
+        }
+      }, 600);
+    }
+  },
+  {
+    id: 'FLOW_OPERACIONES',
+    nombre: 'Flujo 3: Optimización Industrial y Lotes Mínimos',
+    rol: 'Director de Operaciones',
+    pasos: [
+      '1. Identificación de SKUs fragmentados y costes de limpieza.',
+      '2. Consulta de la sigla CECO en el glosario interactivo.',
+      '3. Inspección del parte de trabajo / reactor Nivel 3.',
+      '4. Simulación de fechas de entrega viables ATP.'
+    ],
+    execute: function() {
+      if (typeof switchTab === 'function') switchTab('bi_complexity');
+      showWorkflowToast('Paso 1/4: Complejidad Industrial cargada.');
+      setTimeout(() => {
+        if (typeof showAcronymModal === 'function') {
+          showAcronymModal('CECO');
+          showWorkflowToast('Paso 2/4: Glosario CECO interactivo desplegado.');
+        }
+      }, 600);
+    }
+  }
+];
+
+window.showWorkflowToast = function(msg) {
+  let toast = document.getElementById('workflowToastNotification');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'workflowToastNotification';
+    toast.style.cssText = 'position:fixed; bottom:24px; right:24px; background:#10b981; color:#fff; padding:0.85rem 1.35rem; border-radius:8px; font-size:0.85rem; font-weight:700; z-index:999999; box-shadow:0 10px 25px rgba(0,0,0,0.4); animation:fadeIn 0.25s ease; display:flex; align-items:center; gap:0.6rem;';
+    document.body.appendChild(toast);
+  }
+  toast.innerHTML = `<span>🚀</span> <span>${msg}</span>`;
+  toast.style.display = 'flex';
+  setTimeout(() => {
+    if (toast) toast.style.display = 'none';
+  }, 4500);
+};
+
+window.runGuidedDirectorialWorkflow = function(flowId) {
+  const flow = window.DIRECTORIAL_FLOWS.find(f => f.id === flowId);
+  if (flow && typeof flow.execute === 'function') {
+    flow.execute();
+  }
+};
+
+window.renderWorkflowAuditBannerHtml = function() {
+  return `
+    <div style="background:linear-gradient(135deg, rgba(30,41,59,0.8) 0%, rgba(15,23,42,0.95) 100%); border:1px solid rgba(56,189,248,0.25); border-radius:var(--radius-md); padding:1rem 1.4rem; margin-bottom:1.25rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <div style="font-size:0.92rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.5rem;">
+            <span>🧭</span>
+            <span>Mejora 20: Comprobación de Usabilidad mediante Flujos Directivos Reales</span>
+            <span class="tab-badge" style="background:rgba(56,189,248,0.15); color:#38bdf8;">Validación en Vivo</span>
+          </div>
+          <div style="font-size:0.8rem; color:var(--muted); margin-top:0.2rem;">
+            Ejecuta de forma guiada las tareas completas de Dirección Comercial, Financiera y Operaciones para verificar la usabilidad sin fricciones.
+          </div>
+        </div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <button class="pill-btn" onclick="runGuidedDirectorialWorkflow('FLOW_COMERCIAL')" style="padding:0.4rem 0.85rem; font-size:0.75rem; background:rgba(239,68,68,0.15); border-color:#ef4444; color:#f87171; cursor:pointer;">
+            ▶️ Flujo Comercial
+          </button>
+          <button class="pill-btn" onclick="runGuidedDirectorialWorkflow('FLOW_FINANCIERO')" style="padding:0.4rem 0.85rem; font-size:0.75rem; background:rgba(52,211,153,0.15); border-color:#34d399; color:#34d399; cursor:pointer;">
+            ▶️ Flujo Financiero
+          </button>
+          <button class="pill-btn" onclick="runGuidedDirectorialWorkflow('FLOW_OPERACIONES')" style="padding:0.4rem 0.85rem; font-size:0.75rem; background:rgba(251,191,36,0.15); border-color:#fbbf24; color:#fbbf24; cursor:pointer;">
+            ▶️ Flujo Operaciones
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+
+// -------------------------------------------------------------------------
 // MEJORA 17: GLOSARIO DE SIGLAS INTERACTIVO & TOOLTIPS DIRECTIVOS
 // -------------------------------------------------------------------------
 

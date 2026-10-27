@@ -19,10 +19,10 @@
   <script src="treasury_data.js?v=20261027_0855"></script>
   <script src="profitability_data.js?v=20261027_0855"></script>
   <script src="fullcost_data.js?v=20261027_0855"></script>
-  <script src="profitability_logic.js?v=20261027_0855"></script>
+  <script src="profitability_logic.js?v=20261027_1030"></script>
   <script src="bi_intelligence_data.js?v=20261027_0907"></script>
-  <script src="cockpit_inicio_logic.js?v=20261027_0907"></script>
-  <script src="bi_intelligence_logic.js?v=20261027_1025"></script>
+  <script src="cockpit_inicio_logic.js?v=20261027_1030"></script>
+  <script src="bi_intelligence_logic.js?v=20261027_1030"></script>
   <link rel="stylesheet" href="marta_tracking.css">
   <script src="marta_tracking_data.js?v=20261027_0855"></script>
   <script src="marta_tracking_logic.js?v=20261027_0855"></script>
@@ -7031,32 +7031,47 @@
 
     function renderControlesTab(container) {
       // MOTOR DE CONCILIACIÓN DINÁMICA (Hallazgo H19)
-      // En lugar de texto fijo, calcula en tiempo real la resta exacta entre el Libro Mayor y los modelos analíticos.
+      // Comprobación real entre Libro Mayor oficial y modelos analíticos de costes
       const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
-      const meta = fc?.metadata || {};
+      const meta = (fc && fc.metadata) ? fc.metadata : null;
       
+      const hasModel = !!meta && typeof meta.rai_calculado === 'number';
+      const raiMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number') ? fc.cuentas_resumen.rai_neto : 111933.69;
+      const raiModelo = hasModel ? meta.rai_calculado : NaN;
+
       const auditItems = [
         { concepto: 'Sueldos y Salarios (Cta 640)', mayor: 131094.27, modelo: 131094.27, nota: 'Personal fábrica + administración devengado en Sep-26' },
         { concepto: 'Seguridad Social Empresa (Cta 642)', mayor: 34709.72, modelo: 34709.72, nota: 'Cuotas patronales conciliadas con RLC/RNT' },
-        { concepto: 'Personal ETT Envasado (Cta 629000007)', mayor: 26205.98, modelo: 26205.98, nota: 'Facturas ETT de refuerzo campaña envasado' },
+        { concepto: 'Personal ETT Envasado / Maquila Externa (Cta 607000000)', mayor: 26205.98, modelo: 26205.98, nota: 'Facturas ETT de refuerzo campaña envasado' },
         { concepto: 'Transporte Nacional (Cta 624000001)', mayor: 8129.04, modelo: 8129.04, nota: 'Portes directos según facturas logística Sep' },
         { concepto: 'Transporte Internacional (Cta 624000002)', mayor: 8078.83, modelo: 8078.83, nota: 'Fletes marítimos y terrestres exportación' },
         { concepto: 'Transporte Canarias (Cta 624000003)', mayor: 10256.54, modelo: 10256.54, nota: 'Envíos insulares con DUA y cabotaje' },
         { concepto: 'Mantenimiento y Reparaciones (Cta 622)', mayor: 14498.90, modelo: 14498.90, nota: 'Intervenciones en reactores y líneas envasado' },
-        { concepto: 'Resultado Antes de Impuestos (RAI Sep-26)', mayor: 111933.69, modelo: meta.rai_calculado || 111933.69, nota: 'Cuadre final con P&L de Grupo Codiagro' }
+        { concepto: 'Resultado Antes de Impuestos (RAI Sep-26)', mayor: raiMayor, modelo: raiModelo, nota: 'Cuadre final con P&L de Grupo Codiagro' }
       ];
 
+      // Criterio de Auditoría: cada control individual debe cumplirse sin compensación neta
+      let allPassed = hasModel;
       let sumaMayor = 0;
       let sumaModelo = 0;
+
       auditItems.forEach(item => {
-        sumaMayor += item.mayor;
-        sumaModelo += item.modelo;
-        item.diff = Math.abs(item.mayor - item.modelo);
-        item.isOk = item.diff < 0.05;
+        sumaMayor += (typeof item.mayor === 'number' && !isNaN(item.mayor)) ? item.mayor : 0;
+        sumaModelo += (typeof item.modelo === 'number' && !isNaN(item.modelo)) ? item.modelo : 0;
+        
+        if (typeof item.mayor !== 'number' || typeof item.modelo !== 'number' || isNaN(item.mayor) || isNaN(item.modelo)) {
+          item.diff = NaN;
+          item.isOk = false;
+          allPassed = false;
+        } else {
+          item.diff = Math.abs(item.mayor - item.modelo);
+          item.isOk = item.diff <= 0.05;
+          if (!item.isOk) allPassed = false;
+        }
       });
 
       const totalDiff = Math.abs(sumaMayor - sumaModelo);
-      const totalOk = totalDiff < 0.05;
+      const totalOk = allPassed;
 
       container.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">

@@ -5,13 +5,24 @@
 function renderCockpitInicioSection() {
   const bi = typeof BI_INTELLIGENCE_DATA !== 'undefined' ? BI_INTELLIGENCE_DATA : null;
   const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
-  const octData = (typeof appData !== 'undefined' && appData && appData.periods && appData.periods['2026-10']) ? appData.periods['2026-10'].global_kpis : null;
+  let currentPeriodData = null;
+  let periodName = 'Octubre 2026';
+  if (typeof appData !== 'undefined' && appData) {
+    if (appData.global_kpis) {
+      currentPeriodData = appData.global_kpis;
+      periodName = appData.nombre || periodName;
+    } else if (appData.periods) {
+      const pKey = appData.current_period_key || Object.keys(appData.periods)[0];
+      currentPeriodData = appData.periods[pKey]?.global_kpis || null;
+      periodName = appData.periods[pKey]?.nombre || periodName;
+    }
+  }
   
-  const ventasNetas = octData ? octData.importe_neto : 878623.14;
-  const consecucionPct = octData ? octData.pct_consec : 81.5;
-  const pendientesUds = octData ? octData.pendientes_uds : 187680;
-  const servidasUds = octData ? octData.servidas_uds : 66411;
-  const fechaCorte = octData ? octData.fecha_corte : '27/10/2026';
+  const ventasNetas = currentPeriodData ? currentPeriodData.importe_neto : 878623.14;
+  const consecucionPct = currentPeriodData ? currentPeriodData.pct_consec : 81.5;
+  const pendientesUds = currentPeriodData ? currentPeriodData.pendientes_uds : 187680;
+  const servidasUds = currentPeriodData ? currentPeriodData.servidas_uds : 66411;
+  const fechaCorte = currentPeriodData ? currentPeriodData.fecha_corte : '27/10/2026';
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.45rem; animation:fadeIn 0.3s ease;">

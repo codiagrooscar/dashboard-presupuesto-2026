@@ -1999,15 +1999,11 @@ function handleSimParamChange(param, val) {
   if (param === 'format') {
     simFormat = val;
   } else if (param === 'mp') {
-    const parsed = parseFloat(val);
-    simMpCost = isNaN(parsed) ? 0 : Math.max(0, parsed);
+    simMpCost = (val === '' || val === null || val === undefined) ? NaN : parseFloat(val);
   } else if (param === 'vol') {
-    const parsed = parseInt(val, 10);
-    simVolume = isNaN(parsed) ? 100 : Math.max(1, parsed);
+    simVolume = (val === '' || val === null || val === undefined) ? NaN : parseInt(val, 10);
   } else if (param === 'margin') {
-    const parsed = parseFloat(val);
-    // Permitir 0% explícito y validar límites
-    simTargetMargin = isNaN(parsed) ? 60.0 : parsed;
+    simTargetMargin = (val === '' || val === null || val === undefined) ? NaN : parseFloat(val);
   }
   
   const dedicated = document.getElementById('fullcostDedicatedContainer');
@@ -2191,7 +2187,16 @@ let fullcostProdSearch = '';
 window.setFullcostClientSearch = function(val) {
   fullcostClientSearch = (val || '').toLowerCase().trim();
   const c = document.getElementById('fullcostSectionContent');
-  if (c) c.innerHTML = renderFullcostClientesSection();
+  if (c) {
+    const inputBefore = document.getElementById('fullcostClientSearchInput');
+    const curPos = inputBefore ? inputBefore.selectionStart : null;
+    c.innerHTML = renderFullcostClientesSection();
+    const inputAfter = document.getElementById('fullcostClientSearchInput');
+    if (inputAfter) {
+      inputAfter.focus();
+      if (curPos !== null) inputAfter.selectionStart = inputAfter.selectionEnd = curPos;
+    }
+  }
 };
 
 window.setFullcostClientFilter = function(f) {
@@ -2209,8 +2214,20 @@ window.setFullcostProdSearch = function(val) {
 window.exportFullcostClientesCsv = function() {
   const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
   if (!fc || !fc.clientes) return;
+  const search = fullcostClientSearch || '';
+  const filter = fullcostClientFilter || 'ALL';
+  const scope = (typeof currentScope !== 'undefined') ? currentScope : (typeof window !== 'undefined' ? window.currentScope : 'ALL');
+
+  const filteredClientes = fc.clientes.filter(c => {
+    if (scope === 'NACIONAL' && c.pais !== 'España') return false;
+    if (scope === 'EXPORT' && c.pais === 'España') return false;
+    if (search && !c.cliente.toLowerCase().includes(search) && !c.comercial.toLowerCase().includes(search) && !c.pais.toLowerCase().includes(search)) return false;
+    if (filter !== 'ALL' && c.semaforo !== filter) return false;
+    return true;
+  });
+
   const headers = ['Cliente', 'Pais', 'Comercial', 'Clasificacion', 'Ventas_EUR', 'Coste_Materiales_EUR', 'Coste_Planta_EUR', 'Margen_Industrial_EUR', 'Margen_Industrial_PCT', 'Transporte_Real_EUR', 'Margen_Contribucion_EUR', 'Margen_Contribucion_PCT', 'Semaforo'];
-  const rows = fc.clientes.map(c => [
+  const rows = filteredClientes.map(c => [
     `"${c.cliente}"`, `"${c.pais}"`, `"${c.comercial}"`, `"${c.clasif}"`,
     c.ventas, c.cogs_materiales, c.coste_planta_fullcost, c.margen_industrial_eur, c.margen_industrial_pct,
     c.transporte_real, c.margen_contribucion_eur, c.margen_contribucion_pct, `"${c.semaforo}"`
@@ -2250,7 +2267,10 @@ function renderFullcostClientesSection() {
   const search = fullcostClientSearch || '';
   const filter = fullcostClientFilter || 'ALL';
   
+  const scope = (typeof currentScope !== 'undefined') ? currentScope : (typeof window !== 'undefined' ? window.currentScope : 'ALL');
   let list = fc.clientes.filter(c => {
+    if (scope === 'NACIONAL' && c.pais !== 'España') return false;
+    if (scope === 'EXPORT' && c.pais === 'España') return false;
     if (search && !c.cliente.toLowerCase().includes(search) && !c.comercial.toLowerCase().includes(search) && !c.pais.toLowerCase().includes(search)) return false;
     if (filter !== 'ALL' && c.semaforo !== filter) return false;
     return true;
@@ -2288,7 +2308,7 @@ function renderFullcostClientesSection() {
 
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; background:rgba(15,23,42,0.6); padding:0.85rem 1.15rem; border-radius:var(--radius-md); border:1px solid var(--card-border)">
         <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap">
-          <input type="text" placeholder="Buscar cliente, comercial o país..." value="${fullcostClientSearch}" oninput="setFullcostClientSearch(this.value)" style="background:rgba(15,23,42,0.9); border:1px solid var(--card-border); color:#fff; padding:0.45rem 0.85rem; border-radius:var(--radius-sm); font-size:0.85rem; width:260px;" />
+          <input id="fullcostClientSearchInput" type="text" placeholder="Buscar cliente, comercial o país..." value="${fullcostClientSearch}" oninput="setFullcostClientSearch(this.value)" style="background:rgba(15,23,42,0.9); border:1px solid var(--card-border); color:#fff; padding:0.45rem 0.85rem; border-radius:var(--radius-sm); font-size:0.85rem; width:260px;" />
           <div style="display:flex; gap:0.35rem;">
             <button class="pill-btn ${filter === 'ALL' ? 'active' : ''}" onclick="setFullcostClientFilter('ALL')">Todos (${fc.clientes.length})</button>
             <button class="pill-btn ${filter === 'VERDE' ? 'active' : ''}" onclick="setFullcostClientFilter('VERDE')" style="color:#34d399">Verde ≥40% (${cVerde})</button>

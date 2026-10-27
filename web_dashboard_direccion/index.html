@@ -20,9 +20,9 @@
   <script src="profitability_data.js?v=20261027_0855"></script>
   <script src="fullcost_data.js?v=20261027_0855"></script>
   <script src="profitability_logic.js?v=20261027_0855"></script>
-  <script src="bi_intelligence_data.js?v=20261027_0855"></script>
-  <script src="cockpit_inicio_logic.js?v=20261027_0855"></script>
-  <script src="bi_intelligence_logic.js?v=20261027_0855"></script>
+  <script src="bi_intelligence_data.js?v=20261027_0907"></script>
+  <script src="cockpit_inicio_logic.js?v=20261027_0907"></script>
+  <script src="bi_intelligence_logic.js?v=20261027_0907"></script>
   <link rel="stylesheet" href="marta_tracking.css">
   <script src="marta_tracking_data.js?v=20261027_0855"></script>
   <script src="marta_tracking_logic.js?v=20261027_0855"></script>
@@ -1760,6 +1760,20 @@
             </div>
             <span class="tab-badge badge-success" id="tabBadgeInicio">4 Vitales</span>
           </button>
+          <button class="nav-item-btn" id="navBtnBiReunion" onclick="switchTab('bi_reunion')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">📌</span>
+              <span>Modo Reunión & Acuerdos</span>
+            </div>
+            <span class="tab-badge" style="background:rgba(234,179,8,0.2);color:#facc15;border:1px solid rgba(234,179,8,0.4);" id="tabBadgeBiReunion">4 Acuerdos</span>
+          </button>
+          <button class="nav-item-btn" id="navBtnBiSearch" onclick="switchTab('bi_search')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">🔍</span>
+              <span>Búsqueda Global 360°</span>
+            </div>
+            <span class="tab-badge" style="background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(168,85,247,0.4);" id="tabBadgeBiSearch">Omnibox</span>
+          </button>
         </div>
 
         <!-- ÁREA 2: COMERCIAL -->
@@ -1890,6 +1904,20 @@
               <span>Conciliación & Auditoría</span>
             </div>
             <span class="tab-badge badge-success">0,00 €</span>
+          </button>
+          <button class="nav-item-btn" id="navBtnBiSnapshots" onclick="switchTab('bi_snapshots')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">🔒</span>
+              <span>Cierre & Snapshots</span>
+            </div>
+            <span class="tab-badge badge-success" id="tabBadgeBiSnapshots">3 Versiones</span>
+          </button>
+          <button class="nav-item-btn" id="navBtnBiStaging" onclick="switchTab('bi_staging')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">📥</span>
+              <span>Staging Importaciones</span>
+            </div>
+            <span class="tab-badge badge-info" id="tabBadgeBiStaging">Auditado</span>
           </button>
         </div>
 
@@ -6863,6 +6891,26 @@
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '🏷️';
         if (titleTextEl) titleTextEl.textContent = 'Comercial | Registro de Excepciones de Precio con Caducidad';
+      } else if (tabKey === 'bi_snapshots') {
+        const b = document.getElementById('navBtnBiSnapshots');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '🔒';
+        if (titleTextEl) titleTextEl.textContent = 'Datos y Controles | Cierre de Períodos & Snapshots Inmutables';
+      } else if (tabKey === 'bi_staging') {
+        const b = document.getElementById('navBtnBiStaging');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '📥';
+        if (titleTextEl) titleTextEl.textContent = 'Datos y Controles | Previsualización de Importaciones (Staging & Diff)';
+      } else if (tabKey === 'bi_search') {
+        const b = document.getElementById('navBtnBiSearch');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '🔍';
+        if (titleTextEl) titleTextEl.textContent = 'Dirección General | Búsqueda Global 360° (Omnibox Traceability)';
+      } else if (tabKey === 'bi_reunion') {
+        const b = document.getElementById('navBtnBiReunion');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '📌';
+        if (titleTextEl) titleTextEl.textContent = 'Dirección General | Modo Reunión de Comité & Acuerdos Directivos';
       } else if (tabKey === 'bi_forecast') {
         const b = document.getElementById('navBtnBiForecast');
         if (b) b.classList.add('active');
@@ -6931,6 +6979,14 @@
         renderBiAtpTab(container);
       } else if (currentTab === 'bi_excepciones') {
         renderBiExcepcionesTab(container);
+      } else if (currentTab === 'bi_snapshots') {
+        renderBiSnapshotsTab(container);
+      } else if (currentTab === 'bi_staging') {
+        renderBiStagingTab(container);
+      } else if (currentTab === 'bi_search') {
+        renderBiSearchTab(container);
+      } else if (currentTab === 'bi_reunion') {
+        renderBiReunionTab(container);
       } else if (currentTab === 'bi_forecast') {
         renderBiForecastTab(container);
       } else if (currentTab === 'bi_concentracion') {
@@ -7102,6 +7158,41 @@ function renderBiChurnTab(container) {
       if (typeof recalcPriceExceptionSim === 'function') {
         setTimeout(recalcPriceExceptionSim, 50);
       }
+    }
+
+    function renderBiSnapshotsTab(container) {
+      container.innerHTML = `
+        <div id="biSnapshotsContainer">
+          ${typeof renderSnapshotsHistorySection === 'function' ? renderSnapshotsHistorySection() : '<p>Cargando módulo de snapshots...</p>'}
+        </div>
+      `;
+      if (typeof runSnapshotDiff === 'function') {
+        setTimeout(runSnapshotDiff, 50);
+      }
+    }
+
+    function renderBiStagingTab(container) {
+      container.innerHTML = `
+        <div id="biStagingContainer">
+          ${typeof renderStagingImportSection === 'function' ? renderStagingImportSection() : '<p>Cargando módulo de staging...</p>'}
+        </div>
+      `;
+    }
+
+    function renderBiSearchTab(container) {
+      container.innerHTML = `
+        <div id="biSearchContainer">
+          ${typeof renderOmniboxSearchSection === 'function' ? renderOmniboxSearchSection() : '<p>Cargando buscador global 360°...</p>'}
+        </div>
+      `;
+    }
+
+    function renderBiReunionTab(container) {
+      container.innerHTML = `
+        <div id="biReunionContainer">
+          ${typeof renderModoReunionSection === 'function' ? renderModoReunionSection() : '<p>Cargando Modo Reunión...</p>'}
+        </div>
+      `;
     }
 
 function renderBiForecastTab(container) {

@@ -1,4 +1,4 @@
-// Datos de Inteligencia de Negocio y Control Directivo
+// Datos de Inteligencia de Negocio y Control Directivo (Mejoras 1 a 10)
 const BI_INTELLIGENCE_DATA = {
   "mejora_1_forecast_accuracy": {
     "tot_budget_uds": 311917.0,
@@ -3508,6 +3508,314 @@ const BI_INTELLIGENCE_DATA = {
         "dias_restantes": -12,
         "estado": "CADUCADA",
         "badge_cls": "danger"
+      }
+    ]
+  },
+  "mejora_7_cierre_snapshots": {
+    "total_snapshots": 3,
+    "snapshot_activo": "v1.1-SEP-AUDITADO",
+    "snapshots_disponibles": [
+      {
+        "version": "v1.1-SEP-AUDITADO",
+        "fecha_corte": "26/10/2026 14:30",
+        "autor": "Auditoría Interna / Control de Gestión",
+        "estado": "REVISADO_CONCILIADO",
+        "hash_sha256": "BB040FAB9B80BD91",
+        "kpis": {
+          "ventas_totales_eur": 505002.49,
+          "cogs_materiales_eur": 102185.32,
+          "costes_planta_eur": 124561.76,
+          "margen_industrial_eur": 278255.41,
+          "rai_ebit_eur": 111933.69,
+          "unidades_producidas": 182450
+        },
+        "descripcion": "Incorporación de trazabilidad de Maquila SAS (Cta 705/703) y regularización de portes de Fitoxent."
+      },
+      {
+        "version": "v1.0-SEP-OFICIAL",
+        "fecha_corte": "30/09/2026 23:59",
+        "autor": "Dirección Financiera / Control de Gestión",
+        "estado": "CERRADO_INMUTABLE",
+        "hash_sha256": "582A45CE0F88364A",
+        "kpis": {
+          "ventas_totales_eur": 505002.49,
+          "cogs_materiales_eur": 102185.32,
+          "costes_planta_eur": 124561.76,
+          "margen_industrial_eur": 278255.41,
+          "rai_ebit_eur": 111933.69,
+          "unidades_producidas": 182450
+        },
+        "descripcion": "Cierre contable definitivo de Septiembre 2026 conciliado con P&G del Grupo."
+      },
+      {
+        "version": "v0.9-OCT-PROVISIONAL",
+        "fecha_corte": "27/10/2026 08:00",
+        "autor": "Planificación Comercial",
+        "estado": "EN_CURSO_ABIERTO",
+        "hash_sha256": "8F2F2D7670F1E5BB",
+        "kpis": {
+          "pedidos_cartera_uds": 254091,
+          "servidas_uds": 66411,
+          "pendientes_uds": 187680,
+          "prevision_ventas_eur": 906540.2,
+          "unidades_producidas": 71800
+        },
+        "descripcion": "Corte de pedidos al 27/10/2026 con actualización de stock y cartera viva de clientes."
+      }
+    ],
+    "log_auditoria_cambios": [
+      {
+        "fecha": "26/10/2026 12:15",
+        "usuario": "Control de Gestión",
+        "objeto": "Cuenta 702000000 (Abono Maquila Agosto)",
+        "valor_anterior": "-16.492,80 € (Mezclado en resultado ordinario)",
+        "valor_nuevo": "Aislado como partida no recurrente de agosto",
+        "impacto_rai": "0,00 € (Alineación con P&G)",
+        "aprobado_por": "Dirección Financiera"
+      },
+      {
+        "fecha": "26/10/2026 14:00",
+        "usuario": "Logística & Transporte",
+        "objeto": "Albarán Transporte FITOXENT S.C.L.V.",
+        "valor_anterior": "350,90 € sin imputar",
+        "valor_nuevo": "Imputado a ficha comercial de FITOXENT",
+        "impacto_rai": "0,00 € (Reclasificación analítica)",
+        "aprobado_por": "Dirección Comercial"
+      },
+      {
+        "fecha": "27/10/2026 08:30",
+        "usuario": "Dirección General",
+        "objeto": "Cuenta DOGA TARIM (Turquía)",
+        "valor_anterior": "Computada en Alertas de Churn (-282k €)",
+        "valor_nuevo": "Neutralizada por concurso de acreedores",
+        "impacto_rai": "Sin impacto en cuentas cerradas (Aislamiento de KPIs)",
+        "aprobado_por": "Dirección General"
+      }
+    ]
+  },
+  "mejora_8_staging_diff": {
+    "ultima_importacion": {
+      "archivo": "Pedidos27.10 comerciales.xlsx",
+      "fecha_carga": "27/10/2026 07:45",
+      "usuario": "Administración Comercial",
+      "estado": "CONSOLIDADO_EXITOSO",
+      "totales_antes": {
+        "total_pedidos_uds": 247380,
+        "servidas_uds": 59700,
+        "pendientes_uds": 187680,
+        "lineas_activas": 1284
+      },
+      "totales_despues": {
+        "total_pedidos_uds": 254091,
+        "servidas_uds": 66411,
+        "pendientes_uds": 187680,
+        "lineas_activas": 1302
+      },
+      "variacion_neta": {
+        "delta_uds": 6711,
+        "delta_servidas_uds": 6711,
+        "delta_pendientes_uds": 0,
+        "nuevas_lineas": 18,
+        "modificadas": 4,
+        "rechazadas": 0
+      },
+      "auditoria_lineas": [
+        {
+          "id": "PED-2026-10492",
+          "cliente": "CAMPOSOL S.A.",
+          "sku": "AGR0020",
+          "tipo_cambio": "NUEVO",
+          "uds_antes": 0,
+          "uds_despues": 3200,
+          "estado_servicio": "SERVIDO",
+          "alerta": "Ninguna (Procesado correctamente)"
+        },
+        {
+          "id": "PED-2026-10488",
+          "cliente": "AGRÍCOLA EL CHARCO S.L.",
+          "sku": "CPLUS0020",
+          "tipo_cambio": "MODIFICADO",
+          "uds_antes": 1500,
+          "uds_despues": 2100,
+          "estado_servicio": "SERVIDO (+600 u)",
+          "alerta": "Incremento de entrega en muelle"
+        },
+        {
+          "id": "PED-2026-10495",
+          "cliente": "COOP. SAN ISIDRO (CASI)",
+          "sku": "SALW0020",
+          "tipo_cambio": "NUEVO",
+          "uds_antes": 0,
+          "uds_despues": 2911,
+          "estado_servicio": "SERVIDO",
+          "alerta": "Ninguna (Albarán emitido)"
+        }
+      ],
+      "reglas_validacion_staging": [
+        {
+          "regla": "Verificación de SKUs existentes en catálogo Codiagro",
+          "estado": "PASS",
+          "detalle": "100% de SKUs válidos (0 desconocidos)"
+        },
+        {
+          "regla": "Comprobación de precios y unidades positivas",
+          "estado": "PASS",
+          "detalle": "Sin cantidades negativas ni precios cero"
+        },
+        {
+          "regla": "Detección de pedidos duplicados por ID de documento",
+          "estado": "PASS",
+          "detalle": "0 duplicados detectados"
+        },
+        {
+          "regla": "Cuadre de suma de control con cabecera Excel",
+          "estado": "PASS",
+          "detalle": "Suma exacta: 254.091,00 unidades"
+        }
+      ]
+    }
+  },
+  "mejora_9_busqueda_global": {
+    "total_entidades_indexadas": 182,
+    "categorias": [
+      "Clientes",
+      "SKUs / Productos",
+      "Comerciales",
+      "Lotes de Fabricación"
+    ],
+    "items_muestra": [
+      {
+        "id": "CLI-DOTRA",
+        "tipo": "CLIENTE",
+        "nombre": "DOTRA CHEMICALS",
+        "subtitulo": "Distribuidor Estratégico · Exportación (Egipto / MENA)",
+        "comercial": "Mehmet",
+        "ventas_2026_eur": 584200.0,
+        "margen_medio_pct": 59.8,
+        "pedidos_pendientes_uds": 12400,
+        "estado_pago": "Al día",
+        "alerta": "Acuerdo de precio especial vence en 4 días (31/10/2026)"
+      },
+      {
+        "id": "CLI-CASI",
+        "tipo": "CLIENTE",
+        "nombre": "COOP. AGRÍCOLA SAN ISIDRO (CASI)",
+        "subtitulo": "Cooperativa Líder Tomate / Hortalizas · Almería",
+        "comercial": "García",
+        "ventas_2026_eur": 412500.0,
+        "margen_medio_pct": 61.0,
+        "pedidos_pendientes_uds": 8500,
+        "estado_pago": "Al día",
+        "alerta": "Acuerdo precio CPLUS0020 vigente hasta 31/12/2026"
+      },
+      {
+        "id": "SKU-AN0020",
+        "tipo": "PRODUCTO",
+        "nombre": "AN0020 · AGROXILATO-K 20L",
+        "subtitulo": "Líquidos · Formulación Potasio Alta Absorción",
+        "stock_almacen_uds": 24800,
+        "granel_reactor_l": 8400,
+        "pedidos_pendientes_uds": 26400,
+        "coste_cogs_unitario": 1.42,
+        "precio_tarifa": 4.5,
+        "margen_cogs_pct": 68.4,
+        "alerta": "Demanda supera stock físico inmediato (-1.600 u a fabricar en R-2)"
+      },
+      {
+        "id": "SKU-CPLUS0020",
+        "tipo": "PRODUCTO",
+        "nombre": "CPLUS0020 · CALCIPLUS 20L",
+        "subtitulo": "Líquidos · Calcio Complejado Orgánico",
+        "stock_almacen_uds": 14200,
+        "granel_reactor_l": 12000,
+        "pedidos_pendientes_uds": 7200,
+        "coste_cogs_unitario": 1.15,
+        "precio_tarifa": 3.85,
+        "margen_cogs_pct": 70.1,
+        "alerta": "Stock suficiente en almacén central (Expedición inmediata 1-2d)"
+      },
+      {
+        "id": "LOTE-26G05480901",
+        "tipo": "LOTE",
+        "nombre": "Lote 26G05480901 (Maquila SAS)",
+        "subtitulo": "Fabricación Intragrupo Sustainable Agro Solutions",
+        "producto": "Formulación Especial SAS 20L",
+        "volumen_kg": 11880,
+        "reactor": "Reactor R-1 (Líquidos)",
+        "facturacion_ordinaria": 6434.0,
+        "margen_pct": 66.4,
+        "alerta": "Servicio cerrado en Sep-26. Facturas 705 y 703 emitidas."
+      }
+    ]
+  },
+  "mejora_10_modo_reunion": {
+    "comites": [
+      {
+        "id": "comite_comercial",
+        "nombre": "Comité Comercial Semanal",
+        "audiencia": "Dirección Comercial & Delegados",
+        "foco": "Cierre 2026 Q4, Recuperación de Cuentas en Churn y Cartera Pendiente",
+        "kpi_destacado": "254.091 u Cartera Viva | 15 Cuentas Churn en Seguimiento"
+      },
+      {
+        "id": "comite_operaciones",
+        "nombre": "Comité de Fabricación & Cadena de Suministro",
+        "audiencia": "Jefe de Planta, Producción y Logística",
+        "foco": "Saturación de Reactores, Lotes Críticos, Envasado y Plazos ATP",
+        "kpi_destacado": "79 SKUs en Planificación | Saturación Media Planta: 78,5%"
+      },
+      {
+        "id": "consejo_direccion",
+        "nombre": "Consejo de Dirección General",
+        "audiencia": "Dirección General & Finanzas",
+        "foco": "EBITDA, RAI, Gobernanza de Márgenes, Precios Autorizados y Auditoría Contable",
+        "kpi_destacado": "RAI Operativo: 111.933,69 € | Margen Industrial: 55,1%"
+      }
+    ],
+    "acuerdos_registrados": [
+      {
+        "id": "ACU-2026-001",
+        "comite": "Comité Comercial",
+        "fecha_acuerdo": "20/10/2026",
+        "tema": "Plan de Choque Churn: Visita urgente a Fitocarthago",
+        "responsable": "Pedro",
+        "fecha_limite": "05/11/2026",
+        "estado": "EN_CURSO",
+        "badge_cls": "warning",
+        "detalle": "Acordar paquete comercial de otoño para revertir caída de 96k € frente a 2025."
+      },
+      {
+        "id": "ACU-2026-002",
+        "comite": "Comité de Operaciones",
+        "fecha_acuerdo": "22/10/2026",
+        "tema": "Agrupación de lotes pequeños en CECO 120 (Líquidos)",
+        "responsable": "Jefe de Planta",
+        "fecha_limite": "15/11/2026",
+        "estado": "CUMPLIDO",
+        "badge_cls": "success",
+        "detalle": "Consolidar 12 órdenes de 500L en 3 tandas de 2.000L para ahorrar 4.200 € en limpiezas."
+      },
+      {
+        "id": "ACU-2026-003",
+        "comite": "Consejo de Dirección",
+        "fecha_acuerdo": "26/10/2026",
+        "tema": "Renegociación contrato Dotra Chemicals antes de caducidad (31/10)",
+        "responsable": "Mehmet / Dir. Comercial",
+        "fecha_limite": "30/10/2026",
+        "estado": "URGENTE",
+        "badge_cls": "danger",
+        "detalle": "Exigir volumen de 30.000 L si se mantiene precio excepcional de 2,35 €/L."
+      },
+      {
+        "id": "ACU-2026-004",
+        "comite": "Consejo de Dirección",
+        "fecha_acuerdo": "27/10/2026",
+        "tema": "Seguimiento judicial concurso de acreedores Doga Tarim",
+        "responsable": "Asesoría Jurídica / Dir. General",
+        "fecha_limite": "31/12/2026",
+        "estado": "EN_CURSO",
+        "badge_cls": "warning",
+        "detalle": "Personación en procedimiento de liquidación concursal en Turquía para reclamar 282.165 €."
       }
     ]
   }

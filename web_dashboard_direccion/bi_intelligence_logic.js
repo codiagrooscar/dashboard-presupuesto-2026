@@ -1,5 +1,167 @@
 
 // -------------------------------------------------------------------------
+// MEJORA 17: GLOSARIO DE SIGLAS INTERACTIVO & TOOLTIPS DIRECTIVOS
+// -------------------------------------------------------------------------
+
+window.ACRONYMS_GLOSSARY = {
+  'CECO': {
+    nombre: 'Centro de Coste Operativo',
+    desc: 'Unidad organizativa contable donde se concentran y acumulan los costes directos e indirectos (ej. Reactor R-1, Mantenimiento, Envasado Líquidos).'
+  },
+  'CEBE': {
+    nombre: 'Centro de Beneficio',
+    desc: 'Área de negocio responsable tanto de la generación de ingresos como del margen comercial (ej. Comercial Nacional, Exportación EMEA).'
+  },
+  'COGS': {
+    nombre: 'Cost of Goods Sold (Coste de Ventas)',
+    desc: 'Coste industrial directo de fabricación: Materias primas químicas + Material auxiliar de envasado + Mano de obra directa de planta.'
+  },
+  'RAI': {
+    nombre: 'Resultado Antes de Impuestos',
+    desc: 'Beneficio neto operativo antes del cómputo de la tributación sobre sociedades (EBITDA menos amortizaciones y gastos financieros netos).'
+  },
+  'ATP': {
+    nombre: 'Available To Promise (Disponible para Prometer)',
+    desc: 'Capacidad de expedición que puede comprometerse comercialmente con una fecha garantizada, respetando stocks de seguridad y cola de producción.'
+  },
+  'CHURN': {
+    nombre: 'Churn Alert (Riesgo de Abandono)',
+    desc: 'Indicador de distribuidores consolidados cuya facturación desciende más del 25% interanual o que acumulan meses sin compras activas.'
+  }
+};
+
+window.renderAcronymBadge = function(sigla) {
+  const info = window.ACRONYMS_GLOSSARY[sigla] || { nombre: sigla, desc: '' };
+  return `
+    <span class="acronym-tooltip-trigger" onclick="showAcronymModal('${sigla}')" title="${info.nombre}: ${info.desc}" style="border-bottom:1px dashed #38bdf8; color:#38bdf8; cursor:help; font-weight:700; display:inline-flex; align-items:center; gap:0.2rem;">
+      <span>${sigla}</span>
+      <span style="font-size:0.65rem; opacity:0.8;">ℹ️</span>
+    </span>
+  `;
+};
+
+window.showAcronymModal = function(sigla) {
+  const info = window.ACRONYMS_GLOSSARY[sigla];
+  if (!info) return;
+
+  let modal = document.getElementById('acronymModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'acronymModal';
+    modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(3px);';
+    modal.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div style="background:#1e293b; border:1px solid var(--card-border); border-radius:12px; padding:1.5rem; width:100%; max-width:440px; box-shadow:0 15px 35px rgba(0,0,0,0.5);">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+        <div>
+          <span class="tab-badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; font-weight:700; margin-bottom:0.35rem; display:inline-block;">Glosario Directivo Codiagro</span>
+          <h3 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.3rem;">${sigla} - ${info.nombre}</h3>
+        </div>
+        <button onclick="document.getElementById('acronymModal').style.display='none'" style="background:transparent; border:none; color:#94a3b8; font-size:1.4rem; cursor:pointer;">✕</button>
+      </div>
+      <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5; margin:0 0 1.25rem 0;">
+        ${info.desc}
+      </p>
+      <div style="background:rgba(15,23,42,0.6); padding:0.85rem; border-radius:8px; border:1px solid rgba(255,255,255,0.06); font-size:0.78rem; color:var(--muted);">
+        💡 <strong>Criterio de Auditoría:</strong> Las siglas y modelos contables se calculan bajo homologación PGC y Libro Mayor oficial.
+      </div>
+      <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+        <button class="pill-btn active" onclick="document.getElementById('acronymModal').style.display='none'" style="padding:0.4rem 1.1rem;">
+          Entendido
+        </button>
+      </div>
+    </div>
+  `;
+  modal.style.display = 'flex';
+};
+
+
+// -------------------------------------------------------------------------
+// MEJORA 18: AYUDAS BREVES DESPLEGABLES EN KPIS ('¿CÓMO SE CALCULA?')
+// -------------------------------------------------------------------------
+
+window.KPI_DEFINITIONS = {
+  'CHURN_VENTAS_PERDIDAS': {
+    titulo: 'Facturación en Juego por Churn Alert',
+    significa: 'Volumen económico bruto de ventas en riesgo de perderse debido a la contracción severa o cese de pedidos de clientes consolidados.',
+    formula: '∑ (Ventas Ene-Sep 2025 - Ventas Ene-Sep 2026) para clientes con caída > 25%',
+    incluye: 'Clientes con facturación > 10.000 € y caída interanual > 25%.',
+    excluye: 'Cuentas en concurso de acreedores (Doga Tarim excluida por orden directiva de 27/10/2026).'
+  },
+  'COMPLEXITY_AHORRO': {
+    titulo: 'Ahorro Potencial por Concentración de Lotes',
+    significa: 'Reducción de coste industrial que se conseguiría agrupando pedidos en lotes estándar de 5.000 L en vez de micro-lotes dispersos.',
+    formula: '∑ (Coste Limpieza Reactor + Coste Arranque MOD) × Lotes Redundantes Evitados',
+    incluye: 'Horas hombre de parada y agua de limpieza de reactores en planta.',
+    excluye: 'Materia prima consumida en el lote (sólo mide ineficiencia de preparación).'
+  },
+  'CONTROLES_DESCUADRE': {
+    titulo: 'Descuadre Contable Mayor vs Modelo (0,00 €)',
+    significa: 'Certificación de cuadre céntimo a céntimo entre el Libro Mayor de Codiagro y las cifras agregadas en los módulos de BI.',
+    formula: 'Total Saldo Mayor - Total Modelos BI (Tolerancia máxima autorizada: 0,05 €)',
+    incluye: 'Las 8 cuentas contables clave (Ventas 700, Compras 600, Stock 300, etc.).',
+    excluye: 'Asientos extracontables no aprobados por la Dirección Financiera.'
+  }
+};
+
+window.showKpiHelpModal = function(kpiKey) {
+  const kpi = window.KPI_DEFINITIONS[kpiKey];
+  if (!kpi) return;
+
+  let modal = document.getElementById('kpiHelpModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'kpiHelpModal';
+    modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(3px);';
+    modal.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div style="background:#1e293b; border:1px solid var(--card-border); border-radius:12px; padding:1.75rem; width:100%; max-width:540px; box-shadow:0 20px 40px rgba(0,0,0,0.6);">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem;">
+        <div>
+          <span class="tab-badge" style="background:rgba(16,185,129,0.15); color:#34d399; font-weight:700; margin-bottom:0.35rem; display:inline-block;">
+            Transparencia Metodológica Codiagro
+          </span>
+          <h3 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.25rem;">${kpi.titulo}</h3>
+        </div>
+        <button onclick="document.getElementById('kpiHelpModal').style.display='none'" style="background:transparent; border:none; color:#94a3b8; font-size:1.4rem; cursor:pointer;">✕</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:1rem; font-size:0.86rem;">
+        <div style="background:rgba(15,23,42,0.6); padding:0.9rem; border-radius:8px; border-left:3px solid #38bdf8;">
+          <strong style="color:#38bdf8; display:block; margin-bottom:0.25rem;">📌 ¿Qué significa?</strong>
+          <span style="color:#cbd5e1;">${kpi.significa}</span>
+        </div>
+
+        <div style="background:rgba(15,23,42,0.6); padding:0.9rem; border-radius:8px; border-left:3px solid #fbbf24;">
+          <strong style="color:#fbbf24; display:block; margin-bottom:0.25rem;">📐 Fórmula de cálculo:</strong>
+          <code style="display:block; background:#0b1120; padding:0.4rem 0.6rem; border-radius:4px; font-family:monospace; color:#fff; margin-top:0.3rem;">${kpi.formula}</code>
+        </div>
+
+        <div style="background:rgba(15,23,42,0.6); padding:0.9rem; border-radius:8px; border-left:3px solid #34d399;">
+          <strong style="color:#34d399; display:block; margin-bottom:0.25rem;">⚖️ Alcance y Exclusiones:</strong>
+          <div style="color:#cbd5e1; margin-bottom:0.3rem;"><strong>Incluye:</strong> ${kpi.incluye}</div>
+          <div style="color:#f87171;"><strong>Excluye:</strong> ${kpi.excluye}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem; display:flex; justify-content:flex-end;">
+        <button class="pill-btn active" onclick="document.getElementById('kpiHelpModal').style.display='none'" style="padding:0.45rem 1.25rem;">
+          Cerrar Ayuda
+        </button>
+      </div>
+    </div>
+  `;
+  modal.style.display = 'flex';
+};
+
+
+// -------------------------------------------------------------------------
 // MEJORA 15: NAVEGACIÓN CON MEMORIA DE CONTEXTO (BREADCRUMBS & RETORNO)
 // -------------------------------------------------------------------------
 
@@ -660,7 +822,10 @@ function renderChurnAlertSection() {
             </p>
           </div>
           <div style="background:rgba(15,23,42,0.85); padding:0.6rem 1.15rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
-            <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700">Facturación en Juego</div>
+            <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700; display:flex; align-items:center; justify-content:flex-end; gap:0.35rem;">
+              <span>Facturación en Juego</span>
+              <button onclick="showKpiHelpModal('CHURN_VENTAS_PERDIDAS')" style="background:none; border:none; color:#38bdf8; cursor:pointer; font-size:0.85rem; padding:0;" title="¿Cómo se calcula este KPI?">ℹ️</button>
+            </div>
             <div style="font-size:1.6rem; font-weight:800; color:#ef4444">-${fmtEur(churn.volumen_ventas_perdido_eur)}</div>
             <div style="font-size:0.75rem; color:#f87171">${churn.total_clientes_en_riesgo} clientes afectados</div>
           </div>
@@ -876,7 +1041,10 @@ function renderIndustrialComplexitySection() {
             </p>
           </div>
           <div style="background:rgba(15,23,42,0.85); padding:0.6rem 1.15rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
-            <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700">Ahorro Mensual Potencial</div>
+            <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700; display:flex; align-items:center; justify-content:flex-end; gap:0.35rem;">
+              <span>Ahorro Mensual Potencial</span>
+              <button onclick="showKpiHelpModal('COMPLEXITY_AHORRO')" style="background:none; border:none; color:#34d399; cursor:pointer; font-size:0.85rem; padding:0;" title="¿Cómo se calcula este KPI?">ℹ️</button>
+            </div>
             <div style="font-size:1.6rem; font-weight:800; color:#34d399">${fmtEur(comp.ahorro_potencial_agrupacion_eur)}</div>
             <div style="font-size:0.75rem; color:#34d399">Agrupando ${comp.skus_fragmentados_count} SKUs</div>
           </div>
@@ -922,7 +1090,7 @@ function renderIndustrialComplexitySection() {
                 <th>Código SKU</th>
                 <th>Descripción del Producto</th>
                 <th style="text-align:center">Nº Lotes en el Mes</th>
-                <th>CECOs de Proceso</th>
+                <th>${renderAcronymBadge('CECO')}s de Proceso</th>
                 <th style="text-align:right; color:#34d399">Ahorro Estimado (€)</th>
                 <th>Acción Recomendada</th>
                 <th style="text-align:center">Nivel 3 (OF / Lote)</th>

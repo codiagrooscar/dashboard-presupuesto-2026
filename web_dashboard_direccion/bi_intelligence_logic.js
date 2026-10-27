@@ -1,5 +1,151 @@
 
 // -------------------------------------------------------------------------
+// MEJORA 15: NAVEGACIÓN CON MEMORIA DE CONTEXTO (BREADCRUMBS & RETORNO)
+// -------------------------------------------------------------------------
+
+window.navigationContextStack = window.navigationContextStack || [];
+
+window.pushNavigationContext = function(tabKey, label) {
+  const currentScroll = window.scrollY || document.documentElement.scrollTop || 0;
+  window.navigationContextStack.push({
+    tab: tabKey || window.currentTab || 'inicio',
+    label: label || 'Pantalla anterior',
+    scroll: currentScroll,
+    filters: JSON.parse(JSON.stringify(window.churnFilterState || {}))
+  });
+};
+
+window.navigateBackWithContext = function() {
+  if (window.navigationContextStack && window.navigationContextStack.length > 0) {
+    const prev = window.navigationContextStack.pop();
+    if (prev.filters && window.churnFilterState) {
+      window.churnFilterState = prev.filters;
+    }
+    if (typeof switchTab === 'function') {
+      switchTab(prev.tab);
+      setTimeout(() => {
+        window.scrollTo({ top: prev.scroll || 0, behavior: 'smooth' });
+      }, 80);
+    }
+  } else {
+    if (typeof switchTab === 'function') switchTab('inicio');
+  }
+};
+
+window.getBreadcrumbWithBackHtml = function(area, pantalla, returnTab) {
+  return `
+    <div style="font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+      <div style="display:flex; align-items:center; gap:0.4rem;">
+        <span style="cursor:pointer; color:#94a3b8;" onclick="switchTab('inicio')">Codiagro 2026</span>
+        <span>›</span>
+        <span style="color:#94a3b8;">${area}</span>
+        <span>›</span>
+        <span style="color:#38bdf8; font-weight:600;">${pantalla}</span>
+      </div>
+      ${returnTab ? `
+        <button class="pill-btn" onclick="navigateBackWithContext()" style="padding:0.25rem 0.65rem; font-size:0.73rem; background:rgba(255,255,255,0.06); color:#cbd5e1; display:flex; align-items:center; gap:0.35rem; cursor:pointer;">
+          ↩ Volver a pantalla anterior (Conservando filtros)
+        </button>
+      ` : ''}
+    </div>
+  `;
+};
+
+
+// -------------------------------------------------------------------------
+// MEJORA 16: SELECTOR DE COLUMNAS PERSONALIZABLE (COLUMN CHOOSER)
+// -------------------------------------------------------------------------
+
+window.tableColumnsConfig = window.tableColumnsConfig || {
+  churnTable: {
+    clasificacion: { label: 'Clasificación', visible: true, selector: '.col-churn-clasif' },
+    ventas2025: { label: 'Ene-Sep 2025', visible: true, selector: '.col-churn-2025' },
+    ventas2026: { label: 'Ene-Sep 2026', visible: true, selector: '.col-churn-2026' },
+    caidaEur: { label: 'Caída (€)', visible: true, selector: '.col-churn-caida-eur' },
+    caidaPct: { label: '% Caída', visible: true, selector: '.col-churn-caida-pct' },
+    nivelAlerta: { label: 'Nivel Alerta', visible: true, selector: '.col-churn-alerta' },
+    docOrigen: { label: 'Doc. Origen', visible: true, selector: '.col-churn-doc' }
+  }
+};
+
+// Cargar preferencias guardadas en localStorage
+try {
+  const savedCols = localStorage.getItem('codiagro_table_columns_prefs');
+  if (savedCols) {
+    const parsed = JSON.parse(savedCols);
+    Object.assign(window.tableColumnsConfig, parsed);
+  }
+} catch(e) {}
+
+window.toggleColumnChooserModal = function(tableId) {
+  let modal = document.getElementById('columnChooserModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'columnChooserModal';
+    modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:99999; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(3px);';
+    modal.onclick = function(e) { if (e.target === modal) modal.style.display = 'none'; };
+    document.body.appendChild(modal);
+  }
+
+  const tableCfg = window.tableColumnsConfig[tableId] || {};
+  const checkboxesHtml = Object.keys(tableCfg).map(key => {
+    const col = tableCfg[key];
+    return `
+      <label style="display:flex; align-items:center; gap:0.6rem; padding:0.45rem 0.6rem; background:rgba(15,23,42,0.6); border-radius:6px; cursor:pointer; font-size:0.83rem; color:#fff;">
+        <input type="checkbox" id="colToggle_${tableId}_${key}" ${col.visible ? 'checked' : ''} onchange="handleColumnVisibilityChange('${tableId}', '${key}', this.checked)" style="accent-color:#38bdf8; width:16px; height:16px; cursor:pointer;">
+        <span>${col.label}</span>
+      </label>
+    `;
+  }).join('');
+
+  modal.innerHTML = `
+    <div style="background:#1e293b; border:1px solid var(--card-border); border-radius:12px; padding:1.5rem; width:100%; max-width:380px; box-shadow:0 15px 35px rgba(0,0,0,0.5);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+          <span>📊</span> Elegir Columnas Visibles
+        </h4>
+        <button onclick="document.getElementById('columnChooserModal').style.display='none'" style="background:transparent; border:none; color:#94a3b8; font-size:1.3rem; cursor:pointer;">✕</button>
+      </div>
+      <p style="font-size:0.8rem; color:var(--muted); margin:0 0 1rem 0;">
+        Personaliza las columnas visibles en la tabla. Tu selección se guardará automáticamente en este navegador.
+      </p>
+      <div style="display:flex; flex-direction:column; gap:0.5rem; max-height:300px; overflow-y:auto; margin-bottom:1.2rem;">
+        ${checkboxesHtml}
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:0.6rem;">
+        <button class="pill-btn active" onclick="document.getElementById('columnChooserModal').style.display='none'" style="padding:0.4rem 1rem;">
+          Guardar y Aplicar
+        </button>
+      </div>
+    </div>
+  `;
+  modal.style.display = 'flex';
+};
+
+window.handleColumnVisibilityChange = function(tableId, colKey, isVisible) {
+  if (window.tableColumnsConfig[tableId] && window.tableColumnsConfig[tableId][colKey]) {
+    window.tableColumnsConfig[tableId][colKey].visible = isVisible;
+    applyTableColumnVisibility(tableId);
+    try {
+      localStorage.setItem('codiagro_table_columns_prefs', JSON.stringify(window.tableColumnsConfig));
+    } catch(e) {}
+  }
+};
+
+window.applyTableColumnVisibility = function(tableId) {
+  const tableCfg = window.tableColumnsConfig[tableId];
+  if (!tableCfg) return;
+  Object.keys(tableCfg).forEach(key => {
+    const col = tableCfg[key];
+    const els = document.querySelectorAll(col.selector);
+    els.forEach(el => {
+      el.style.display = col.visible ? '' : 'none';
+    });
+  });
+};
+
+
+// -------------------------------------------------------------------------
 // MEJORA 13 Y 14: GESTIÓN DE FILTROS BÁSICOS, AVANZADOS Y CHIPS ACTIVOS
 // -------------------------------------------------------------------------
 
@@ -126,17 +272,17 @@ window.applyChurnFilters = function() {
           <td style="font-weight:700; color:#fff">${c.cliente}</td>
           <td>${c.comercial}</td>
           <td><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${c.pais}</span></td>
-          <td><span style="font-size:0.8rem; color:var(--muted)">${c.clasificacion}</span></td>
-          <td style="text-align:right; color:var(--muted)">${fmtEur(c.ventas_ene_sep_2025)}</td>
-          <td style="text-align:right; font-weight:700; color:#fff">${fmtEur(c.ventas_ene_sep_2026)}</td>
-          <td style="text-align:right; font-weight:800; color:#ef4444">${fmtEur(c.caida_eur)}</td>
-          <td style="text-align:right; font-weight:800; color:#ef4444">${c.caida_pct}%</td>
-          <td style="text-align:center">
+          <td class="col-churn-clasif"><span style="font-size:0.8rem; color:var(--muted)">${c.clasificacion}</span></td>
+          <td class="col-churn-2025" style="text-align:right; color:var(--muted)">${fmtEur(c.ventas_ene_sep_2025)}</td>
+          <td class="col-churn-2026" style="text-align:right; font-weight:700; color:#fff">${fmtEur(c.ventas_ene_sep_2026)}</td>
+          <td class="col-churn-caida-eur" style="text-align:right; font-weight:800; color:#ef4444">${fmtEur(c.caida_eur)}</td>
+          <td class="col-churn-caida-pct" style="text-align:right; font-weight:800; color:#ef4444">${c.caida_pct}%</td>
+          <td class="col-churn-alerta" style="text-align:center">
             <span class="tab-badge badge-${c.severidad === 'CRÍTICA' ? 'danger' : 'warning'}">
               ${c.severidad}
             </span>
           </td>
-          <td style="text-align:center">
+          <td class="col-churn-doc" style="text-align:center">
             <button class="pill-btn" onclick="openDocumentTraceability('FACTURA', 'FAC-2026-CHURN', '${c.cliente.replace(/'/g, "\\'")}')" style="font-size:0.72rem; padding:0.25rem 0.55rem; background:rgba(56,189,248,0.15); border-color:#38bdf8; color:#38bdf8; cursor:pointer;">
               📄 Doc. Origen
             </button>
@@ -633,7 +779,12 @@ function renderChurnAlertSection() {
           <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
             📉 Distribuidores y Clientes con Deserción o Caída de Ventas
           </h4>
-          <span style="font-size:0.8rem; color:var(--muted)">Mostrando <strong id="churnFilterCountBadge" style="color:#fff">${list.length} de ${list.length}</strong> cuentas</span>
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <span style="font-size:0.8rem; color:var(--muted)">Mostrando <strong id="churnFilterCountBadge" style="color:#fff">${list.length} de ${list.length}</strong> cuentas</span>
+            <button class="pill-btn" onclick="toggleColumnChooserModal('churnTable')" style="display:flex; align-items:center; gap:0.35rem; font-size:0.75rem; padding:0.25rem 0.65rem; background:rgba(56,189,248,0.12); border-color:#38bdf8; color:#38bdf8; cursor:pointer;">
+              📊 Elegir Columnas
+            </button>
+          </div>
         </div>
         <div class="table-container">
           <!-- ESTADO VACÍO CUANDO NO HAY RESULTADOS CON LOS FILTROS (MEJORA 19) -->
@@ -652,13 +803,13 @@ function renderChurnAlertSection() {
                 <th>Cliente</th>
                 <th>Comercial</th>
                 <th>País</th>
-                <th>Clasificación</th>
-                <th style="text-align:right">Ene-Sep 2025 (€)</th>
-                <th style="text-align:right">Ene-Sep 2026 (€)</th>
-                <th style="text-align:right; color:#ef4444">Caída (€)</th>
-                <th style="text-align:right; color:#ef4444">% Caída</th>
-                <th style="text-align:center">Nivel de Alerta</th>
-                <th style="text-align:center">Nivel 3 (Soporte)</th>
+                <th class="col-churn-clasif">Clasificación</th>
+                <th class="col-churn-2025" style="text-align:right">Ene-Sep 2025 (€)</th>
+                <th class="col-churn-2026" style="text-align:right">Ene-Sep 2026 (€)</th>
+                <th class="col-churn-caida-eur" style="text-align:right; color:#ef4444">Caída (€)</th>
+                <th class="col-churn-caida-pct" style="text-align:right; color:#ef4444">% Caída</th>
+                <th class="col-churn-alerta" style="text-align:center">Nivel de Alerta</th>
+                <th class="col-churn-doc" style="text-align:center">Nivel 3 (Soporte)</th>
               </tr>
             </thead>
             <tbody id="churnTableBody">

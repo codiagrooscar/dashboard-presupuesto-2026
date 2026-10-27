@@ -540,3 +540,525 @@ function renderIndustrialComplexitySection() {
     </div>
   `;
 }
+
+
+// -------------------------------------------------------------------------
+// MEJORA 5: PROPUESTA DE FECHAS DE ENTREGA VIABLES (ATP DISPONIBLE PARA PROMETER)
+// -------------------------------------------------------------------------
+
+let currentAtpFilter = 'ALL';
+
+function renderAtpDeliveryDateSection() {
+  const bi = getBiData();
+  if (!bi || !bi.mejora_5_atp_fechas_viables) {
+    return `<div class="empty-state"><p>No se encontraron datos de fechas viables ATP.</p></div>`;
+  }
+
+  const atp = bi.mejora_5_atp_fechas_viables;
+  const list = atp.pedidos_atp || [];
+
+  return `
+    <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
+      <!-- CABECERA DIRECTIVA -->
+      <div style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%); border: 1px solid rgba(14, 165, 233, 0.4); border-radius: var(--radius-md); padding: 1.35rem 1.75rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
+              <span style="font-size:1.4rem">⏱️</span>
+              <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
+                Mejora 5: Fechas de Entrega Viables (ATP - Available to Promise)
+              </h3>
+              <span class="tab-badge" style="background:rgba(14,165,233,0.2); color:#38bdf8; border:1px solid rgba(14,165,233,0.4)">
+                Corte Pedidos 27/10
+              </span>
+            </div>
+            <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px">
+              Calcula la fecha real de servicio según stock envasado en almacén, granel disponible en reactores y ciclo de aprovisionamiento de materias primas para evitar promesas incumplidas a clientes.
+            </p>
+          </div>
+          <div style="text-align:right">
+            <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted)">Fecha de Cálculo</span>
+            <div style="font-size:1.15rem; font-weight:700; color:#38bdf8">${atp.fecha_corte || '27/10/2026'}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI METRIC CARDS -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+        <div class="kpi-card" style="border-left: 4px solid #38bdf8;">
+          <div class="kpi-label">SKUs en Cartera Pendiente</div>
+          <div class="kpi-val" style="color:#38bdf8">${atp.total_skus_pendientes}</div>
+          <div class="kpi-sub">Total referencias con cartera viva</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #10b981; cursor:pointer;" onclick="filterAtpTable('INMEDIATO')">
+          <div class="kpi-label">🟢 Inmediato (1-2 días)</div>
+          <div class="kpi-val" style="color:#34d399">${atp.inmediatos_count} SKUs</div>
+          <div class="kpi-sub">Stock envasado cubre 100%</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #0ea5e9; cursor:pointer;" onclick="filterAtpTable('ENVASAR')">
+          <div class="kpi-label">🔵 Solo Envasar (3-4 días)</div>
+          <div class="kpi-val" style="color:#38bdf8">${atp.envasado_count} SKUs</div>
+          <div class="kpi-sub">Granel en fábrica listo</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #f59e0b; cursor:pointer;" onclick="filterAtpTable('FABRICAR')">
+          <div class="kpi-label">🟠 Reactor Granel (7-10 d)</div>
+          <div class="kpi-val" style="color:#fbbf24">${atp.fabricar_count} SKUs</div>
+          <div class="kpi-sub">Reactores R-1 / R-2 / R-3</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #ef4444; cursor:pointer;" onclick="filterAtpTable('COMPRAS')">
+          <div class="kpi-label">🔴 Compras MP (15-20 d)</div>
+          <div class="kpi-val" style="color:#f87171">${atp.compras_count} SKUs</div>
+          <div class="kpi-sub">Aprovisionamiento crítico</div>
+        </div>
+      </div>
+
+      <!-- SIMULADOR INTERACTIVO DE COMPROMISO ATP -->
+      <div class="chart-box" style="padding:1.25rem 1.5rem; background:rgba(30, 41, 59, 0.7); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-md);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+          <div>
+            <h4 style="margin:0; font-size:1rem; color:#fff; display:flex; align-items:center; gap:0.5rem;">
+              <span>🧮</span> Simulador Rápido de Compromiso de Pedido (ATP)
+            </h4>
+            <span style="font-size:0.8rem; color:var(--muted)">Comprueba al instante cuándo expedir un nuevo pedido antes de confirmárselo al cliente</span>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr auto; gap:1rem; align-items:flex-end;">
+          <div>
+            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Seleccionar SKU o Producto</label>
+            <select id="atpSimSkuSelect" onchange="runAtpSimulator()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.88rem;">
+              ${list.map(s => `<option value="${s.sku}">${s.sku} - ${s.desc} (Pend: ${fmtNum(s.pedidos_pendientes)} u | Stock: ${fmtNum(s.stock_envasado)} u)</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Cantidad Pedida (Uds/L)</label>
+            <input type="number" id="atpSimQty" value="1000" step="100" min="50" oninput="runAtpSimulator()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.88rem; font-weight:700;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Fecha Entrada Pedido</label>
+            <input type="text" id="atpSimOrderDate" value="27/10/2026" disabled style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#94a3b8; font-size:0.88rem;">
+          </div>
+          <div>
+            <button onclick="runAtpSimulator()" class="pill-btn active" style="padding:0.6rem 1.2rem; font-weight:700; height:40px;">
+              ⚡ Calcular Fecha
+            </button>
+          </div>
+        </div>
+
+        <!-- RESULTADO DEL SIMULADOR -->
+        <div id="atpSimulatorResult" style="margin-top:1.15rem; padding:1rem 1.25rem; background:rgba(15, 23, 42, 0.85); border:1px solid rgba(56, 189, 248, 0.3); border-radius:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <!-- Generado por runAtpSimulator() -->
+        </div>
+      </div>
+
+      <!-- TABLA DETALLADA DE REFERENCIAS CON FILTROS -->
+      <div class="chart-box" style="padding:1.35rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+          <div>
+            <h4 style="margin:0; font-size:1.05rem; color:#fff">Matriz Completa de Disponibilidad y Fechas Viables</h4>
+            <span style="font-size:0.8rem; color:var(--muted)">79 SKUs con cartera pendiente de servicio</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+            <input type="text" id="atpSearchInput" placeholder="Buscar por SKU o descripción..." oninput="searchAtpTable()" style="padding:0.45rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.82rem; min-width:220px;">
+            <button class="pill-btn atp-filter-btn active" data-filter="ALL" onclick="filterAtpTable('ALL')">Todos (79)</button>
+            <button class="pill-btn atp-filter-btn" data-filter="INMEDIATO" onclick="filterAtpTable('INMEDIATO')">🟢 Inmediato (${atp.inmediatos_count})</button>
+            <button class="pill-btn atp-filter-btn" data-filter="ENVASAR" onclick="filterAtpTable('ENVASAR')">🔵 Envasar (${atp.envasado_count})</button>
+            <button class="pill-btn atp-filter-btn" data-filter="FABRICAR" onclick="filterAtpTable('FABRICAR')">🟠 Fabricar (${atp.fabricar_count})</button>
+            <button class="pill-btn atp-filter-btn" data-filter="COMPRAS" onclick="filterAtpTable('COMPRAS')">🔴 Compras (${atp.compras_count})</button>
+          </div>
+        </div>
+
+        <div class="table-container" style="max-height:550px; overflow-y:auto;">
+          <table id="atpDetailsTable">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Descripción del Producto</th>
+                <th>Mercado</th>
+                <th style="text-align:right">Cartera Pendiente</th>
+                <th style="text-align:right">Stock Envasado</th>
+                <th style="text-align:right">Granel Reactor</th>
+                <th style="text-align:center">Cobertura</th>
+                <th style="text-align:center">Lead Time</th>
+                <th style="text-align:center; color:#38bdf8">Fecha Viable ATP</th>
+                <th>Diagnóstico y Ruta Industrial</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(s => `
+                <tr class="atp-row" data-tipo="${s.tipo_atp}" data-sku="${s.sku.toLowerCase()}" data-desc="${s.desc.toLowerCase()}">
+                  <td style="font-weight:700; font-family:monospace; color:#38bdf8">${s.sku}</td>
+                  <td style="color:#fff; font-weight:500;">${s.desc}</td>
+                  <td><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${s.mercado}</span></td>
+                  <td style="text-align:right; font-weight:700; color:#fbbf24">${fmtNum(s.pedidos_pendientes)}</td>
+                  <td style="text-align:right; color:${s.stock_envasado >= s.pedidos_pendientes ? '#34d399' : '#cbd5e1'}">${fmtNum(s.stock_envasado)}</td>
+                  <td style="text-align:right; color:#94a3b8">${s.granel_stock > 0 ? fmtNum(s.granel_stock) + ' L' : '-'}</td>
+                  <td style="text-align:center">
+                    <span class="tab-badge badge-${s.cobertura_stock_pct >= 100 ? 'success' : (s.cobertura_stock_pct >= 40 ? 'warning' : 'danger')}">
+                      ${s.cobertura_stock_pct}%
+                    </span>
+                  </td>
+                  <td style="text-align:center; font-weight:700;">${s.dias_lead_time} días</td>
+                  <td style="text-align:center; font-weight:800; color:#38bdf8; background:rgba(56, 189, 248, 0.05);">${s.fecha_viable_str}</td>
+                  <td>
+                    <div style="display:flex; flex-direction:column; gap:0.2rem;">
+                      <span class="tab-badge badge-${s.badge_cls}" style="align-self:flex-start; font-size:0.72rem;">${s.tipo_atp}</span>
+                      <span style="font-size:0.78rem; color:#94a3b8">${s.restriccion_cuello_botella}</span>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function filterAtpTable(tipo) {
+  currentAtpFilter = tipo;
+  document.querySelectorAll('.atp-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-filter') === tipo);
+  });
+  searchAtpTable();
+}
+
+function searchAtpTable() {
+  const query = (document.getElementById('atpSearchInput')?.value || '').toLowerCase().trim();
+  const rows = document.querySelectorAll('#atpDetailsTable tbody tr.atp-row');
+  rows.forEach(r => {
+    const rowTipo = r.getAttribute('data-tipo');
+    const sku = r.getAttribute('data-sku');
+    const desc = r.getAttribute('data-desc');
+    const matchType = (currentAtpFilter === 'ALL' || rowTipo === currentAtpFilter);
+    const matchQuery = (!query || sku.includes(query) || desc.includes(query));
+    r.style.display = (matchType && matchQuery) ? '' : 'none';
+  });
+}
+
+function runAtpSimulator() {
+  const sku = document.getElementById('atpSimSkuSelect')?.value;
+  const qty = parseFloat(document.getElementById('atpSimQty')?.value) || 0;
+  const resEl = document.getElementById('atpSimulatorResult');
+  if (!resEl) return;
+
+  const bi = getBiData();
+  const list = bi?.mejora_5_atp_fechas_viables?.pedidos_atp || [];
+  const item = list.find(s => s.sku === sku);
+
+  if (!item) {
+    resEl.innerHTML = `<span style="color:#ef4444">SKU no encontrado</span>`;
+    return;
+  }
+
+  // Lógica de cálculo ATP simulado
+  let dias = 2;
+  let tipo = 'INMEDIATO';
+  let badgeCls = 'success';
+  let accion = 'Expedición directa desde Almacén Central';
+  let cuello = 'Stock suficiente';
+
+  if (item.stock_envasado >= (item.pedidos_pendientes + qty)) {
+    dias = 2;
+    tipo = 'INMEDIATO (1-2 días)';
+    badgeCls = 'success';
+    cuello = `Stock envasado cubre completamente (${fmtNum(item.stock_envasado)} disponibles vs ${fmtNum(item.pedidos_pendientes + qty)} necesarios)`;
+    accion = 'Preparar albarán y coordinar muelle de carga con transportista';
+  } else if ((item.stock_envasado + item.granel_stock) >= (item.pedidos_pendientes + qty)) {
+    dias = 4;
+    tipo = 'SOLO ENVASAR (3-4 días)';
+    badgeCls = 'info';
+    cuello = `Granel listo en fábrica (${fmtNum(item.granel_stock)} L). Requiere embotellado y etiquetado`;
+    accion = 'Lanzar orden prioritaria a línea de envasado';
+  } else if (qty <= 10000) {
+    dias = 8;
+    tipo = 'FABRICAR EN REACTOR (7-10 días)';
+    badgeCls = 'warning';
+    cuello = 'Granel insuficiente. Requiere síntesis en reactores de formulación (R-1 / R-2 / R-3)';
+    accion = 'Planificar slot de reacción con el Jefe de Fábrica y control de calidad';
+  } else {
+    dias = 18;
+    tipo = 'APROVISIONAMIENTO MP (15-20 días)';
+    badgeCls = 'danger';
+    cuello = 'Volumen elevado / stock de materias primas aditivas insuficiente';
+    accion = 'Emitir pedido urgente a compras para asegurar llegada de materias primas';
+  }
+
+  const d = new Date(2026, 9, 27); // 27 Oct 2026
+  d.setDate(d.getDate() + dias);
+  const fechaStr = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+
+  resEl.innerHTML = `
+    <div style="display:flex; align-items:center; gap:1.2rem;">
+      <div style="background:rgba(255,255,255,0.05); padding:0.6rem 1rem; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
+        <span style="font-size:0.75rem; color:var(--muted); text-transform:uppercase;">Tipo de Compromiso</span>
+        <div style="font-size:1.05rem; font-weight:800;" class="tab-badge badge-${badgeCls}">${tipo}</div>
+      </div>
+      <div>
+        <span style="font-size:0.75rem; color:var(--muted); text-transform:uppercase;">Fecha de Entrega Viable Recomendada</span>
+        <div style="font-size:1.35rem; font-weight:800; color:#38bdf8">${fechaStr} (${dias} días naturales)</div>
+      </div>
+    </div>
+    <div style="max-width:480px; text-align:right;">
+      <div style="font-size:0.82rem; color:#fff; font-weight:600;">Diagnóstico: ${cuello}</div>
+      <div style="font-size:0.78rem; color:#94a3b8; margin-top:0.2rem;">Acción: ${accion}</div>
+    </div>
+  `;
+}
+
+
+// -------------------------------------------------------------------------
+// MEJORA 6: EXCEPCIONES DE PRECIO CON CADUCIDAD (AUTORIZACIONES Y COTIZADOR)
+// -------------------------------------------------------------------------
+
+let currentExpFilter = 'ALL';
+
+function renderPriceExceptionsSection() {
+  const bi = getBiData();
+  if (!bi || !bi.mejora_6_excepciones_precio) {
+    return `<div class="empty-state"><p>No se encontraron datos de excepciones de precio.</p></div>`;
+  }
+
+  const exp = bi.mejora_6_excepciones_precio;
+  const list = exp.excepciones_list || [];
+
+  return `
+    <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
+      <!-- CABECERA DIRECTIVA -->
+      <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: var(--radius-md); padding: 1.35rem 1.75rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
+              <span style="font-size:1.4rem">🏷️</span>
+              <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
+                Mejora 6: Registro de Excepciones de Precio con Caducidad
+              </h3>
+              <span class="tab-badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4)">
+                Gobernanza de Márgenes
+              </span>
+            </div>
+            <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px">
+              Control formal de acuerdos y precios especiales fuera de tarifa. Todo precio pactado debe contar con vencimiento explícito, justificación por volumen y nivel de autorización según margen bruto COGS.
+            </p>
+          </div>
+          <div style="text-align:right">
+            <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted)">Volumen Auditado</span>
+            <div style="font-size:1.15rem; font-weight:700; color:#34d399">${fmtEur(exp.volumen_afectado_eur)}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI METRIC CARDS -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem;">
+        <div class="kpi-card" style="border-left: 4px solid #38bdf8;">
+          <div class="kpi-label">Total Acuerdos Registrados</div>
+          <div class="kpi-val" style="color:#38bdf8">${exp.total_excepciones}</div>
+          <div class="kpi-sub">Precios especiales fuera de tarifa</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #10b981; cursor:pointer;" onclick="filterPriceExceptionsTable('VIGENTE')">
+          <div class="kpi-label">🟢 Vigentes</div>
+          <div class="kpi-val" style="color:#34d399">${exp.vigentes_count} contratos</div>
+          <div class="kpi-sub">Dentro de plazo y vigencia</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #f59e0b; cursor:pointer;" onclick="filterPriceExceptionsTable('POR VENCER')">
+          <div class="kpi-label">🟠 Por Vencer (&lt; 60 días)</div>
+          <div class="kpi-val" style="color:#fbbf24">${exp.por_vencer_count} acuerdo</div>
+          <div class="kpi-sub">Requiere revisión comercial</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #ef4444; cursor:pointer;" onclick="filterPriceExceptionsTable('CADUCADA')">
+          <div class="kpi-label">🔴 Caducados</div>
+          <div class="kpi-val" style="color:#f87171">${exp.caducadas_count} acuerdo</div>
+          <div class="kpi-sub">Bloqueado en cotizador</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #a855f7;">
+          <div class="kpi-label">Margen Medio Acordado</div>
+          <div class="kpi-val" style="color:#c084fc">${exp.margen_medio_acordado_pct}%</div>
+          <div class="kpi-sub">Tarifa estándar: 67,3%</div>
+        </div>
+      </div>
+
+      <!-- COTIZADOR RÁPIDO & SIMULADOR DE UMBRALES DE APROBACIÓN -->
+      <div class="chart-box" style="padding:1.25rem 1.5rem; background:rgba(30, 41, 59, 0.7); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-md);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+          <div>
+            <h4 style="margin:0; font-size:1rem; color:#fff; display:flex; align-items:center; gap:0.5rem;">
+              <span>⚖️</span> Cotizador de Excepción & Validador de Autorizaciones
+            </h4>
+            <span style="font-size:0.8rem; color:var(--muted)">Simula el margen COGS y comprueba qué nivel de firma exige la política corporativa</span>
+          </div>
+          <div style="display:flex; gap:0.5rem; font-size:0.75rem;">
+            <span class="tab-badge" style="background:rgba(16,185,129,0.15); color:#34d399">Margen &ge;60%: Comercial</span>
+            <span class="tab-badge" style="background:rgba(245,158,11,0.15); color:#fbbf24">45%-59%: Dir. Comercial</span>
+            <span class="tab-badge" style="background:rgba(239,68,68,0.15); color:#f87171">&lt;45%: Dir. General</span>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap:1rem; align-items:flex-end;">
+          <div>
+            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Producto / SKU de Referencia</label>
+            <select id="expSimSkuSelect" onchange="recalcPriceExceptionSim()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.88rem;">
+              <option value="CPLUS0020" data-tarifa="3.85" data-cogs="1.15">CALCIPLUS 20L (Tarifa: 3,85 € | COGS: 1,15 €)</option>
+              <option value="AGR0020" data-tarifa="4.20" data-cogs="1.30">AGROMAR 20L (Tarifa: 4,20 € | COGS: 1,30 €)</option>
+              <option value="PMAX0020" data-tarifa="4.50" data-cogs="1.42">POTASIOMAX 20L (Tarifa: 4,50 € | COGS: 1,42 €)</option>
+              <option value="SAL0020" data-tarifa="3.10" data-cogs="1.05">SALWAX 20L (Tarifa: 3,10 € | COGS: 1,05 €)</option>
+              <option value="FRU0020" data-tarifa="5.10" data-cogs="1.68">FRUTALMAX 20L (Tarifa: 5,10 € | COGS: 1,68 €)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Precio Oferta Propuesto (€/L)</label>
+            <input type="number" id="expSimOfferPrice" value="2.90" step="0.05" min="0.5" oninput="recalcPriceExceptionSim()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.88rem; font-weight:700;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Volumen Comprometido (L)</label>
+            <input type="number" id="expSimVolume" value="25000" step="1000" min="100" oninput="recalcPriceExceptionSim()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.88rem; font-weight:700;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Duración Acuerdo (Meses)</label>
+            <select id="expSimMonths" onchange="recalcPriceExceptionSim()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.88rem;">
+              <option value="3">3 Meses (Campaña corta)</option>
+              <option value="6" selected>6 Meses (Media campaña)</option>
+              <option value="12">12 Meses (Anual - Máx permitido)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- RESULTADO DEL COTIZADOR -->
+        <div id="priceExceptionSimResult" style="margin-top:1.15rem; padding:1rem 1.25rem; background:rgba(15, 23, 42, 0.85); border:1px solid rgba(245, 158, 11, 0.3); border-radius:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <!-- Generado por recalcPriceExceptionSim() -->
+        </div>
+      </div>
+
+      <!-- TABLA DETALLADA DE CONTRATOS AUDITADOS -->
+      <div class="chart-box" style="padding:1.35rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+          <div>
+            <h4 style="margin:0; font-size:1.05rem; color:#fff">Auditoría de Acuerdos Activos y Vencimientos</h4>
+            <span style="font-size:0.8rem; color:var(--muted)">Control de precios vigentes vs precios caducados</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <button class="pill-btn exp-filter-btn active" data-filter="ALL" onclick="filterPriceExceptionsTable('ALL')">Todos (${exp.total_excepciones})</button>
+            <button class="pill-btn exp-filter-btn" data-filter="VIGENTE" onclick="filterPriceExceptionsTable('VIGENTE')">🟢 Vigentes (${exp.vigentes_count})</button>
+            <button class="pill-btn exp-filter-btn" data-filter="POR VENCER" onclick="filterPriceExceptionsTable('POR VENCER')">🟠 Por Vencer (${exp.por_vencer_count})</button>
+            <button class="pill-btn exp-filter-btn" data-filter="CADUCADA" onclick="filterPriceExceptionsTable('CADUCADA')">🔴 Caducados (${exp.caducadas_count})</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="priceExceptionsTable">
+            <thead>
+              <tr>
+                <th>Expediente</th>
+                <th>Cliente</th>
+                <th>Comercial</th>
+                <th>Producto / SKU</th>
+                <th style="text-align:right">P. Tarifa</th>
+                <th style="text-align:right; color:#fbbf24">P. Pactado</th>
+                <th style="text-align:center">Dto %</th>
+                <th style="text-align:center">Margen COGS</th>
+                <th>Nivel Autorización</th>
+                <th>Justificación Comercial</th>
+                <th style="text-align:center">Caducidad</th>
+                <th style="text-align:center">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(s => `
+                <tr class="exp-row" data-estado="${s.estado}">
+                  <td style="font-weight:700; font-family:monospace; color:#38bdf8">${s.id}</td>
+                  <td style="font-weight:600; color:#fff;">${s.cliente} <span style="font-size:0.75rem; color:var(--muted)">(${s.pais})</span></td>
+                  <td><span class="tag-commercial">${s.comercial}</span></td>
+                  <td style="color:#cbd5e1">${s.producto}</td>
+                  <td style="text-align:right; color:#94a3b8">${fmtEur(s.precio_tarifa)}</td>
+                  <td style="text-align:right; font-weight:700; color:#fbbf24">${fmtEur(s.precio_acordado)}</td>
+                  <td style="text-align:center"><span class="tab-badge badge-warning">-${s.descuento_pct}%</span></td>
+                  <td style="text-align:center; font-weight:700; color:${s.margen_acordado_pct >= 60 ? '#34d399' : '#f87171'}">${s.margen_acordado_pct}%</td>
+                  <td><span class="tab-badge" style="background:rgba(255,255,255,0.08); font-size:0.75rem;">${s.autorizado_por}</span></td>
+                  <td style="font-size:0.8rem; color:#94a3b8; max-width:260px;">${s.motivo}</td>
+                  <td style="text-align:center; font-size:0.85rem;">
+                    <span style="font-weight:600; color:#fff">${s.fecha_caducidad}</span>
+                    <div style="font-size:0.72rem; color:${s.dias_restantes < 0 ? '#f87171' : (s.dias_restantes <= 60 ? '#fbbf24' : '#94a3b8')}">
+                      ${s.dias_restantes < 0 ? 'Venció hace ' + Math.abs(s.dias_restantes) + 'd' : s.dias_restantes + ' días restantes'}
+                    </div>
+                  </td>
+                  <td style="text-align:center">
+                    <span class="tab-badge badge-${s.badge_cls}">${s.estado}</span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function filterPriceExceptionsTable(filtro) {
+  currentExpFilter = filtro;
+  document.querySelectorAll('.exp-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-filter') === filtro);
+  });
+  const rows = document.querySelectorAll('#priceExceptionsTable tbody tr.exp-row');
+  rows.forEach(r => {
+    const estado = r.getAttribute('data-estado');
+    r.style.display = (filtro === 'ALL' || estado === filtro) ? '' : 'none';
+  });
+}
+
+function recalcPriceExceptionSim() {
+  const select = document.getElementById('expSimSkuSelect');
+  const offerPrice = parseFloat(document.getElementById('expSimOfferPrice')?.value) || 0;
+  const volume = parseFloat(document.getElementById('expSimVolume')?.value) || 0;
+  const months = document.getElementById('expSimMonths')?.value || '6';
+  const resEl = document.getElementById('priceExceptionSimResult');
+  if (!select || !resEl) return;
+
+  const opt = select.options[select.selectedIndex];
+  const tarifa = parseFloat(opt.getAttribute('data-tarifa')) || 0;
+  const cogs = parseFloat(opt.getAttribute('data-cogs')) || 0;
+
+  const dtoPct = tarifa > 0 ? ((tarifa - offerPrice) / tarifa * 100) : 0;
+  const marginEur = offerPrice - cogs;
+  const marginPct = offerPrice > 0 ? (marginEur / offerPrice * 100) : 0;
+  const totalRev = offerPrice * volume;
+  const totalMargin = marginEur * volume;
+
+  let nivelAuth = 'Aprobación Comercial Delegada';
+  let badgeCls = 'success';
+  let vigenciaRecom = 'Caducidad sugerida: 6 meses con revisión trimestral';
+
+  if (marginPct >= 60) {
+    nivelAuth = '🟢 Aprobación Delegada Comercial (Automática)';
+    badgeCls = 'success';
+    vigenciaRecom = `Válido para contrato de ${months} meses. Margen saludable superior al 60%.`;
+  } else if (marginPct >= 45) {
+    nivelAuth = '🟠 Requiere Firma de Dirección Comercial';
+    badgeCls = 'warning';
+    vigenciaRecom = `Exige compromiso de volumen mínimo (> ${fmtNum(volume)} L) y caducidad estricta a ${months} meses.`;
+  } else {
+    nivelAuth = '🔴 Requiere Aprobación Expresa de Dirección General';
+    badgeCls = 'danger';
+    vigenciaRecom = 'Alerta de erosión de margen COGS (<45%). Solo admisible para apertura estratégica de mercado.';
+  }
+
+  resEl.innerHTML = `
+    <div style="display:flex; align-items:center; gap:1.2rem; flex-wrap:wrap;">
+      <div style="background:rgba(255,255,255,0.05); padding:0.6rem 0.9rem; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
+        <span style="font-size:0.72rem; color:var(--muted); text-transform:uppercase;">Descuento sobre Tarifa</span>
+        <div style="font-size:1.1rem; font-weight:800; color:#fbbf24">${dtoPct.toFixed(1)}%</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05); padding:0.6rem 0.9rem; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
+        <span style="font-size:0.72rem; color:var(--muted); text-transform:uppercase;">Margen Bruto COGS</span>
+        <div style="font-size:1.1rem; font-weight:800; color:${marginPct >= 60 ? '#34d399' : (marginPct >= 45 ? '#fbbf24' : '#f87171')}">${marginPct.toFixed(1)}% (${fmtEur(marginEur)}/u)</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05); padding:0.6rem 0.9rem; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
+        <span style="font-size:0.72rem; color:var(--muted); text-transform:uppercase;">Facturación / Margen Total</span>
+        <div style="font-size:1.1rem; font-weight:800; color:#38bdf8">${fmtEur(totalRev)} | <span style="color:#34d399">${fmtEur(totalMargin)}</span></div>
+      </div>
+    </div>
+    <div style="text-align:right; max-width:460px;">
+      <div style="font-size:0.88rem; font-weight:800;" class="tab-badge badge-${badgeCls}">${nivelAuth}</div>
+      <div style="font-size:0.78rem; color:#94a3b8; margin-top:0.3rem;">${vigenciaRecom}</div>
+    </div>
+  `;
+}

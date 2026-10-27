@@ -42,16 +42,16 @@ function renderCockpitInicioSection() {
         </div>
       </div>
 
-      <!-- LOS 5 SIGNOS VITALES DEL NEGOCIO (CARDS EJECUTIVAS) -->
+      <!-- LOS 4 SIGNOS VITALES DEL NEGOCIO (CARDS EJECUTIVAS) -->
       <div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
           <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.15rem; color:#fff; display:flex; align-items:center; gap:0.5rem;">
-            <span>🩺</span> 5 Signos Vitales del Período
+            <span>🩺</span> 4 Signos Vitales Clave del Negocio
           </h3>
           <span style="font-size:0.78rem; color:var(--muted)">Haga clic en cualquier tarjeta para acceder al desglose</span>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.15rem;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.15rem;">
           <!-- 1. VENTAS NETAS VS OBJETIVO -->
           <div class="kpi-card accent-blue" onclick="switchTab('resumen')" style="cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
             <div class="kpi-header">
@@ -97,25 +97,10 @@ function renderCockpitInicioSection() {
             </div>
           </div>
 
-          <!-- 4. CAJA PREVISTA Y MÍNIMO DE SEGURIDAD -->
-          <div class="kpi-card accent-gold" onclick="switchTab('tesoreria')" style="cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
-            <div class="kpi-header">
-              <span class="kpi-title">4. Previsión Caja & Liquidez</span>
-              <span class="kpi-icon">💶</span>
-            </div>
-            <div class="kpi-value" style="color:#fbbf24">3.250.000 €</div>
-            <div class="kpi-subtitle">
-              Mínimo horizonte 13 sem: <strong style="color:#34d399">2.840.000 €</strong>
-            </div>
-            <div class="progress-bar-container">
-              <div class="progress-bar-fill" style="width:87%; background:var(--warn-gradient)"></div>
-            </div>
-          </div>
-
-          <!-- 5. PEDIDOS EN RIESGO DE SERVICIO -->
+          <!-- 4. PEDIDOS PENDIENTES DE ENTREGA -->
           <div class="kpi-card accent-rose" onclick="switchTab('produccion')" style="cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
             <div class="kpi-header">
-              <span class="kpi-title">5. Pedidos Pendientes de Entrega</span>
+              <span class="kpi-title">4. Pedidos Pendientes de Entrega</span>
               <span class="kpi-icon">⚠️</span>
             </div>
             <div class="kpi-value" style="color:#f87171">${fmtNum(pendientesUds)} uds</div>

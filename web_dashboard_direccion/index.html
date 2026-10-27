@@ -1758,7 +1758,7 @@
               <span class="nav-item-icon">🧭</span>
               <span>Cockpit de Dirección</span>
             </div>
-            <span class="tab-badge badge-success" id="tabBadgeInicio">5 Vitales</span>
+            <span class="tab-badge badge-success" id="tabBadgeInicio">4 Vitales</span>
           </button>
         </div>
 
@@ -1796,6 +1796,13 @@
             </div>
             <span class="tab-badge badge-danger" id="tabBadgeBiChurn">16 Alertas</span>
           </button>
+          <button class="nav-item-btn" id="navBtnBiExcepciones" onclick="switchTab('bi_excepciones')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">🏷️</span>
+              <span>Excepciones de Precio</span>
+            </div>
+            <span class="tab-badge badge-warning" id="tabBadgeBiExcepciones">6 Acuerdos</span>
+          </button>
         </div>
 
         <!-- ÁREA 3: OPERACIONES & FÁBRICA -->
@@ -1817,6 +1824,13 @@
               <span>Complejidad de Lotes</span>
             </div>
             <span class="tab-badge badge-warning" id="tabBadgeBiComplexity">26 SKUs</span>
+          </button>
+          <button class="nav-item-btn" id="navBtnBiAtp" onclick="switchTab('bi_atp')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">⏱️</span>
+              <span>Fechas Viables (ATP)</span>
+            </div>
+            <span class="tab-badge badge-info" id="tabBadgeBiAtp">79 SKUs</span>
           </button>
         </div>
 
@@ -1849,8 +1863,8 @@
           </button>
         </div>
 
-        <!-- ÁREA 5: TESORERÍA & CAJA -->
-        <div class="nav-group" id="navGroupFinanzas">
+        <!-- ÁREA 5: TESORERÍA & CAJA (OCULTO A PETICIÓN DE DIRECCIÓN) -->
+        <div class="nav-group" id="navGroupFinanzas" style="display:none;">
           <div class="nav-group-header">
             <span>💶</span>
             <span>TESORERÍA</span>
@@ -6839,6 +6853,16 @@
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '🏭';
         if (titleTextEl) titleTextEl.textContent = 'Fabricación | Coste de la Complejidad Industrial & Lotes Pequeños';
+      } else if (tabKey === 'bi_atp') {
+        const b = document.getElementById('navBtnBiAtp');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '⏱️';
+        if (titleTextEl) titleTextEl.textContent = 'Operaciones | Fechas de Entrega Viables (ATP Disponible para Prometer)';
+      } else if (tabKey === 'bi_excepciones') {
+        const b = document.getElementById('navBtnBiExcepciones');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '🏷️';
+        if (titleTextEl) titleTextEl.textContent = 'Comercial | Registro de Excepciones de Precio con Caducidad';
       } else if (tabKey === 'bi_forecast') {
         const b = document.getElementById('navBtnBiForecast');
         if (b) b.classList.add('active');
@@ -6903,6 +6927,10 @@
         renderBiChurnTab(container);
       } else if (currentTab === 'bi_complexity') {
         renderBiComplexityTab(container);
+      } else if (currentTab === 'bi_atp') {
+        renderBiAtpTab(container);
+      } else if (currentTab === 'bi_excepciones') {
+        renderBiExcepcionesTab(container);
       } else if (currentTab === 'bi_forecast') {
         renderBiForecastTab(container);
       } else if (currentTab === 'bi_concentracion') {
@@ -7000,6 +7028,28 @@ function renderBiChurnTab(container) {
           ${typeof renderIndustrialComplexitySection === 'function' ? renderIndustrialComplexitySection() : '<p>Cargando módulo de complejidad industrial...</p>'}
         </div>
       `;
+    }
+
+    function renderBiAtpTab(container) {
+      container.innerHTML = `
+        <div id="biAtpContainer">
+          ${typeof renderAtpDeliveryDateSection === 'function' ? renderAtpDeliveryDateSection() : '<p>Cargando módulo de fechas viables ATP...</p>'}
+        </div>
+      `;
+      if (typeof runAtpSimulator === 'function') {
+        setTimeout(runAtpSimulator, 50);
+      }
+    }
+
+    function renderBiExcepcionesTab(container) {
+      container.innerHTML = `
+        <div id="biExcepcionesContainer">
+          ${typeof renderPriceExceptionsSection === 'function' ? renderPriceExceptionsSection() : '<p>Cargando módulo de excepciones de precio...</p>'}
+        </div>
+      `;
+      if (typeof recalcPriceExceptionSim === 'function') {
+        setTimeout(recalcPriceExceptionSim, 50);
+      }
     }
 
 function renderBiForecastTab(container) {

@@ -52,14 +52,13 @@ def build_dataset():
     df_ped['SKU_CLEAN'] = df_ped['CodigoArticulo'].astype(str).str.strip().str.upper()
     df_ped = df_ped[~df_ped['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
 
-    # Cargar presupuesto (usar versión original sin aplanar si existe en antiguos o raíz)
-    sin_aplanar_path = os.path.join('antiguos', 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx')
-    if os.path.exists(sin_aplanar_path):
-        src_budget = sin_aplanar_path
+    # Cargar presupuesto común oficial (H14: Priorizar Presupuesto_Ventas_2027_Definitivo.xlsx)
+    if os.path.exists('Presupuesto_Ventas_2027_Definitivo.xlsx'):
+        src_budget = 'Presupuesto_Ventas_2027_Definitivo.xlsx'
     elif os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx'):
         src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx'
-    elif os.path.exists('Presupuesto_Ventas_2027_Definitivo.xlsx'):
-        src_budget = 'Presupuesto_Ventas_2027_Definitivo.xlsx'
+    elif os.path.exists(os.path.join('antiguos', 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx')):
+        src_budget = os.path.join('antiguos', 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx')
     else:
         src_budget = 'Presupuesto_Ventas_2027.xlsx'
     temp_bud = os.path.join('scratch', 'temp_budget_input.xlsx')

@@ -682,10 +682,20 @@ function renderForecastAccuracySection() {
             </p>
           </div>
           <div style="background:rgba(15,23,42,0.85); padding:0.6rem 1.15rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
-            <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700">Accuracy Global Empresa</div>
-            <div style="font-size:1.6rem; font-weight:800; color:#38bdf8">${fa.tot_forecast_accuracy_pct}%</div>
-            <div style="font-size:0.75rem; color:#34d399">Consecución: ${fa.tot_consecucion_pct}%</div>
+            <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700">Consecución Presupuesto</div>
+            <div style="font-size:1.6rem; font-weight:800; color:#34d399">${fa.tot_consecucion_pct}%</div>
+            <div style="font-size:0.72rem; color:#94a3b8">Accuracy WAPE (Mes Abierto): <strong style="color:#fbbf24">0,0%*</strong></div>
           </div>
+        </div>
+      </div>
+
+      <!-- NOTA METODOLÓGICA DE AUDITORÍA: CONSECUCIÓN VS ACCURACY (HALLAZGO H21) -->
+      <div style="background:rgba(30,41,59,0.7); border:1px solid rgba(56,189,248,0.25); border-radius:var(--radius-md); padding:0.9rem 1.25rem; font-size:0.83rem; color:#cbd5e1; display:flex; align-items:center; gap:0.75rem;">
+        <span style="font-size:1.4rem;">ℹ️</span>
+        <div>
+          <strong style="color:#38bdf8;">Distinción de Conceptos (Auditoría H21):</strong>
+          El <strong>81,5%</strong> mide el grado de <em>consecución volumétrica del presupuesto mensual</em> (254.091 uds registradas sobre 311.917 uds objetivo).
+          El <strong>0,0%</strong> de Forecast Accuracy en el módulo comercial corresponde a la fórmula WAPE estricta por SKU, que al estar en un <em>mes abierto en curso</em> refleja pedidos en entrada continua y no un fallo cerrado de estimación.
         </div>
       </div>
 
@@ -1372,7 +1382,7 @@ function renderAtpDeliveryDateSection() {
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
           <div>
             <h4 style="margin:0; font-size:1rem; color:#fff; display:flex; align-items:center; gap:0.5rem;">
-              <span>🧮</span> Simulador Rápido de Compromiso de Pedido (ATP)
+              <span>🧮</span> Simulador de Plazos Estándar de Pedido (ATP Orientativo)
             </h4>
             <span style="font-size:0.8rem; color:var(--muted)">Comprueba al instante cuándo expedir un nuevo pedido antes de confirmárselo al cliente</span>
           </div>
@@ -1394,7 +1404,7 @@ function renderAtpDeliveryDateSection() {
           </div>
           <div>
             <button onclick="runAtpSimulator()" class="pill-btn active" style="padding:0.6rem 1.2rem; font-weight:700; height:40px;">
-              ⚡ Calcular Fecha
+              ⚡ Calcular Plazo Orientativo
             </button>
           </div>
         </div>
@@ -1409,7 +1419,7 @@ function renderAtpDeliveryDateSection() {
       <div class="chart-box" style="padding:1.35rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
           <div>
-            <h4 style="margin:0; font-size:1.05rem; color:#fff">Matriz Completa de Disponibilidad y Fechas Viables</h4>
+            <h4 style="margin:0; font-size:1.05rem; color:#fff">Matriz Completa de Disponibilidad y Plazos Estándar Orientativos (ATP)</h4>
             <span style="font-size:0.8rem; color:var(--muted)">79 SKUs con cartera pendiente de servicio</span>
           </div>
           <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
@@ -1434,7 +1444,7 @@ function renderAtpDeliveryDateSection() {
                 <th style="text-align:right">Granel Reactor</th>
                 <th style="text-align:center">Cobertura</th>
                 <th style="text-align:center">Lead Time</th>
-                <th style="text-align:center; color:#38bdf8">Fecha Viable ATP</th>
+                <th style="text-align:center; color:#38bdf8">Plazo Orientativo ATP</th>
                 <th>Diagnóstico y Ruta Industrial</th>
               </tr>
             </thead>

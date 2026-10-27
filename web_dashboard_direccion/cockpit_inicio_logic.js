@@ -195,9 +195,9 @@ function renderCockpitInicioSection() {
                   Fragmentación de Lotes y Limpiezas Improductivas
                 </td>
                 <td><span class="tab-badge" style="background:rgba(245,158,11,0.15); color:#fbbf24">Operaciones / Planta</span></td>
-                <td style="text-align:right; font-weight:800; color:#34d399; font-size:1.05rem">+14.350 €/mes</td>
+                <td style="text-align:right; font-weight:800; color:#34d399; font-size:1.05rem">+12.950 €/mes</td>
                 <td style="color:#cbd5e1; font-size:0.85rem">
-                  26 referencias fabricadas en múltiples micro-lotes (Alcaplant 6 lotes, Agroxilato-K 4 lotes). Ahorro anual: 172.200 €.
+                  26 referencias fabricadas en múltiples micro-lotes (Alcaplant 6 lotes, Agroxilato-K 4 lotes). Ahorro anual proyectado: 155.400 € (12.950 € × 12).
                 </td>
                 <td style="text-align:center">
                   <button class="pill-btn" onclick="switchTab('bi_complexity')" style="background:rgba(245,158,11,0.15); border-color:#fbbf24; color:#fbbf24; font-weight:700">

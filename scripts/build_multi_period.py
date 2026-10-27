@@ -65,14 +65,13 @@ def get_latest_october_file():
     return 'Pedidos 02.10 comerciales.xlsx' if os.path.exists('Pedidos 02.10 comerciales.xlsx') else None
 
 def load_data_sources():
-    # 1. Budget
-    sin_aplanar_path = os.path.join('antiguos', 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx')
-    if os.path.exists(sin_aplanar_path):
-        src_budget = sin_aplanar_path
+    # 1. Budget común oficial (H14: Priorizar Presupuesto_Ventas_2027_Definitivo.xlsx)
+    if os.path.exists('Presupuesto_Ventas_2027_Definitivo.xlsx'):
+        src_budget = 'Presupuesto_Ventas_2027_Definitivo.xlsx'
     elif os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx'):
         src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx'
-    elif os.path.exists('Presupuesto_Ventas_2027_Definitivo.xlsx'):
-        src_budget = 'Presupuesto_Ventas_2027_Definitivo.xlsx'
+    elif os.path.exists(os.path.join('antiguos', 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx')):
+        src_budget = os.path.join('antiguos', 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx')
     else:
         src_budget = 'Presupuesto_Ventas_2027.xlsx'
     df_bud = safe_read_excel(src_budget, sheet_name='Previsión Matriz Horizontal')

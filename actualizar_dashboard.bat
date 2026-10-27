@@ -4,24 +4,40 @@ echo ========================================================
 echo   CODIAGRO - ACTUALIZADOR DIARIO DE DASHBOARD WEB
 echo ========================================================
 echo.
+setlocal enabledelayedexpansion
+set "PY=C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
+
 echo 1. Regenerando dataset y dashboard web...
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/build_dataset.py
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/build_production_data.py
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/generar_orden_fabricacion_excel.py
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/build_treasury_data.py
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/build_profitability_data.py
+"%PY%" scripts/build_dataset.py
+if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en build_dataset.py & exit /b 1 )
+
+"%PY%" scripts/build_production_data.py
+if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en build_production_data.py & exit /b 1 )
+
+"%PY%" scripts/generar_orden_fabricacion_excel.py
+if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en generar_orden_fabricacion_excel.py & exit /b 1 )
+
+"%PY%" scripts/build_treasury_data.py
+if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en build_treasury_data.py & exit /b 1 )
+
+"%PY%" scripts/build_profitability_data.py
+if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en build_profitability_data.py & exit /b 1 )
+
+echo 1b. Integrando Full Costing analitico sept/oct...
+if exist "scratch\merge_fullcost_drilldown.py" (
+    "%PY%" scratch/merge_fullcost_drilldown.py
+    if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en merge_fullcost_drilldown.py & exit /b 1 )
+)
+
+REM Validacion transaccional de integridad de datos generados
+if not exist "web_dashboard_direccion\fullcost_data.json" ( echo [ERROR] Archivo fullcost_data.json no encontrado & exit /b 1 )
+if not exist "web_dashboard_direccion\dashboard_data.json" ( echo [ERROR] Archivo dashboard_data.json no encontrado & exit /b 1 )
 
 REM Asegurar que ningun dato confidencial este en la version publica web_dashboard
 del /q "web_dashboard\treasury_data.*" 2>nul
 del /q "web_dashboard\profitability_data.*" 2>nul
 del /q "web_dashboard\profitability_logic.js" 2>nul
 del /q "web_dashboard\Prevision_Tesoreria_CashFlow_2026*.xlsx" 2>nul
-
-if %ERRORLEVEL% NEQ 0 (
-    echo [ERROR] Hubo un problema al procesar los datos web.
-    pause
-    exit /b %ERRORLEVEL%
-)
 
 echo.
 echo 2. Regenerando informe Excel de seguimiento...

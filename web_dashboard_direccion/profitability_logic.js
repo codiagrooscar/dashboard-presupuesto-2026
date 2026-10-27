@@ -449,7 +449,7 @@ function renderProfitRadarView() {
         <div style="display:flex; align-items:center; gap:0.4rem">
           <span style="font-size:0.75rem; font-weight:700; color:var(--muted)">AÑO:</span>
           <button class="pill-btn ${profitRadarYear === '2027' ? 'active' : ''}" onclick="setProfitRadarYear('2027')">2027 Presup.</button>
-          <button class="pill-btn ${profitRadarYear === '2026' ? 'active' : ''}" onclick="setProfitRadarYear('2026')">2026 Real</button>
+          <button class="pill-btn ${profitRadarYear === '2026' ? 'active' : ''}" onclick="setProfitRadarYear('2026')">2026 (Ene-Sep Real + Q4 Prev.)</button>
           <button class="pill-btn ${profitRadarYear === 'ALL' ? 'active' : ''}" onclick="setProfitRadarYear('ALL')">Ambos</button>
         </div>
 
@@ -462,7 +462,7 @@ function renderProfitRadarView() {
         <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); padding: 0.65rem 1.1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
           <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.83rem; color:#fca5a5;">
             <span>ℹ️</span>
-            <span>Viendo la venta a pérdida de <strong>${profitRadarYear === '2027' ? '2027 Presupuesto' : '2026 Real'}</strong>. Hay otra venta a pérdida en <strong>${profitRadarYear === '2027' ? '2026 Real' : '2027 Presupuesto'}</strong> (mismo producto y cliente).</span>
+            <span>Viendo la venta a pérdida de <strong>${profitRadarYear === '2027' ? '2027 Presupuesto' : '2026 (Ene-Sep Real + Q4 Prev.)'}</strong>. Hay otra venta a pérdida en <strong>${profitRadarYear === '2027' ? '2026 (Ene-Sep Real + Q4 Prev.)' : '2027 Presupuesto'}</strong> (mismo producto y cliente).</span>
           </div>
           <button class="pill-btn active" onclick="setProfitRadarYear('ALL')" style="font-size:0.75rem; padding:0.3rem 0.85rem; cursor:pointer; background:rgba(239,68,68,0.25); border-color:rgba(239,68,68,0.5); color:#fff; font-weight:700;">
             Ver las 2 ventas a pérdida (Ambos Años)
@@ -881,7 +881,7 @@ function openProfitClientModal(clientName, targetYear) {
             onclick="openProfitClientModal('${clientName.replace(/'/g, "\\'")}', '2026')"
             style="background:${is2026 ? 'linear-gradient(135deg, #0ea5e9, #0284c7)' : 'transparent'}; color:${is2026 ? '#fff' : 'var(--muted)'}; border:none; padding:0.35rem 0.85rem; border-radius:var(--radius-xs); font-size:0.8rem; font-weight:700; cursor:pointer; box-shadow:${is2026 ? '0 2px 8px rgba(14,165,233,0.4)' : 'none'}; transition:all 0.15s ease"
           >
-            📅 2026 Real
+            📅 2026 (Ene-Sep Real + Q4 Prev.)
           </button>
           <button 
             type="button"
@@ -899,7 +899,7 @@ function openProfitClientModal(clientName, targetYear) {
     <div style="padding:1rem 1.75rem; overflow-y:auto; max-height:calc(85vh - 120px)">
       <div style="margin-bottom:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem">
         <h4 style="margin:0; color:#cbd5e1; font-size:0.95rem">
-          Desglose de SKUs ${is2026 ? 'Reales de 2026' : 'Presupuestados para 2027'} (${skus.length} productos)
+          Desglose de SKUs ${is2026 ? 'de 2026 (Ene-Sep Real + Q4 Prev.)' : 'Presupuestados para 2027'} (${skus.length} productos)
         </h4>
         <span style="font-size:0.75rem; color:var(--muted)">Semáforo: Rojo &lt;60% | Amarillo 60-66% | Verde &gt;66% | 🎁 Previsión Rappel en Especie</span>
       </div>
@@ -2245,9 +2245,9 @@ window.exportFullcostClientesCsv = function() {
 window.exportFullcostProductosCsv = function() {
   const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
   if (!fc || !fc.productos) return;
-  const headers = ['SKU', 'Descripcion', 'Familia', 'Unidades', 'Ventas_EUR', 'Coste_Materiales_EUR', 'Coste_Planta_EUR', 'Margen_Industrial_EUR', 'Margen_Industrial_PCT', 'Semaforo'];
+  const headers = ['SKU', 'Descripcion', 'Familia', 'Ruta_Industrial', 'Formato_Envasado', 'Unidades', 'Ventas_EUR', 'Coste_Materiales_EUR', 'Coste_Planta_EUR', 'Margen_Industrial_EUR', 'Margen_Industrial_PCT', 'Semaforo'];
   const rows = fc.productos.map(p => [
-    `"${p.sku}"`, `"${p.desc}"`, `"${p.familia}"`, p.uds,
+    `"${p.sku}"`, `"${p.desc}"`, `"${p.familia}"`, `"${p.ruta || 'Líquidos (CECO 120)'}"`, `"${p.formato || '5L / 5kg'}"`, p.uds,
     p.ventas, p.cogs_materiales, p.coste_planta_fullcost, p.margen_industrial_eur, p.margen_industrial_pct, `"${p.semaforo}"`
   ]);
   const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(';')].concat(rows.map(r => r.join(';'))).join('\n');
@@ -2394,6 +2394,8 @@ function renderFullcostProductosSection() {
                 <th>Código SKU</th>
                 <th>Descripción Artículo</th>
                 <th>Familia</th>
+                <th>Ruta Industrial</th>
+                <th>Formato</th>
                 <th style="text-align:right">Uds Vendidas</th>
                 <th style="text-align:right">Ventas (€)</th>
                 <th style="text-align:right">Materiales (€)</th>
@@ -2409,6 +2411,8 @@ function renderFullcostProductosSection() {
                   <td style="font-weight:700; font-family:monospace; color:#38bdf8">${p.sku}</td>
                   <td style="color:#fff">${p.desc}</td>
                   <td><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${p.familia}</span></td>
+                  <td style="color:#a78bfa; font-size:0.8rem; font-weight:600">${p.ruta || 'Líquidos (CECO 120)'}</td>
+                  <td style="color:#94a3b8; font-size:0.8rem">${p.formato || '5L / 5kg'}</td>
                   <td style="text-align:right; font-weight:600">${fmtNum(p.uds)}</td>
                   <td style="text-align:right; font-weight:700">${fmtEur(p.ventas)}</td>
                   <td style="text-align:right; color:var(--muted)">${fmtEur(p.cogs_materiales)}</td>

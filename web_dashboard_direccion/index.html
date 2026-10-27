@@ -14,15 +14,15 @@
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
-  <script src="dashboard_data.js?v=20261027_0855"></script>
-  <script src="production_planning_data.js?v=20261027_0855"></script>
-  <script src="treasury_data.js?v=20261027_0855"></script>
-  <script src="profitability_data.js?v=20261027_0855"></script>
-  <script src="fullcost_data.js?v=20261027_0855"></script>
-  <script src="profitability_logic.js?v=20261027_1035"></script>
-  <script src="bi_intelligence_data.js?v=20261027_0907"></script>
-  <script src="cockpit_inicio_logic.js?v=20261027_1035"></script>
-  <script src="bi_intelligence_logic.js?v=20261027_1035"></script>
+  <script src="dashboard_data.js?v=20261027_1100"></script>
+  <script src="production_planning_data.js?v=20261027_1100"></script>
+  <script src="treasury_data.js?v=20261027_1100"></script>
+  <script src="profitability_data.js?v=20261027_1100"></script>
+  <script src="fullcost_data.js?v=20261027_1100"></script>
+  <script src="profitability_logic.js?v=20261027_1100"></script>
+  <script src="bi_intelligence_data.js?v=20261027_1100"></script>
+  <script src="cockpit_inicio_logic.js?v=20261027_1100"></script>
+  <script src="bi_intelligence_logic.js?v=20261027_1100"></script>
   <link rel="stylesheet" href="marta_tracking.css">
   <script src="marta_tracking_data.js?v=20261027_0855"></script>
   <script src="marta_tracking_logic.js?v=20261027_0855"></script>
@@ -5096,34 +5096,50 @@
       titleEl.innerHTML = `${code} <span style="font-weight:normal;color:#94a3b8;font-size:1.1rem;">— ${item.desc || ''}</span>`;
       subEl.innerText = t('mrp_modal_subtitle');
 
-      const stockInitial = Number(item.stock_actual) || 0;
-      const pendingUnits = Number(item.pedidos_pendientes || item.pendientes_uds) || 0;
+      const baseCode = item.base_sku || item.sku;
+      // Hallazgo H12: Stock compartido y demanda combinada multi-destino
+      const baseItem = (productionData.base_skus || []).find(b => b.base_sku === baseCode);
+      const stockInitial = Number(baseItem ? baseItem.stock_actual : item.stock_actual) || 0;
+      
+      let sharedPendingTotal = 0;
+      let sharedSubItemsList = [];
+      if (baseItem && baseItem.sub_items && baseItem.sub_items.length > 0) {
+        sharedSubItemsList = baseItem.sub_items.filter(s => (Number(s.pendientes_uds) || 0) > 0);
+        sharedPendingTotal = baseItem.sub_items.reduce((acc, s) => acc + (Number(s.pendientes_uds) || 0), 0);
+      }
+      if (sharedPendingTotal === 0) {
+        sharedPendingTotal = Number(item.pedidos_pendientes || item.pendientes_uds) || 0;
+      }
+      
+      const pendingUnits = isBaseView ? sharedPendingTotal : (Number(item.pedidos_pendientes || item.pendientes_uds) || sharedPendingTotal);
+      const isSharedOvercommitted = (sharedSubItemsList.length > 1 && sharedPendingTotal > stockInitial);
+      const sharedDeficit = Math.max(0, sharedPendingTotal - stockInitial);
 
-      // Calcular trayectoria a 15 meses
-      let runningStock = stockInitial - pendingUnits;
+      // Calcular trayectoria a 15 meses (sobre la demanda combinada si el stock es compartido)
+      let runningStock = stockInitial - (isSharedOvercommitted ? sharedPendingTotal : pendingUnits);
       let depletedMonth = null;
 
       const monthsMeta = productionData.metadata.months;
       let trajectoryRowsHtml = '';
-      let cumDemand = pendingUnits;
+      let cumDemand = isSharedOvercommitted ? sharedPendingTotal : pendingUnits;
 
       // Fila de pedidos pendientes iniciales
       trajectoryRowsHtml += `
         <tr style="background:rgba(251,191,36,0.06);">
-          <td style="font-weight:700;color:#fbbf24;">📦 Pedidos Pendientes Hoy</td>
-          <td class="text-right" style="font-weight:700;color:#fbbf24;">${fmtNum(pendingUnits)}</td>
+          <td style="font-weight:700;color:#fbbf24;">📦 Pedidos Pendientes ${isSharedOvercommitted ? 'Compartidos (Total Cartera)' : 'Hoy'}</td>
+          <td class="text-right" style="font-weight:700;color:#fbbf24;">${fmtNum(isSharedOvercommitted ? sharedPendingTotal : pendingUnits)}</td>
           <td class="text-right">${fmtNum(cumDemand)}</td>
           <td class="text-right" style="font-weight:700;color:${runningStock < 0 ? '#f87171' : '#34d399'}">
             ${runningStock > 0 ? '+' : ''}${fmtNum(runningStock)}
           </td>
           <td style="text-align:center;">
-            ${runningStock < 0 ? '<span class="coverage-pill coverage-crit">Rotura Inmediata</span>' : '<span class="coverage-pill coverage-ok">Cubierto</span>'}
+            ${runningStock < 0 ? '<span class="coverage-pill coverage-crit">Déficit Inmediato</span>' : '<span class="coverage-pill coverage-ok">Cubierto</span>'}
           </td>
         </tr>
       `;
 
       if (runningStock < 0 && !depletedMonth) {
-        depletedMonth = 'Inmediato (Pedidos en cartera)';
+        depletedMonth = isSharedOvercommitted ? `Déficit Inmediato (-${fmtNum(sharedDeficit)} u)` : 'Inmediato (Pedidos en cartera)';
       }
 
       monthsMeta.forEach(m => {
@@ -5264,7 +5280,27 @@
         `;
       }
 
+      let sharedStockAlertHtml = '';
+      if (isSharedOvercommitted) {
+        sharedStockAlertHtml = `
+          <div style="background:linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(15,23,42,0.95) 100%); border:1px solid rgba(239,68,68,0.45); border-radius:var(--radius-sm); padding:0.9rem 1.15rem; margin-bottom:1rem; display:flex; align-items:flex-start; gap:0.75rem;">
+            <span style="font-size:1.4rem; line-height:1">⚠️</span>
+            <div>
+              <div style="font-weight:800; color:#f87171; font-size:0.92rem">
+                Reserva Única de Stock Compartido (${code}): Déficit Neto -${fmtNum(sharedDeficit)} uds
+              </div>
+              <div style="font-size:0.8rem; color:#cbd5e1; margin-top:0.3rem; line-height:1.45">
+                El stock físico disponible (${fmtNum(stockInitial)} uds) se comparte entre varios destinos (${sharedSubItemsList.map(s => `<strong>${s.sku || s.pais}</strong>: ${fmtNum(s.pendientes_uds)} u`).join(' + ')} = <strong>${fmtNum(sharedPendingTotal)} uds</strong> demandadas).
+                <br/>
+                <span style="color:#fca5a5">No se evalúa cada destino de forma aislada; la demanda combinada agota el stock y exige <strong>Orden de Fabricación inmediata por ${fmtNum(sharedDeficit)} uds</strong>.</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
       bodyEl.innerHTML = `
+        ${sharedStockAlertHtml}
         ${granelCardHtml}
 
         <!-- KPI Strip dentro del modal -->
@@ -6887,7 +6923,7 @@
         const b = document.getElementById('navBtnBiAtp');
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '⏱️';
-        if (titleTextEl) titleTextEl.textContent = 'Operaciones | Fechas de Entrega Viables (ATP Disponible para Prometer)';
+        if (titleTextEl) titleTextEl.textContent = 'Operaciones | Plazos Estándar Orientativos de Entrega (ATP Teórico)';
       } else if (tabKey === 'bi_excepciones') {
         const b = document.getElementById('navBtnBiExcepciones');
         if (b) b.classList.add('active');

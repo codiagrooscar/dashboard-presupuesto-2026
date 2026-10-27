@@ -153,8 +153,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 def run_server():
     os.chdir(PROJECT_DIR)
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), DashboardHandler) as httpd:
-        print(f"=== Servidor Dashboard Presupuesto Septiembre 2026 iniciado en http://localhost:{PORT} ===")
+    HOST = "127.0.0.1"
+    with socketserver.TCPServer((HOST, PORT), DashboardHandler) as httpd:
+        print(f"=== Servidor Dashboard Presupuesto Septiembre 2026 iniciado en http://{HOST}:{PORT} ===")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

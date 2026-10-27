@@ -556,6 +556,12 @@ def build_treasury_dataset():
                 for idx, (k, lbl) in enumerate(zip(month_keys, month_labels))
             ]
         },
+        'supuestos_proyeccion': {
+            'saldo_inicial_origen': 'Extracto bancario consolidado real al 30/09/2026 (3.203.215,24 €)',
+            'salidas_q4_criterio': 'Presupuesto de pagos operativos y nóminas Q4 aprobado por Dirección',
+            'salidas_q4_detalle': salidas_q4,
+            'regla_retraso_cobro': 'Retraso medio observado histórico por cliente + 5 días en vencimientos sin histórico'
+        },
         'cf_rows': cf_rows,
         'q4_cobros_proyectados': q4_cobros_summary,
         'client_master': client_master_list,

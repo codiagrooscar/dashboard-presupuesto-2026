@@ -18,11 +18,19 @@ function renderCockpitInicioSection() {
     }
   }
   
-  const ventasNetas = currentPeriodData ? currentPeriodData.importe_neto : 878623.14;
-  const consecucionPct = currentPeriodData ? currentPeriodData.pct_consec : 81.5;
-  const pendientesUds = currentPeriodData ? currentPeriodData.pendientes_uds : 187680;
-  const servidasUds = currentPeriodData ? currentPeriodData.servidas_uds : 66411;
-  const fechaCorte = currentPeriodData ? currentPeriodData.fecha_corte : '27/10/2026';
+  const ventasNetas = (currentPeriodData && typeof currentPeriodData.importe_neto === 'number') ? currentPeriodData.importe_neto : 878623.14;
+  const consecucionPct = (currentPeriodData && typeof currentPeriodData.pct_consec === 'number') ? currentPeriodData.pct_consec : 81.5;
+  const pendientesUds = (currentPeriodData && typeof currentPeriodData.pendientes_uds === 'number') ? currentPeriodData.pendientes_uds : 187680;
+  const servidasUds = (currentPeriodData && typeof currentPeriodData.servidas_uds === 'number') ? currentPeriodData.servidas_uds : 66411;
+  const fechaCorte = (currentPeriodData && currentPeriodData.fecha_corte) ? currentPeriodData.fecha_corte : '27/10/2026';
+
+  // Margen industrial Full Costing dinámico (Hallazgo H20: 278.255,41 € tras absorber MOD y planta)
+  const margenFullCostEur = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_eur === 'number')
+    ? fc.totales_drilldown.margen_industrial_eur
+    : 278255.41;
+  const margenFullCostPct = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_pct === 'number')
+    ? fc.totales_drilldown.margen_industrial_pct
+    : 55.1;
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.45rem; animation:fadeIn 0.3s ease;">
@@ -84,12 +92,12 @@ function renderCockpitInicioSection() {
               <span class="kpi-title">2. Margen Industrial Planta</span>
               <span class="kpi-icon">🏭</span>
             </div>
-            <div class="kpi-value" style="color:#34d399">334.476 €</div>
+            <div class="kpi-value" style="color:#34d399">${fmtEur(margenFullCostEur)}</div>
             <div class="kpi-subtitle">
-              <span style="color:#34d399; font-weight:700">66.2%</span> tras absorber MOD y planta
+              <span style="color:#34d399; font-weight:700">${margenFullCostPct.toFixed(1)}%</span> tras absorber MOD y planta
             </div>
             <div class="progress-bar-container">
-              <div class="progress-bar-fill" style="width:66.2%; background:var(--accent-gradient)"></div>
+              <div class="progress-bar-fill" style="width:${Math.min(100, margenFullCostPct)}%; background:var(--accent-gradient)"></div>
             </div>
           </div>
 
@@ -174,7 +182,7 @@ function renderCockpitInicioSection() {
               <tr>
                 <td style="text-align:center"><span class="tab-badge badge-danger">URGENTE 2</span></td>
                 <td style="font-weight:700; color:#fff">
-                  190.808 Uds de Pedidos Pendientes de Servicio
+                  ${fmtNum(pendientesUds)} Uds de Pedidos Pendientes de Servicio
                 </td>
                 <td><span class="tab-badge" style="background:rgba(16,185,129,0.15); color:#34d399">Fábrica / MRP</span></td>
                 <td style="text-align:right; font-weight:800; color:#38bdf8; font-size:1.05rem">~680.000 €</td>

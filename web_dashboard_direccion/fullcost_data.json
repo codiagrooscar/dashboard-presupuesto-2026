@@ -2337,5 +2337,1177 @@
     "clientes_count": 42,
     "skus_count": 86,
     "comerciales_count": 6
-  }
+  },
+  "cuentas_detalle": {
+    "700000000": {
+      "cuenta": "700000000",
+      "descripcion": "Ventas de mercaderías",
+      "saldo_acumulado": 12117196.68,
+      "saldo_mes": 632880.07,
+      "tipo": "Ingreso"
+    },
+    "700000624": {
+      "cuenta": "700000624",
+      "descripcion": "VENTA POR TRANSP. REP. AL CLIE",
+      "saldo_acumulado": 38402.31,
+      "saldo_mes": 0.0,
+      "tipo": "Ingreso"
+    },
+    "700000769": {
+      "cuenta": "700000769",
+      "descripcion": "INGRESOS POR RETRASOS DE COBRO",
+      "saldo_acumulado": 6016.65,
+      "saldo_mes": 0.0,
+      "tipo": "Ingreso"
+    },
+    "700001624": {
+      "cuenta": "700001624",
+      "descripcion": "VENTA POR TRANSPORTE REP. AL C",
+      "saldo_acumulado": 80938.34,
+      "saldo_mes": 9613.0,
+      "tipo": "Ingreso"
+    },
+    "702000000": {
+      "cuenta": "702000000",
+      "descripcion": "Ventas de productos semitermin",
+      "saldo_acumulado": 51164.86,
+      "saldo_mes": -16492.8,
+      "tipo": "Ingreso"
+    },
+    "703000000": {
+      "cuenta": "703000000",
+      "descripcion": "Ventas de subproductos y resid",
+      "saldo_acumulado": 2777.46,
+      "saldo_mes": 2751.2,
+      "tipo": "Ingreso"
+    },
+    "704000000": {
+      "cuenta": "704000000",
+      "descripcion": "Ventas de envases y embalajes",
+      "saldo_acumulado": 53549.13,
+      "saldo_mes": 1203.47,
+      "tipo": "Ingreso"
+    },
+    "705000000": {
+      "cuenta": "705000000",
+      "descripcion": "Prestaciones de servicios",
+      "saldo_acumulado": 48700.8,
+      "saldo_mes": 3682.8,
+      "tipo": "Ingreso maquila"
+    },
+    "705000001": {
+      "cuenta": "705000001",
+      "descripcion": "INGRESO POR GESTIÓN DE ENVASES",
+      "saldo_acumulado": 19756.29,
+      "saldo_mes": 1405.89,
+      "tipo": "Ingreso"
+    },
+    "706000000": {
+      "cuenta": "706000000",
+      "descripcion": "Dtos. ventas por pronto pago m",
+      "saldo_acumulado": -134339.8,
+      "saldo_mes": 0.0,
+      "tipo": "Menor ingreso"
+    },
+    "706000001": {
+      "cuenta": "706000001",
+      "descripcion": "DESCUENTO POR PRONTO PAGO DEFI",
+      "saldo_acumulado": -201362.04,
+      "saldo_mes": -8347.1,
+      "tipo": "Menor ingreso"
+    },
+    "709000000": {
+      "cuenta": "709000000",
+      "descripcion": "«Rappels» ventas de mercadería",
+      "saldo_acumulado": -278.38,
+      "saldo_mes": 0.0,
+      "tipo": "Menor ingreso"
+    },
+    "709000001": {
+      "cuenta": "709000001",
+      "descripcion": "PROVISION RAPPELS",
+      "saldo_acumulado": -161089.03,
+      "saldo_mes": -12327.75,
+      "tipo": "Menor ingreso"
+    },
+    "709001500": {
+      "cuenta": "709001500",
+      "descripcion": "RAPPEL BONIFICACIONES POR PMK",
+      "saldo_acumulado": -1350.0,
+      "saldo_mes": 0.0,
+      "tipo": "Menor ingreso"
+    },
+    "711000000": {
+      "cuenta": "711000000",
+      "descripcion": "Variación existencias de prod.",
+      "saldo_acumulado": -66875.68,
+      "saldo_mes": -30979.93,
+      "tipo": "Conciliacion existencias"
+    },
+    "712000000": {
+      "cuenta": "712000000",
+      "descripcion": "Variación existencias de prod.",
+      "saldo_acumulado": -105119.31,
+      "saldo_mes": -78386.56,
+      "tipo": "Conciliacion existencias"
+    },
+    "601000000": {
+      "cuenta": "601000000",
+      "descripcion": "Compras de materias primas",
+      "saldo_acumulado": -3139390.76,
+      "saldo_mes": -91631.27,
+      "tipo": "Materiales formula SKU"
+    },
+    "601000001": {
+      "cuenta": "601000001",
+      "descripcion": "COMPRAS MAT. PRIMAS INTRACOMUN",
+      "saldo_acumulado": -108150.0,
+      "saldo_mes": -108150.0,
+      "tipo": "Materiales formula SKU"
+    },
+    "602000001": {
+      "cuenta": "602000001",
+      "descripcion": "COMPRA DE ENVASES Y EMBALAJES",
+      "saldo_acumulado": -667323.31,
+      "saldo_mes": -48494.97,
+      "tipo": "Materiales formula SKU"
+    },
+    "602000002": {
+      "cuenta": "602000002",
+      "descripcion": "COMPRA DE ETIQUETAS",
+      "saldo_acumulado": -64459.9,
+      "saldo_mes": 0.0,
+      "tipo": "Materiales formula SKU"
+    },
+    "602000003": {
+      "cuenta": "602000003",
+      "descripcion": "COMPRA DE PALETS",
+      "saldo_acumulado": -68918.85,
+      "saldo_mes": -1856.4,
+      "tipo": "Materiales formula SKU"
+    },
+    "602000004": {
+      "cuenta": "602000004",
+      "descripcion": "COMPRA MATERIAL DE LIMPIEZA",
+      "saldo_acumulado": -262.34,
+      "saldo_mes": -130.42,
+      "tipo": "Coste operativo"
+    },
+    "602000005": {
+      "cuenta": "602000005",
+      "descripcion": "COMPRA MATERIAL DE OFICINA",
+      "saldo_acumulado": -612.05,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "602000006": {
+      "cuenta": "602000006",
+      "descripcion": "COMPRA TAPONES DE ENVASES",
+      "saldo_acumulado": -25153.43,
+      "saldo_mes": 0.0,
+      "tipo": "Materiales formula SKU"
+    },
+    "602000008": {
+      "cuenta": "602000008",
+      "descripcion": "RESPUESTOS PLANTA",
+      "saldo_acumulado": -509.99,
+      "saldo_mes": -509.99,
+      "tipo": "Coste operativo"
+    },
+    "602000011": {
+      "cuenta": "602000011",
+      "descripcion": "COMPRAS VARIAS PLANTA",
+      "saldo_acumulado": -3982.66,
+      "saldo_mes": -125.1,
+      "tipo": "Coste operativo"
+    },
+    "602000012": {
+      "cuenta": "602000012",
+      "descripcion": "REPUESTOS INFORMATICOS",
+      "saldo_acumulado": -3119.26,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "602000013": {
+      "cuenta": "602000013",
+      "descripcion": "COMPRA TINTA INPRESORA ETIQUET",
+      "saldo_acumulado": -16017.32,
+      "saldo_mes": -2381.09,
+      "tipo": "Materiales formula SKU"
+    },
+    "602000100": {
+      "cuenta": "602000100",
+      "descripcion": "ENVASES Y EMBALAJES A DEVOLVER",
+      "saldo_acumulado": 2806.6,
+      "saldo_mes": 2901.0,
+      "tipo": "Materiales formula SKU"
+    },
+    "607000000": {
+      "cuenta": "607000000",
+      "descripcion": "Trabajos realizados por otras",
+      "saldo_acumulado": -79276.99,
+      "saldo_mes": -26205.98,
+      "tipo": "ETT"
+    },
+    "611000000": {
+      "cuenta": "611000000",
+      "descripcion": "Variación de existencias de ma",
+      "saldo_acumulado": 153987.46,
+      "saldo_mes": 168480.81,
+      "tipo": "Conciliacion existencias"
+    },
+    "612000000": {
+      "cuenta": "612000000",
+      "descripcion": "Variación de existencias otros",
+      "saldo_acumulado": 43687.65,
+      "saldo_mes": -21053.4,
+      "tipo": "Conciliacion existencias"
+    },
+    "640000000": {
+      "cuenta": "640000000",
+      "descripcion": "Sueldos y salarios",
+      "saldo_acumulado": -1012043.68,
+      "saldo_mes": -131094.27,
+      "tipo": "Personal"
+    },
+    "641000000": {
+      "cuenta": "641000000",
+      "descripcion": "Indemnizaciones",
+      "saldo_acumulado": 0.0,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "642000000": {
+      "cuenta": "642000000",
+      "descripcion": "Seguridad Social a cargo empre",
+      "saldo_acumulado": -268020.74,
+      "saldo_mes": -34709.72,
+      "tipo": "Personal"
+    },
+    "649000100": {
+      "cuenta": "649000100",
+      "descripcion": "GTOS. CURSOS PERSONAL",
+      "saldo_acumulado": -2711.0,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "620000002": {
+      "cuenta": "620000002",
+      "descripcion": "COMPRAS LABORATORIO",
+      "saldo_acumulado": -1612.48,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "620000003": {
+      "cuenta": "620000003",
+      "descripcion": "SUMINISTROS LABORATORIO",
+      "saldo_acumulado": -6456.24,
+      "saldo_mes": -768.14,
+      "tipo": "Coste operativo"
+    },
+    "620000004": {
+      "cuenta": "620000004",
+      "descripcion": "GTOS. ANALISIS LABORATORIOS",
+      "saldo_acumulado": -10843.74,
+      "saldo_mes": -1010.22,
+      "tipo": "Coste operativo"
+    },
+    "621000001": {
+      "cuenta": "621000001",
+      "descripcion": "ALQUILER OFICINA CARTAGENA",
+      "saldo_acumulado": -1728.0,
+      "saldo_mes": -192.0,
+      "tipo": "Coste operativo"
+    },
+    "621000014": {
+      "cuenta": "621000014",
+      "descripcion": "ALQUILER MURANO",
+      "saldo_acumulado": -21560.96,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "621000024": {
+      "cuenta": "621000024",
+      "descripcion": "ALQUILER RENTING 2255KXN ANTON",
+      "saldo_acumulado": -722.92,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "621000026": {
+      "cuenta": "621000026",
+      "descripcion": "ALQUILER RENTING 9319LCL CURRO",
+      "saldo_acumulado": -739.94,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "621000031": {
+      "cuenta": "621000031",
+      "descripcion": "ALQUILER RENTING KONICA-MINOLT",
+      "saldo_acumulado": -2979.0,
+      "saldo_mes": -275.0,
+      "tipo": "Coste operativo"
+    },
+    "621000032": {
+      "cuenta": "621000032",
+      "descripcion": "ALQUILER RENTING 6665-LVK JOSE",
+      "saldo_acumulado": -2820.96,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "621000033": {
+      "cuenta": "621000033",
+      "descripcion": "ALQUILER RENTING 2612-MBY ANTO",
+      "saldo_acumulado": -2469.75,
+      "saldo_mes": -399.42,
+      "tipo": "Coste operativo"
+    },
+    "621000034": {
+      "cuenta": "621000034",
+      "descripcion": "ALQUILER RENTING 3108-LZM NIEV",
+      "saldo_acumulado": -2441.06,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "621000037": {
+      "cuenta": "621000037",
+      "descripcion": "CARRETILLA STILL ELEKTROSTAPLE",
+      "saldo_acumulado": -2000.22,
+      "saldo_mes": -400.22,
+      "tipo": "Coste operativo"
+    },
+    "621000038": {
+      "cuenta": "621000038",
+      "descripcion": "CARRETILLA STILL ELEKTROSTAPLE",
+      "saldo_acumulado": -1601.76,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "621000039": {
+      "cuenta": "621000039",
+      "descripcion": "ALQUILER RENTING 5043-MWW CURR",
+      "saldo_acumulado": -1929.45,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "621000040": {
+      "cuenta": "621000040",
+      "descripcion": "ALQUILER RENTING 8917-MZT JAVI",
+      "saldo_acumulado": -8961.46,
+      "saldo_mes": -1172.14,
+      "tipo": "Coste operativo"
+    },
+    "621000041": {
+      "cuenta": "621000041",
+      "descripcion": "ALQUILER RENTING 8929-MZT RICA",
+      "saldo_acumulado": -7705.94,
+      "saldo_mes": -1015.21,
+      "tipo": "Coste operativo"
+    },
+    "621000042": {
+      "cuenta": "621000042",
+      "descripcion": "ALQUILER RENTING 4946-NFH GARC",
+      "saldo_acumulado": -5840.26,
+      "saldo_mes": -677.53,
+      "tipo": "Coste operativo"
+    },
+    "621000044": {
+      "cuenta": "621000044",
+      "descripcion": "ALQUILER COMPRESOR DE TORNILLO",
+      "saldo_acumulado": -14400.0,
+      "saldo_mes": -1600.0,
+      "tipo": "Coste operativo"
+    },
+    "621000045": {
+      "cuenta": "621000045",
+      "descripcion": "ALQUILER RENTING 3421-NJT PERE",
+      "saldo_acumulado": -9954.48,
+      "saldo_mes": -1208.01,
+      "tipo": "Coste operativo"
+    },
+    "621000046": {
+      "cuenta": "621000046",
+      "descripcion": "ALQUILER CARRETILLAS",
+      "saldo_acumulado": -3453.0,
+      "saldo_mes": -1407.0,
+      "tipo": "Coste operativo"
+    },
+    "622000001": {
+      "cuenta": "622000001",
+      "descripcion": "REPAR. EQUIPOS INFORM. Y FOTOC",
+      "saldo_acumulado": -6857.6,
+      "saldo_mes": -3275.52,
+      "tipo": "Coste operativo"
+    },
+    "622000004": {
+      "cuenta": "622000004",
+      "descripcion": "REP. Y CONSERV. CARRETILLA ELE",
+      "saldo_acumulado": -2101.07,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "622000005": {
+      "cuenta": "622000005",
+      "descripcion": "REP. Y MANT. EQUIPOS SEGURIDAD",
+      "saldo_acumulado": -467.7,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "622000006": {
+      "cuenta": "622000006",
+      "descripcion": "REP. Y MANT. INSTALACIONES VAR",
+      "saldo_acumulado": -7699.38,
+      "saldo_mes": -877.14,
+      "tipo": "Coste operativo"
+    },
+    "622000007": {
+      "cuenta": "622000007",
+      "descripcion": "REP. Y MANT. HYUNDAI 0377CJG",
+      "saldo_acumulado": -238.88,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "622000008": {
+      "cuenta": "622000008",
+      "descripcion": "REP. Y MANT. MAQUINA BARREDORA",
+      "saldo_acumulado": -1577.42,
+      "saldo_mes": -591.76,
+      "tipo": "Coste operativo"
+    },
+    "622000012": {
+      "cuenta": "622000012",
+      "descripcion": "LIMPIEZA OFICINAS, LABORATORIO",
+      "saldo_acumulado": -6103.18,
+      "saldo_mes": -734.1,
+      "tipo": "Coste operativo"
+    },
+    "622010000": {
+      "cuenta": "622010000",
+      "descripcion": "MANTENIMIENTO",
+      "saldo_acumulado": -1409.04,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "622010200": {
+      "cuenta": "622010200",
+      "descripcion": "ALCAPLANT",
+      "saldo_acumulado": -18220.08,
+      "saldo_mes": -1288.62,
+      "tipo": "Coste operativo"
+    },
+    "622010201": {
+      "cuenta": "622010201",
+      "descripcion": "REPARACIONES ALCAPLANT",
+      "saldo_acumulado": -16027.33,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "622010300": {
+      "cuenta": "622010300",
+      "descripcion": "SOLIDOS",
+      "saldo_acumulado": -23135.85,
+      "saldo_mes": -6085.86,
+      "tipo": "Coste operativo"
+    },
+    "622010400": {
+      "cuenta": "622010400",
+      "descripcion": "LIQUIDOS",
+      "saldo_acumulado": -5258.75,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "622010500": {
+      "cuenta": "622010500",
+      "descripcion": "REPUESTOS MANT. VARIOS",
+      "saldo_acumulado": -5127.79,
+      "saldo_mes": -602.22,
+      "tipo": "Coste operativo"
+    },
+    "622010501": {
+      "cuenta": "622010501",
+      "descripcion": "REP. MANT. FONTANERIA",
+      "saldo_acumulado": -439.49,
+      "saldo_mes": -90.85,
+      "tipo": "Coste operativo"
+    },
+    "623000001": {
+      "cuenta": "623000001",
+      "descripcion": "SERV. PROF. INDEPENDIENTES",
+      "saldo_acumulado": -50957.93,
+      "saldo_mes": -2345.62,
+      "tipo": "Coste operativo"
+    },
+    "623000002": {
+      "cuenta": "623000002",
+      "descripcion": "SERVICIOS CONTABLES Y FINANCIE",
+      "saldo_acumulado": -26020.71,
+      "saldo_mes": -3634.14,
+      "tipo": "Coste operativo"
+    },
+    "623000003": {
+      "cuenta": "623000003",
+      "descripcion": "SERV. NOTARIOS, REGISTROS, LEG",
+      "saldo_acumulado": -17229.13,
+      "saldo_mes": -1534.62,
+      "tipo": "Coste operativo"
+    },
+    "623000004": {
+      "cuenta": "623000004",
+      "descripcion": "GTOS. BCS. OKO",
+      "saldo_acumulado": -3813.42,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623000005": {
+      "cuenta": "623000005",
+      "descripcion": "SERVICIOS PREST. CAMARA COMERC",
+      "saldo_acumulado": -5546.44,
+      "saldo_mes": -662.0,
+      "tipo": "Coste operativo"
+    },
+    "623100002": {
+      "cuenta": "623100002",
+      "descripcion": "GASTOS MAURICIO ALISTE",
+      "saldo_acumulado": -35949.65,
+      "saldo_mes": -4659.66,
+      "tipo": "Coste operativo"
+    },
+    "623100006": {
+      "cuenta": "623100006",
+      "descripcion": "GASTOS Y SERVICIOS AGRICOLA DE",
+      "saldo_acumulado": -22130.6,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623100007": {
+      "cuenta": "623100007",
+      "descripcion": "GASTOS Y SUELDO MEHMET CILOGLU",
+      "saldo_acumulado": -96663.81,
+      "saldo_mes": -5892.08,
+      "tipo": "Coste operativo"
+    },
+    "623100008": {
+      "cuenta": "623100008",
+      "descripcion": "COMISIONES KAMAL KEHAL",
+      "saldo_acumulado": -3398.55,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200001": {
+      "cuenta": "623200001",
+      "descripcion": "GASTOS MARCAS EN ESPAÑA",
+      "saldo_acumulado": -755.12,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200002": {
+      "cuenta": "623200002",
+      "descripcion": "GASTOS MARCAS MEXICO",
+      "saldo_acumulado": -267.75,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200006": {
+      "cuenta": "623200006",
+      "descripcion": "MARCAS UNION EUROPEA",
+      "saldo_acumulado": -1912.1,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200008": {
+      "cuenta": "623200008",
+      "descripcion": "GASTOS MARCAS EGIPTO",
+      "saldo_acumulado": -566.14,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200009": {
+      "cuenta": "623200009",
+      "descripcion": "GASTOS MARCAS MARRUECOS",
+      "saldo_acumulado": -543.35,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200010": {
+      "cuenta": "623200010",
+      "descripcion": "GASTOS MARCAS TURQUIA",
+      "saldo_acumulado": -543.4,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200011": {
+      "cuenta": "623200011",
+      "descripcion": "GASTOS MARCAS COLOMBIA",
+      "saldo_acumulado": -808.97,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200016": {
+      "cuenta": "623200016",
+      "descripcion": "GASTOS MARCAS ECUADOR",
+      "saldo_acumulado": -1190.0,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200017": {
+      "cuenta": "623200017",
+      "descripcion": "GASTOS MARCAS EL SALVADOR",
+      "saldo_acumulado": -4869.95,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200020": {
+      "cuenta": "623200020",
+      "descripcion": "GASTOS MARCAS TUNEZ",
+      "saldo_acumulado": -543.35,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200022": {
+      "cuenta": "623200022",
+      "descripcion": "GASTOS MARCAS BOLIVIA",
+      "saldo_acumulado": -513.0,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200023": {
+      "cuenta": "623200023",
+      "descripcion": "GASTOS MARCAS ARGELIA",
+      "saldo_acumulado": -83.47,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200024": {
+      "cuenta": "623200024",
+      "descripcion": "GASTOS MARCAS INTERNACIONALES",
+      "saldo_acumulado": -12465.05,
+      "saldo_mes": -2300.99,
+      "tipo": "Coste operativo"
+    },
+    "623200029": {
+      "cuenta": "623200029",
+      "descripcion": "GASTOS MARCAS GEORGIA",
+      "saldo_acumulado": -513.0,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200030": {
+      "cuenta": "623200030",
+      "descripcion": "GASTOS MARCAS AZERBAIYAN",
+      "saldo_acumulado": -596.47,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "623200033": {
+      "cuenta": "623200033",
+      "descripcion": "GASTOS MARCAS MUNDIAL",
+      "saldo_acumulado": -2450.0,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "624000001": {
+      "cuenta": "624000001",
+      "descripcion": "TRANSPORTES NACIONAL",
+      "saldo_acumulado": -109985.44,
+      "saldo_mes": -8129.04,
+      "tipo": "Coste operativo"
+    },
+    "624000002": {
+      "cuenta": "624000002",
+      "descripcion": "TRANSPORTE INTERNACIONAL",
+      "saldo_acumulado": -80488.67,
+      "saldo_mes": -8078.83,
+      "tipo": "Coste operativo"
+    },
+    "624000003": {
+      "cuenta": "624000003",
+      "descripcion": "TRANSPORTES CANARIAS",
+      "saldo_acumulado": -56034.24,
+      "saldo_mes": -10256.54,
+      "tipo": "Coste operativo"
+    },
+    "624000004": {
+      "cuenta": "624000004",
+      "descripcion": "GTOS. FLETE REP. AL CLIENTE",
+      "saldo_acumulado": -38089.63,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "624000005": {
+      "cuenta": "624000005",
+      "descripcion": "TTE. PAQUETERIA",
+      "saldo_acumulado": -4187.15,
+      "saldo_mes": -638.42,
+      "tipo": "Coste operativo"
+    },
+    "624000006": {
+      "cuenta": "624000006",
+      "descripcion": "TRANSPORTES IMPORTACIÓN",
+      "saldo_acumulado": -4392.13,
+      "saldo_mes": -225.0,
+      "tipo": "Coste operativo"
+    },
+    "625000001": {
+      "cuenta": "625000001",
+      "descripcion": "SEGUROS VEHÍCULOS",
+      "saldo_acumulado": -188.17,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "625000003": {
+      "cuenta": "625000003",
+      "descripcion": "SEGURO ACCIDENTES TRABAJADORES",
+      "saldo_acumulado": -194.64,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "625000004": {
+      "cuenta": "625000004",
+      "descripcion": "SEGURO RESP. CIVIL",
+      "saldo_acumulado": -6563.18,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "625000005": {
+      "cuenta": "625000005",
+      "descripcion": "SEGUROS ACTIVIDAD",
+      "saldo_acumulado": -17676.55,
+      "saldo_mes": -2798.15,
+      "tipo": "Coste operativo"
+    },
+    "626000002": {
+      "cuenta": "626000002",
+      "descripcion": "GASTOS Y COMISIONES BANCO SABA",
+      "saldo_acumulado": -454.57,
+      "saldo_mes": -62.42,
+      "tipo": "Coste operativo"
+    },
+    "626000005": {
+      "cuenta": "626000005",
+      "descripcion": "GASTOS Y COMISIONES CAIXALMASS",
+      "saldo_acumulado": -1435.44,
+      "saldo_mes": -66.11,
+      "tipo": "Coste operativo"
+    },
+    "626000007": {
+      "cuenta": "626000007",
+      "descripcion": "GASTOS Y COMISIONES BBVA",
+      "saldo_acumulado": -9053.4,
+      "saldo_mes": -2564.72,
+      "tipo": "Coste operativo"
+    },
+    "627000001": {
+      "cuenta": "627000001",
+      "descripcion": "GTOS. PUBLICIDAD EN INTERNET",
+      "saldo_acumulado": -875.65,
+      "saldo_mes": -875.65,
+      "tipo": "Coste operativo"
+    },
+    "627000003": {
+      "cuenta": "627000003",
+      "descripcion": "PATROCINIOS VARIOS",
+      "saldo_acumulado": -1700.0,
+      "saldo_mes": -1700.0,
+      "tipo": "Coste operativo"
+    },
+    "627000004": {
+      "cuenta": "627000004",
+      "descripcion": "RELACIONES PUBLICAS",
+      "saldo_acumulado": -562.19,
+      "saldo_mes": -347.59,
+      "tipo": "Coste operativo"
+    },
+    "627000005": {
+      "cuenta": "627000005",
+      "descripcion": "INVITACIONES CLIENTES",
+      "saldo_acumulado": -1668.92,
+      "saldo_mes": -1261.92,
+      "tipo": "Coste operativo"
+    },
+    "627000006": {
+      "cuenta": "627000006",
+      "descripcion": "PUBLICIDAD CATALOGOS Y FOLLETO",
+      "saldo_acumulado": -197.88,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "627000007": {
+      "cuenta": "627000007",
+      "descripcion": "FERIAS",
+      "saldo_acumulado": -868.18,
+      "saldo_mes": -559.72,
+      "tipo": "Coste operativo"
+    },
+    "627000008": {
+      "cuenta": "627000008",
+      "descripcion": "MARKETING",
+      "saldo_acumulado": -11788.08,
+      "saldo_mes": -2679.5,
+      "tipo": "Coste operativo"
+    },
+    "627000009": {
+      "cuenta": "627000009",
+      "descripcion": "ARTICULOS PUBLICIDAD",
+      "saldo_acumulado": -15894.1,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "627000010": {
+      "cuenta": "627000010",
+      "descripcion": "RELACIONES PUBLICAS TEC. CLIEN",
+      "saldo_acumulado": -826.76,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "628000001": {
+      "cuenta": "628000001",
+      "descripcion": "SUMINISTROS INFORMATICOS",
+      "saldo_acumulado": -489.0,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "628000002": {
+      "cuenta": "628000002",
+      "descripcion": "SUMINISTROS ELECTRICIDAD",
+      "saldo_acumulado": -31699.72,
+      "saldo_mes": -2024.45,
+      "tipo": "Coste operativo"
+    },
+    "628000003": {
+      "cuenta": "628000003",
+      "descripcion": "SUMINISTROS AGUA",
+      "saldo_acumulado": -4307.82,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "628000004": {
+      "cuenta": "628000004",
+      "descripcion": "SUMINISTROS TELEFONIA E INTERN",
+      "saldo_acumulado": -6450.24,
+      "saldo_mes": -464.2,
+      "tipo": "Coste operativo"
+    },
+    "628000005": {
+      "cuenta": "628000005",
+      "descripcion": "SUMINISTROS GASOLEO",
+      "saldo_acumulado": -3387.55,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "629000001": {
+      "cuenta": "629000001",
+      "descripcion": "HOSPEDAJE WEB",
+      "saldo_acumulado": -426.0,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "629000002": {
+      "cuenta": "629000002",
+      "descripcion": "OTROS GASTOS",
+      "saldo_acumulado": -8594.15,
+      "saldo_mes": -1007.61,
+      "tipo": "Coste operativo"
+    },
+    "629000003": {
+      "cuenta": "629000003",
+      "descripcion": "SUSCRIPCIONES A REVISTAS Y PER",
+      "saldo_acumulado": -460.58,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "629000004": {
+      "cuenta": "629000004",
+      "descripcion": "GTOS. SERV. VIGILANCIA",
+      "saldo_acumulado": -600.86,
+      "saldo_mes": -75.94,
+      "tipo": "Coste operativo"
+    },
+    "629000005": {
+      "cuenta": "629000005",
+      "descripcion": "GTOS. ANALISIS LABORATORIOS",
+      "saldo_acumulado": -2823.8,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "629000006": {
+      "cuenta": "629000006",
+      "descripcion": "GASTOS CORREOS",
+      "saldo_acumulado": -192.0,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "629000007": {
+      "cuenta": "629000007",
+      "descripcion": "GASTOS RETIRADA DE RESIDUOS",
+      "saldo_acumulado": -27560.59,
+      "saldo_mes": -6124.73,
+      "tipo": "Coste operativo"
+    },
+    "629000008": {
+      "cuenta": "629000008",
+      "descripcion": "CUOTAS ASOCIACIONES",
+      "saldo_acumulado": -3207.29,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "629000009": {
+      "cuenta": "629000009",
+      "descripcion": "SANCIONES Y MULTAS",
+      "saldo_acumulado": -220.0,
+      "saldo_mes": -130.0,
+      "tipo": "No recurrente"
+    },
+    "629000010": {
+      "cuenta": "629000010",
+      "descripcion": "GASTOS COMERCIALES",
+      "saldo_acumulado": -8133.08,
+      "saldo_mes": -3215.9,
+      "tipo": "Coste operativo"
+    },
+    "629000011": {
+      "cuenta": "629000011",
+      "descripcion": "EPIS PERSONAL",
+      "saldo_acumulado": -2843.64,
+      "saldo_mes": -1958.39,
+      "tipo": "Coste operativo"
+    },
+    "629000012": {
+      "cuenta": "629000012",
+      "descripcion": "GASTOS VARIOS PERSONAL",
+      "saldo_acumulado": -11228.64,
+      "saldo_mes": -619.43,
+      "tipo": "Coste operativo"
+    },
+    "629000013": {
+      "cuenta": "629000013",
+      "descripcion": "FORMACION NO BONIFICADA",
+      "saldo_acumulado": -5539.0,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "629000014": {
+      "cuenta": "629000014",
+      "descripcion": "ROPA LABORAL",
+      "saldo_acumulado": -1067.23,
+      "saldo_mes": -277.03,
+      "tipo": "Coste operativo"
+    },
+    "629000015": {
+      "cuenta": "629000015",
+      "descripcion": "MATERIAL DE OFICINA",
+      "saldo_acumulado": -354.57,
+      "saldo_mes": -40.88,
+      "tipo": "Coste operativo"
+    },
+    "629000016": {
+      "cuenta": "629000016",
+      "descripcion": "HERRAMIENTAS",
+      "saldo_acumulado": -500.03,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "629100001": {
+      "cuenta": "629100001",
+      "descripcion": "GASTOS COMERCIALES PERE PORTA",
+      "saldo_acumulado": -26373.77,
+      "saldo_mes": -2431.82,
+      "tipo": "Coste operativo"
+    },
+    "629100002": {
+      "cuenta": "629100002",
+      "descripcion": "GASTOS RICARDO PEREZ-SANTAMARI",
+      "saldo_acumulado": -17688.73,
+      "saldo_mes": -315.52,
+      "tipo": "Coste operativo"
+    },
+    "629100003": {
+      "cuenta": "629100003",
+      "descripcion": "GASTOS JAVIER PAREDES",
+      "saldo_acumulado": -10462.33,
+      "saldo_mes": -1722.71,
+      "tipo": "Coste operativo"
+    },
+    "629100004": {
+      "cuenta": "629100004",
+      "descripcion": "GASTOS GARCIA",
+      "saldo_acumulado": -8240.08,
+      "saldo_mes": -1839.72,
+      "tipo": "Coste operativo"
+    },
+    "629100005": {
+      "cuenta": "629100005",
+      "descripcion": "GASTOS IRENE",
+      "saldo_acumulado": -3489.46,
+      "saldo_mes": -106.75,
+      "tipo": "Coste operativo"
+    },
+    "629100006": {
+      "cuenta": "629100006",
+      "descripcion": "GASTOS ANTONIO ANDREU",
+      "saldo_acumulado": -1012.2,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "629100007": {
+      "cuenta": "629100007",
+      "descripcion": "GASTOS CURRO",
+      "saldo_acumulado": -364.19,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "629100008": {
+      "cuenta": "629100008",
+      "descripcion": "GASTOS PEDRO MEDINA",
+      "saldo_acumulado": -467.72,
+      "saldo_mes": -326.58,
+      "tipo": "Coste operativo"
+    },
+    "631000001": {
+      "cuenta": "631000001",
+      "descripcion": "IMPUESTOS VEHÍCULOS",
+      "saldo_acumulado": -312.13,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "631000002": {
+      "cuenta": "631000002",
+      "descripcion": "TASAS",
+      "saldo_acumulado": -581.49,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "631000004": {
+      "cuenta": "631000004",
+      "descripcion": "IBIB",
+      "saldo_acumulado": -7396.59,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "631000006": {
+      "cuenta": "631000006",
+      "descripcion": "IMPUESTO PLASTICO NO RECICLADO",
+      "saldo_acumulado": -22735.48,
+      "saldo_mes": -1446.16,
+      "tipo": "Coste operativo"
+    },
+    "634100000": {
+      "cuenta": "634100000",
+      "descripcion": "Ajustes negat. IVA circulante",
+      "saldo_acumulado": -2764.08,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "694000000": {
+      "cuenta": "694000000",
+      "descripcion": "Pérdidas deterioro de créditos",
+      "saldo_acumulado": -211.6,
+      "saldo_mes": 0.0,
+      "tipo": "Coste operativo"
+    },
+    "681100000": {
+      "cuenta": "681100000",
+      "descripcion": "Amortización de construcciones",
+      "saldo_acumulado": -28389.15,
+      "saldo_mes": -3154.35,
+      "tipo": "Amortizacion"
+    },
+    "681200000": {
+      "cuenta": "681200000",
+      "descripcion": "Amortización de instalaciones",
+      "saldo_acumulado": -52782.17,
+      "saldo_mes": -5867.77,
+      "tipo": "Amortizacion"
+    },
+    "681300000": {
+      "cuenta": "681300000",
+      "descripcion": "Amortización de maquinaria",
+      "saldo_acumulado": -57660.57,
+      "saldo_mes": -6419.19,
+      "tipo": "Amortizacion"
+    },
+    "681500000": {
+      "cuenta": "681500000",
+      "descripcion": "Amortización de otras instalac",
+      "saldo_acumulado": -14170.11,
+      "saldo_mes": -1642.07,
+      "tipo": "Amortizacion"
+    },
+    "681600000": {
+      "cuenta": "681600000",
+      "descripcion": "Amortización de mobiliario",
+      "saldo_acumulado": -11976.94,
+      "saldo_mes": -1337.16,
+      "tipo": "Amortizacion"
+    },
+    "681700000": {
+      "cuenta": "681700000",
+      "descripcion": "Amortización de equipos para p",
+      "saldo_acumulado": -6762.08,
+      "saldo_mes": -877.13,
+      "tipo": "Amortizacion"
+    },
+    "681800000": {
+      "cuenta": "681800000",
+      "descripcion": "Amortización de elementos de t",
+      "saldo_acumulado": -375.0,
+      "saldo_mes": -45.0,
+      "tipo": "Amortizacion"
+    },
+    "771000000": {
+      "cuenta": "771000000",
+      "descripcion": "Beneficios del inmovilizado ma",
+      "saldo_acumulado": 2000.0,
+      "saldo_mes": 0.0,
+      "tipo": "No recurrente"
+    },
+    "678000000": {
+      "cuenta": "678000000",
+      "descripcion": "Gastos excepcionales",
+      "saldo_acumulado": -183.0,
+      "saldo_mes": 0.0,
+      "tipo": "No recurrente"
+    },
+    "778000000": {
+      "cuenta": "778000000",
+      "descripcion": "Ingresos excepcionales",
+      "saldo_acumulado": 4183.14,
+      "saldo_mes": 0.2,
+      "tipo": "No recurrente"
+    },
+    "769000000": {
+      "cuenta": "769000000",
+      "descripcion": "Otros ingresos financieros",
+      "saldo_acumulado": 4495.93,
+      "saldo_mes": 0.0,
+      "tipo": "Financiero"
+    },
+    "662310005": {
+      "cuenta": "662310005",
+      "descripcion": "INTERESES PRESTAMO CAIXALMASSO",
+      "saldo_acumulado": -185.25,
+      "saldo_mes": 0.0,
+      "tipo": "Financiero"
+    },
+    "665700015": {
+      "cuenta": "665700015",
+      "descripcion": "INTERESES PAGO FINANCIADO POR",
+      "saldo_acumulado": -937.05,
+      "saldo_mes": 0.0,
+      "tipo": "Financiero"
+    },
+    "768000000": {
+      "cuenta": "768000000",
+      "descripcion": "Diferencias positivas de cambi",
+      "saldo_acumulado": 5244.51,
+      "saldo_mes": 0.0,
+      "tipo": "Financiero"
+    },
+    "602000000": {
+      "cuenta": "602000000",
+      "descripcion": "Compras de otros aprovisionami",
+      "saldo_acumulado": 30306.17,
+      "saldo_mes": 30306.17,
+      "tipo": "Coste operativo"
+    }
+  },
+  "mantenimiento_622_total": 13546.07
 }

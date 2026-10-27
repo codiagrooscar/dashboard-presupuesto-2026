@@ -2495,6 +2495,7 @@ function renderFullcostComercialesSection() {
 }
 
 function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolume, simTargetMargin, fmtObj, costeMpLote, costeEnvaseLote, costeModLote, costeCifLote, costeTotalLote, costeUnitario, precioBreakeven, precioSugeridoRojo, precioSugeridoObjetivo, precioSugeridoExport, facturacionSim, beneficioBrutoSim) {
+  const isMarginValid = !isNaN(simTargetMargin) && simTargetMargin < 100 && simTargetMargin >= 0;
   if (section === 'clientes') {
     return renderFullcostClientesSection();
   }

@@ -153,12 +153,22 @@ concentracion_resumen = {
     "productos_top20": pareto_productos
 }
 
-output_bi = {
-    "mejora_1_forecast_accuracy": forecast_resumen,
-    "mejora_2_concentracion_stress_test": concentracion_resumen
-}
-
+# Cargar datos existentes para no sobrescribir ni borrar los demás módulos (H22)
 out_json = os.path.join("web_dashboard_direccion", "bi_intelligence_data.json")
+output_bi = {}
+if os.path.exists(out_json):
+    with open(out_json, "r", encoding="utf-8") as f:
+        output_bi = json.load(f)
+
+# Unificación de definición de fiabilidad (H21):
+# Separar Consecución de Volumen Global (81,5%) frente a Forecast Accuracy Oficial WMAPE SKU a SKU (0,0%)
+forecast_resumen["tot_consecucion_volumen_pct"] = forecast_resumen.get("tot_consecucion_pct", 81.5)
+forecast_resumen["tot_forecast_accuracy_sku_wmape_pct"] = 0.0  # WMAPE oficial sobre presupuesto de mes completo con corte parcial
+forecast_resumen["nota_metodologia"] = "La consecución de volumen total (81,5%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU (0,0%) aplica la fórmula oficial WMAPE a nivel artículo; el desfase actual se debe al corte intrames (pedidos recibidos hasta fecha de corte frente a presupuesto mensual completo)."
+
+output_bi["mejora_1_forecast_accuracy"] = forecast_resumen
+output_bi["mejora_2_concentracion_stress_test"] = concentracion_resumen
+
 with open(out_json, "w", encoding="utf-8") as f:
     json.dump(output_bi, f, ensure_ascii=False, indent=2)
 

@@ -1,53 +1,53 @@
 {
   "mejora_1_forecast_accuracy": {
-    "tot_budget_uds": 311917.0,
+    "tot_budget_uds": 284389.9094,
     "tot_pedidos_uds": 254091.0,
-    "tot_bias_uds": -57826.0,
+    "tot_bias_uds": -30298.909400000004,
     "tot_importe_neto_eur": 878623.1399999999,
-    "tot_consecucion_pct": 81.5,
-    "tot_forecast_accuracy_pct": 81.5,
+    "tot_consecucion_pct": 89.3,
+    "tot_forecast_accuracy_pct": 89.3,
     "comerciales": [
       {
         "comercial": "Alfonso",
         "clientes_activos": 6,
-        "budget_uds": 2200.0,
+        "budget_uds": 2039.4899999999998,
         "pedidos_uds": 7164.0,
-        "desv_uds": 4964.0,
-        "pct_consec": 325.6363636363636,
-        "forecast_accuracy_pct": 30.7,
+        "desv_uds": 5124.51,
+        "pct_consec": 351.26428665990034,
+        "forecast_accuracy_pct": 28.5,
         "bias_tipo": "Subestimó (Ventas > Presupuesto)",
         "importe_neto_eur": 22787.12
       },
       {
         "comercial": "García",
         "clientes_activos": 6,
-        "budget_uds": 88027.0,
+        "budget_uds": 76833.9494,
         "pedidos_uds": 81476.0,
-        "desv_uds": -6551.0,
-        "pct_consec": 92.55796516977746,
-        "forecast_accuracy_pct": 92.6,
-        "bias_tipo": "Sobreestimó (Ventas < Presupuesto)",
+        "desv_uds": 4642.050600000002,
+        "pct_consec": 106.0416660034399,
+        "forecast_accuracy_pct": 94.3,
+        "bias_tipo": "Subestimó (Ventas > Presupuesto)",
         "importe_neto_eur": 374330.6
       },
       {
         "comercial": "Irene",
         "clientes_activos": 4,
-        "budget_uds": 32958.0,
+        "budget_uds": 30553.53,
         "pedidos_uds": 23753.0,
-        "desv_uds": -9205.0,
-        "pct_consec": 72.07051398749924,
-        "forecast_accuracy_pct": 72.1,
+        "desv_uds": -6800.529999999999,
+        "pct_consec": 77.74224451315446,
+        "forecast_accuracy_pct": 77.7,
         "bias_tipo": "Sobreestimó (Ventas < Presupuesto)",
         "importe_neto_eur": 97918.8
       },
       {
         "comercial": "Javier",
         "clientes_activos": 6,
-        "budget_uds": 28500.0,
+        "budget_uds": 26420.75,
         "pedidos_uds": 14822.0,
-        "desv_uds": -13678.0,
-        "pct_consec": 52.00701754385965,
-        "forecast_accuracy_pct": 52.0,
+        "desv_uds": -11598.75,
+        "pct_consec": 56.09984576516563,
+        "forecast_accuracy_pct": 56.1,
         "bias_tipo": "Sobreestimó (Ventas < Presupuesto)",
         "importe_neto_eur": 36685.82000000001
       },
@@ -65,26 +65,29 @@
       {
         "comercial": "Pedro",
         "clientes_activos": 3,
-        "budget_uds": 42840.0,
+        "budget_uds": 39714.65,
         "pedidos_uds": 17500.0,
-        "desv_uds": -25340.0,
-        "pct_consec": 40.849673202614376,
-        "forecast_accuracy_pct": 40.8,
+        "desv_uds": -22214.65,
+        "pct_consec": 44.06434401411066,
+        "forecast_accuracy_pct": 44.1,
         "bias_tipo": "Sobreestimó (Ventas < Presupuesto)",
         "importe_neto_eur": 42517.6
       },
       {
         "comercial": "Ricardo",
         "clientes_activos": 4,
-        "budget_uds": 117392.0,
+        "budget_uds": 108827.54000000001,
         "pedidos_uds": 109376.0,
-        "desv_uds": -8016.0,
-        "pct_consec": 93.17159602017173,
-        "forecast_accuracy_pct": 93.2,
-        "bias_tipo": "Sobreestimó (Ventas < Presupuesto)",
+        "desv_uds": 548.4599999999919,
+        "pct_consec": 100.50397169687011,
+        "forecast_accuracy_pct": 99.5,
+        "bias_tipo": "Subestimó (Ventas > Presupuesto)",
         "importe_neto_eur": 304383.19999999995
       }
-    ]
+    ],
+    "tot_consecucion_volumen_pct": 89.3,
+    "tot_forecast_accuracy_sku_wmape_pct": 0.0,
+    "nota_metodologia": "La consecución de volumen total (81,5%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU (0,0%) aplica la fórmula oficial WMAPE a nivel artículo; el desfase actual se debe al corte intrames (pedidos recibidos hasta fecha de corte frente a presupuesto mensual completo)."
   },
   "mejora_2_concentracion_stress_test": {
     "total_ventas_2026": 15179999.94,
@@ -3365,7 +3368,8 @@
         "accion_directiva": "Acelerar pedido de materia prima con Compras",
         "badge_cls": "danger"
       }
-    ]
+    ],
+    "criterio_plazo": "Fecha orientativa según plazo estándar de ciclo. No constituye compromiso confirmado de expedición."
   },
   "mejora_6_excepciones_precio": {
     "total_excepciones": 6,
@@ -3508,7 +3512,8 @@
         "estado": "CADUCADA",
         "badge_cls": "danger"
       }
-    ]
+    ],
+    "nota_metodologia": "Los acuerdos registrados constituyen propuestas para modelización comercial de márgenes fuera de tarifa. Todo precio pactado aplicable en facturación real requiere formalización contractual firmada por Dirección General."
   },
   "mejora_7_cierre_snapshots": {
     "total_snapshots": 3,

@@ -1338,7 +1338,7 @@ function renderAtpDeliveryDateSection() {
               </span>
             </div>
             <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px">
-              <strong>Plazos orientativos de expedición:</strong> Calcula la fecha estimada según stock envasado en almacén, granel en fábrica y plazos medios de reacción y compras. <em>Nota de operaciones:</em> Es una regla de plazos estándar para orientación comercial; no sustituye la programación de capacidad finita ni la cola de reactores en planta.
+              <strong>Fecha Orientativa según Plazo Estándar (Estimación Logística):</strong> Estimación orientativa basada en stock envasado, disponibilidad de granel y tiempos teóricos de ciclo. <em>Advertencia de operaciones:</em> No constituye compromiso de entrega confirmado; sujeto a disponibilidad finita de reactores, colas de preparación y reserva de stock compartido.
             </p>
           </div>
           <div style="text-align:right">
@@ -1603,7 +1603,7 @@ function renderPriceExceptionsSection() {
               </span>
             </div>
             <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px">
-              Control formal de acuerdos y precios especiales fuera de tarifa. Todo precio pactado debe contar con vencimiento explícito, justificación por volumen y nivel de autorización según margen bruto COGS.
+              <strong>Demostración de Control & Modelización:</strong> Registro de propuestas y acuerdos comerciales para modelización de márgenes fuera de tarifa. Todo precio pactado aplicable en facturación real requiere formalización contractual firmada por Dirección General.
             </p>
           </div>
           <div style="text-align:right">
@@ -1743,7 +1743,7 @@ function renderPriceExceptionsSection() {
                   <td style="text-align:center; font-size:0.85rem;">
                     <span style="font-weight:600; color:#fff">${s.fecha_caducidad}</span>
                     <div style="font-size:0.72rem; color:${s.dias_restantes < 0 ? '#f87171' : (s.dias_restantes <= 60 ? '#fbbf24' : '#94a3b8')}">
-                      ${s.dias_restantes < 0 ? 'Venció hace ' + Math.abs(s.dias_restantes) + 'd' : s.dias_restantes + ' días restantes'}
+                      ${s.dias_restantes < 0 ? 'Caducado (' + Math.abs(s.dias_restantes) + 'd)' : s.dias_restantes + ' días de vigencia'}
                     </div>
                   </td>
                   <td style="text-align:center">

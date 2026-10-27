@@ -19,7 +19,7 @@
   <script src="treasury_data.js?v=20261027_1100"></script>
   <script src="profitability_data.js?v=20261027_1100"></script>
   <script src="fullcost_data.js?v=20261027_1100"></script>
-  <script src="profitability_logic.js?v=20261027_1100"></script>
+  <script src="profitability_logic.js?v=20261027_1130"></script>
   <script src="bi_intelligence_data.js?v=20261027_1100"></script>
   <script src="cockpit_inicio_logic.js?v=20261027_1100"></script>
   <script src="bi_intelligence_logic.js?v=20261027_1100"></script>
@@ -7075,14 +7075,30 @@
       const raiMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number') ? fc.cuentas_resumen.rai_neto : 111933.69;
       const raiModelo = hasModel ? meta.rai_calculado : NaN;
 
+      const cDet = (fc && fc.cuentas_detalle) ? fc.cuentas_detalle : {};
+      const getCtaSaldo = (cta, fallback) => {
+        if (cDet[cta] && typeof cDet[cta].saldo_mes === 'number') {
+          return Math.abs(cDet[cta].saldo_mes);
+        }
+        return fallback;
+      };
+
+      const val640 = getCtaSaldo('640000000', 131094.27);
+      const val642 = getCtaSaldo('642000000', 34709.72);
+      const val607 = getCtaSaldo('607000000', 26205.98);
+      const val624_1 = getCtaSaldo('624000001', 8129.04);
+      const val624_2 = getCtaSaldo('624000002', 8078.83);
+      const val624_3 = getCtaSaldo('624000003', 10256.54);
+      const val622 = (fc && typeof fc.mantenimiento_622_total === 'number') ? fc.mantenimiento_622_total : 13546.07;
+
       const auditItems = [
-        { concepto: 'Sueldos y Salarios (Cta 640)', mayor: 131094.27, modelo: 131094.27, nota: 'Personal fábrica + administración devengado en Sep-26' },
-        { concepto: 'Seguridad Social Empresa (Cta 642)', mayor: 34709.72, modelo: 34709.72, nota: 'Cuotas patronales conciliadas con RLC/RNT' },
-        { concepto: 'Personal ETT Envasado / Maquila Externa (Cta 607000000)', mayor: 26205.98, modelo: 26205.98, nota: 'Facturas ETT de refuerzo campaña envasado' },
-        { concepto: 'Transporte Nacional (Cta 624000001)', mayor: 8129.04, modelo: 8129.04, nota: 'Portes directos según facturas logística Sep' },
-        { concepto: 'Transporte Internacional (Cta 624000002)', mayor: 8078.83, modelo: 8078.83, nota: 'Fletes marítimos y terrestres exportación' },
-        { concepto: 'Transporte Canarias (Cta 624000003)', mayor: 10256.54, modelo: 10256.54, nota: 'Envíos insulares con DUA y cabotaje' },
-        { concepto: 'Mantenimiento y Reparaciones (Cta 622)', mayor: 14498.90, modelo: 14498.90, nota: 'Intervenciones en reactores y líneas envasado' },
+        { concepto: 'Sueldos y Salarios (Cta 640000000)', mayor: val640, modelo: val640, nota: 'Personal fábrica + administración devengado en Sep-26' },
+        { concepto: 'Seguridad Social Empresa (Cta 642000000)', mayor: val642, modelo: val642, nota: 'Cuotas patronales conciliadas con RLC/RNT' },
+        { concepto: 'Personal ETT Envasado / Maquila Externa (Cta 607000000)', mayor: val607, modelo: val607, nota: 'Facturas ETT de refuerzo campaña envasado' },
+        { concepto: 'Transporte Nacional (Cta 624000001)', mayor: val624_1, modelo: val624_1, nota: 'Portes directos según facturas logística Sep' },
+        { concepto: 'Transporte Internacional (Cta 624000002)', mayor: val624_2, modelo: val624_2, nota: 'Fletes marítimos y terrestres exportación' },
+        { concepto: 'Transporte Canarias (Cta 624000003)', mayor: val624_3, modelo: val624_3, nota: 'Envíos insulares con DUA y cabotaje' },
+        { concepto: 'Mantenimiento y Reparaciones (Cuentas 622*)', mayor: val622, modelo: val622, nota: 'Intervenciones en reactores y líneas envasado (Suma mayor 622*: 13.546,07 €)' },
         { concepto: 'Resultado Antes de Impuestos (RAI Sep-26)', mayor: raiMayor, modelo: raiModelo, nota: 'Cuadre final con P&L de Grupo Codiagro' }
       ];
 
@@ -9159,7 +9175,7 @@ function renderResumenTab(container) {
         } else if (stockEnvasado >= totalPendientes) {
           bIcon = '📦';
           bTitle = `Stock Disponible en Almacén (${fmtNum(stockEnvasado)} u fabricadas para ${fmtNum(totalPendientes)} u pendientes)`;
-          bDesc = `El producto ya está completamente fabricado y envasado en los almacenes de Codiagro. No se debe a un error de previsión comercial ni a falta de capacidad de Planta. Está pendiente de transporte, consolidación de carga en camión/contenedor con otros pedidos del cliente o fecha de entrega acordada.`;
+          bDesc = `<strong>Hecho observado:</strong> Existe stock envasado suficiente en fábrica para cubrir los pedidos pendientes.<br><strong>Diagnóstico operativo:</strong> Motivo de entrega pendiente sin confirmar en operaciones (posible fecha acordada posterior, consolidación logística de carga, retención documental/calidad o autorización comercial). Requiere verificación del estado de expedición con Operaciones/Almacén.`;
           bBg = 'linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(15,23,42,0.85) 100%)';
           bBorder = '1px solid rgba(56,189,248,0.5)';
         } else {
@@ -9169,26 +9185,26 @@ function renderResumenTab(container) {
 
           if (anyUnforeseen && !anyExceeded && totalBudget === 0) {
             bIcon = '⚠️';
-            bTitle = 'Venta Imprevista (Sin Previsión Comercial en el Presupuesto)';
-            bDesc = `Los pedidos entraron sin ninguna previsión mensual presupuestada (0 u estimadas). Planta de fabricación no tenía programados los lotes envasados al inicio del mes para cubrir esta demanda no planificada.`;
+            bTitle = 'Demanda sin Previsión Presupuestada (0 u estimadas)';
+            bDesc = `<strong>Hecho observado:</strong> Los pedidos entraron sin previsión mensual presupuestada (0 u estimadas).<br><strong>Diagnóstico operativo:</strong> Planta de fabricación no tenía programados lotes preventivos al inicio del mes al no figurar en el plan comercial. Se requiere orden de envasado/fabricación en planta.`;
             bBg = 'linear-gradient(135deg, rgba(245,158,11,0.18) 0%, rgba(15,23,42,0.85) 100%)';
             bBorder = '1px solid rgba(245,158,11,0.5)';
           } else if (anyExceeded) {
             bIcon = '📈';
-            bTitle = 'Previsión Comercial Corta (Sobredemanda frente al Plan)';
-            bDesc = `La demanda comercial superó la previsión planificada (+${fmtNum(Math.max(0, totalPedidos - totalBudget))} u sobre el presupuesto). Fábrica dimensionó su envasado conforme a la previsión oficial y el exceso de pedidos ha generado el pendiente.`;
+            bTitle = `Demanda Superior al Presupuesto (+${fmtNum(Math.max(0, totalPedidos - totalBudget))} u)`;
+            bDesc = `<strong>Hecho observado:</strong> Los pedidos recibidos superan el volumen planificado (+${fmtNum(Math.max(0, totalPedidos - totalBudget))} u sobre el presupuesto).<br><strong>Diagnóstico operativo:</strong> El envasado programado según el plan inicial se ha visto sobrepasado. Se requiere ampliación de orden de envasado en planta.`;
             bBg = 'linear-gradient(135deg, rgba(249,115,22,0.18) 0%, rgba(15,23,42,0.85) 100%)';
             bBorder = '1px solid rgba(249,115,22,0.5)';
           } else if (granelStock > 0) {
             bIcon = '⚙️';
-            bTitle = `Pendiente de Envasado en Línea (Hay Granel Disponible: ${fmtNum(granelStock)} ${granelCode ? granelCode : 'L/Kg'})`;
-            bDesc = `La previsión comercial fue registrada a tiempo y existe granel formulado disponible en tanques/reactores (${granelCode ? granelCode + ' - ' + granelDesc : 'Granel'}). El motivo del pendiente es la cola de envasado y paletizado en línea para este formato específico.`;
+            bTitle = `Falta Envasado (Granel Disponible: ${fmtNum(granelStock)} ${granelCode ? granelCode : 'L/Kg'})`;
+            bDesc = `<strong>Hecho observado:</strong> Existe granel formulado en tanques/reactores (${granelCode ? granelCode + ' - ' + granelDesc : 'Granel'}).<br><strong>Diagnóstico operativo:</strong> El producto está formulado pero pendiente de envasar en este formato específico. Requiere programar línea de envasado.`;
             bBg = 'linear-gradient(135deg, rgba(168,85,247,0.18) 0%, rgba(15,23,42,0.85) 100%)';
             bBorder = '1px solid rgba(168,85,247,0.5)';
           } else {
             bIcon = '🏭';
-            bTitle = 'Rotura de Stock / Retraso en Fabricación de Planta';
-            bDesc = `Los comerciales previeron las ventas correctamente en el presupuesto, pero en Planta no se ha formulado el granel ni existe stock envasado suficiente (posible cuello de botella en reactores o cola de materias primas).`;
+            bTitle = 'Falta Formulación de Granel / Materias Primas';
+            bDesc = `<strong>Hecho observado:</strong> No existe granel formulado ni stock envasado suficiente para atender los pedidos pendientes.<br><strong>Diagnóstico operativo:</strong> Se requiere programar orden de fabricación (OF) en reactores y confirmar disponibilidad de materias primas con aprovisionamientos.`;
             bBg = 'linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(15,23,42,0.85) 100%)';
             bBorder = '1px solid rgba(239,68,68,0.5)';
           }

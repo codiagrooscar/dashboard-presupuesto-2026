@@ -389,6 +389,29 @@ function renderChurnAlertSection() {
         </div>
       </div>
 
+      <!-- AVISO DIRECTIVO: CUENTAS EN CONCURSO DE ACREEDORES (EXCLUIDAS DE CAÍDA COMERCIAL) -->
+      <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(15, 23, 42, 0.95) 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: var(--radius-md); padding: 1.15rem 1.4rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div style="display:flex; align-items:center; gap:0.9rem;">
+            <span style="font-size:1.8rem;">⚖️</span>
+            <div>
+              <div style="font-size:0.95rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.6rem;">
+                <span>Cuenta en Concurso de Acreedores (Neutralizada de Indicadores):</span>
+                <span class="tab-badge" style="background:rgba(239,68,68,0.25); color:#f87171; border:1px solid rgba(239,68,68,0.5);">DOGA TARIM TIC.SAN.VE TUR. LTD. STI</span>
+              </div>
+              <p style="margin:0.3rem 0 0 0; font-size:0.84rem; color:#cbd5e1; max-width:850px;">
+                <strong>Instrucción de Dirección General:</strong> Esta cuenta está en concurso de acreedores en Turquía y <strong>no computa como caída de ventas ni para ningún indicador comercial</strong>. Se mantiene en seguimiento jurídico-concursal para evaluar el cobro de la deuda pendiente (282.165 € en 2025).
+              </p>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:0.75rem; text-transform:uppercase; color:var(--muted); font-weight:700;">Deuda Histórica / Pendiente</span>
+            <div style="font-size:1.25rem; font-weight:800; color:#fbbf24;">282.165,00 €</div>
+            <span class="tab-badge badge-warning" style="font-size:0.72rem; margin-top:0.2rem;">En Espera de Resolución Concursal</span>
+          </div>
+        </div>
+      </div>
+
       <!-- TABLA DETALLE DE CLIENTES EN FUGA -->
       <div class="table-card">
         <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center">

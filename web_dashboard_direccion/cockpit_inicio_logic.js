@@ -145,12 +145,12 @@ function renderCockpitInicioSection() {
               <tr>
                 <td style="text-align:center"><span class="tab-badge badge-danger">URGENTE 1</span></td>
                 <td style="font-weight:700; color:#fff">
-                  16 Cuentas Clave en Riesgo de Fuga (Churn)
+                  15 Cuentas Clave en Riesgo de Fuga (Churn)
                 </td>
                 <td><span class="tab-badge" style="background:rgba(59,130,246,0.15); color:#60a5fa">Comercial / Delegados</span></td>
-                <td style="text-align:right; font-weight:800; color:#ef4444; font-size:1.05rem">-795.006 €</td>
+                <td style="text-align:right; font-weight:800; color:#ef4444; font-size:1.05rem">-512.842 €</td>
                 <td style="color:#cbd5e1; font-size:0.85rem">
-                  Caída > 25% frente a 2025 en cuentas estratégicas (Doga Tarim -282k €, Fitocarthago -96k €, Bouazza -68k €).
+                  Caída > 25% frente a 2025 en cuentas comerciales (Fitocarthago -96k €, Bouazza -68k €, Campo Abierto -63k €). <em style="color:#fbbf24;">*Doga Tarim excluida por concurso de acreedores*</em>.
                 </td>
                 <td style="text-align:center">
                   <button class="pill-btn" onclick="switchTab('bi_churn')" style="background:rgba(239,68,68,0.15); border-color:#ef4444; color:#f87171; font-weight:700">

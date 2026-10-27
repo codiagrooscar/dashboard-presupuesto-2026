@@ -1,4 +1,5 @@
-window.BI_INTELLIGENCE_DATA = {
+// Datos de Inteligencia de Negocio y Control Directivo
+const BI_INTELLIGENCE_DATA = {
   "mejora_1_forecast_accuracy": {
     "tot_budget_uds": 311917.0,
     "tot_pedidos_uds": 254091.0,
@@ -1626,23 +1627,11 @@ window.BI_INTELLIGENCE_DATA = {
     ]
   },
   "mejora_3_churn_alert": {
-    "total_clientes_en_riesgo": 16,
-    "volumen_ventas_perdido_eur": 795006.58,
-    "clientes_criticos_count": 6,
+    "total_clientes_en_riesgo": 15,
+    "volumen_ventas_perdido_eur": 512841.58,
+    "clientes_criticos_count": 5,
     "clientes_moderados_count": 10,
     "alertas": [
-      {
-        "cliente": "DOGA TARIM TIC.SAN.VE TUR. LTD. STI",
-        "comercial": "Mehmet",
-        "pais": "TURQUÍA",
-        "clasificacion": "Con potencial",
-        "ventas_ene_sep_2025": 282165.0,
-        "ventas_ene_sep_2026": 0.0,
-        "caida_eur": -282165.0,
-        "caida_pct": -100.0,
-        "severidad": "CRÍTICA",
-        "ventas_2025_anual": 282165.0
-      },
       {
         "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
         "comercial": "Pedro",
@@ -1822,6 +1811,19 @@ window.BI_INTELLIGENCE_DATA = {
         "caida_pct": -31.9,
         "severidad": "MODERADA",
         "ventas_2025_anual": 15315.29
+      }
+    ],
+    "cuentas_en_concurso": [
+      {
+        "cliente": "DOGA TARIM TIC.SAN.VE TUR. LTD. STI",
+        "comercial": "Mehmet",
+        "pais": "TURQUÍA",
+        "clasificacion": "Con potencial",
+        "deuda_historica_2025_eur": 282165.0,
+        "ventas_2026_eur": 0.0,
+        "caida_bruta_eur": -282165.0,
+        "estado_legal": "En concurso de acreedores (Suspensión de pagos en Turquía)",
+        "motivo_exclusion": "Excluido de caída de ventas y de indicadores de rendimiento comercial por resolución de Dirección General. Cuenta en espera de resolución concursal y cobro de deuda pendiente."
       }
     ]
   },

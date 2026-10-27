@@ -1996,10 +1996,19 @@ function setFullcostActiveSection(sec) {
 }
 
 function handleSimParamChange(param, val) {
-  if (param === 'format') simFormat = val;
-  else if (param === 'mp') simMpCost = parseFloat(val) || 0;
-  else if (param === 'vol') simVolume = parseInt(val) || 100;
-  else if (param === 'margin') simTargetMargin = parseFloat(val) || 60;
+  if (param === 'format') {
+    simFormat = val;
+  } else if (param === 'mp') {
+    const parsed = parseFloat(val);
+    simMpCost = isNaN(parsed) ? 0 : Math.max(0, parsed);
+  } else if (param === 'vol') {
+    const parsed = parseInt(val, 10);
+    simVolume = isNaN(parsed) ? 100 : Math.max(1, parsed);
+  } else if (param === 'margin') {
+    const parsed = parseFloat(val);
+    // Permitir 0% explícito y validar límites
+    simTargetMargin = isNaN(parsed) ? 60.0 : parsed;
+  }
   
   const dedicated = document.getElementById('fullcostDedicatedContainer');
   if (dedicated) {
@@ -2009,6 +2018,9 @@ function handleSimParamChange(param, val) {
   const content = document.getElementById('profitSubtabContent') || document.getElementById('appContent');
   if (content) content.innerHTML = renderProfitFullCostView();
 }
+
+window.setFullcostActiveSection = setFullcostActiveSection;
+window.handleSimParamChange = handleSimParamChange;
 
 function renderFullCostingDedicatedTab(container) {
   let html = `
@@ -2048,14 +2060,19 @@ function renderProfitFullCostView() {
   const costeTotalLote = costeMpLote + costeEnvaseLote + costeModLote + costeCifLote;
   const costeUnitario = simVolume > 0 ? (costeTotalLote / simVolume) : 0;
   
-  // Precios sugeridos
+  // Validaciones rigurosas del cotizador (Hallazgo H08)
+  const isMarginValid = !isNaN(simTargetMargin) && simTargetMargin < 100 && simTargetMargin >= 0;
+  const isVolValid = !isNaN(simVolume) && simVolume > 0;
+  const isMpValid = !isNaN(simMpCost) && simMpCost >= 0;
+
+  // Precios sugeridos con fórmula P = Coste / (1 - Margen%)
   const precioBreakeven = costeUnitario;
-  const precioSugeridoRojo = simTargetMargin < 100 ? (costeUnitario / (1 - 0.60)) : 0;
-  const precioSugeridoObjetivo = simTargetMargin < 100 ? (costeUnitario / (1 - (simTargetMargin / 100))) : 0;
-  const precioSugeridoExport = simTargetMargin < 100 ? (costeUnitario / (1 - 0.72)) : 0;
+  const precioSugeridoRojo = costeUnitario / (1 - 0.60);
+  const precioSugeridoObjetivo = isMarginValid ? (costeUnitario / (1 - (simTargetMargin / 100))) : null;
+  const precioSugeridoExport = costeUnitario / (1 - 0.72);
   
-  const facturacionSim = simVolume * precioSugeridoObjetivo;
-  const beneficioBrutoSim = facturacionSim - costeTotalLote;
+  const facturacionSim = (isMarginValid && isVolValid) ? (simVolume * precioSugeridoObjetivo) : 0;
+  const beneficioBrutoSim = (isMarginValid && isVolValid) ? (facturacionSim - costeTotalLote) : 0;
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.35rem;">
@@ -2158,8 +2175,10 @@ function renderProfitFullCostView() {
         </button>
         </div>
 
-      <!-- CONTENIDO DE LA SECCIÓN ACTIVA -->
-      ${renderFullCostSectionContent(fullcostActiveSection, fc, simFormat, simMpCost, simVolume, simTargetMargin, fmtObj, costeMpLote, costeEnvaseLote, costeModLote, costeCifLote, costeTotalLote, costeUnitario, precioBreakeven, precioSugeridoRojo, precioSugeridoObjetivo, precioSugeridoExport, facturacionSim, beneficioBrutoSim)}
+      <!-- CONTENIDO DE LA SECCIÓN ACTIVA (Envuelto en contenedor con ID para filtrado dinámico) -->
+      <div id="fullcostSectionContent">
+        ${renderFullCostSectionContent(fullcostActiveSection, fc, simFormat, simMpCost, simVolume, simTargetMargin, fmtObj, costeMpLote, costeEnvaseLote, costeModLote, costeCifLote, costeTotalLote, costeUnitario, precioBreakeven, precioSugeridoRojo, precioSugeridoObjetivo, precioSugeridoExport, facturacionSim, beneficioBrutoSim)}
+      </div>
     </div>
   `;
 }
@@ -2669,6 +2688,7 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
       </div>
     `;
   } else if (section === 'pricing') {
+    const isMarginValid = !isNaN(simTargetMargin) && simTargetMargin < 100 && simTargetMargin >= 0;
     return `
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
         <!-- FORMULARIO DE PARÁMETROS -->
@@ -2769,25 +2789,32 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
             </div>
           </div>
 
-          <!-- MATRIZ DE PRECIOS SUGERIDOS SEGÚN OBJETIVO -->
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.85rem">
-            <div style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); border-radius:var(--radius-sm); padding:0.85rem">
-              <span style="font-size:0.75rem; color:#f87171; font-weight:800; text-transform:uppercase">Mínimo Rojo (60%)</span>
-              <div style="font-size:1.25rem; font-weight:800; color:#fff; margin-top:0.2rem">${fmtEur(precioSugeridoRojo)}</div>
-              <span style="font-size:0.72rem; color:var(--muted)">Límite no negociable</span>
+          <!-- MATRIZ DE PRECIOS SUGERIDOS SEGÚN OBJETIVO (Con validación P0) -->
+          ${!isMarginValid ? `
+            <div style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:var(--radius-sm); padding:0.9rem; color:#fca5a5; font-size:0.85rem;">
+              <strong>⚠️ Margen Inválido (${simTargetMargin}%):</strong>
+              El margen sobre venta debe ser estrictamente inferior al 100% y positivo (un margen del 100% o superior exigiría un precio matemáticamente infinito). Por favor, introduce un margen entre 0% y 99,9%.
+            </div>
+          ` : `
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.85rem">
+              <div style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); border-radius:var(--radius-sm); padding:0.85rem">
+                <span style="font-size:0.75rem; color:#f87171; font-weight:800; text-transform:uppercase">Mínimo Rojo (60%)</span>
+                <div style="font-size:1.25rem; font-weight:800; color:#fff; margin-top:0.2rem">${fmtEur(precioSugeridoRojo)}</div>
+                <span style="font-size:0.72rem; color:var(--muted)">Límite de política comercial</span>
+              </div>
+
+              <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.45); border-radius:var(--radius-sm); padding:0.85rem">
+                <span style="font-size:0.75rem; color:#34d399; font-weight:800; text-transform:uppercase">Recomendado (${simTargetMargin}%)</span>
+                <div style="font-size:1.25rem; font-weight:800; color:#34d399; margin-top:0.2rem">${fmtEur(precioSugeridoObjetivo)}</div>
+                <span style="font-size:0.72rem; color:var(--muted)">Precio objetivo de presupuesto</span>
+              </div>
             </div>
 
-            <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.45); border-radius:var(--radius-sm); padding:0.85rem">
-              <span style="font-size:0.75rem; color:#34d399; font-weight:800; text-transform:uppercase">Recomendado (${simTargetMargin}%)</span>
-              <div style="font-size:1.25rem; font-weight:800; color:#34d399; margin-top:0.2rem">${fmtEur(precioSugeridoObjetivo)}</div>
-              <span style="font-size:0.72rem; color:var(--muted)">Precio objetivo de presupuesto</span>
+            <div style="background:rgba(15,23,42,0.6); padding:0.75rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; font-size:0.83rem">
+              <span style="color:var(--muted)">Beneficio Bruto que aportará el lote:</span>
+              <strong style="color:${beneficioBrutoSim >= 0 ? '#34d399' : '#f87171'}; font-size:1.05rem">${beneficioBrutoSim >= 0 ? '+' : ''}${fmtEur(beneficioBrutoSim)}</strong>
             </div>
-          </div>
-
-          <div style="background:rgba(15,23,42,0.6); padding:0.75rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; font-size:0.83rem">
-            <span style="color:var(--muted)">Beneficio Bruto que aportará el lote:</span>
-            <strong style="color:#34d399; font-size:1.05rem">+${fmtEur(beneficioBrutoSim)}</strong>
-          </div>
+          `}
         </div>
       </div>
     `;

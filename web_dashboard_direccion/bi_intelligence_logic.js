@@ -589,14 +589,14 @@ function renderAtpDeliveryDateSection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">⏱️</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 5: Fechas de Entrega Viables (ATP - Available to Promise)
+                Mejora 5: Fechas de Entrega Orientativas (Plazo Estándar ATP)
               </h3>
               <span class="tab-badge" style="background:rgba(14,165,233,0.2); color:#38bdf8; border:1px solid rgba(14,165,233,0.4)">
-                Corte Pedidos 27/10
+                Plazos Estándar (Corte 27/10)
               </span>
             </div>
             <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px">
-              Calcula la fecha real de servicio según stock envasado en almacén, granel disponible en reactores y ciclo de aprovisionamiento de materias primas para evitar promesas incumplidas a clientes.
+              <strong>Plazos orientativos de expedición:</strong> Calcula la fecha estimada según stock envasado en almacén, granel en fábrica y plazos medios de reacción y compras. <em>Nota de operaciones:</em> Es una regla de plazos estándar para orientación comercial; no sustituye la programación de capacidad finita ni la cola de reactores en planta.
             </p>
           </div>
           <div style="text-align:right">

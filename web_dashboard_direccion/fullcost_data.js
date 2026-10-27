@@ -898,6 +898,23 @@ window.fullCostData = {
       "uds": 36.8
     },
     {
+      "cliente": "Fitoxent S.C.L.V.",
+      "pais": "España",
+      "comercial": "Comercial España",
+      "clasif": "Distribuidor",
+      "ventas": 0.0,
+      "cogs_materiales": 0.0,
+      "coste_planta_fullcost": 0.0,
+      "margen_industrial_eur": 0.0,
+      "margen_industrial_pct": 0.0,
+      "transporte_real": 350.9,
+      "margen_contribucion_eur": -350.9,
+      "margen_contribucion_pct": 0.0,
+      "semaforo": "AMARILLO",
+      "skus_count": 0,
+      "uds": 0.0
+    },
+    {
       "cliente": "DIPLOMATS ORCHARDS FOR TRADE AGENCIES",
       "pais": "EGIPTO",
       "comercial": "García",
@@ -2132,10 +2149,10 @@ window.fullCostData = {
     "coste_planta": 124561.76,
     "margen_industrial_eur": 151782.63,
     "margen_industrial_pct": 33.1,
-    "transporte_real": 20934.76,
-    "margen_contribucion_eur": 130847.87,
-    "margen_contribucion_pct": 28.6,
-    "clientes_count": 41,
+    "transporte_real": 21285.66,
+    "margen_contribucion_eur": 130496.97,
+    "margen_contribucion_pct": 28.5,
+    "clientes_count": 42,
     "skus_count": 86,
     "comerciales_count": 6
   }

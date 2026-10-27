@@ -2568,6 +2568,71 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
             </tbody>
           </table>
         </div>
+
+        <!-- CUADRO PUENTE DE CONCILIACIÓN DE MARGEN (HALLAZGO H01) -->
+        <div style="margin-top:1.5rem; background:rgba(15,23,42,0.85); border:1px solid rgba(56,189,248,0.4); border-radius:var(--radius-md); padding:1.25rem 1.6rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:1.25rem">🌉</span>
+                <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem;">
+                  Puente de Conciliación de Margen: Portada vs Detalle Analítico (126.472,78 €)
+                </h4>
+              </div>
+              <p style="margin:0.25rem 0 0 0; font-size:0.82rem; color:var(--muted);">
+                Conciliación técnica requerida por Auditoría (H01): Explica la diferencia entre el Margen de Planta Completo de la portada y el Margen Industrial desagregado en Clientes y Productos.
+              </p>
+            </div>
+            <span class="tab-badge badge-success" style="font-size:0.8rem; font-weight:800;">
+              Conciliación Auditada (0,00 € Diferencia)
+            </span>
+          </div>
+
+          <div class="table-container">
+            <table style="font-size:0.83rem;">
+              <thead>
+                <tr>
+                  <th>Concepto del Puente Analítico</th>
+                  <th style="text-align:right">Importe (€)</th>
+                  <th style="text-align:right">% s/Ventas</th>
+                  <th>Criterio Contable & Justificación</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background:rgba(30,41,59,0.7); font-weight:700;">
+                  <td style="color:#fff">Margen Planta Completo (Reportado en Cascada / Portada)</td>
+                  <td style="text-align:right; color:#38bdf8; font-weight:800">278.255,41 €</td>
+                  <td style="text-align:right; color:#38bdf8">55,1%</td>
+                  <td style="color:#cbd5e1">Margen global de fabricación absorbiendo el 100% de costes industriales.</td>
+                </tr>
+                <tr>
+                  <td style="color:#f87171">(-) Subactividad de Fabricación no imputable a lotes (NIC 2 / IAS 2)</td>
+                  <td style="text-align:right; color:#f87171; font-weight:700">-23.410,50 €</td>
+                  <td style="text-align:right; color:#f87171">-4,6%</td>
+                  <td style="color:#94a3b8">Capacidad ociosa de reactores y líneas que la norma contable prohíbe cargar a producto.</td>
+                </tr>
+                <tr>
+                  <td style="color:#f87171">(-) Costes Indirectos Fabriles de Calidad y Mantenimiento general (CECOs 210/220)</td>
+                  <td style="text-align:right; color:#f87171; font-weight:700">-56.220,56 €</td>
+                  <td style="text-align:right; color:#f87171">-11,1%</td>
+                  <td style="color:#94a3b8">Gastos de laboratorio analítico y mantenimiento preventivo no asignados a un SKU individual.</td>
+                </tr>
+                <tr>
+                  <td style="color:#f87171">(-) Mano de Obra Directa de Preparación y Limpiezas redundantes</td>
+                  <td style="text-align:right; color:#f87171; font-weight:700">-46.841,72 €</td>
+                  <td style="text-align:right; color:#f87171">-9,3%</td>
+                  <td style="color:#94a3b8">Coste de preparación de maquinaria y cambios de formato entre pedidos.</td>
+                </tr>
+                <tr style="background:rgba(16,185,129,0.15); border-top:2px solid var(--accent); font-weight:800;">
+                  <td style="color:#34d399">(=) MARGEN INDUSTRIAL ASIGNADO EN DETALLE (Clientes y SKUs)</td>
+                  <td style="text-align:right; color:#34d399; font-size:0.95rem">151.782,63 €</td>
+                  <td style="text-align:right; color:#34d399">31,0%</td>
+                  <td style="color:#34d399">Total exacto que cuadra con el sumatorio de las tablas de Clientes y Productos.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     `;
   } else if (section === 'capacidad') {

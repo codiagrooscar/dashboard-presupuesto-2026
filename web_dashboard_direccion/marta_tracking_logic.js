@@ -2,18 +2,60 @@
  * marta_tracking_logic.js
  * =======================
  * Lógica del módulo '🎯 Cierre 2026 & Termómetro Q4'
- * Exclusivamente en UNIDADES (Litros / Kg), sin importes en Euros.
+ * Soporta visualización en UNIDADES (Litros / Kg) y en EUROS (€).
  */
 
 (function () {
+  let currentMode = 'unidades'; // 'unidades' | 'euros'
   let includeSAS = false;
   let selectedCommercial = 'ALL';
   let selectedValuation = 'ALL';
   let searchQuery = '';
 
-  function formatUnits(num) {
+  function getActiveDataset() {
+    const raw = window.MARTA_TRACKING_DATA;
+    if (!raw) return null;
+    if (currentMode === 'euros' && raw.euros) {
+      return raw.euros;
+    }
+    if (raw.unidades) {
+      return raw.unidades;
+    }
+    return raw;
+  }
+
+  function isEurosMode() {
+    return currentMode === 'euros';
+  }
+
+  function formatAmount(num) {
     if (num === null || num === undefined || isNaN(num)) return '-';
-    return Math.round(Number(num)).toLocaleString('es-ES') + ' u';
+    if (isEurosMode()) {
+      return Number(num).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    } else {
+      return Math.round(Number(num)).toLocaleString('es-ES') + ' u';
+    }
+  }
+
+  function formatAmountCompact(num) {
+    if (num === null || num === undefined || isNaN(num)) return '-';
+    const n = Number(num);
+    const absN = Math.abs(n);
+    if (isEurosMode()) {
+      if (absN >= 1000000) {
+        return (n / 1000000).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M€';
+      } else if (absN >= 1000) {
+        return (n / 1000).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' k€';
+      }
+      return n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    } else {
+      if (absN >= 1000000) {
+        return (n / 1000000).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' M u';
+      } else if (absN >= 1000) {
+        return (n / 1000).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' k u';
+      }
+      return Math.round(n).toLocaleString('es-ES') + ' u';
+    }
   }
 
   function formatPct(num) {
@@ -40,8 +82,8 @@
   }
 
   function initMartaTracking() {
-    const data = window.MARTA_TRACKING_DATA;
-    if (!data) {
+    const raw = window.MARTA_TRACKING_DATA;
+    if (!raw) {
       console.warn('MARTA_TRACKING_DATA no encontrado.');
       return;
     }
@@ -49,7 +91,7 @@
   }
 
   function getFilteredClientData() {
-    const data = window.MARTA_TRACKING_DATA;
+    const data = getActiveDataset();
     if (!data) return { baseClients: [], dynamicCounts: {}, filteredClients: [] };
 
     const q = (searchQuery || '').trim().toLowerCase();
@@ -105,11 +147,11 @@
           <td><span class="flag-text">${c.pais}</span></td>
           <td class="client-name-cell"><strong>${c.cliente}</strong></td>
           <td><span class="clasif-pill">${c.clasificacion || '-'}</span></td>
-          <td class="num">${formatUnits(c.ventas_2025_tot)}</td>
-          <td class="num text-accent"><strong>${formatUnits(c.ventas_2026_sep)}</strong></td>
-          <td class="num">${formatUnits(c.estimacion_2026)}</td>
-          <td class="num ${pend <= 0 ? 'text-accent' : (pend > 50000 ? 'text-orange font-bold' : '')}">
-            ${formatUnits(pend)}
+          <td class="num">${formatAmount(c.ventas_2025_tot)}</td>
+          <td class="num text-accent"><strong>${formatAmount(c.ventas_2026_sep)}</strong></td>
+          <td class="num">${formatAmount(c.estimacion_2026)}</td>
+          <td class="num ${pend <= 0 ? 'text-accent' : (pend > (isEurosMode() ? 50000 : 20000) ? 'text-orange font-bold' : '')}">
+            ${formatAmount(pend)}
           </td>
           <td class="num ${crec > 100 ? 'text-danger font-bold' : (crec > 30 ? 'text-warn' : (crec < 0 ? 'text-accent' : ''))}">
             ${crec !== null ? (crec > 0 ? '+' : '') + formatPct(crec) : 'n/a'}
@@ -149,12 +191,8 @@
     `;
   }
 
-  /**
-   * Actualiza en tiempo real la tabla y contadores de chips
-   * SIN destruir el input del buscador, evitando la pérdida de foco.
-   */
   function updateMartaClientsTable() {
-    const data = window.MARTA_TRACKING_DATA;
+    const data = getActiveDataset();
     if (!data) return;
 
     const panel = document.querySelector('.marta-clients-panel');
@@ -164,13 +202,14 @@
     }
 
     const { baseClients, dynamicCounts, filteredClients } = getFilteredClientData();
+    const unitLabel = isEurosMode() ? 'Euros (€)' : 'Unidades (L/Kg)';
 
     // 1. Actualizar título/conteo
     const headingEl = panel.querySelector('.panel-heading');
     if (headingEl) {
       headingEl.textContent = selectedCommercial !== 'ALL'
-        ? `📋 Detalle de Clientes en Unidades (${baseClients.length} · ${selectedCommercial})`
-        : `📋 Detalle de Clientes en Unidades (${data.clientes.length})`;
+        ? `📋 Detalle de Clientes en ${unitLabel} (${baseClients.length} · ${selectedCommercial})`
+        : `📋 Detalle de Clientes en ${unitLabel} (${data.clientes.length})`;
     }
 
     // 2. Actualizar botones de chips
@@ -190,7 +229,7 @@
     const container = document.getElementById('view-tracking_marta');
     if (!container) return;
 
-    const data = window.MARTA_TRACKING_DATA;
+    const data = getActiveDataset();
     if (!data) return;
 
     // Guardar estado de foco si el buscador estaba activo
@@ -200,9 +239,14 @@
 
     const totales = data.metadata.totales;
     const sas = data.metadata.sas_info;
+    const isEur = isEurosMode();
+    const unitSymbol = isEur ? '€' : 'u';
+    const unitName = isEur ? 'Euros' : 'Unidades';
 
-    // Ajustar si SAS está activo (en unidades)
-    const realVendido = includeSAS ? (totales.ventas_2026_sep + sas.unidades_2026) : totales.ventas_2026_sep;
+    // Ajustar si SAS está activo
+    const sasVal = isEur ? (sas.euros_2026 || 0) : (sas.unidades_2026 || 0);
+    const sasBadgeText = isEur ? '+463,5 k€' : '+3,15 M u';
+    const realVendido = includeSAS ? (totales.ventas_2026_sep + sasVal) : totales.ventas_2026_sep;
     const estTotal = totales.estimacion_2026;
     const pendiente = estTotal - realVendido;
     const pctVendido = estTotal > 0 ? (realVendido / estTotal) * 100 : 0;
@@ -215,54 +259,66 @@
           <div class="marta-title-row">
             <span class="marta-icon">🎯</span>
             <div>
-              <h2>Cierre 2026 & Termómetro Q4 (Unidades)</h2>
-              <p class="marta-subtitle">Seguimiento en Unidades (L / Kg): 2025 vs 2026 Real a 30/09 vs Estimación de Cierre</p>
+              <h2>Cierre 2026 & Termómetro Q4 (${unitName})</h2>
+              <p class="marta-subtitle">${isEur ? 'Seguimiento Económico en Importe Neto (€): 2025 vs 2026 Real a 30/09 vs Estimación de Cierre' : 'Seguimiento en Unidades (L / Kg): 2025 vs 2026 Real a 30/09 vs Estimación de Cierre'}</p>
             </div>
           </div>
         </div>
         <div class="marta-header-right">
+          <!-- SELECTOR DE UNIDADES / EUROS -->
+          <div class="marta-currency-toggle-box">
+            <button class="curr-toggle-btn ${!isEur ? 'active' : ''}" onclick="window.setMartaMode('unidades')">
+              📦 Unidades (L/Kg)
+            </button>
+            <button class="curr-toggle-btn ${isEur ? 'active' : ''}" onclick="window.setMartaMode('euros')">
+              💶 Euros (€)
+            </button>
+          </div>
+
+          <!-- TOGGLE MAQUILA SAS -->
           <div class="marta-sas-toggle-box">
-            <span class="sas-label">Maquila SAS (+3,15 M u):</span>
+            <span class="sas-label">Maquila SAS (${sasBadgeText}):</span>
             <button class="sas-toggle-btn ${includeSAS ? 'active' : ''}" id="btnToggleSAS" onclick="window.toggleMartaSAS()">
               ${includeSAS ? '🟢 Incluida (Total Fábrica)' : '🔘 Excluida (Marca Propia)'}
             </button>
           </div>
+
           <button class="marta-export-btn" onclick="window.exportMartaExcel()">
-            📥 Exportar Excel (u)
+            📥 Exportar Excel (${unitSymbol})
           </button>
         </div>
       </div>
 
-      <!-- KPI METRIC CARDS EN UNIDADES -->
+      <!-- KPI METRIC CARDS -->
       <div class="marta-kpis-grid">
-        <div class="marta-kpi-card">
-          <span class="kpi-label">Estimación Cierre 2026</span>
-          <span class="kpi-value">${formatUnits(estTotal)}</span>
-          <span class="kpi-sub">Compromiso comercial en unidades</span>
+        <div class="marta-kpi-card" title="${formatAmount(estTotal)}">
+          <span class="kpi-label">Estimación Cierre 2026 (${unitSymbol})</span>
+          <span class="kpi-value">${formatAmountCompact(estTotal)}</span>
+          <span class="kpi-sub">${isEur ? 'Presupuesto total ventas 2026' : 'Compromiso comercial en unidades'}</span>
         </div>
-        <div class="marta-kpi-card highlight-success">
-          <span class="kpi-label">Fabricado / Vendido (a 30/09)</span>
-          <span class="kpi-value text-accent">${formatUnits(realVendido)}</span>
+        <div class="marta-kpi-card highlight-success" title="${formatAmount(realVendido)}">
+          <span class="kpi-label">${isEur ? 'Facturado Real (a 30/09)' : 'Fabricado / Vendido (a 30/09)'}</span>
+          <span class="kpi-value text-accent">${formatAmountCompact(realVendido)}</span>
           <div class="kpi-badge-row">
             <span class="kpi-badge badge-green">${formatPct(pctVendido)} YA CUMPLIDO</span>
             ${includeSAS ? '<span class="badge-sas-tag">+SAS MAQUILA</span>' : ''}
           </div>
         </div>
-        <div class="marta-kpi-card highlight-warn">
-          <span class="kpi-label">Pendiente por Vender (Q4)</span>
-          <span class="kpi-value ${pendiente <= 0 ? 'text-accent' : 'text-warn'}">${formatUnits(pendiente)}</span>
-          <span class="kpi-sub">Volumen Octubre - Diciembre</span>
+        <div class="marta-kpi-card highlight-warn" title="${formatAmount(pendiente)}">
+          <span class="kpi-label">${isEur ? 'Pendiente por Facturar (Q4)' : 'Pendiente por Vender (Q4)'}</span>
+          <span class="kpi-value ${pendiente <= 0 ? 'text-accent' : 'text-warn'}">${formatAmountCompact(pendiente)}</span>
+          <span class="kpi-sub">${isEur ? 'Importe Octubre - Diciembre' : 'Volumen Octubre - Diciembre'}</span>
         </div>
         <div class="marta-kpi-card highlight-danger">
           <span class="kpi-label">Esfuerzo Q4 vs Q4-2025</span>
           <span class="kpi-value text-orange">${crecReqQ4 !== null ? (crecReqQ4 > 0 ? '+' : '') + formatPct(crecReqQ4) : 'n/a'}</span>
-          <span class="kpi-sub">Vendido en Q4-2025: ${formatUnits(q4_2025)}</span>
+          <span class="kpi-sub">Vendido en Q4-2025: ${formatAmountCompact(q4_2025)}</span>
         </div>
       </div>
 
-      <!-- COMMERCIALS THERMOMETER GRID EN UNIDADES -->
+      <!-- COMMERCIALS THERMOMETER GRID -->
       <div class="marta-section-title-row">
-        <h3>📊 Termómetro de Cumplimiento por Comercial (Unidades)</h3>
+        <h3>📊 Termómetro de Cumplimiento por Comercial (${unitName})</h3>
         <span class="section-hint">Haz clic en un comercial para filtrar la tabla</span>
       </div>
       <div class="marta-commercials-grid">
@@ -301,8 +357,8 @@
 
           <div class="comm-progress-box">
             <div class="progress-labels">
-              <span class="prog-pct">${formatPct(pct)} vendido</span>
-              <span class="prog-vals">${formatUnits(c.ventas_2026_sep)} / ${formatUnits(c.estimacion_2026)}</span>
+              <span class="prog-pct">${formatPct(pct)} cumplido</span>
+              <span class="prog-vals" title="${formatAmount(c.ventas_2026_sep)} / ${formatAmount(c.estimacion_2026)}">${formatAmountCompact(c.ventas_2026_sep)} / ${formatAmountCompact(c.estimacion_2026)}</span>
             </div>
             <div class="progress-bar-track">
               <div class="progress-bar-fill" style="width: ${Math.min(pct, 100)}%; background: ${barColor};"></div>
@@ -312,7 +368,7 @@
           <div class="comm-footer-metrics">
             <div class="metric-col">
               <span class="m-label">Pendiente Q4</span>
-              <span class="m-val ${c.pendiente_oct_dic <= 0 ? 'text-accent' : ''}">${formatUnits(c.pendiente_oct_dic)}</span>
+              <span class="m-val ${c.pendiente_oct_dic <= 0 ? 'text-accent' : ''}" title="${formatAmount(c.pendiente_oct_dic)}">${formatAmountCompact(c.pendiente_oct_dic)}</span>
             </div>
             <div class="metric-col">
               <span class="m-label">Crec. Req. Q4</span>
@@ -328,14 +384,14 @@
     html += `
       </div>
 
-      <!-- CLIENTS DETAIL SECTION EN UNIDADES -->
+      <!-- CLIENTS DETAIL SECTION -->
     `;
 
     const { baseClients, dynamicCounts, filteredClients } = getFilteredClientData();
 
     const headingLabel = selectedCommercial !== 'ALL'
-      ? `📋 Detalle de Clientes en Unidades (${baseClients.length} · ${selectedCommercial})`
-      : `📋 Detalle de Clientes en Unidades (${data.clientes.length})`;
+      ? `📋 Detalle de Clientes en ${unitName} (${baseClients.length} · ${selectedCommercial})`
+      : `📋 Detalle de Clientes en ${unitName} (${data.clientes.length})`;
 
     html += `
       <div class="marta-clients-panel">
@@ -368,12 +424,12 @@
                 <th>País</th>
                 <th>Cliente</th>
                 <th>Clasificación</th>
-                <th class="num">Ventas 2025 (u)</th>
-                <th class="num">Real 2026 Sep (u)</th>
-                <th class="num">Estimación 2026 (u)</th>
-                <th class="num">Pendiente Q4 (u)</th>
+                <th class="num">Ventas 2025 (${unitSymbol})</th>
+                <th class="num">Real 2026 Sep (${unitSymbol})</th>
+                <th class="num">Estimación 2026 (${unitSymbol})</th>
+                <th class="num">Pendiente Q4 (${unitSymbol})</th>
                 <th class="num">Crec. Req. Q4</th>
-                <th class="num">% Vendido</th>
+                <th class="num">% Cumplido</th>
                 <th>Valoración Viabilidad</th>
               </tr>
             </thead>
@@ -400,6 +456,29 @@
   }
 
   // Métodos expuestos globalmente para interactividad
+  window.setMartaMode = function (mode) {
+    if (mode !== 'unidades' && mode !== 'euros') return;
+    currentMode = mode;
+
+    // Actualizar badge en la barra de navegación izquierda de forma aislada
+    const badge = document.getElementById('tabBadgeTrackingMarta');
+    if (badge) {
+      if (mode === 'euros') {
+        badge.textContent = 'Euros (€)';
+        badge.style.background = 'rgba(59, 130, 246, 0.2)';
+        badge.style.color = '#93c5fd';
+        badge.style.border = '1px solid rgba(59, 130, 246, 0.4)';
+      } else {
+        badge.textContent = 'Unidades';
+        badge.style.background = 'rgba(245, 158, 11, 0.2)';
+        badge.style.color = '#fbbf24';
+        badge.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+      }
+    }
+
+    renderTrackingDashboard();
+  };
+
   window.toggleMartaSAS = function () {
     includeSAS = !includeSAS;
     renderTrackingDashboard();
@@ -417,7 +496,6 @@
 
   window.filterMartaValuation = function (val) {
     selectedValuation = val;
-    // Si el panel de clientes ya está montado, actualizamos in-situ sin tocar el buscador
     const panel = document.querySelector('.marta-clients-panel');
     if (panel) {
       updateMartaClientsTable();
@@ -428,7 +506,6 @@
 
   window.searchMartaClient = function (val) {
     searchQuery = val;
-    // Actualización instantánea in-situ de la tabla para mantener el foco inalterado
     const panel = document.querySelector('.marta-clients-panel');
     if (panel) {
       updateMartaClientsTable();
@@ -438,32 +515,36 @@
   };
 
   window.exportMartaExcel = function () {
-    const data = window.MARTA_TRACKING_DATA;
+    const data = getActiveDataset();
     if (!data || typeof ExcelJS === 'undefined') {
       alert('Datos no disponibles para exportar.');
       return;
     }
 
+    const isEur = isEurosMode();
+    const unitSym = isEur ? '€' : 'u';
+    const numFmt = isEur ? '#,##0.00 €' : '#,##0 "u"';
+
     const wb = new ExcelJS.Workbook();
     wb.creator = 'Codiagro Dirección General';
-    const ws = wb.addWorksheet('Comparativa Clientes (Unidades)');
+    const ws = wb.addWorksheet(`Comparativa Clientes (${unitSym})`);
 
     ws.columns = [
       { header: 'Comercial', key: 'comercial', width: 14 },
       { header: 'País', key: 'pais', width: 16 },
       { header: 'Cliente', key: 'cliente', width: 38 },
       { header: 'Clasificación', key: 'clasif', width: 22 },
-      { header: 'Ventas 2025 (u)', key: 'v25', width: 16 },
-      { header: 'Real 2026 Sep (u)', key: 'v26', width: 18 },
-      { header: 'Estimación 2026 (u)', key: 'est26', width: 18 },
-      { header: 'Pendiente Q4 (u)', key: 'pend', width: 16 },
+      { header: `Ventas 2025 (${unitSym})`, key: 'v25', width: 18 },
+      { header: `Real 2026 Sep (${unitSym})`, key: 'v26', width: 18 },
+      { header: `Estimación 2026 (${unitSym})`, key: 'est26', width: 18 },
+      { header: `Pendiente Q4 (${unitSym})`, key: 'pend', width: 18 },
       { header: 'Crec. Req. Q4 (%)', key: 'crec', width: 16 },
-      { header: '% Vendido (u)', key: 'pct', width: 14 },
+      { header: `% Cumplido (${unitSym})`, key: 'pct', width: 14 },
       { header: 'Valoración', key: 'val', width: 18 },
     ];
 
     ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+    ws.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: isEur ? 'FF1E3A8A' : 'FF1E293B' } };
 
     data.clientes.forEach(c => {
       ws.addRow({
@@ -471,10 +552,10 @@
         pais: c.pais,
         cliente: c.cliente,
         clasif: c.clasificacion,
-        v25: Math.round(c.ventas_2025_tot),
-        v26: Math.round(c.ventas_2026_sep),
-        est26: Math.round(c.estimacion_2026),
-        pend: Math.round(c.pendiente_oct_dic),
+        v25: isEur ? Number(c.ventas_2025_tot) : Math.round(c.ventas_2025_tot),
+        v26: isEur ? Number(c.ventas_2026_sep) : Math.round(c.ventas_2026_sep),
+        est26: isEur ? Number(c.estimacion_2026) : Math.round(c.estimacion_2026),
+        pend: isEur ? Number(c.pendiente_oct_dic) : Math.round(c.pendiente_oct_dic),
         crec: c.crec_nec_oct_pct !== null ? c.crec_nec_oct_pct / 100 : null,
         pct: c.pct_vendido !== null ? c.pct_vendido / 100 : null,
         val: c.valoracion
@@ -486,7 +567,9 @@
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'Seguimiento_Cierre_2026_Unidades_Codiagro.xlsx';
+      a.download = isEur
+        ? 'Seguimiento_Cierre_2026_Euros_Codiagro.xlsx'
+        : 'Seguimiento_Cierre_2026_Unidades_Codiagro.xlsx';
       a.click();
       window.URL.revokeObjectURL(url);
     });

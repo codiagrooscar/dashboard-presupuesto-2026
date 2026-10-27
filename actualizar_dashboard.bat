@@ -5,11 +5,11 @@ echo   CODIAGRO - ACTUALIZADOR DIARIO DE DASHBOARD WEB
 echo ========================================================
 echo.
 echo 1. Regenerando dataset y dashboard web...
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" build_dataset.py
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" build_production_data.py
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" generar_orden_fabricacion_excel.py
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" build_treasury_data.py
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" build_profitability_data.py
+"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/build_dataset.py
+"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/build_production_data.py
+"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/generar_orden_fabricacion_excel.py
+"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/build_treasury_data.py
+"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/build_profitability_data.py
 
 REM Asegurar que ningun dato confidencial este en la version publica web_dashboard
 del /q "web_dashboard\treasury_data.*" 2>nul
@@ -25,7 +25,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo 2. Regenerando informe Excel de seguimiento...
-"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" generate_excel_dashboard.py
+"C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" scripts/generate_excel_dashboard.py
 
 echo.
 echo 3. Sincronizando con GitHub y GitHub Pages (solo Comercial y Fabricacion)...

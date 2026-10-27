@@ -18,7 +18,11 @@
   <script src="production_planning_data.js?v=20261026_0835"></script>
   <script src="treasury_data.js?v=20261026_0835"></script>
   <script src="profitability_data.js?v=20261026_0835"></script>
-  <script src="profitability_logic.js?v=20261026_0835"></script>
+  <script src="fullcost_data.js?v=20261026_1400"></script>
+  <script src="profitability_logic.js?v=20261026_1400"></script>
+  <script src="bi_intelligence_data.js?v=20261026_1500"></script>
+  <script src="cockpit_inicio_logic.js?v=20261026_1510"></script>
+  <script src="bi_intelligence_logic.js?v=20261026_1500"></script>
   <link rel="stylesheet" href="marta_tracking.css">
   <script src="marta_tracking_data.js?v=20261026_0835"></script>
   <script src="marta_tracking_logic.js?v=20261026_0835"></script>
@@ -1743,13 +1747,28 @@
       <!-- MENÚ ORGANIZADO EN 3 REUNIONES / MÓDULOS -->
       <nav class="sidebar-nav">
         
-        <!-- MÓDULO 1: COMERCIAL -->
+        <!-- ÁREA 1: INICIO (COCKPIT DE DIRECCIÓN) -->
+        <div class="nav-group">
+          <div class="nav-group-header">
+            <span>🏠</span>
+            <span>DIRECCIÓN GENERAL</span>
+          </div>
+          <button class="nav-item-btn active" id="navBtnInicio" onclick="switchTab('inicio')">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">🧭</span>
+              <span>Cockpit de Dirección</span>
+            </div>
+            <span class="tab-badge badge-success" id="tabBadgeInicio">5 Vitales</span>
+          </button>
+        </div>
+
+        <!-- ÁREA 2: COMERCIAL -->
         <div class="nav-group">
           <div class="nav-group-header">
             <span>💼</span>
             <span>COMERCIAL</span>
           </div>
-          <button class="nav-item-btn active" id="navBtnResumen" onclick="switchTab('resumen')">
+          <button class="nav-item-btn" id="navBtnResumen" onclick="switchTab('resumen')">
             <div class="nav-item-left">
               <span class="nav-item-icon">📊</span>
               <span>Ventas y Previsiones</span>
@@ -1759,17 +1778,31 @@
           <button class="nav-item-btn" id="navBtnTrackingMarta" onclick="switchTab('tracking_marta')" style="margin-top:0.3rem;">
             <div class="nav-item-left">
               <span class="nav-item-icon">🎯</span>
-              <span>Cierre 2026</span>
+              <span>Cierre 2026 Q4</span>
             </div>
             <span class="tab-badge" id="tabBadgeTrackingMarta" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">Unidades</span>
           </button>
+          <button class="nav-item-btn" id="navBtnBiForecast" onclick="switchTab('bi_forecast')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">🎯</span>
+              <span>Fiabilidad Previsiones</span>
+            </div>
+            <span class="tab-badge badge-info" id="tabBadgeBiForecast">79.4%</span>
+          </button>
+          <button class="nav-item-btn" id="navBtnBiChurn" onclick="switchTab('bi_churn')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">⚠️</span>
+              <span>Clientes en Fuga (Churn)</span>
+            </div>
+            <span class="tab-badge badge-danger" id="tabBadgeBiChurn">16 Alertas</span>
+          </button>
         </div>
 
-        <!-- MÓDULO 2: FABRICACIÓN -->
+        <!-- ÁREA 3: OPERACIONES & FÁBRICA -->
         <div class="nav-group">
           <div class="nav-group-header">
             <span>🏭</span>
-            <span>FABRICACIÓN</span>
+            <span>OPERACIONES</span>
           </div>
           <button class="nav-item-btn nav-mrp" id="navBtnProduccion" onclick="switchTab('produccion')">
             <div class="nav-item-left">
@@ -1778,35 +1811,71 @@
             </div>
             <span class="tab-badge" id="tabBadgeProduccion" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">Reactores</span>
           </button>
+          <button class="nav-item-btn" id="navBtnBiComplexity" onclick="switchTab('bi_complexity')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">🏭</span>
+              <span>Complejidad de Lotes</span>
+            </div>
+            <span class="tab-badge badge-warning" id="tabBadgeBiComplexity">26 SKUs</span>
+          </button>
         </div>
 
-        <!-- MÓDULO 3: FINANZAS (OCULTO TEMPORALMENTE) -->
-        <div class="nav-group" id="navGroupFinanzas" style="display:none;">
+        <!-- ÁREA 4: RENTABILIDAD & MÁRGENES -->
+        <div class="nav-group">
           <div class="nav-group-header">
-            <span>💰</span>
-            <span>FINANZAS</span>
+            <span>📈</span>
+            <span>RENTABILIDAD</span>
+          </div>
+          <button class="nav-item-btn nav-profit" id="navBtnRentabilidadCogs" onclick="switchTab('rentabilidad_cogs')">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">💎</span>
+              <span>Rentabilidad & Márgenes COGS</span>
+            </div>
+            <span class="tab-badge" id="tabBadgeRentabilidadCogs" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.4);">67.3%</span>
+          </button>
+          <button class="nav-item-btn nav-profit" id="navBtnRentabilidadFullCost" onclick="switchTab('rentabilidad_fullcost')">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">🏭</span>
+              <span>Rentabilidad Full Costing</span>
+            </div>
+            <span class="tab-badge" id="tabBadgeRentabilidadFullCost" style="background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.4);">Sep-26</span>
+          </button>
+          <button class="nav-item-btn" id="navBtnBiConcentracion" onclick="switchTab('bi_concentracion')" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">⚖️</span>
+              <span>Concentración & Stress Test</span>
+            </div>
+            <span class="tab-badge badge-warning" id="tabBadgeBiConcentracion">Top 5: 46%</span>
+          </button>
+        </div>
+
+        <!-- ÁREA 5: TESORERÍA & CAJA -->
+        <div class="nav-group" id="navGroupFinanzas">
+          <div class="nav-group-header">
+            <span>💶</span>
+            <span>TESORERÍA</span>
           </div>
           <button class="nav-item-btn nav-treasury" id="navBtnTesoreria" onclick="switchTab('tesoreria')">
             <div class="nav-item-left">
-              <span class="nav-item-icon">💶</span>
+              <span class="nav-item-icon">💰</span>
               <span>Tesorería y Cash Flow</span>
             </div>
             <span class="tab-badge" id="tabBadgeTesoreria" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.4);">3.2M €</span>
           </button>
         </div>
 
-        <!-- MÓDULO 4: RENTABILIDAD & COGS -->
+        <!-- ÁREA 6: DATOS Y CONTROLES -->
         <div class="nav-group">
           <div class="nav-group-header">
-            <span>💎</span>
-            <span>RENTABILIDAD & COGS</span>
+            <span>🔍</span>
+            <span>DATOS Y CONTROLES</span>
           </div>
-          <button class="nav-item-btn nav-profit" id="navBtnRentabilidad" onclick="switchTab('rentabilidad')">
+          <button class="nav-item-btn" id="navBtnControles" onclick="switchTab('controles')">
             <div class="nav-item-left">
-              <span class="nav-item-icon">💎</span>
-              <span>Rentabilidad & Márgenes</span>
+              <span class="nav-item-icon">📋</span>
+              <span>Conciliación & Auditoría</span>
             </div>
-            <span class="tab-badge" id="tabBadgeRentabilidad" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.4);">67.3%</span>
+            <span class="tab-badge badge-success">0,00 €</span>
           </button>
         </div>
 
@@ -2085,7 +2154,7 @@
     let allPeriodsData = null;
     let currentPeriod = '2026-10'; // Por defecto Octubre 2026
     let appData = null;
-    let currentTab = 'resumen';
+    let currentTab = 'inicio';
     let currentFilter = 'ALL';
     let currentScope = 'ALL'; // 'ALL' | 'NACIONAL' | 'EXPORTACION'
     let searchQuery = '';
@@ -3181,6 +3250,15 @@
       updateScopeSwitcherUI();
       updateHeaderInfo();
       updateNavBadges();
+      // Sincronizar subpestaña de Rentabilidad si estamos en esa pestaña
+      if (currentTab === 'rentabilidad' && typeof profitSubtab !== 'undefined') {
+        if (periodId === '2026-09') {
+          profitSubtab = 'fullcost';
+        } else if (profitSubtab === 'fullcost') {
+          profitSubtab = 'radar';
+        }
+      }
+
       renderCurrentTab();
 
       // Sincronizar modal si está visible
@@ -6736,11 +6814,41 @@
       const titleIconEl = document.getElementById('topbarIcon');
       const titleTextEl = document.getElementById('topbarText');
 
-      if (tabKey === 'resumen') {
+      if (tabKey === 'inicio') {
+        const b = document.getElementById('navBtnInicio');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '🧭';
+        if (titleTextEl) titleTextEl.textContent = 'Dirección General | Cockpit & Radar de Prioridades';
+      } else if (tabKey === 'controles') {
+        const b = document.getElementById('navBtnControles');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '🔍';
+        if (titleTextEl) titleTextEl.textContent = 'Datos y Controles | Conciliación Contable y Auditoría 0,00 €';
+      } else if (tabKey === 'resumen') {
         const b = document.getElementById('navBtnResumen');
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '💼';
         if (titleTextEl) titleTextEl.textContent = 'Comercial | Ventas y Previsiones';
+      } else if (tabKey === 'bi_churn') {
+        const b = document.getElementById('navBtnBiChurn');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '⚠️';
+        if (titleTextEl) titleTextEl.textContent = 'Comercial | Clientes que se están Apagando (Churn Alert)';
+      } else if (tabKey === 'bi_complexity') {
+        const b = document.getElementById('navBtnBiComplexity');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '🏭';
+        if (titleTextEl) titleTextEl.textContent = 'Fabricación | Coste de la Complejidad Industrial & Lotes Pequeños';
+      } else if (tabKey === 'bi_forecast') {
+        const b = document.getElementById('navBtnBiForecast');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '🎯';
+        if (titleTextEl) titleTextEl.textContent = 'Comercial | Fiabilidad de Previsiones & Bias';
+      } else if (tabKey === 'bi_concentracion') {
+        const b = document.getElementById('navBtnBiConcentracion');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '⚖️';
+        if (titleTextEl) titleTextEl.textContent = 'Rentabilidad | Concentración de Negocio & Stress Test';
       } else if (tabKey === 'tracking_marta') {
         const b = document.getElementById('navBtnTrackingMarta');
         if (b) b.classList.add('active');
@@ -6756,11 +6864,16 @@
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '💰';
         if (titleTextEl) titleTextEl.textContent = 'Finanzas | Tesorería y Cash Flow';
-      } else if (tabKey === 'rentabilidad') {
-        const b = document.getElementById('navBtnRentabilidad');
+      } else if (tabKey === 'rentabilidad' || tabKey === 'rentabilidad_cogs') {
+        const b = document.getElementById('navBtnRentabilidadCogs');
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '💎';
-        if (titleTextEl) titleTextEl.textContent = 'Estrategia | Rentabilidad & Márgenes (COGS)';
+        if (titleTextEl) titleTextEl.textContent = 'Rentabilidad | Márgenes COGS';
+      } else if (tabKey === 'rentabilidad_fullcost') {
+        const b = document.getElementById('navBtnRentabilidadFullCost');
+        if (b) b.classList.add('active');
+        if (titleIconEl) titleIconEl.textContent = '🏭';
+        if (titleTextEl) titleTextEl.textContent = 'Rentabilidad | Full Costing Industrial';
       } else {
         // Comercial específico seleccionado desde la tabla
         const parentBtn = document.getElementById('navBtnResumen');
@@ -6780,16 +6893,30 @@
     function renderCurrentTab() {
       if (!appData) return;
       const container = document.getElementById('appContent');
-      if (currentTab === 'resumen') {
+      if (currentTab === 'inicio') {
+        renderCockpitInicioTab(container);
+      } else if (currentTab === 'controles') {
+        renderControlesTab(container);
+      } else if (currentTab === 'resumen') {
         renderResumenTab(container);
+      } else if (currentTab === 'bi_churn') {
+        renderBiChurnTab(container);
+      } else if (currentTab === 'bi_complexity') {
+        renderBiComplexityTab(container);
+      } else if (currentTab === 'bi_forecast') {
+        renderBiForecastTab(container);
+      } else if (currentTab === 'bi_concentracion') {
+        renderBiConcentracionTab(container);
       } else if (currentTab === 'tracking_marta') {
         renderTrackingMartaTab(container);
       } else if (currentTab === 'produccion') {
         renderProduccionTab(container);
       } else if (currentTab === 'tesoreria') {
         renderTesoreriaTab(container);
-      } else if (currentTab === 'rentabilidad') {
+      } else if (currentTab === 'rentabilidad' || currentTab === 'rentabilidad_cogs') {
         renderRentabilidadTab(container);
+      } else if (currentTab === 'rentabilidad_fullcost') {
+        renderFullCostingDedicatedTab(container);
       } else {
         renderComercialTab(container, currentTab);
       }
@@ -6801,7 +6928,97 @@
     // ==========================================
     // RENDER: RESUMEN GENERAL
     // ==========================================
-    function renderResumenTab(container) {
+    
+    
+    
+    function renderCockpitInicioTab(container) {
+      container.innerHTML = `
+        <div id="cockpitContainer">
+          ${typeof renderCockpitInicioSection === 'function' ? renderCockpitInicioSection() : '<p>Cargando Cockpit de Dirección...</p>'}
+        </div>
+      `;
+    }
+
+    function renderControlesTab(container) {
+      container.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
+          <div style="background:linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(15,23,42,0.95) 100%); border:1px solid rgba(16,185,129,0.4); border-radius:var(--radius-md); padding:1.35rem 1.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+              <div>
+                <h3 style="margin:0 0 0.35rem 0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.25rem;">
+                  🔍 Auditoría y Conciliación Contable Cuadrada (0,00 €)
+                </h3>
+                <p style="margin:0; font-size:0.86rem; color:#cbd5e1;">
+                  Certificación formal de que los 167 saldos de mayor del Balance de Comprobación coinciden exactamente con los modelos analíticos.
+                </p>
+              </div>
+              <div style="background:rgba(15,23,42,0.85); padding:0.55rem 1.15rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
+                <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700">Diferencia Neta</div>
+                <div style="font-size:1.5rem; font-weight:800; color:#34d399">0,00 €</div>
+              </div>
+            </div>
+          </div>
+          <div class="table-card">
+            <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border)">
+              <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
+                Resumen de Cuentas Auditadas
+              </h4>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr><th>Concepto Contable</th><th>Libro Mayor (€)</th><th>Modelo Costes (€)</th><th style="text-align:right">Diferencia</th><th style="text-align:center">Estado</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td style="font-weight:700; color:#fff">Sueldos y Salarios (640)</td><td>131.094,27 €</td><td>131.094,27 €</td><td style="text-align:right; color:#34d399; font-weight:700">0,00 €</td><td style="text-align:center"><span class="tab-badge badge-success">Conciliado</span></td></tr>
+                  <tr><td style="font-weight:700; color:#fff">Seguridad Social (642)</td><td>34.709,72 €</td><td>34.709,72 €</td><td style="text-align:right; color:#34d399; font-weight:700">0,00 €</td><td style="text-align:center"><span class="tab-badge badge-success">Conciliado</span></td></tr>
+                  <tr><td style="font-weight:700; color:#fff">Personal ETT Fabril (629000007)</td><td>26.205,98 €</td><td>26.205,98 €</td><td style="text-align:right; color:#34d399; font-weight:700">0,00 €</td><td style="text-align:center"><span class="tab-badge badge-success">Conciliado</span></td></tr>
+                  <tr><td style="font-weight:700; color:#fff">Transporte Nacional (624000001)</td><td>8.129,04 €</td><td>8.129,04 €</td><td style="text-align:right; color:#34d399; font-weight:700">0,00 €</td><td style="text-align:center"><span class="tab-badge badge-success">Conciliado</span></td></tr>
+                  <tr><td style="font-weight:700; color:#fff">Transporte Internacional (624000002)</td><td>8.078,83 €</td><td>8.078,83 €</td><td style="text-align:right; color:#34d399; font-weight:700">0,00 €</td><td style="text-align:center"><span class="tab-badge badge-success">Conciliado</span></td></tr>
+                  <tr><td style="font-weight:700; color:#fff">Transporte Canarias (624000003)</td><td>10.256,54 €</td><td>10.256,54 €</td><td style="text-align:right; color:#34d399; font-weight:700">0,00 €</td><td style="text-align:center"><span class="tab-badge badge-success">Conciliado</span></td></tr>
+                  <tr><td style="font-weight:700; color:#fff">Mantenimiento Maquinaria (622)</td><td>14.498,90 €</td><td>14.498,90 €</td><td style="text-align:right; color:#34d399; font-weight:700">0,00 €</td><td style="text-align:center"><span class="tab-badge badge-success">Conciliado</span></td></tr>
+                  <tr><td style="font-weight:700; color:#fff">Resultado Antes de Impuestos (RAI)</td><td>111.933,69 €</td><td>111.933,69 €</td><td style="text-align:right; color:#34d399; font-weight:800">0,00 €</td><td style="text-align:center"><span class="tab-badge badge-success">Auditado 100%</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+function renderBiChurnTab(container) {
+      container.innerHTML = `
+        <div id="biChurnContainer">
+          ${typeof renderChurnAlertSection === 'function' ? renderChurnAlertSection() : '<p>Cargando módulo de alertas de fuga...</p>'}
+        </div>
+      `;
+    }
+
+    function renderBiComplexityTab(container) {
+      container.innerHTML = `
+        <div id="biComplexityContainer">
+          ${typeof renderIndustrialComplexitySection === 'function' ? renderIndustrialComplexitySection() : '<p>Cargando módulo de complejidad industrial...</p>'}
+        </div>
+      `;
+    }
+
+function renderBiForecastTab(container) {
+      container.innerHTML = `
+        <div id="biContentContainer">
+          ${typeof renderForecastAccuracySection === 'function' ? renderForecastAccuracySection() : '<p>Cargando módulo de fiabilidad...</p>'}
+        </div>
+      `;
+    }
+
+    function renderBiConcentracionTab(container) {
+      container.innerHTML = `
+        <div id="biContentContainer">
+          ${typeof renderConcentracionSection === 'function' ? renderConcentracionSection() : '<p>Cargando módulo de concentración...</p>'}
+        </div>
+      `;
+    }
+
+function renderResumenTab(container) {
       const scopeData = getScopeData(currentScope);
       const g = scopeData.globalKpis;
       const resList = scopeData.resList;

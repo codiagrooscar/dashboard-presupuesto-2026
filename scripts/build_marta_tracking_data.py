@@ -46,8 +46,14 @@ def build_data():
     print(f"Unidades ERP 2026 Ene-Sep: {sum(d['2026_sep'] for d in erp_u.values()):,.2f} u")
     print(f"Unidades SAS 2026: {sas_u_2026:,.2f} u")
 
-    # 2. Cargar Presupuesto 2026 en Unidades (temp_safe_read_profit.xlsx)
-    wb_ppto = openpyxl.load_workbook('temp_safe_read_profit.xlsx', data_only=True)
+    # 2. Cargar Presupuesto 2026 en Unidades (Presupuesto_Ventas_2027_Definitivo.xlsx)
+    src_ppto = 'Presupuesto_Ventas_2027_Definitivo.xlsx'
+    try:
+        wb_ppto = openpyxl.load_workbook(src_ppto, data_only=True)
+    except Exception:
+        tmp_ppto = 'temp_safe_read_marta_ppto.xlsx'
+        subprocess.run(['powershell', '-Command', f'Copy-Item "{src_ppto}" "{tmp_ppto}" -Force'], check=True)
+        wb_ppto = openpyxl.load_workbook(tmp_ppto, data_only=True)
     ws_rc = wb_ppto['Resumen por Cliente']
     h_rc = [c.value for c in ws_rc[1]]
     idx_cl = h_rc.index('Cliente')
@@ -67,8 +73,10 @@ def build_data():
 
     # 3. Cargar lista de clientes y comerciales de la plantilla base
     src_file = "Ventas_2025_vs_2026_vs_Estimacion_por_Cliente MArta.xlsx"
+    if not os.path.exists(src_file) and os.path.exists(os.path.join("antiguos", src_file)):
+        src_file = os.path.join("antiguos", src_file)
     temp_file = "temp_marta_export.xlsx"
-    subprocess.run(['powershell', '-Command', 'Copy-Item', f'"{src_file}"', f'"{temp_file}"', '-Force'], check=True)
+    subprocess.run(['powershell', '-Command', f'Copy-Item "{src_file}" "{temp_file}" -Force'], check=True)
     wb_m = openpyxl.load_workbook(temp_file, data_only=True)
     ws_mc = wb_m['Comparativa Clientes']
 

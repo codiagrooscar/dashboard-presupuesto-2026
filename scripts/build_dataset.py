@@ -35,8 +35,10 @@ def get_latest_pedidos_file():
 def build_dataset():
     pedidos_file = get_latest_pedidos_file()
     print(f"Usando archivo de pedidos: {pedidos_file}")
-    shutil.copy2(pedidos_file, 'temp_pedidos_input.xlsx')
-    df_ped = pd.read_excel('temp_pedidos_input.xlsx')
+    os.makedirs('scratch', exist_ok=True)
+    temp_ped = os.path.join('scratch', 'temp_pedidos_input.xlsx')
+    shutil.copy2(pedidos_file, temp_ped)
+    df_ped = pd.read_excel(temp_ped)
 
     def map_client_name(c):
         if not isinstance(c, str): return c
@@ -50,10 +52,19 @@ def build_dataset():
     df_ped['SKU_CLEAN'] = df_ped['CodigoArticulo'].astype(str).str.strip().str.upper()
     df_ped = df_ped[~df_ped['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
 
-    # Cargar presupuesto (usar versión original sin aplanar si existe)
-    src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx' if os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx') else 'Presupuesto_Ventas_2027.xlsx'
-    shutil.copy2(src_budget, 'temp_budget_input.xlsx')
-    df_bud = pd.read_excel('temp_budget_input.xlsx', sheet_name='Previsión Matriz Horizontal')
+    # Cargar presupuesto (usar versión original sin aplanar si existe en antiguos o raíz)
+    sin_aplanar_path = os.path.join('antiguos', 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx')
+    if os.path.exists(sin_aplanar_path):
+        src_budget = sin_aplanar_path
+    elif os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx'):
+        src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx'
+    elif os.path.exists('Presupuesto_Ventas_2027_Definitivo.xlsx'):
+        src_budget = 'Presupuesto_Ventas_2027_Definitivo.xlsx'
+    else:
+        src_budget = 'Presupuesto_Ventas_2027.xlsx'
+    temp_bud = os.path.join('scratch', 'temp_budget_input.xlsx')
+    shutil.copy2(src_budget, temp_bud)
+    df_bud = pd.read_excel(temp_bud, sheet_name='Previsión Matriz Horizontal')
     df_bud = df_bud[df_bud['Comercial'].notna() & (~df_bud['Comercial'].astype(str).str.contains('TOTAL', case=False))].copy()
 
     # Garantizar que todas las cifras estén en unidades originales sin aplanar (+5.2%)

@@ -588,10 +588,7 @@ def safe_copy(src, dst):
         except Exception as e:
             print(f"Aviso copiando {src} a {dst}: {e}")
 
-# Keep root and web_dashboard_direccion in sync
-safe_copy(out_file, 'production_planning_data.json')
-safe_copy(out_js_file, 'production_planning_data.js')
-
+# Keep web_dashboard_direccion in sync
 dir_dir = 'web_dashboard_direccion'
 if os.path.exists(dir_dir):
     safe_copy(out_file, os.path.join(dir_dir, 'production_planning_data.json'))

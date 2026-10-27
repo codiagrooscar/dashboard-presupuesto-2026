@@ -34,8 +34,9 @@ def safe_read_excel(filepath, sheet_name=0):
         return pd.read_excel(filepath, sheet_name=sheet_name)
     except Exception:
         import subprocess
+        os.makedirs('scratch', exist_ok=True)
         base_name = os.path.basename(filepath)
-        temp_file = f"temp_safe_{base_name}"
+        temp_file = os.path.join('scratch', f"temp_safe_{base_name}")
         subprocess.run(['powershell', '-Command', f'Copy-Item "{filepath}" "{temp_file}" -Force'], check=True)
         return pd.read_excel(temp_file, sheet_name=sheet_name)
 
@@ -65,7 +66,15 @@ def get_latest_october_file():
 
 def load_data_sources():
     # 1. Budget
-    src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx' if os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx') else 'Presupuesto_Ventas_2027.xlsx'
+    sin_aplanar_path = os.path.join('antiguos', 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx')
+    if os.path.exists(sin_aplanar_path):
+        src_budget = sin_aplanar_path
+    elif os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx'):
+        src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx'
+    elif os.path.exists('Presupuesto_Ventas_2027_Definitivo.xlsx'):
+        src_budget = 'Presupuesto_Ventas_2027_Definitivo.xlsx'
+    else:
+        src_budget = 'Presupuesto_Ventas_2027.xlsx'
     df_bud = safe_read_excel(src_budget, sheet_name='Previsión Matriz Horizontal')
     df_bud = df_bud[df_bud['Comercial'].notna() & (~df_bud['Comercial'].astype(str).str.contains('TOTAL', case=False))].copy()
 
@@ -720,9 +729,7 @@ def build_all():
             except Exception as e:
                 print(f"Aviso copiando {src} a {dst}: {e}")
 
-    # Sincronizar directorio raíz y web_dashboard_direccion
-    safe_copy('web_dashboard/dashboard_data.json', 'dashboard_data.json')
-    safe_copy('web_dashboard/dashboard_data.js', 'dashboard_data.js')
+    # Sincronizar web_dashboard_direccion
     if os.path.exists('web_dashboard_direccion'):
         safe_copy('web_dashboard/dashboard_data.json', 'web_dashboard_direccion/dashboard_data.json')
         safe_copy('web_dashboard/dashboard_data.js', 'web_dashboard_direccion/dashboard_data.js')
@@ -730,7 +737,8 @@ def build_all():
     # Actualizar también módulo de planificación de producción (MRP)
     try:
         import subprocess, sys
-        subprocess.run([sys.executable, 'build_production_data.py'], check=True)
+        prod_script = os.path.join(os.path.dirname(__file__), 'build_production_data.py')
+        subprocess.run([sys.executable, prod_script], check=True)
     except Exception as e:
         print("Aviso al regenerar datos de producción MRP:", e)
 

@@ -1,0 +1,236 @@
+// =========================================================================
+// PANTALLA DE INICIO: COCKPIT DE DIRECCIÓN GENERAL & RADAR DE PRIORIDADES
+// =========================================================================
+
+function renderCockpitInicioSection() {
+  const bi = typeof BI_INTELLIGENCE_DATA !== 'undefined' ? BI_INTELLIGENCE_DATA : null;
+  const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
+  const octData = (typeof appData !== 'undefined' && appData && appData.periods && appData.periods['2026-10']) ? appData.periods['2026-10'].global_kpis : null;
+  
+  const ventasNetas = octData ? octData.importe_neto : 878623.14;
+  const consecucionPct = octData ? octData.pct_consec : 81.5;
+  const pendientesUds = octData ? octData.pendientes_uds : 187680;
+  const servidasUds = octData ? octData.servidas_uds : 66411;
+  const fechaCorte = octData ? octData.fecha_corte : '27/10/2026';
+
+  return `
+    <div style="display:flex; flex-direction:column; gap:1.45rem; animation:fadeIn 0.3s ease;">
+      <!-- CABECERA EJECUTIVA -->
+      <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%); border: 1px solid var(--card-border); border-radius: var(--radius-md); padding: 1.5rem 1.85rem; box-shadow: var(--shadow);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div style="display:flex; align-items:center; gap:1rem;">
+            <div style="width:48px; height:48px; border-radius:12px; background:var(--accent-gradient); display:flex; align-items:center; justify-content:center; font-size:1.5rem; box-shadow:0 4px 14px rgba(16,185,129,0.35);">
+              🏠
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:0.65rem;">
+                <h2 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.45rem; color:#fff; font-weight:800;">
+                  Cockpit de Dirección General
+                </h2>
+                <span class="badge-live">Actualizado al Corte ${fechaCorte}</span>
+              </div>
+              <p style="margin:0.25rem 0 0 0; font-size:0.86rem; color:var(--muted);">
+                Visión consolidada de los 5 signos vitales de Codiagro y lista de prioridades de actuación ordenada por impacto en euros.
+              </p>
+            </div>
+          </div>
+          <div style="display:flex; gap:0.6rem; align-items:center;">
+            <div style="background:rgba(15,23,42,0.7); border:1px solid var(--card-border); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); font-size:0.82rem; color:#cbd5e1;">
+              📅 Ejercicio 2026 · Corte: <strong>${fechaCorte} (Pedidos 27.10)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOS 5 SIGNOS VITALES DEL NEGOCIO (CARDS EJECUTIVAS) -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.15rem; color:#fff; display:flex; align-items:center; gap:0.5rem;">
+            <span>🩺</span> 5 Signos Vitales del Período
+          </h3>
+          <span style="font-size:0.78rem; color:var(--muted)">Haga clic en cualquier tarjeta para acceder al desglose</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.15rem;">
+          <!-- 1. VENTAS NETAS VS OBJETIVO -->
+          <div class="kpi-card accent-blue" onclick="switchTab('resumen')" style="cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
+            <div class="kpi-header">
+              <span class="kpi-title">1. Ventas Netas vs Objetivo</span>
+              <span class="kpi-icon">📊</span>
+            </div>
+            <div class="kpi-value">${fmtEur(ventasNetas)}</div>
+            <div class="kpi-subtitle">
+              <span style="color:#34d399; font-weight:700">${consecucionPct.toFixed(1)}%</span> consecución presupuesto
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width:${Math.min(100, consecucionPct)}%"></div>
+            </div>
+          </div>
+
+          <!-- 2. MARGEN INDUSTRIAL FULL COSTING -->
+          <div class="kpi-card accent-green" onclick="switchTab('rentabilidad_fullcost')" style="cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
+            <div class="kpi-header">
+              <span class="kpi-title">2. Margen Industrial Planta</span>
+              <span class="kpi-icon">🏭</span>
+            </div>
+            <div class="kpi-value" style="color:#34d399">334.476 €</div>
+            <div class="kpi-subtitle">
+              <span style="color:#34d399; font-weight:700">66.2%</span> tras absorber MOD y planta
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width:66.2%; background:var(--accent-gradient)"></div>
+            </div>
+          </div>
+
+          <!-- 3. RAI OPERATIVO -->
+          <div class="kpi-card" onclick="switchTab('rentabilidad_fullcost')" style="cursor:pointer; transition:transform 0.2s; border-color:rgba(56,189,248,0.4)" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
+            <div class="kpi-header">
+              <span class="kpi-title">3. Resultado Antes Impuestos</span>
+              <span class="kpi-icon">💎</span>
+            </div>
+            <div class="kpi-value" style="color:#38bdf8">111.934 €</div>
+            <div class="kpi-subtitle">
+              <span style="color:#38bdf8; font-weight:700">22.2%</span> s/ventas netas (Conciliado 0,00 €)
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width:22.2%; background:linear-gradient(90deg, #38bdf8, #0284c7)"></div>
+            </div>
+          </div>
+
+          <!-- 4. CAJA PREVISTA Y MÍNIMO DE SEGURIDAD -->
+          <div class="kpi-card accent-gold" onclick="switchTab('tesoreria')" style="cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
+            <div class="kpi-header">
+              <span class="kpi-title">4. Previsión Caja & Liquidez</span>
+              <span class="kpi-icon">💶</span>
+            </div>
+            <div class="kpi-value" style="color:#fbbf24">3.250.000 €</div>
+            <div class="kpi-subtitle">
+              Mínimo horizonte 13 sem: <strong style="color:#34d399">2.840.000 €</strong>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width:87%; background:var(--warn-gradient)"></div>
+            </div>
+          </div>
+
+          <!-- 5. PEDIDOS EN RIESGO DE SERVICIO -->
+          <div class="kpi-card accent-rose" onclick="switchTab('produccion')" style="cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
+            <div class="kpi-header">
+              <span class="kpi-title">5. Pedidos Pendientes de Entrega</span>
+              <span class="kpi-icon">⚠️</span>
+            </div>
+            <div class="kpi-value" style="color:#f87171">${fmtNum(pendientesUds)} uds</div>
+            <div class="kpi-subtitle">
+              ${fmtNum(servidasUds)} uds ya servidas en el mes
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill rose" style="width:${Math.round(pendientesUds / (pendientesUds + servidasUds) * 100)}%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RADAR DE PRIORIDADES DE ACTUACIÓN ORDENADO POR IMPACTO ECONÓMICO -->
+      <div class="table-card" style="border:1px solid rgba(245, 158, 11, 0.4);">
+        <div style="padding:1.25rem 1.6rem; border-bottom:1px solid var(--card-border); background:rgba(15,23,42,0.8); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+          <div>
+            <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.15rem; display:flex; align-items:center; gap:0.5rem;">
+              <span>🎯</span> Asuntos que Requieren Actuación Inmediata (Ordenados por Impacto en €)
+            </h4>
+            <p style="margin:0.25rem 0 0 0; font-size:0.83rem; color:var(--muted)">
+              Planes de acción recomendados para Dirección y responsables de área en las próximas 48 horas.
+            </p>
+          </div>
+          <span class="tab-badge badge-warning" style="font-size:0.75rem; font-weight:800">Prioridad Directiva</span>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:70px; text-align:center">Nivel</th>
+                <th>Asunto / Alerta Operativa</th>
+                <th>Área Responsable</th>
+                <th style="text-align:right">Impacto en Juego (€)</th>
+                <th>Causa Raíz Identificada</th>
+                <th style="text-align:center">Acción Directiva Recomendada</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- PRIORIDAD 1: CLIENTES EN FUGA -->
+              <tr>
+                <td style="text-align:center"><span class="tab-badge badge-danger">URGENTE 1</span></td>
+                <td style="font-weight:700; color:#fff">
+                  16 Cuentas Clave en Riesgo de Fuga (Churn)
+                </td>
+                <td><span class="tab-badge" style="background:rgba(59,130,246,0.15); color:#60a5fa">Comercial / Delegados</span></td>
+                <td style="text-align:right; font-weight:800; color:#ef4444; font-size:1.05rem">-795.006 €</td>
+                <td style="color:#cbd5e1; font-size:0.85rem">
+                  Caída > 25% frente a 2025 en cuentas estratégicas (Doga Tarim -282k €, Fitocarthago -96k €, Bouazza -68k €).
+                </td>
+                <td style="text-align:center">
+                  <button class="pill-btn" onclick="switchTab('bi_churn')" style="background:rgba(239,68,68,0.15); border-color:#ef4444; color:#f87171; font-weight:700">
+                    Ver Plan de Retención ›
+                  </button>
+                </td>
+              </tr>
+
+              <!-- PRIORIDAD 2: PEDIDOS PENDIENTES DE SERVICIO -->
+              <tr>
+                <td style="text-align:center"><span class="tab-badge badge-danger">URGENTE 2</span></td>
+                <td style="font-weight:700; color:#fff">
+                  190.808 Uds de Pedidos Pendientes de Servicio
+                </td>
+                <td><span class="tab-badge" style="background:rgba(16,185,129,0.15); color:#34d399">Fábrica / MRP</span></td>
+                <td style="text-align:right; font-weight:800; color:#38bdf8; font-size:1.05rem">~680.000 €</td>
+                <td style="color:#cbd5e1; font-size:0.85rem">
+                  Compromiso de entrega de octubre con alta carga en reactores R-1 y R-3 para exportación.
+                </td>
+                <td style="text-align:center">
+                  <button class="pill-btn" onclick="switchTab('produccion')" style="background:rgba(56,189,248,0.15); border-color:#38bdf8; color:#38bdf8; font-weight:700">
+                    Cargar en Reactores ›
+                  </button>
+                </td>
+              </tr>
+
+              <!-- PRIORIDAD 3: COMPLEJIDAD INDUSTRIAL Y MICRO-LOTES -->
+              <tr>
+                <td style="text-align:center"><span class="tab-badge badge-warning">ALTA 3</span></td>
+                <td style="font-weight:700; color:#fff">
+                  Fragmentación de Lotes y Limpiezas Improductivas
+                </td>
+                <td><span class="tab-badge" style="background:rgba(245,158,11,0.15); color:#fbbf24">Operaciones / Planta</span></td>
+                <td style="text-align:right; font-weight:800; color:#34d399; font-size:1.05rem">+14.350 €/mes</td>
+                <td style="color:#cbd5e1; font-size:0.85rem">
+                  26 referencias fabricadas en múltiples micro-lotes (Alcaplant 6 lotes, Agroxilato-K 4 lotes). Ahorro anual: 172.200 €.
+                </td>
+                <td style="text-align:center">
+                  <button class="pill-btn" onclick="switchTab('bi_complexity')" style="background:rgba(245,158,11,0.15); border-color:#fbbf24; color:#fbbf24; font-weight:700">
+                    Optimizar Lotes ›
+                  </button>
+                </td>
+              </tr>
+
+              <!-- PRIORIDAD 4: CONCENTRACIÓN Y VULNERABILIDAD -->
+              <tr>
+                <td style="text-align:center"><span class="tab-badge badge-neutral">MEDIA 4</span></td>
+                <td style="font-weight:700; color:#fff">
+                  Vulnerabilidad por Concentración en Top 5 Clientes
+                </td>
+                <td><span class="tab-badge" style="background:rgba(148,163,184,0.15); color:#cbd5e1">Dirección General</span></td>
+                <td style="text-align:right; font-weight:800; color:#fbbf24; font-size:1.05rem">6.950.000 €</td>
+                <td style="color:#cbd5e1; font-size:0.85rem">
+                  El 45,8% de las ventas depende de 5 distribuidores. Una caída del 20% en Dotra restaría 308.000 € de margen directo.
+                </td>
+                <td style="text-align:center">
+                  <button class="pill-btn" onclick="switchTab('bi_concentracion')" style="background:rgba(148,163,184,0.15); border-color:var(--card-border); color:#fff; font-weight:700">
+                    Simular Escenarios ›
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}

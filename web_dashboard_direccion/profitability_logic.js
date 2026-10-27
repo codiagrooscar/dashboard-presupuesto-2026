@@ -16,6 +16,26 @@ const fmtPctLocal = (n) => typeof fmtPct === 'function' ? fmtPct(n) : (Number(n|
 let profitData = null;
 let profitSubtab = 'radar'; // 'radar', 'clientes', 'comparador', 'productos', 'mercados', 'comerciales', 'historico'
 
+// Conexión dinámica con selector superior de MERCADO (currentScope: ALL / NACIONAL / EXPORTACION)
+function getProfitCurrentScope() {
+  if (typeof currentScope !== 'undefined') return currentScope;
+  return 'ALL';
+}
+
+function isProfitNacional(pais) {
+  if (!pais) return true;
+  const p = String(pais).toUpperCase().trim();
+  return p.includes('ESPA') || p === 'SPAIN';
+}
+
+function matchesProfitScope(pais, scope = getProfitCurrentScope()) {
+  if (scope === 'ALL') return true;
+  const isNac = isProfitNacional(pais);
+  if (scope === 'NACIONAL') return isNac;
+  if (scope === 'EXPORTACION') return !isNac;
+  return true;
+}
+
 // Estado Subpestaña 1: Radar de Alertas
 let profitRadarType = 'ALL'; // 'ALL', 'LOSS', 'ROJO'
 let profitRadarYear = '2027'; // '2027', '2026', 'ALL'
@@ -70,6 +90,10 @@ async function loadProfitabilityData() {
 }
 
 function setProfitSubtab(sub) {
+  if (sub === 'fullcost') {
+    if (typeof switchTab === 'function') switchTab('rentabilidad_fullcost');
+    return;
+  }
   profitSubtab = sub;
   const content = document.getElementById('profitSubtabContent');
   if (content) {
@@ -115,22 +139,76 @@ async function renderRentabilidadTab(container) {
     }
   }
 
-  const tot = profitData.totales_empresa;
+  const activeScope = getProfitCurrentScope();
+  const allClientes = profitData.clientes || [];
+  const allAlertas = profitData.alertas_radar || [];
   const meta = profitData.metadata;
+  if (profitSubtab === 'fullcost') profitSubtab = 'radar';
+
+  // Filtrado de clientes y alertas según el ámbito de mercado activo (Nacional / Exportación / Todos)
+  const filteredClientes = allClientes.filter(c => matchesProfitScope(c.pais, activeScope));
+  const filteredAlertas = allAlertas.filter(a => matchesProfitScope(a.pais, activeScope));
+
+  // Cálculo de totales dinámicos según el mercado seleccionado
+  let v27 = 0, c27 = 0, v26 = 0, c26 = 0;
+  let clRojo = 0, clAmarillo = 0, clVerde = 0;
+  filteredClientes.forEach(c => {
+    v27 += (c.ventas_2027 || 0);
+    c27 += (c.cogs_2027 || 0);
+    v26 += (c.ventas_2026 || 0);
+    c26 += (c.cogs_2026 || 0);
+    if (c.semaforo === 'ROJO') clRojo++;
+    else if (c.semaforo === 'AMARILLO') clAmarillo++;
+    else if (c.semaforo === 'VERDE') clVerde++;
+  });
+
+  const m27Eur = v27 - c27;
+  const m27Pct = v27 > 0 ? Number(((m27Eur / v27) * 100).toFixed(1)) : 0.0;
+  const m26Eur = v26 - c26;
+  const m26Pct = v26 > 0 ? Number(((m26Eur / v26) * 100).toFixed(1)) : 0.0;
+  const vDiffPct = v26 > 0 ? (((v27 - v26) / v26) * 100).toFixed(1) : '0.0';
+  const lossCount = filteredAlertas.filter(a => a.es_perdida).length;
+
+  const scopeBadgeText = activeScope === 'NACIONAL' ? '🇪🇸 Nacional' : (activeScope === 'EXPORTACION' ? '🌍 Exportación' : '🌐 Todos');
+  const scopeBadgeClass = activeScope === 'NACIONAL' ? 'badge-success' : (activeScope === 'EXPORTACION' ? 'badge-info' : 'badge-neutral');
+
+  const isSepPeriod = typeof currentPeriod !== 'undefined' && currentPeriod === '2026-09';
 
   let html = `
+    <!-- BANNER INFORMATIVO DE CONTEXTO Y CONCILIACIÓN CONTABLE -->
+    ${isSepPeriod ? `
+      <div style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: var(--radius-md); padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem">
+            <span style="font-size:1.25rem">📊</span>
+            <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.05rem; color:#fff">
+              Período Activo: Septiembre 2026 (En Calibración Analítica)
+            </h3>
+            <span class="tab-badge badge-warning" style="font-weight:800">Saldo Macro: RAI 111.933,69 € (Dif: 0,00 €)</span>
+            <span class="tab-badge badge-info" style="font-weight:800">Detalle Analítico en Revisión</span>
+          </div>
+          <p style="margin:0; font-size:0.83rem; color:#cbd5e1">
+            Los escandallos COGS muestran la estructura de costes estándar unitarios de formulación y envase. El cierre contable macro (RAI 111,9k €) está cuadrado, y se están ajustando los repartos de detalle (nóminas mensuales, inventarios y maquila).
+          </p>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem">
+          <span class="tab-badge ${scopeBadgeClass}" style="font-size:0.75rem">${scopeBadgeText}</span>
+        </div>
+      </div>
+    ` : ''}
+
     <!-- KPI CARDS EJECUTIVAS DE RENTABILIDAD -->
     <div class="kpi-grid">
       <!-- 1. FACTURACIÓN 2027 -->
       <div class="kpi-card accent-blue">
         <div class="kpi-header">
           <span class="kpi-title">FACTURACIÓN ESTIMADA 2027</span>
-          <span class="kpi-badge badge-info">Presupuesto</span>
+          <span class="kpi-badge ${scopeBadgeClass}">${scopeBadgeText}</span>
         </div>
-        <div class="kpi-value">${fmtEur(tot.ventas_2027)}</div>
+        <div class="kpi-value">${fmtEur(v27)}</div>
         <div class="kpi-detail">
-          <span>2026: <strong>${fmtEur(tot.ventas_2026)}</strong></span>
-          <span style="color:#34d399;font-weight:700">+${(((tot.ventas_2027 - tot.ventas_2026) / tot.ventas_2026) * 100).toFixed(1)}%</span>
+          <span>2026: <strong>${fmtEur(v26)}</strong></span>
+          <span style="color:#34d399;font-weight:700">+${vDiffPct}%</span>
         </div>
       </div>
 
@@ -140,22 +218,22 @@ async function renderRentabilidadTab(container) {
           <span class="kpi-title">COGS MEDIO TOTAL</span>
           <span class="kpi-badge badge-warning" title="Coste Total Medio = Formulación Media + Envase Medio">Coste Medio</span>
         </div>
-        <div class="kpi-value" style="color:#fbbf24">${fmtEur(tot.cogs_2027)}</div>
+        <div class="kpi-value" style="color:#fbbf24">${fmtEur(c27)}</div>
         <div class="kpi-detail">
           <span>Base: <strong>${meta.cogs_coste_usado}</strong></span>
         </div>
       </div>
 
-      <!-- 3. MARGEN BRUTO EMPRESA -->
+      <!-- 3. MARGEN BRUTO EMPRESA / MERCADO -->
       <div class="kpi-card accent-emerald">
         <div class="kpi-header">
-          <span class="kpi-title">MARGEN BRUTO EMPRESA</span>
-          <span class="tab-badge ${tot.margen_2027_pct >= 66 ? 'badge-success' : (tot.margen_2027_pct >= 60 ? 'badge-warning' : 'badge-danger')}" style="font-weight:800;font-size:0.75rem">${tot.margen_2027_pct}%</span>
+          <span class="kpi-title">MARGEN BRUTO (${scopeBadgeText})</span>
+          <span class="tab-badge ${m27Pct >= 66 ? 'badge-success' : (m27Pct >= 60 ? 'badge-warning' : 'badge-danger')}" style="font-weight:800;font-size:0.75rem">${m27Pct}%</span>
         </div>
-        <div class="kpi-value" style="color:${tot.margen_2027_pct >= 66 ? '#34d399' : (tot.margen_2027_pct >= 60 ? '#fbbf24' : '#f87171')}">${fmtEur(tot.margen_2027_eur)}</div>
+        <div class="kpi-value" style="color:${m27Pct >= 66 ? '#34d399' : (m27Pct >= 60 ? '#fbbf24' : '#f87171')}">${fmtEur(m27Eur)}</div>
         <div class="kpi-detail">
-          <span>Semáforo: <strong style="color:${tot.margen_2027_pct >= 66 ? '#34d399' : (tot.margen_2027_pct >= 60 ? '#fbbf24' : '#f87171')}">${tot.margen_2027_pct >= 66 ? '🟢 VERDE (&gt;66%)' : (tot.margen_2027_pct >= 60 ? '🟡 AMARILLO (60-66%)' : '🔴 ROJO (&lt;60%)')}</strong></span>
-          <span style="color:var(--muted)">2026 (Cierre Est.): ${tot.margen_2026_pct}%</span>
+          <span>Semáforo: <strong style="color:${m27Pct >= 66 ? '#34d399' : (m27Pct >= 60 ? '#fbbf24' : '#f87171')}">${m27Pct >= 66 ? '🟢 VERDE (>66%)' : (m27Pct >= 60 ? '🟡 AMARILLO (60-66%)' : '🔴 ROJO (<60%)')}</strong></span>
+          <span style="color:var(--muted)">2026: ${m26Pct}%</span>
         </div>
       </div>
 
@@ -165,7 +243,7 @@ async function renderRentabilidadTab(container) {
           <span class="kpi-title">VENTAS A PÉRDIDA</span>
           <span class="tab-badge badge-danger">🔴 Alerta Crítica</span>
         </div>
-        <div class="kpi-value" style="color:#f87171">${meta.ventas_perdida_count} <span style="font-size:1rem;font-weight:500;color:var(--muted)">líneas</span></div>
+        <div class="kpi-value" style="color:#f87171">${lossCount} <span style="font-size:1rem;font-weight:500;color:var(--muted)">líneas</span></div>
         <div class="kpi-detail">
           <span style="color:#f87171;font-weight:600">Precio Venta &lt; COGS Medio</span>
           <span class="kpi-click-tag">Ver Alertas ➔</span>
@@ -176,22 +254,22 @@ async function renderRentabilidadTab(container) {
       <div class="kpi-card clickable" onclick="setProfitSubtab('clientes')">
         <div class="kpi-header">
           <span class="kpi-title">SEMÁFORO DE CLIENTES</span>
-          <span class="kpi-badge badge-neutral">${profitData.clientes.length} Clientes</span>
+          <span class="kpi-badge badge-neutral">${filteredClientes.length} Clientes</span>
         </div>
         <div style="display:flex; align-items:center; gap:0.75rem; margin-top:0.35rem">
           <div style="display:flex; align-items:center; gap:0.25rem">
             <span style="font-size:1.15rem">🔴</span>
-            <span style="font-weight:800; font-size:1.1rem; color:#f87171">${tot.clientes_rojo}</span>
+            <span style="font-weight:800; font-size:1.1rem; color:#f87171">${clRojo}</span>
             <span style="font-size:0.65rem; color:var(--muted)">&lt;60%</span>
           </div>
           <div style="display:flex; align-items:center; gap:0.25rem">
             <span style="font-size:1.15rem">🟡</span>
-            <span style="font-weight:800; font-size:1.1rem; color:#fbbf24">${tot.clientes_amarillo}</span>
+            <span style="font-weight:800; font-size:1.1rem; color:#fbbf24">${clAmarillo}</span>
             <span style="font-size:0.65rem; color:var(--muted)">60-66%</span>
           </div>
           <div style="display:flex; align-items:center; gap:0.25rem">
             <span style="font-size:1.15rem">🟢</span>
-            <span style="font-weight:800; font-size:1.1rem; color:#34d399">${tot.clientes_verde}</span>
+            <span style="font-weight:800; font-size:1.1rem; color:#34d399">${clVerde}</span>
             <span style="font-size:0.65rem; color:var(--muted)">&gt;66%</span>
           </div>
         </div>
@@ -207,13 +285,13 @@ async function renderRentabilidadTab(container) {
       <button class="profit-subtab-btn ${profitSubtab === 'radar' ? 'active' : ''}" id="profitSubtabBtn-radar" onclick="setProfitSubtab('radar')">
         <span>🚨</span>
         <span>1. Radar Alertas & Pérdidas</span>
-        <span class="tab-badge badge-danger" style="margin-left:0.25rem">${meta.alertas_radar_count}</span>
+        <span class="tab-badge badge-danger" style="margin-left:0.25rem">${filteredAlertas.length}</span>
       </button>
 
       <button class="profit-subtab-btn ${profitSubtab === 'clientes' ? 'active' : ''}" id="profitSubtabBtn-clientes" onclick="setProfitSubtab('clientes')">
         <span>👥</span>
         <span>2. Clientes & Matriz</span>
-        <span class="tab-badge badge-neutral" style="margin-left:0.25rem">${profitData.clientes.length}</span>
+        <span class="tab-badge badge-neutral" style="margin-left:0.25rem">${filteredClientes.length}</span>
       </button>
 
       <button class="profit-subtab-btn ${profitSubtab === 'comparador' ? 'active' : ''}" id="profitSubtabBtn-comparador" onclick="setProfitSubtab('comparador')">
@@ -281,7 +359,9 @@ async function renderRentabilidadTab(container) {
 // SUBPESTAÑA 1: RADAR DE ALERTAS CRÍTICAS & VENTAS A PÉRDIDA
 // =========================================================================
 function renderProfitRadarView() {
-  const alertas = profitData.alertas_radar || [];
+  const activeScope = getProfitCurrentScope();
+  const rawAlertas = profitData.alertas_radar || [];
+  const alertas = rawAlertas.filter(a => matchesProfitScope(a.pais, activeScope));
 
   const filtered = alertas.filter(a => {
     if (profitRadarYear !== 'ALL' && String(a.year) !== String(profitRadarYear)) return false;
@@ -524,11 +604,10 @@ function exportProfitRadarCsv() {
   document.body.removeChild(a);
 }
 
-// =========================================================================
-// SUBPESTAÑA 2: RENTABILIDAD POR CLIENTE & MATRIZ ESTRATÉGICA
-// =========================================================================
 function renderProfitClientesView() {
-  const clientes = profitData.clientes || [];
+  const activeScope = getProfitCurrentScope();
+  const rawClientes = profitData.clientes || [];
+  const clientes = rawClientes.filter(c => matchesProfitScope(c.pais, activeScope));
 
   const filtered = clientes.filter(c => {
     // Filtro por semáforo o cuadrante
@@ -1891,4 +1970,826 @@ function renderProfitHistoricoView() {
       </div>
     </div>
   `;
+}
+
+
+// =========================================================================
+// SUBPESTAÑA 8: MODELO FULL COSTING INDUSTRIAL (SEPTIEMBRE 2026 AUDITADO)
+// =========================================================================
+let fullcostActiveSection = 'waterfall'; // 'waterfall', 'capacidad', 'maquila', 'pricing'
+
+// Estado del simulador de precios
+let simFormat = '5L';
+let simMpCost = 1.25;
+let simVolume = 1000;
+let simTargetMargin = 66.0;
+
+function setFullcostActiveSection(sec) {
+  fullcostActiveSection = sec;
+  const dedicated = document.getElementById('fullcostDedicatedContainer');
+  if (dedicated) {
+    dedicated.innerHTML = renderProfitFullCostView();
+    return;
+  }
+  const content = document.getElementById('profitSubtabContent') || document.getElementById('appContent');
+  if (content) content.innerHTML = renderProfitFullCostView();
+}
+
+function handleSimParamChange(param, val) {
+  if (param === 'format') simFormat = val;
+  else if (param === 'mp') simMpCost = parseFloat(val) || 0;
+  else if (param === 'vol') simVolume = parseInt(val) || 100;
+  else if (param === 'margin') simTargetMargin = parseFloat(val) || 60;
+  
+  const dedicated = document.getElementById('fullcostDedicatedContainer');
+  if (dedicated) {
+    dedicated.innerHTML = renderProfitFullCostView();
+    return;
+  }
+  const content = document.getElementById('profitSubtabContent') || document.getElementById('appContent');
+  if (content) content.innerHTML = renderProfitFullCostView();
+}
+
+function renderFullCostingDedicatedTab(container) {
+  let html = `
+    <div id="fullcostDedicatedContainer" style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
+      ${renderProfitFullCostView()}
+    </div>
+  `;
+  container.innerHTML = html;
+}
+
+function renderProfitFullCostView() {
+  const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
+  if (!fc) {
+    return `
+      <div class="empty-state">
+        <div class="empty-icon">🏭</div>
+        <h3>No se han encontrado datos del modelo Full Costing</h3>
+        <p>Asegúrate de que fullcost_data.js esté cargado correctamente.</p>
+      </div>
+    `;
+  }
+
+  const meta = fc.metadata;
+  const waterfall = fc.pnl_waterfall || [];
+  const caps = fc.capacidades || [];
+  const maq = fc.maquila || {};
+  const pricing = fc.pricing || {};
+
+  // Formato seleccionado para el simulador
+  const fmtObj = (pricing.formatos_estandar || []).find(f => f.id === simFormat) || (pricing.formatos_estandar ? pricing.formatos_estandar[1] : { coste_envase: 1.15, mano_obra_h_por_1000: 1.54, cadencia_h: 650 });
+  const horasEnvasado = (simVolume / 1000) * (fmtObj.mano_obra_h_por_1000 || 1.54);
+  const costeModLote = horasEnvasado * 36.40; // 36.40 €/h
+  const costeCifLote = horasEnvasado * 28.50; // Indirectos de planta
+  const costeEnvaseLote = simVolume * (fmtObj.coste_envase || 1.15);
+  const factorLitros = simFormat === '1L' ? 1 : (simFormat === '5L' ? 5 : (simFormat === '20L' ? 20 : (simFormat === '1000L' ? 1000 : 5)));
+  const costeMpLote = simVolume * factorLitros * simMpCost;
+  const costeTotalLote = costeMpLote + costeEnvaseLote + costeModLote + costeCifLote;
+  const costeUnitario = simVolume > 0 ? (costeTotalLote / simVolume) : 0;
+  
+  // Precios sugeridos
+  const precioBreakeven = costeUnitario;
+  const precioSugeridoRojo = simTargetMargin < 100 ? (costeUnitario / (1 - 0.60)) : 0;
+  const precioSugeridoObjetivo = simTargetMargin < 100 ? (costeUnitario / (1 - (simTargetMargin / 100))) : 0;
+  const precioSugeridoExport = simTargetMargin < 100 ? (costeUnitario / (1 - 0.72)) : 0;
+  
+  const facturacionSim = simVolume * precioSugeridoObjetivo;
+  const beneficioBrutoSim = facturacionSim - costeTotalLote;
+
+  return `
+    <div style="display:flex; flex-direction:column; gap:1.35rem;">
+      <!-- CERTIFICACIÓN AUDITORÍA Y CONTROL INTERNO -->
+      <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%); border: 1px solid rgba(16, 185, 129, 0.45); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.3rem">
+            <span style="font-size:1.3rem">🛡️</span>
+            <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.2rem; color:#fff">
+              Modelo Full Costing Industrial (Septiembre 2026) — En Calibración de Detalle
+            </h3>
+            <span class="tab-badge badge-warning" style="font-size:0.75rem; font-weight:800">⚙️ CALIBRANDO REPARTOS</span>
+          </div>
+          <p style="margin:0; font-size:0.84rem; color:var(--muted)">
+            Suma global de cuentas cuadradas al céntimo con el RAI contable (<strong>111.933,69 € | Diferencia = 0,00 €</strong>). Reconciliando actualmente el detalle analítico de nóminas mensuales, inventarios y maquila.
+          </p>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap">
+          <div style="background:rgba(15,23,42,0.85); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
+            <div style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700">RAI AUDITADO</div>
+            <div style="font-size:1.15rem; font-weight:800; color:#34d399">${fmtEur(meta.rai_calculado)}</div>
+          </div>
+          <div style="background:rgba(15,23,42,0.85); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
+            <div style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700">DESVIACIÓN LIBRO MAYOR</div>
+            <div style="font-size:1.15rem; font-weight:800; color:#38bdf8">${fmtEur(meta.diferencia_conciliacion)}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 TARJETAS KPI RESUMEN EJECUTIVO DE PLANTA -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem">
+        <div class="kpi-card accent-blue">
+          <div class="kpi-header">
+            <span class="kpi-title">INGRESOS TOTALES SEP-26</span>
+            <span class="tab-badge badge-info">100% Ventas</span>
+          </div>
+          <div class="kpi-value" style="color:#60a5fa">505.002,49 €</div>
+          <div class="kpi-detail">
+            <span>Clientes: 489,3k € | Maquila SAS: 3,7k € | Otros: 12,0k €</span>
+          </div>
+        </div>
+
+        <div class="kpi-card accent-emerald">
+          <div class="kpi-header">
+            <span class="kpi-title">MARGEN PLANTA COMPLETO</span>
+            <span class="tab-badge badge-success">55,1% Margen</span>
+          </div>
+          <div class="kpi-value" style="color:#34d399">278.255,41 €</div>
+          <div class="kpi-detail">
+            <span>Tras absorber 100% de MOD y Costes Indirectos Planta</span>
+          </div>
+        </div>
+
+        <div class="kpi-card accent-emerald">
+          <div class="kpi-header">
+            <span class="kpi-title">EBIT / RAI OPERATIVO</span>
+            <span class="tab-badge badge-success">22,2% S/Ventas</span>
+          </div>
+          <div class="kpi-value" style="color:#34d399">111.933,69 €</div>
+          <div class="kpi-detail">
+            <span>Conciliación exacta sin desfases con P&G Grupo</span>
+          </div>
+        </div>
+
+        <div class="kpi-card accent-amber">
+          <div class="kpi-header">
+            <span class="kpi-title">SATURACIÓN PLANTA</span>
+            <span class="tab-badge badge-warning">Envasado: 83,4%</span>
+          </div>
+          <div class="kpi-value" style="color:#fbbf24">78,5% <span style="font-size:0.85rem; font-weight:600; color:var(--muted)">media</span></div>
+          <div class="kpi-detail">
+            <span>4 Procesos completos | Subactividad: 21,5%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTONERA DE VISTAS FULL COSTING -->
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; background:rgba(15,23,42,0.6); padding:0.4rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
+        <button class="pill-btn ${fullcostActiveSection === 'waterfall' ? 'active' : ''}" onclick="setFullcostActiveSection('waterfall')">
+          📊 1. Cascada P&L (5 Niveles)
+        </button>
+        <button class="pill-btn ${fullcostActiveSection === 'clientes' ? 'active' : ''}" onclick="setFullcostActiveSection('clientes')">
+          👥 2. Márgenes por Cliente (${(fc.clientes||[]).length})
+        </button>
+        <button class="pill-btn ${fullcostActiveSection === 'productos' ? 'active' : ''}" onclick="setFullcostActiveSection('productos')">
+          📦 3. Márgenes por Producto (${(fc.productos||[]).length})
+        </button>
+        <button class="pill-btn ${fullcostActiveSection === 'comerciales' ? 'active' : ''}" onclick="setFullcostActiveSection('comerciales')">
+          💼 4. Comerciales & Agentes
+        </button>
+        <button class="pill-btn ${fullcostActiveSection === 'capacidad' ? 'active' : ''}" onclick="setFullcostActiveSection('capacidad')">
+          ⚙️ 5. Capacidad Industrial
+        </button>
+        <button class="pill-btn ${fullcostActiveSection === 'maquila' ? 'active' : ''}" onclick="setFullcostActiveSection('maquila')">
+          🤝 6. Maquila SAS
+        </button>
+        <button class="pill-btn ${fullcostActiveSection === 'pricing' ? 'active' : ''}" onclick="setFullcostActiveSection('pricing')" style="border-color:rgba(16,185,129,0.4)">
+          🧮 7. Cotizador Precios
+        </button>
+        </div>
+
+      <!-- CONTENIDO DE LA SECCIÓN ACTIVA -->
+      ${renderFullCostSectionContent(fullcostActiveSection, fc, simFormat, simMpCost, simVolume, simTargetMargin, fmtObj, costeMpLote, costeEnvaseLote, costeModLote, costeCifLote, costeTotalLote, costeUnitario, precioBreakeven, precioSugeridoRojo, precioSugeridoObjetivo, precioSugeridoExport, facturacionSim, beneficioBrutoSim)}
+    </div>
+  `;
+}
+
+
+let fullcostClientSearch = '';
+let fullcostClientFilter = 'ALL';
+let fullcostProdSearch = '';
+
+window.setFullcostClientSearch = function(val) {
+  fullcostClientSearch = (val || '').toLowerCase().trim();
+  const c = document.getElementById('fullcostSectionContent');
+  if (c) c.innerHTML = renderFullcostClientesSection();
+};
+
+window.setFullcostClientFilter = function(f) {
+  fullcostClientFilter = f;
+  const c = document.getElementById('fullcostSectionContent');
+  if (c) c.innerHTML = renderFullcostClientesSection();
+};
+
+window.setFullcostProdSearch = function(val) {
+  fullcostProdSearch = (val || '').toLowerCase().trim();
+  const c = document.getElementById('fullcostSectionContent');
+  if (c) c.innerHTML = renderFullcostProductosSection();
+};
+
+window.exportFullcostClientesCsv = function() {
+  const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
+  if (!fc || !fc.clientes) return;
+  const headers = ['Cliente', 'Pais', 'Comercial', 'Clasificacion', 'Ventas_EUR', 'Coste_Materiales_EUR', 'Coste_Planta_EUR', 'Margen_Industrial_EUR', 'Margen_Industrial_PCT', 'Transporte_Real_EUR', 'Margen_Contribucion_EUR', 'Margen_Contribucion_PCT', 'Semaforo'];
+  const rows = fc.clientes.map(c => [
+    `"${c.cliente}"`, `"${c.pais}"`, `"${c.comercial}"`, `"${c.clasif}"`,
+    c.ventas, c.cogs_materiales, c.coste_planta_fullcost, c.margen_industrial_eur, c.margen_industrial_pct,
+    c.transporte_real, c.margen_contribucion_eur, c.margen_contribucion_pct, `"${c.semaforo}"`
+  ]);
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(';')].concat(rows.map(r => r.join(';'))).join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', 'Codiagro_FullCosting_Clientes_Sep2026.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+window.exportFullcostProductosCsv = function() {
+  const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
+  if (!fc || !fc.productos) return;
+  const headers = ['SKU', 'Descripcion', 'Familia', 'Unidades', 'Ventas_EUR', 'Coste_Materiales_EUR', 'Coste_Planta_EUR', 'Margen_Industrial_EUR', 'Margen_Industrial_PCT', 'Semaforo'];
+  const rows = fc.productos.map(p => [
+    `"${p.sku}"`, `"${p.desc}"`, `"${p.familia}"`, p.uds,
+    p.ventas, p.cogs_materiales, p.coste_planta_fullcost, p.margen_industrial_eur, p.margen_industrial_pct, `"${p.semaforo}"`
+  ]);
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(';')].concat(rows.map(r => r.join(';'))).join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', 'Codiagro_FullCosting_Productos_Sep2026.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+function renderFullcostClientesSection() {
+  const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
+  if (!fc || !fc.clientes) return '<p style="color:var(--muted)">No hay datos de clientes disponibles</p>';
+  
+  const search = fullcostClientSearch || '';
+  const filter = fullcostClientFilter || 'ALL';
+  
+  let list = fc.clientes.filter(c => {
+    if (search && !c.cliente.toLowerCase().includes(search) && !c.comercial.toLowerCase().includes(search) && !c.pais.toLowerCase().includes(search)) return false;
+    if (filter !== 'ALL' && c.semaforo !== filter) return false;
+    return true;
+  });
+
+  const tot = fc.totales_drilldown || {};
+  const cVerde = fc.clientes.filter(c => c.semaforo === 'VERDE').length;
+  const cAmarillo = fc.clientes.filter(c => c.semaforo === 'AMARILLO').length;
+  const cRojo = fc.clientes.filter(c => c.semaforo === 'ROJO').length;
+
+  return `
+    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+        <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:1rem; border-radius:var(--radius-md)">
+          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">Ventas Septiembre</div>
+          <div style="font-size:1.35rem; font-weight:800; color:#fff">${fmtEur(tot.ventas)}</div>
+          <div style="font-size:0.75rem; color:var(--muted)">41 clientes activos</div>
+        </div>
+        <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:1rem; border-radius:var(--radius-md)">
+          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">M. Industrial Planta</div>
+          <div style="font-size:1.35rem; font-weight:800; color:#38bdf8">${fmtEur(tot.margen_industrial_eur)}</div>
+          <div style="font-size:0.75rem; color:#38bdf8; font-weight:600">${tot.margen_industrial_pct}% s/ventas</div>
+        </div>
+        <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:1rem; border-radius:var(--radius-md)">
+          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">Portes Reales Asignados</div>
+          <div style="font-size:1.35rem; font-weight:800; color:#f59e0b">${fmtEur(tot.transporte_real)}</div>
+          <div style="font-size:0.75rem; color:#f59e0b; font-weight:600">36 clientes con flete directo</div>
+        </div>
+        <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:1rem; border-radius:var(--radius-md)">
+          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">Margen Contribución</div>
+          <div style="font-size:1.35rem; font-weight:800; color:#34d399">${fmtEur(tot.margen_contribucion_eur)}</div>
+          <div style="font-size:0.75rem; color:#34d399; font-weight:600">${tot.margen_contribucion_pct}% tras transporte</div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; background:rgba(15,23,42,0.6); padding:0.85rem 1.15rem; border-radius:var(--radius-md); border:1px solid var(--card-border)">
+        <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap">
+          <input type="text" placeholder="Buscar cliente, comercial o país..." value="${fullcostClientSearch}" oninput="setFullcostClientSearch(this.value)" style="background:rgba(15,23,42,0.9); border:1px solid var(--card-border); color:#fff; padding:0.45rem 0.85rem; border-radius:var(--radius-sm); font-size:0.85rem; width:260px;" />
+          <div style="display:flex; gap:0.35rem;">
+            <button class="pill-btn ${filter === 'ALL' ? 'active' : ''}" onclick="setFullcostClientFilter('ALL')">Todos (${fc.clientes.length})</button>
+            <button class="pill-btn ${filter === 'VERDE' ? 'active' : ''}" onclick="setFullcostClientFilter('VERDE')" style="color:#34d399">Verde ≥40% (${cVerde})</button>
+            <button class="pill-btn ${filter === 'AMARILLO' ? 'active' : ''}" onclick="setFullcostClientFilter('AMARILLO')" style="color:#fbbf24">Amarillo 25-40% (${cAmarillo})</button>
+            <button class="pill-btn ${filter === 'ROJO' ? 'active' : ''}" onclick="setFullcostClientFilter('ROJO')" style="color:#f87171">Rojo <25% (${cRojo})</button>
+          </div>
+        </div>
+        <div>
+          <button class="pill-btn" onclick="exportFullcostClientesCsv()" style="background:rgba(16,185,129,0.15); border-color:var(--accent); color:#34d399">
+            📥 Descargar CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>País</th>
+                <th>Comercial</th>
+                <th style="text-align:right">Ventas (€)</th>
+                <th style="text-align:right">Materiales (€)</th>
+                <th style="text-align:right">Planta MOD+CIF (€)</th>
+                <th style="text-align:right">Margen Ind. (€)</th>
+                <th style="text-align:right; color:#f59e0b">Porte Real (€)</th>
+                <th style="text-align:right">M. Contribución (€)</th>
+                <th style="text-align:right">% Contrib.</th>
+                <th style="text-align:center">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(c => `
+                <tr>
+                  <td style="font-weight:700; color:#fff">${c.cliente}</td>
+                  <td><span class="tab-badge" style="background:rgba(255,255,255,0.06); font-size:0.75rem">${c.pais}</span></td>
+                  <td>${c.comercial}</td>
+                  <td style="text-align:right; font-weight:700">${fmtEur(c.ventas)}</td>
+                  <td style="text-align:right; color:var(--muted)">${fmtEur(c.cogs_materiales)}</td>
+                  <td style="text-align:right; color:var(--muted)">${fmtEur(c.coste_planta_fullcost)}</td>
+                  <td style="text-align:right; font-weight:600; color:#38bdf8">${fmtEur(c.margen_industrial_eur)}</td>
+                  <td style="text-align:right; font-weight:700; color:${c.transporte_real > 0 ? '#f59e0b' : 'var(--muted)'}">${fmtEur(c.transporte_real)}</td>
+                  <td style="text-align:right; font-weight:700; color:${c.semaforo === 'VERDE' ? '#34d399' : (c.semaforo === 'AMARILLO' ? '#fbbf24' : '#f87171')}">${fmtEur(c.margen_contribucion_eur)}</td>
+                  <td style="text-align:right; font-weight:800; color:${c.semaforo === 'VERDE' ? '#34d399' : (c.semaforo === 'AMARILLO' ? '#fbbf24' : '#f87171')}">${c.margen_contribucion_pct}%</td>
+                  <td style="text-align:center">
+                    <span class="tab-badge badge-${c.semaforo === 'VERDE' ? 'success' : (c.semaforo === 'AMARILLO' ? 'warning' : 'danger')}">${c.semaforo}</span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFullcostProductosSection() {
+  const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
+  if (!fc || !fc.productos) return '<p style="color:var(--muted)">No hay datos de productos disponibles</p>';
+  
+  const search = fullcostProdSearch || '';
+  let list = fc.productos.filter(p => {
+    if (search && !p.sku.toLowerCase().includes(search) && !p.desc.toLowerCase().includes(search) && !p.familia.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  return `
+    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; background:rgba(15,23,42,0.6); padding:0.85rem 1.15rem; border-radius:var(--radius-md); border:1px solid var(--card-border)">
+        <input type="text" placeholder="Buscar por SKU, descripción o familia..." value="${fullcostProdSearch}" oninput="setFullcostProdSearch(this.value)" style="background:rgba(15,23,42,0.9); border:1px solid var(--card-border); color:#fff; padding:0.45rem 0.85rem; border-radius:var(--radius-sm); font-size:0.85rem; width:300px;" />
+        <button class="pill-btn" onclick="exportFullcostProductosCsv()" style="background:rgba(16,185,129,0.15); border-color:var(--accent); color:#34d399">
+          📥 Descargar CSV (${list.length} SKUs)
+        </button>
+      </div>
+
+      <div class="table-card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Código SKU</th>
+                <th>Descripción Artículo</th>
+                <th>Familia</th>
+                <th style="text-align:right">Uds Vendidas</th>
+                <th style="text-align:right">Ventas (€)</th>
+                <th style="text-align:right">Materiales (€)</th>
+                <th style="text-align:right">Coste Planta (€)</th>
+                <th style="text-align:right">Margen Industrial (€)</th>
+                <th style="text-align:right">% Margen</th>
+                <th style="text-align:center">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${list.map(p => `
+                <tr>
+                  <td style="font-weight:700; font-family:monospace; color:#38bdf8">${p.sku}</td>
+                  <td style="color:#fff">${p.desc}</td>
+                  <td><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${p.familia}</span></td>
+                  <td style="text-align:right; font-weight:600">${fmtNum(p.uds)}</td>
+                  <td style="text-align:right; font-weight:700">${fmtEur(p.ventas)}</td>
+                  <td style="text-align:right; color:var(--muted)">${fmtEur(p.cogs_materiales)}</td>
+                  <td style="text-align:right; color:var(--muted)">${fmtEur(p.coste_planta_fullcost)}</td>
+                  <td style="text-align:right; font-weight:700; color:${p.semaforo === 'VERDE' ? '#34d399' : (p.semaforo === 'AMARILLO' ? '#fbbf24' : '#f87171')}">${fmtEur(p.margen_industrial_eur)}</td>
+                  <td style="text-align:right; font-weight:800; color:${p.semaforo === 'VERDE' ? '#34d399' : (p.semaforo === 'AMARILLO' ? '#fbbf24' : '#f87171')}">${p.margen_industrial_pct}%</td>
+                  <td style="text-align:center">
+                    <span class="tab-badge badge-${p.semaforo === 'VERDE' ? 'success' : (p.semaforo === 'AMARILLO' ? 'warning' : 'danger')}">${p.semaforo}</span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFullcostComercialesSection() {
+  const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
+  if (!fc || !fc.comerciales) return '<p style="color:var(--muted)">No hay datos de comerciales disponibles</p>';
+
+  return `
+    <div style="display:flex; flex-direction:column; gap:1.35rem;">
+      <div style="background:linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(15,23,42,0.95) 100%); border:1px solid rgba(59,130,246,0.4); border-radius:var(--radius-md); padding:1.25rem;">
+        <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem">
+          <span style="font-size:1.4rem">💼</span>
+          <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.15rem">
+            Delegados Comerciales y Agentes Comisionistas
+          </h4>
+          <span class="tab-badge" style="background:rgba(59,130,246,0.25); color:#60a5fa; border:1px solid rgba(59,130,246,0.4)">
+            Devengo Mensual Automatizado
+          </span>
+        </div>
+        <p style="margin:0; font-size:0.85rem; color:#cbd5e1">
+          A continuación se muestra el margen de contribución generado por la cartera de cada delegado tras absorber costes de formulación, envasado y los portes reales de sus clientes.
+          <strong style="color:#60a5fa">Los comisionistas externos se integrarán con su porcentaje asignado para devengar automáticamente el gasto cada mes incluso antes de recibir la factura.</strong>
+        </p>
+      </div>
+
+      <div class="table-card">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Comercial / Delegado</th>
+                <th style="text-align:center">Clientes Activos</th>
+                <th style="text-align:center">SKUs Vendidos</th>
+                <th style="text-align:right">Ventas Netas (€)</th>
+                <th style="text-align:right">Materiales (€)</th>
+                <th style="text-align:right">Costes Planta (€)</th>
+                <th style="text-align:right">Margen Industrial (€)</th>
+                <th style="text-align:right; color:#f59e0b">Portes Cartera (€)</th>
+                <th style="text-align:right">M. Contribución (€)</th>
+                <th style="text-align:right">% Contrib.</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${fc.comerciales.map(cm => `
+                <tr>
+                  <td style="font-weight:700; color:#fff; font-size:0.95rem">💼 ${cm.comercial}</td>
+                  <td style="text-align:center"><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${cm.clientes_count} clientes</span></td>
+                  <td style="text-align:center"><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${cm.skus_count} SKUs</span></td>
+                  <td style="text-align:right; font-weight:700">${fmtEur(cm.ventas)}</td>
+                  <td style="text-align:right; color:var(--muted)">${fmtEur(cm.cogs_materiales)}</td>
+                  <td style="text-align:right; color:var(--muted)">${fmtEur(cm.coste_planta_fullcost)}</td>
+                  <td style="text-align:right; font-weight:600; color:#38bdf8">${fmtEur(cm.margen_industrial_eur)}</td>
+                  <td style="text-align:right; font-weight:700; color:#f59e0b">${fmtEur(cm.portes)}</td>
+                  <td style="text-align:right; font-weight:800; color:#34d399">${fmtEur(cm.margen_contribucion_eur)}</td>
+                  <td style="text-align:right; font-weight:800; color:#34d399">${cm.margen_contribucion_pct}%</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolume, simTargetMargin, fmtObj, costeMpLote, costeEnvaseLote, costeModLote, costeCifLote, costeTotalLote, costeUnitario, precioBreakeven, precioSugeridoRojo, precioSugeridoObjetivo, precioSugeridoExport, facturacionSim, beneficioBrutoSim) {
+  if (section === 'clientes') {
+    return renderFullcostClientesSection();
+  }
+
+  if (section === 'productos') {
+    return renderFullcostProductosSection();
+  }
+
+  if (section === 'comerciales') {
+    return renderFullcostComercialesSection();
+  }
+
+  if (section === 'waterfall') {
+    const waterfall = fc.pnl_waterfall || [];
+    return `
+      <div class="table-card">
+        <div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--card-border)">
+          <h4 style="margin:0 0 0.35rem 0; font-family:'Outfit',sans-serif; font-size:1.1rem; color:#fff">
+            📊 Desglose en Cascada de Costes y Márgenes de Fabricación (P&L Walk)
+          </h4>
+          <p style="margin:0; font-size:0.83rem; color:var(--muted)">
+            Estructura de 5 niveles que aísla progresivamente los márgenes de materiales, mano de obra directa, costes indirectos de planta, logística/comercial y estructura corporativa.
+          </p>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:70px; text-align:center">Nivel</th>
+                <th>Concepto / Bloque de Costes</th>
+                <th style="text-align:right; width:150px">Importe Sep-26</th>
+                <th style="text-align:right; width:110px">% s/Ventas</th>
+                <th style="width:130px; text-align:center">Naturaleza</th>
+                <th>Criterio de Asignación y Fuente Contable</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${waterfall.map(item => {
+                const isSub = item.tipo === 'subtotal';
+                const isEbit = item.tipo === 'ebit';
+                const isIng = item.tipo === 'ingreso';
+                const rowStyle = isEbit 
+                  ? 'background:rgba(16,185,129,0.15); font-weight:800;' 
+                  : (isSub ? 'background:rgba(30,41,59,0.8); font-weight:700;' : '');
+                const impColor = isIng ? '#60a5fa' : (item.importe < 0 ? '#f87171' : '#34d399');
+                const badgeClass = isEbit ? 'badge-success' : (isSub ? 'badge-info' : (isIng ? 'badge-primary' : 'badge-neutral'));
+
+                return `
+                  <tr style="${rowStyle}">
+                    <td style="text-align:center">
+                      <span class="tab-badge ${badgeClass}" style="font-size:0.75rem">${item.nivel}</span>
+                    </td>
+                    <td>
+                      <strong style="color:${isSub || isEbit ? '#fff' : '#e2e8f0'}; font-size:${isEbit ? '1.02rem' : '0.92rem'}">
+                        ${item.concepto}
+                      </strong>
+                    </td>
+                    <td style="text-align:right; font-weight:800; color:${impColor}; font-size:0.95rem">
+                      ${fmtEur(item.importe)}
+                    </td>
+                    <td style="text-align:right; font-weight:700; color:${isSub || isEbit ? '#34d399' : '#94a3b8'}">
+                      ${item.pct_ventas.toFixed(1)}%
+                    </td>
+                    <td style="text-align:center">
+                      <span class="tab-badge ${isSub || isEbit ? 'badge-success' : 'badge-neutral'}" style="font-size:0.72rem">
+                        ${item.tipo.toUpperCase()}
+                      </span>
+                    </td>
+                    <td style="font-size:0.8rem; color:#cbd5e1">
+                      ${item.detalle}
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  } else if (section === 'capacidad') {
+    const caps = fc.capacidades || [];
+    return `
+      <div style="display:flex; flex-direction:column; gap:1.25rem;">
+        <!-- BANNER DE TRATAMIENTO DE SUBACTIVIDAD (NIC 2) -->
+        <div style="background:rgba(30,41,59,0.8); border:1px solid var(--card-border); border-radius:var(--radius-md); padding:1.25rem 1.5rem">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem">
+            <span style="font-size:1.15rem">⚖️</span>
+            <h4 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.05rem; color:#fff">
+              Criterio de Auditoría: Tratamiento de la Subactividad Industrial bajo NIC 2 (Inventarios)
+            </h4>
+          </div>
+          <p style="margin:0; font-size:0.84rem; color:#cbd5e1; line-height:1.5">
+            Bajo la norma <strong>NIC 2 / IAS 2</strong>, los costes indirectos fijos de fabricación se distribuyen tomando como base la <em>capacidad normal de las instalaciones</em>. 
+            El coste de las horas no utilizadas (capacidad ociosa) no se imputa al coste unitario de los productos terminados, sino que se reconoce directamente en los resultados del período.
+            De este modo se evita penalizar a los clientes en meses de baja estacionalidad y se mantiene la comparabilidad de los escandallos COGS.
+          </p>
+        </div>
+
+        <!-- 4 TARJETAS DE PROCESO INDUSTRIAL -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem">
+          ${caps.map(cp => {
+            const barWidth = Math.min(cp.utilizacion_pct, 100);
+            return `
+              <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius-md); padding:1.25rem; display:flex; flex-direction:column; gap:0.75rem">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start">
+                  <div>
+                    <span class="tab-badge badge-info" style="font-size:0.72rem; font-weight:800">CECO ${cp.ceco}</span>
+                    <h4 style="margin:0.25rem 0 0 0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.05rem">${cp.nombre}</h4>
+                  </div>
+                  <span class="tab-badge badge-success" style="font-weight:800">${cp.estado}</span>
+                </div>
+
+                <div style="font-size:0.8rem; color:var(--muted)">${cp.tecnologia}</div>
+
+                <!-- BARRA DE UTILIZACIÓN -->
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:0.78rem; margin-bottom:0.25rem">
+                    <span style="color:var(--muted)">Saturación de Línea</span>
+                    <strong style="color:#34d399">${cp.utilizacion_pct}%</strong>
+                  </div>
+                  <div style="width:100%; height:8px; background:rgba(15,23,42,0.8); border-radius:4px; overflow:hidden">
+                    <div style="width:${barWidth}%; height:100%; background:linear-gradient(90deg, #10b981 0%, #34d399 100%)"></div>
+                  </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; background:rgba(15,23,42,0.6); padding:0.6rem 0.75rem; border-radius:var(--radius-sm); font-size:0.78rem">
+                  <div>
+                    <span style="color:var(--muted)">Horas Nominales:</span>
+                    <strong style="display:block; color:#fff">${cp.horas_nominales} h</strong>
+                  </div>
+                  <div>
+                    <span style="color:var(--muted)">Horas Reales:</span>
+                    <strong style="display:block; color:#60a5fa">${cp.horas_reales} h</strong>
+                  </div>
+                  <div>
+                    <span style="color:var(--muted)">Subactividad:</span>
+                    <strong style="display:block; color:#fbbf24">${cp.subactividad_horas} h (${cp.subactividad_pct}%)</strong>
+                  </div>
+                  <div>
+                    <span style="color:var(--muted)">Coste Horario:</span>
+                    <strong style="display:block; color:#fff">${fmtEur(cp.coste_hora)}/h</strong>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  } else if (section === 'maquila') {
+    const maq = fc.maquila || {};
+    return `
+      <div style="display:flex; flex-direction:column; gap:1.25rem;">
+        <div class="kpi-card accent-emerald" style="padding:1.5rem">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem">
+            <div>
+              <span class="tab-badge badge-success" style="font-size:0.75rem; font-weight:800">OPERACIÓN INTRAGRUPO</span>
+              <h3 style="margin:0.35rem 0 0 0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
+                Unidad de Maquila: Fabricación y Envasado para Sustainable Agro Solutions (SAS)
+              </h3>
+            </div>
+            <div style="text-align:right">
+              <span style="font-size:0.75rem; color:var(--muted); text-transform:uppercase">Facturación Ordinaria</span>
+              <div style="font-size:1.1rem; font-weight:700; color:#38bdf8">${fmtEur(maq.ingreso_ordinario_total || 6434.00)}</div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.25rem">
+            <div style="background:rgba(15,23,42,0.7); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
+              <span style="font-size:0.75rem; color:var(--muted)">Servicio Prestado</span>
+              <strong style="display:block; color:#fff; font-size:0.95rem">${maq.servicio}</strong>
+              <span style="font-size:0.72rem; color:#94a3b8">${maq.factura_705 || 'FAC-MAQ-2026-09-793'}</span>
+            </div>
+            <div style="background:rgba(15,23,42,0.7); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
+              <span style="font-size:0.75rem; color:var(--muted)">Volumen Fabricado</span>
+              <strong style="display:block; color:#fff; font-size:1.1rem">${Number(maq.volumen_kg||11880).toLocaleString('es-ES')} kg</strong>
+              <span style="font-size:0.72rem; color:#94a3b8">Lote: ${maq.lote || '26G05480901'}</span>
+            </div>
+            <div style="background:rgba(15,23,42,0.7); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
+              <span style="font-size:0.75rem; color:var(--muted)">Ingresos Sep (Ctas 705 + 703)</span>
+              <strong style="display:block; color:#34d399; font-size:1.1rem">${fmtEur(maq.ingreso_ordinario_total || 6434.00)}</strong>
+              <span style="font-size:0.72rem; color:#94a3b8">705: ${fmtEur(maq.ingreso_servicios_705||3682.80)} | 703: ${fmtEur(maq.ingreso_accesorios_703||2751.20)}</span>
+            </div>
+            <div style="background:rgba(15,23,42,0.7); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
+              <span style="font-size:0.75rem; color:var(--muted)">Margen Ordinario Maquila</span>
+              <strong style="display:block; color:#34d399; font-size:1.1rem">${fmtEur(maq.margen_neto_ordinario_eur || 4269.84)} (${maq.margen_ordinario_pct || 66.4}%)</strong>
+              <span style="font-size:0.72rem; color:#f87171">Abono Ago (702): -16.492,80 € (Aislado)</span>
+            </div>
+          </div>
+
+          <!-- DETALLE DE GASTOS ABSORBIDOS Y REPERCUTIDOS -->
+          <div style="background:rgba(15,23,42,0.9); border:1px solid var(--card-border); border-radius:var(--radius-sm); padding:1rem 1.25rem">
+            <h5 style="margin:0 0 0.75rem 0; font-size:0.9rem; color:#fff; text-transform:uppercase; letter-spacing:0.05em">
+              Gastos de Fabricación Absorbidos y Repercutidos a Maquila SAS (Total: ${fmtEur(maq.coste_total)})
+            </h5>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem">
+              <div style="display:flex; justify-content:space-between; padding:0.5rem; background:rgba(30,41,59,0.6); border-radius:4px">
+                <span style="font-size:0.82rem; color:var(--muted)">Mano de Obra & ETT Envasado:</span>
+                <strong style="color:#fff; font-size:0.85rem">${fmtEur(maq.costes_absorbidos.mod_envasado_ett)}</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:0.5rem; background:rgba(30,41,59,0.6); border-radius:4px">
+                <span style="font-size:0.82rem; color:var(--muted)">Electricidad de Proceso Repercutida:</span>
+                <strong style="color:#fff; font-size:0.85rem">${fmtEur(maq.costes_absorbidos.electricidad_proceso)}</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:0.5rem; background:rgba(30,41,59,0.6); border-radius:4px">
+                <span style="font-size:0.82rem; color:var(--muted)">Gestión y Retirada de Residuos:</span>
+                <strong style="color:#fff; font-size:0.85rem">${fmtEur(maq.costes_absorbidos.gestion_residuos)}</strong>
+              </div>
+            </div>
+            <p style="margin:0.75rem 0 0 0; font-size:0.78rem; color:#94a3b8; font-style:italic">
+              * Nota: Los gastos repercutidos se han dado de baja de la cuenta de explotación de Codiagro en la hoja costes_activos para no duplicar costes con la actividad propia.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (section === 'pricing') {
+    return `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
+        <!-- FORMULARIO DE PARÁMETROS -->
+        <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius-md); padding:1.5rem">
+          <h4 style="margin:0 0 0.5rem 0; font-family:'Outfit',sans-serif; font-size:1.15rem; color:#fff; display:flex; align-items:center; gap:0.5rem">
+            <span>⚙️</span> <span>Parámetros de Simulación de Producto</span>
+          </h4>
+          <p style="margin:0 0 1.25rem 0; font-size:0.82rem; color:var(--muted)">
+            Introduce el formato y los costes de componentes para obtener el escandallo completo y los precios mínimos recomendados.
+          </p>
+
+          <div style="display:flex; flex-direction:column; gap:1rem">
+            <div>
+              <label style="display:block; font-size:0.8rem; font-weight:700; color:#cbd5e1; margin-bottom:0.35rem">Formato de Envase:</label>
+              <select onchange="handleSimParamChange('format', this.value)" style="width:100%; background:rgba(15,23,42,0.8); border:1px solid var(--card-border); border-radius:var(--radius-sm); color:#fff; padding:0.55rem 0.85rem; font-size:0.85rem;">
+                <option value="1L" ${simFormat === '1L' ? 'selected' : ''}>Botella 1 Litro (Cadencia 1.200 u/h)</option>
+                <option value="5L" ${simFormat === '5L' ? 'selected' : ''}>Garrafa 5 Litros (Cadencia 650 u/h)</option>
+                <option value="20L" ${simFormat === '20L' ? 'selected' : ''}>Bidón 20 Litros (Cadencia 240 u/h)</option>
+                <option value="1000L" ${simFormat === '1000L' ? 'selected' : ''}>Contenedor IBC 1.000 Litros (Granel)</option>
+                <option value="SOL_5KG" ${simFormat === 'SOL_5KG' ? 'selected' : ''}>Saco Sólido 5 kg (Cadencia 400 u/h)</option>
+              </select>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem">
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:#cbd5e1; margin-bottom:0.35rem">Coste Materia Prima (€/L o €/kg):</label>
+                <input 
+                  type="number" 
+                  step="0.05" 
+                  value="${simMpCost}" 
+                  onchange="handleSimParamChange('mp', this.value)"
+                  style="width:100%; background:rgba(15,23,42,0.8); border:1px solid var(--card-border); border-radius:var(--radius-sm); color:#fff; padding:0.55rem 0.85rem; font-size:0.85rem;"
+                />
+              </div>
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:#cbd5e1; margin-bottom:0.35rem">Tamaño del Lote (Unidades):</label>
+                <input 
+                  type="number" 
+                  step="100" 
+                  value="${simVolume}" 
+                  onchange="handleSimParamChange('vol', this.value)"
+                  style="width:100%; background:rgba(15,23,42,0.8); border:1px solid var(--card-border); border-radius:var(--radius-sm); color:#fff; padding:0.55rem 0.85rem; font-size:0.85rem;"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label style="display:block; font-size:0.8rem; font-weight:700; color:#cbd5e1; margin-bottom:0.35rem">Margen Objetivo Deseado (%):</label>
+              <div style="display:flex; gap:0.5rem; align-items:center">
+                <button class="pill-btn ${simTargetMargin === 60 ? 'active' : ''}" onclick="handleSimParamChange('margin', 60)">60% Mínimo</button>
+                <button class="pill-btn ${simTargetMargin === 66 ? 'active' : ''}" onclick="handleSimParamChange('margin', 66)">66% Objetivo</button>
+                <button class="pill-btn ${simTargetMargin === 72 ? 'active' : ''}" onclick="handleSimParamChange('margin', 72)">72% Premium</button>
+                <input 
+                  type="number" 
+                  step="1" 
+                  value="${simTargetMargin}" 
+                  onchange="handleSimParamChange('margin', this.value)"
+                  style="width:80px; background:rgba(15,23,42,0.8); border:1px solid var(--card-border); border-radius:var(--radius-sm); color:#fff; padding:0.4rem 0.6rem; font-size:0.85rem; text-align:center"
+                />
+                <span style="color:#fff; font-weight:700">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTADO: ESCANDALLO Y PRECIOS RECOMENDADOS -->
+        <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius-md); padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <h4 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.15rem; color:#fff">
+              💡 Escandallo & Precios Sugeridos
+            </h4>
+            <span class="tab-badge badge-success" style="font-weight:800; font-size:0.8rem">
+              Coste Unitario: ${fmtEur(costeUnitario)}/ud
+            </span>
+          </div>
+
+          <!-- DESGLOSE DEL ESCANDALLO UNITARIO -->
+          <div style="background:rgba(15,23,42,0.8); border:1px solid var(--card-border); border-radius:var(--radius-sm); padding:1rem; display:flex; flex-direction:column; gap:0.45rem; font-size:0.84rem">
+            <div style="display:flex; justify-content:space-between; color:#cbd5e1">
+              <span>Materia Prima Directa:</span>
+              <strong style="color:#fff">${fmtEur(costeMpLote / simVolume)}/ud</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; color:#cbd5e1">
+              <span>Envase, Etiqueta y Caja:</span>
+              <strong style="color:#fff">${fmtEur(costeEnvaseLote / simVolume)}/ud</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; color:#cbd5e1">
+              <span>MOD Envasado (CECO 140):</span>
+              <strong style="color:#fff">${fmtEur(costeModLote / simVolume)}/ud</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; color:#cbd5e1">
+              <span>Costes Indirectos Fabriles (CIF):</span>
+              <strong style="color:#fff">${fmtEur(costeCifLote / simVolume)}/ud</strong>
+            </div>
+            <div style="border-top:1px solid var(--card-border); margin-top:0.35rem; padding-top:0.45rem; display:flex; justify-content:space-between; font-weight:800; color:#38bdf8">
+              <span>COSTE INDUSTRIAL COMPLETO:</span>
+              <span>${fmtEur(costeUnitario)}/ud</span>
+            </div>
+          </div>
+
+          <!-- MATRIZ DE PRECIOS SUGERIDOS SEGÚN OBJETIVO -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.85rem">
+            <div style="background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); border-radius:var(--radius-sm); padding:0.85rem">
+              <span style="font-size:0.75rem; color:#f87171; font-weight:800; text-transform:uppercase">Mínimo Rojo (60%)</span>
+              <div style="font-size:1.25rem; font-weight:800; color:#fff; margin-top:0.2rem">${fmtEur(precioSugeridoRojo)}</div>
+              <span style="font-size:0.72rem; color:var(--muted)">Límite no negociable</span>
+            </div>
+
+            <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.45); border-radius:var(--radius-sm); padding:0.85rem">
+              <span style="font-size:0.75rem; color:#34d399; font-weight:800; text-transform:uppercase">Recomendado (${simTargetMargin}%)</span>
+              <div style="font-size:1.25rem; font-weight:800; color:#34d399; margin-top:0.2rem">${fmtEur(precioSugeridoObjetivo)}</div>
+              <span style="font-size:0.72rem; color:var(--muted)">Precio objetivo de presupuesto</span>
+            </div>
+          </div>
+
+          <div style="background:rgba(15,23,42,0.6); padding:0.75rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; font-size:0.83rem">
+            <span style="color:var(--muted)">Beneficio Bruto que aportará el lote:</span>
+            <strong style="color:#34d399; font-size:1.05rem">+${fmtEur(beneficioBrutoSim)}</strong>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 }

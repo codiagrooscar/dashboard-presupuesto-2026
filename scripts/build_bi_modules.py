@@ -161,10 +161,11 @@ if os.path.exists(out_json):
         output_bi = json.load(f)
 
 # Unificación de definición de fiabilidad (H21):
-# Separar Consecución de Volumen Global (81,5%) frente a Forecast Accuracy Oficial WMAPE SKU a SKU (0,0%)
-forecast_resumen["tot_consecucion_volumen_pct"] = forecast_resumen.get("tot_consecucion_pct", 81.5)
-forecast_resumen["tot_forecast_accuracy_sku_wmape_pct"] = 0.0  # WMAPE oficial sobre presupuesto de mes completo con corte parcial
-forecast_resumen["nota_metodologia"] = "La consecución de volumen total (81,5%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU (0,0%) aplica la fórmula oficial WMAPE a nivel artículo; el desfase actual se debe al corte intrames (pedidos recibidos hasta fecha de corte frente a presupuesto mensual completo)."
+# Separar Consecución de Volumen Global frente a Forecast Accuracy Oficial WMAPE
+consec_pct = forecast_resumen.get("tot_consecucion_pct", 81.5)
+forecast_resumen["tot_consecucion_volumen_pct"] = consec_pct
+forecast_resumen["tot_forecast_accuracy_sku_wmape_pct"] = tot_acc  # Calculado dinámicamente según fórmula WMAPE
+forecast_resumen["nota_metodologia"] = f"La consecución de volumen total ({consec_pct}%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU WMAPE ({tot_acc}%) mide precisión ponderada por volumen."
 
 output_bi["mejora_1_forecast_accuracy"] = forecast_resumen
 output_bi["mejora_2_concentracion_stress_test"] = concentracion_resumen

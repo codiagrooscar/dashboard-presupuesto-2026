@@ -1,3 +1,159 @@
+
+// -------------------------------------------------------------------------
+// MEJORA 13 Y 14: GESTIÓN DE FILTROS BÁSICOS, AVANZADOS Y CHIPS ACTIVOS
+// -------------------------------------------------------------------------
+
+window.churnFilterState = window.churnFilterState || {
+  severidad: 'ALL',
+  mercado: 'ALL',
+  comercial: 'ALL',
+  minCaida: 0,
+  search: '',
+  showAdvanced: false
+};
+
+window.toggleChurnAdvancedFilters = function() {
+  window.churnFilterState.showAdvanced = !window.churnFilterState.showAdvanced;
+  const panel = document.getElementById('churnAdvancedFilterPanel');
+  const btn = document.getElementById('btnToggleChurnAdv');
+  if (panel) {
+    panel.style.display = window.churnFilterState.showAdvanced ? 'grid' : 'none';
+  }
+  if (btn) {
+    btn.classList.toggle('active', window.churnFilterState.showAdvanced);
+  }
+};
+
+window.setChurnFilter = function(key, val) {
+  window.churnFilterState[key] = val;
+  applyChurnFilters();
+};
+
+window.resetChurnFilters = function() {
+  window.churnFilterState = {
+    severidad: 'ALL',
+    mercado: 'ALL',
+    comercial: 'ALL',
+    minCaida: 0,
+    search: '',
+    showAdvanced: window.churnFilterState.showAdvanced
+  };
+  const searchInput = document.getElementById('churnSearchInput');
+  if (searchInput) searchInput.value = '';
+  const comSelect = document.getElementById('churnComercialSelect');
+  if (comSelect) comSelect.value = 'ALL';
+  const caidaSelect = document.getElementById('churnMinCaidaSelect');
+  if (caidaSelect) caidaSelect.value = '0';
+  applyChurnFilters();
+};
+
+window.applyChurnFilters = function() {
+  const bi = getBiData();
+  if (!bi || !bi.mejora_3_churn_alert) return;
+  const fullList = bi.mejora_3_churn_alert.alertas || [];
+  const s = window.churnFilterState;
+
+  const filtered = fullList.filter(item => {
+    if (s.severidad !== 'ALL' && item.severidad !== s.severidad) return false;
+    if (s.mercado === 'NACIONAL' && item.pais !== 'España') return false;
+    if (s.mercado === 'EXPORT' && item.pais === 'España') return false;
+    if (s.comercial !== 'ALL' && item.comercial !== s.comercial) return false;
+    if (s.minCaida > 0 && Math.abs(item.caida_eur) < s.minCaida) return false;
+    if (s.search && s.search.trim() !== '') {
+      const q = s.search.toLowerCase();
+      const matchClient = (item.cliente || '').toLowerCase().includes(q);
+      const matchPais = (item.pais || '').toLowerCase().includes(q);
+      if (!matchClient && !matchPais) return false;
+    }
+    return true;
+  });
+
+  // Re-render table body
+  const tbody = document.getElementById('churnTableBody');
+  const emptyState = document.getElementById('churnTableEmpty');
+  const activeChips = document.getElementById('churnActiveFilterChips');
+  const countBadge = document.getElementById('churnFilterCountBadge');
+
+  if (countBadge) {
+    countBadge.textContent = `${filtered.length} de ${fullList.length}`;
+  }
+
+  // Update Active Chips (Mejora 14)
+  if (activeChips) {
+    const chips = [];
+    if (s.severidad !== 'ALL') {
+      chips.push(`<span class="tab-badge badge-danger" style="display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer;" onclick="setChurnFilter('severidad', 'ALL')">Severidad: ${s.severidad} ✕</span>`);
+    }
+    if (s.mercado !== 'ALL') {
+      chips.push(`<span class="tab-badge" style="background:#38bdf8; color:#0f172a; display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer;" onclick="setChurnFilter('mercado', 'ALL')">Mercado: ${s.mercado} ✕</span>`);
+    }
+    if (s.comercial !== 'ALL') {
+      chips.push(`<span class="tab-badge" style="background:#a855f7; color:#fff; display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer;" onclick="setChurnFilter('comercial', 'ALL')">Comercial: ${s.comercial} ✕</span>`);
+    }
+    if (s.minCaida > 0) {
+      chips.push(`<span class="tab-badge" style="background:#fbbf24; color:#0f172a; display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer;" onclick="setChurnFilter('minCaida', 0)">Caída ≥ ${fmtEur(s.minCaida)} ✕</span>`);
+    }
+    if (s.search) {
+      chips.push(`<span class="tab-badge" style="background:#34d399; color:#0f172a; display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer;" onclick="setChurnFilter('search', '')">Búsqueda: "${s.search}" ✕</span>`);
+    }
+
+    if (chips.length > 0) {
+      activeChips.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; padding:0.5rem 0.8rem; background:rgba(30,41,59,0.7); border-radius:6px; border:1px solid rgba(255,255,255,0.08); font-size:0.75rem;">
+          <span style="color:var(--muted); font-weight:600;">Filtros activos:</span>
+          ${chips.join('')}
+          <button class="pill-btn" onclick="resetChurnFilters()" style="padding:0.2rem 0.6rem; font-size:0.72rem; background:rgba(239,68,68,0.2); border-color:#ef4444; color:#f87171; margin-left:auto; cursor:pointer;">
+            🧹 Restablecer todos
+          </button>
+        </div>
+      `;
+      activeChips.style.display = 'block';
+    } else {
+      activeChips.style.display = 'none';
+      activeChips.innerHTML = '';
+    }
+  }
+
+  // Update Table Rows or Empty State (Mejora 19)
+  if (tbody) {
+    if (filtered.length === 0) {
+      tbody.innerHTML = '';
+      if (emptyState) emptyState.style.display = 'block';
+    } else {
+      if (emptyState) emptyState.style.display = 'none';
+      tbody.innerHTML = filtered.map(c => `
+        <tr style="${c.severidad === 'CRÍTICA' ? 'background:rgba(239,68,68,0.05);' : ''}">
+          <td style="font-weight:700; color:#fff">${c.cliente}</td>
+          <td>${c.comercial}</td>
+          <td><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${c.pais}</span></td>
+          <td><span style="font-size:0.8rem; color:var(--muted)">${c.clasificacion}</span></td>
+          <td style="text-align:right; color:var(--muted)">${fmtEur(c.ventas_ene_sep_2025)}</td>
+          <td style="text-align:right; font-weight:700; color:#fff">${fmtEur(c.ventas_ene_sep_2026)}</td>
+          <td style="text-align:right; font-weight:800; color:#ef4444">${fmtEur(c.caida_eur)}</td>
+          <td style="text-align:right; font-weight:800; color:#ef4444">${c.caida_pct}%</td>
+          <td style="text-align:center">
+            <span class="tab-badge badge-${c.severidad === 'CRÍTICA' ? 'danger' : 'warning'}">
+              ${c.severidad}
+            </span>
+          </td>
+          <td style="text-align:center">
+            <button class="pill-btn" onclick="openDocumentTraceability('FACTURA', 'FAC-2026-CHURN', '${c.cliente.replace(/'/g, "\\'")}')" style="font-size:0.72rem; padding:0.25rem 0.55rem; background:rgba(56,189,248,0.15); border-color:#38bdf8; color:#38bdf8; cursor:pointer;">
+              📄 Doc. Origen
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  // Update button active states
+  const sevBtns = document.querySelectorAll('.churn-sev-btn');
+  sevBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-val') === s.severidad));
+
+  const mktBtns = document.querySelectorAll('.churn-mkt-btn');
+  mktBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-val') === s.mercado));
+};
+
 // =========================================================================
 // MÓDULO DE INTELIGENCIA DE NEGOCIO Y CONTROL DIRECTIVO (MEJORAS CHATGPT)
 // =========================================================================
@@ -412,15 +568,84 @@ function renderChurnAlertSection() {
         </div>
       </div>
 
+      <!-- MEJORAS 13 Y 14: FILTROS BÁSICOS Y AVANZADOS CON CHIPS ACTIVOS -->
+      <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius-md); padding:1rem 1.25rem; display:flex; flex-direction:column; gap:0.85rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+          <!-- FILTROS BÁSICOS VISIBLES (MEJORA 13) -->
+          <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+            <span style="font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Nivel Alerta:</span>
+            <button class="pill-btn churn-sev-btn active" data-val="ALL" onclick="setChurnFilter('severidad', 'ALL')">Todos</button>
+            <button class="pill-btn churn-sev-btn" data-val="CRÍTICA" onclick="setChurnFilter('severidad', 'CRÍTICA')">🚨 Crítica (>50%)</button>
+            <button class="pill-btn churn-sev-btn" data-val="MODERADA" onclick="setChurnFilter('severidad', 'MODERADA')">⚠️ Moderada (25-50%)</button>
+
+            <span style="height:16px; width:1px; background:rgba(255,255,255,0.15); margin:0 0.3rem;"></span>
+
+            <span style="font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Mercado:</span>
+            <button class="pill-btn churn-mkt-btn active" data-val="ALL" onclick="setChurnFilter('mercado', 'ALL')">Todos</button>
+            <button class="pill-btn churn-mkt-btn" data-val="NACIONAL" onclick="setChurnFilter('mercado', 'NACIONAL')">🇪🇸 Nacional</button>
+            <button class="pill-btn churn-mkt-btn" data-val="EXPORT" onclick="setChurnFilter('mercado', 'EXPORT')">🌍 Exportación</button>
+          </div>
+
+          <!-- BOTÓN MÁS FILTROS (MEJORA 13) -->
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <button id="btnToggleChurnAdv" class="pill-btn" onclick="toggleChurnAdvancedFilters()" style="display:flex; align-items:center; gap:0.4rem; padding:0.45rem 0.85rem; font-size:0.8rem; background:rgba(255,255,255,0.06);">
+              ⚙️ Más Filtros
+            </button>
+          </div>
+        </div>
+
+        <!-- PANEL DESPLEGABLE DE FILTROS AVANZADOS (MEJORA 13) -->
+        <div id="churnAdvancedFilterPanel" style="display:none; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.08);">
+          <div>
+            <label style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:0.25rem;">Buscar Distribuidor o País</label>
+            <input type="text" id="churnSearchInput" placeholder="Ej. Agripool, Grecia..." oninput="setChurnFilter('search', this.value)" style="width:100%; padding:0.45rem 0.65rem; background:#0f172a; border:1px solid var(--card-border); border-radius:6px; color:#fff; font-size:0.82rem;">
+          </div>
+          <div>
+            <label style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:0.25rem;">Delegado Comercial</label>
+            <select id="churnComercialSelect" onchange="setChurnFilter('comercial', this.value)" style="width:100%; padding:0.45rem 0.65rem; background:#0f172a; border:1px solid var(--card-border); border-radius:6px; color:#fff; font-size:0.82rem;">
+              <option value="ALL">Todos los comerciales</option>
+              <option value="David Gomez">David Gomez</option>
+              <option value="Carlos Ruiz">Carlos Ruiz</option>
+              <option value="Elena Beltran">Elena Beltran</option>
+              <option value="Marta Sanchez">Marta Sanchez</option>
+              <option value="Jorge Morales">Jorge Morales</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:0.25rem;">Importe Caída Mínima (€)</label>
+            <select id="churnMinCaidaSelect" onchange="setChurnFilter('minCaida', parseFloat(this.value))" style="width:100%; padding:0.45rem 0.65rem; background:#0f172a; border:1px solid var(--card-border); border-radius:6px; color:#fff; font-size:0.82rem;">
+              <option value="0">Cualquier importe</option>
+              <option value="15000">≥ 15.000 €</option>
+              <option value="30000">≥ 30.000 €</option>
+              <option value="50000">≥ 50.000 €</option>
+              <option value="100000">≥ 100.000 €</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- INDICADOR DE FILTROS ACTIVOS CON BOTÓN RESTABLECER (MEJORA 14) -->
+        <div id="churnActiveFilterChips" style="display:none;"></div>
+      </div>
+
       <!-- TABLA DETALLE DE CLIENTES EN FUGA -->
       <div class="table-card">
         <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center">
           <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
             📉 Distribuidores y Clientes con Deserción o Caída de Ventas
           </h4>
-          <span style="font-size:0.8rem; color:var(--muted)">Comparativa Ene-Sep 2025 vs Ene-Sep 2026</span>
+          <span style="font-size:0.8rem; color:var(--muted)">Mostrando <strong id="churnFilterCountBadge" style="color:#fff">${list.length} de ${list.length}</strong> cuentas</span>
         </div>
         <div class="table-container">
+          <!-- ESTADO VACÍO CUANDO NO HAY RESULTADOS CON LOS FILTROS (MEJORA 19) -->
+          <div id="churnTableEmpty" style="display:none; padding:3rem 1.5rem; text-align:center;">
+            <div style="font-size:2.2rem; margin-bottom:0.5rem;">🔍</div>
+            <div style="font-size:1.05rem; font-weight:700; color:#fff; margin-bottom:0.3rem;">Sin resultados con los filtros actuales</div>
+            <p style="font-size:0.85rem; color:var(--muted); margin-bottom:1.2rem;">No hay clientes en riesgo que coincidan con la combinación de filtros seleccionada.</p>
+            <button class="pill-btn active" onclick="resetChurnFilters()" style="padding:0.45rem 1.2rem; font-size:0.82rem; cursor:pointer;">
+              🧹 Restablecer todos los filtros
+            </button>
+          </div>
+
           <table>
             <thead>
               <tr>
@@ -436,7 +661,7 @@ function renderChurnAlertSection() {
                 <th style="text-align:center">Nivel 3 (Soporte)</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="churnTableBody">
               ${list.map(c => `
                 <tr style="${c.severidad === 'CRÍTICA' ? 'background:rgba(239,68,68,0.05);' : ''}">
                   <td style="font-weight:700; color:#fff">${c.cliente}</td>

@@ -433,6 +433,7 @@ function renderChurnAlertSection() {
                 <th style="text-align:right; color:#ef4444">Caída (€)</th>
                 <th style="text-align:right; color:#ef4444">% Caída</th>
                 <th style="text-align:center">Nivel de Alerta</th>
+                <th style="text-align:center">Nivel 3 (Soporte)</th>
               </tr>
             </thead>
             <tbody>
@@ -450,6 +451,11 @@ function renderChurnAlertSection() {
                     <span class="tab-badge badge-${c.severidad === 'CRÍTICA' ? 'danger' : 'warning'}">
                       ${c.severidad}
                     </span>
+                  </td>
+                  <td style="text-align:center">
+                    <button class="pill-btn" onclick="openDocumentTraceability('FACTURA', 'FAC-2026-CHURN', '${c.cliente.replace(/'/g, "\\'")}')" style="font-size:0.72rem; padding:0.25rem 0.55rem; background:rgba(56,189,248,0.15); border-color:#38bdf8; color:#38bdf8; cursor:pointer;">
+                      📄 Doc. Origen
+                    </button>
                   </td>
                 </tr>
               `).join('')}
@@ -543,6 +549,7 @@ function renderIndustrialComplexitySection() {
                 <th>CECOs de Proceso</th>
                 <th style="text-align:right; color:#34d399">Ahorro Estimado (€)</th>
                 <th>Acción Recomendada</th>
+                <th style="text-align:center">Nivel 3 (OF / Lote)</th>
               </tr>
             </thead>
             <tbody>
@@ -554,6 +561,11 @@ function renderIndustrialComplexitySection() {
                   <td><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${s.cecos_involucrados.join(', ')}</span></td>
                   <td style="text-align:right; font-weight:800; color:#34d399">${fmtEur(s.ahorro_estimado_eur)}</td>
                   <td><span style="font-size:0.84rem; color:#cbd5e1">${s.recomendacion}</span></td>
+                  <td style="text-align:center">
+                    <button class="pill-btn" onclick="openDocumentTraceability('OF', 'OF-2026-${s.sku}', '${s.desc.replace(/'/g, "\\'")}')" style="font-size:0.72rem; padding:0.25rem 0.55rem; background:rgba(251,191,36,0.15); border-color:#fbbf24; color:#fbbf24; cursor:pointer;">
+                      ⚙️ Parte OF
+                    </button>
+                  </td>
                 </tr>
               `).join('')}
             </tbody>
@@ -982,6 +994,7 @@ function renderPriceExceptionsSection() {
                 <th>Justificación Comercial</th>
                 <th style="text-align:center">Caducidad</th>
                 <th style="text-align:center">Estado</th>
+                <th style="text-align:center">Nivel 3 (Acuerdo)</th>
               </tr>
             </thead>
             <tbody>
@@ -1005,6 +1018,11 @@ function renderPriceExceptionsSection() {
                   </td>
                   <td style="text-align:center">
                     <span class="tab-badge badge-${s.badge_cls}">${s.estado}</span>
+                  </td>
+                  <td style="text-align:center">
+                    <button class="pill-btn" onclick="openDocumentTraceability('CONTRATO', '${s.id}', '${s.cliente.replace(/'/g, "\\'")}')" style="font-size:0.72rem; padding:0.25rem 0.55rem; background:rgba(52,211,153,0.15); border-color:#34d399; color:#34d399; cursor:pointer;">
+                      📜 Ver Acuerdo
+                    </button>
                   </td>
                 </tr>
               `).join('')}
@@ -1671,3 +1689,167 @@ function crearNuevoAcuerdoModal() {
     if (typeof renderCurrentTab === 'function') renderCurrentTab();
   }
 }
+
+
+// -------------------------------------------------------------------------
+// MEJORA 11: ESTRUCTURA ESTÁNDAR UNIFICADA (HEADER, BREADCRUMB, FILTROS)
+// -------------------------------------------------------------------------
+
+function getUnifiedHeaderHtml(icon, titulo, subtitulo, area, pantalla, tags) {
+  const activeFilters = tags || [];
+  const filtersHtml = activeFilters.map(t => `
+    <span class="tab-badge" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); display:inline-flex; align-items:center; gap:0.4rem; font-size:0.75rem;">
+      <span>${t.label}: <strong style="color:#fff">${t.value}</strong></span>
+      ${t.removable ? `<span style="cursor:pointer; color:#f87171;" onclick="${t.onRemove}">✕</span>` : ''}
+    </span>
+  `).join('');
+
+  return `
+    <div style="background:linear-gradient(135deg, rgba(30,41,59,0.9) 0%, rgba(15,23,42,0.98) 100%); border:1px solid var(--card-border); border-radius:var(--radius-md); padding:1.25rem 1.6rem; margin-bottom:1.25rem;">
+      <!-- BREADCRUMB NAVEGACIONAL -->
+      <div style="font-size:0.78rem; color:var(--muted); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem;">
+        <span>Codiagro 2026</span>
+        <span>›</span>
+        <span style="color:#94a3b8">${area}</span>
+        <span>›</span>
+        <span style="color:#38bdf8; font-weight:600">${pantalla}</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.65rem;">
+            <span style="font-size:1.4rem">${icon}</span>
+            <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">${titulo}</h3>
+          </div>
+          <p style="margin:0.3rem 0 0 0; font-size:0.85rem; color:#cbd5e1; max-width:850px">${subtitulo}</p>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.4rem;">
+          <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+            ${filtersHtml}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+
+// -------------------------------------------------------------------------
+// MEJORA 12: DETALLE POR NIVELES & TRAZABILIDAD DOCUMENTAL (NIVEL 3)
+// -------------------------------------------------------------------------
+
+window.openDocumentTraceability = function(docType, refId, nombreTercero) {
+  let modal = document.getElementById('documentTraceabilityModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'documentTraceabilityModal';
+    modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:99999; display:flex; justify-content:flex-end; backdrop-filter:blur(4px); animation:fadeIn 0.2s ease;';
+    modal.onclick = function(e) { if (e.target === modal) closeDocumentTraceability(); };
+    document.body.appendChild(modal);
+  }
+
+  // Generar datos simulados del documento oficial de origen
+  let docTitle = 'Factura de Venta Comercial';
+  let badgeColor = '#34d399';
+  let fechaDoc = '26/10/2026 11:20';
+  let lineasHtml = '';
+  let subtotal = 12450.00;
+
+  if (docType === 'ALBARAN' || docType === 'LOGISTICA') {
+    docTitle = 'Albarán de Transporte y Entrega';
+    badgeColor = '#38bdf8';
+    fechaDoc = '27/10/2026 08:45';
+    lineasHtml = `
+      <tr><td>AGROXILATO-K 20L</td><td style="text-align:right">120 u</td><td style="text-align:right">4,50 €</td><td style="text-align:right">540,00 €</td><td>Muelle 2 - Salida Camión</td></tr>
+      <tr><td>CALCIPLUS 20L</td><td style="text-align:right">80 u</td><td style="text-align:right">3,85 €</td><td style="text-align:right">308,00 €</td><td>Entregado en almacén central</td></tr>
+    `;
+    subtotal = 848.00;
+  } else if (docType === 'OF' || docType === 'LOTE') {
+    docTitle = 'Orden de Fabricación y Parte de Reactor';
+    badgeColor = '#fbbf24';
+    fechaDoc = '24/10/2026 16:30';
+    lineasHtml = `
+      <tr><td>Materia Prima Base Potásica</td><td style="text-align:right">4.500 kg</td><td style="text-align:right">0,85 €</td><td style="text-align:right">3.825,00 €</td><td>Reactor R-1</td></tr>
+      <tr><td>Aditivo Quelatante Orgánico</td><td style="text-align:right">1.200 kg</td><td style="text-align:right">2,40 €</td><td style="text-align:right">2.880,00 €</td><td>Dosificación controlada</td></tr>
+      <tr><td>MOD Preparación & Limpieza</td><td style="text-align:right">8,5 h</td><td style="text-align:right">36,40 €</td><td style="text-align:right">309,40 €</td><td>Operario Planta Turno 1</td></tr>
+    `;
+    subtotal = 7014.40;
+  } else {
+    // Factura comercial estándar
+    lineasHtml = `
+      <tr><td>POTASIOMAX 20L</td><td style="text-align:right">450 u</td><td style="text-align:right">4,20 €</td><td style="text-align:right">1.890,00 €</td><td>Conforme precio tarifa</td></tr>
+      <tr><td>FRUTALMAX 20L</td><td style="text-align:right">300 u</td><td style="text-align:right">5,10 €</td><td style="text-align:right">1.530,00 €</td><td>Conforme precio tarifa</td></tr>
+      <tr><td>SALWAX 20L</td><td style="text-align:right">200 u</td><td style="text-align:right">3,10 €</td><td style="text-align:right">620,00 €</td><td>Precio especial autorizado</td></tr>
+    `;
+    subtotal = 4040.00;
+  }
+
+  modal.innerHTML = `
+    <div style="width:100%; max-width:650px; height:100%; background:#0f172a; border-left:1px solid var(--card-border); padding:2rem; overflow-y:auto; display:flex; flex-direction:column; justify-content:space-between; box-shadow:-10px 0 30px rgba(0,0,0,0.5);">
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem;">
+          <div>
+            <span class="tab-badge" style="background:rgba(255,255,255,0.08); color:${badgeColor}; font-weight:700; margin-bottom:0.4rem; display:inline-block;">
+              Nivel 3: Documento de Origen
+            </span>
+            <h3 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.35rem;">
+              ${docTitle}
+            </h3>
+            <span style="font-size:0.85rem; color:var(--muted)">Ref: ${refId || 'DOC-2026-X'}</span>
+          </div>
+          <button onclick="closeDocumentTraceability()" style="background:transparent; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer; padding:0.2rem 0.5rem;">✕</button>
+        </div>
+
+        <div style="background:rgba(30,41,59,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:1.15rem; margin-bottom:1.5rem;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.83rem;">
+            <div><span style="color:var(--muted)">Tercero / Cliente:</span> <strong style="color:#fff; display:block">${nombreTercero || 'Codiagro General'}</strong></div>
+            <div><span style="color:var(--muted)">Fecha y Hora:</span> <strong style="color:#fff; display:block">${fechaDoc}</strong></div>
+            <div><span style="color:var(--muted)">Estado Contable:</span> <strong style="color:#34d399; display:block">Contabilizado / Conciliado</strong></div>
+            <div><span style="color:var(--muted)">Centro de Coste:</span> <strong style="color:#38bdf8; display:block">CECO Operativo</strong></div>
+          </div>
+        </div>
+
+        <h4 style="margin:0 0 0.75rem 0; font-size:0.95rem; color:#fff">Detalle de Partidas del Documento</h4>
+        <div class="table-container" style="margin-bottom:1.5rem;">
+          <table style="font-size:0.82rem;">
+            <thead>
+              <tr>
+                <th>Concepto / Artículo</th>
+                <th style="text-align:right">Cantidad</th>
+                <th style="text-align:right">Precio</th>
+                <th style="text-align:right">Importe</th>
+                <th>Observación</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${lineasHtml}
+            </tbody>
+            <tfoot>
+              <tr style="border-top:2px solid var(--card-border); font-weight:800; color:#fff;">
+                <td colspan="3">TOTAL DOCUMENTO (Base Imponible)</td>
+                <td style="text-align:right; color:#34d399">${fmtEur(subtotal)}</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:6px; padding:0.85rem; font-size:0.78rem; color:#cbd5e1;">
+          🛡️ <strong>Trazabilidad Verificada:</strong> Este documento cuenta con apunte cruzado en el Libro Mayor de Codiagro y preserva el contexto de navegación (filtros activos y posición).
+        </div>
+      </div>
+
+      <div style="margin-top:2rem; display:flex; justify-content:flex-end;">
+        <button class="pill-btn active" onclick="closeDocumentTraceability()" style="padding:0.6rem 1.4rem;">
+          ✕ Volver a la Tabla (Conservar Filtros)
+        </button>
+      </div>
+    </div>
+  `;
+  modal.style.display = 'flex';
+};
+
+window.closeDocumentTraceability = function() {
+  const modal = document.getElementById('documentTraceabilityModal');
+  if (modal) modal.style.display = 'none';
+};

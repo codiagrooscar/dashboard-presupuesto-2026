@@ -16,9 +16,9 @@
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
   <script src="dashboard_data.js?v=20261027_0745"></script>
   <script src="production_planning_data.js?v=20261027_0745"></script>
-  <link rel="stylesheet" href="marta_tracking.css?v=20261027_0745">
-  <script src="marta_tracking_data.js?v=20261027_0745"></script>
-  <script src="marta_tracking_logic.js?v=20261027_0745"></script>
+  <link rel="stylesheet" href="marta_tracking.css?v=20261027_1435">
+  <script src="marta_tracking_data.js?v=20261027_1435"></script>
+  <script src="marta_tracking_logic.js?v=20261027_1435"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -5911,7 +5911,8 @@
         const b = document.getElementById('navBtnTrackingMarta');
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '🎯';
-        if (titleTextEl) titleTextEl.textContent = 'Comercial | Cierre 2026 & Termómetro Q4 (Unidades)';
+        const modeSuffix = (typeof window.getMartaMode === 'function' && window.getMartaMode() === 'euros') ? 'Euros' : 'Unidades';
+        if (titleTextEl) titleTextEl.textContent = `Comercial | Cierre 2026 & Termómetro Q4 (${modeSuffix})`;
       } else if (tabKey === 'produccion') {
         const b = document.getElementById('navBtnProduccion');
         if (b) b.classList.add('active');

@@ -44,10 +44,20 @@ function renderCockpitInicioSection() {
     ? fc.totales_drilldown.margen_industrial_pct
     : 55.1;
 
-  // RAI contable dinámico desde fullCostData
-  const raiEur = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.rai_neto === 'number')
-    ? fc.totales_drilldown.rai_neto
-    : ((fc && fc.metadata && typeof fc.metadata.rai_calculado === 'number') ? fc.metadata.rai_calculado : 111933.69);
+  const meta = (fc && fc.metadata) ? fc.metadata : {};
+  // RAI contable oficial del Libro Mayor (Cierre)
+  const raiContableMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number')
+    ? fc.cuentas_resumen.rai_neto
+    : ((meta && typeof meta.rai_contable_mayor === 'number') ? meta.rai_contable_mayor : 111933.69);
+
+  // RAI analítico calculado en la cascada PnL Full Costing
+  const raiAnalitico = (meta && typeof meta.rai_analitico_cascada === 'number')
+    ? meta.rai_analitico_cascada
+    : ((fc && fc.totales_drilldown && typeof fc.totales_drilldown.rai_neto === 'number') ? fc.totales_drilldown.rai_neto : raiContableMayor);
+
+  const diffConciliacion = (meta && typeof meta.diferencia_conciliacion === 'number')
+    ? meta.diferencia_conciliacion
+    : Math.abs(raiContableMayor - raiAnalitico);
 
   const ingWaterfall = (fc && fc.pnl_waterfall && Array.isArray(fc.pnl_waterfall)) 
     ? fc.pnl_waterfall.find(x => x.nivel === 1 || x.tipo === 'ingreso')
@@ -56,8 +66,8 @@ function renderCockpitInicioSection() {
     ? ingWaterfall.importe 
     : ((fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.ingresos_totales === 'number') ? fc.cuentas_resumen.ingresos_totales : 505002.49);
 
-  const raiPctNum = (ventasContables > 0 && typeof raiEur === 'number' && !isNaN(raiEur))
-    ? (raiEur / ventasContables * 100)
+  const raiPctNum = (ventasContables > 0 && typeof raiContableMayor === 'number' && !isNaN(raiContableMayor))
+    ? (raiContableMayor / ventasContables * 100)
     : 22.2;
   const raiPctFormatted = (typeof raiPctNum === 'number' && !isNaN(raiPctNum))
     ? raiPctNum.toFixed(1).replace('.', ',') + '%'
@@ -143,21 +153,23 @@ function renderCockpitInicioSection() {
             </div>
           </div>
 
-          <!-- 3. RAI OPERATIVO -->
-          <div class="kpi-card" onclick="switchTab('rentabilidad_fullcost')" style="cursor:pointer; transition:transform 0.2s; border-color:rgba(56,189,248,0.4)" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
+          <!-- 3. RAI CONTABLE & ANALÍTICO -->
+          <div class="kpi-card" onclick="switchTab('rentabilidad_fullcost')" style="cursor:pointer; transition:transform 0.2s; border-color:${diffConciliacion <= 0.05 ? 'rgba(56,189,248,0.4)' : 'rgba(239,68,68,0.6)'}" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
             <div class="kpi-header">
-              <span class="kpi-title">3. Resultado Antes Impuestos</span>
+              <span class="kpi-title">3. RAI Contable Oficial (Cierre)</span>
               <span class="kpi-icon">💎</span>
             </div>
-            <div class="kpi-value" style="color:#38bdf8">${fmtEur(raiEur)}</div>
+            <div class="kpi-value" style="color:#38bdf8">${fmtEur(raiContableMayor)}</div>
             <div class="kpi-subtitle">
               <span style="color:#38bdf8; font-weight:700">${raiPctFormatted}</span> s/ventas contables (Total Empresa)
             </div>
             <div style="font-size:0.73rem; color:#94a3b8; margin-top:0.25rem;">
-              Base: <strong>Cierre Septiembre</strong> (Octubre en curso)
+              ${diffConciliacion <= 0.05
+                ? 'RAI Analítico: <strong>' + fmtEur(raiAnalitico) + '</strong> · <span style=\"color:#34d399; font-weight:700\">Cuadrado (0,00 €)</span>'
+                : 'RAI Analítico: <strong>' + fmtEur(raiAnalitico) + '</strong> · <span style=\"color:#f87171; font-weight:700\">Desviación: ' + fmtEur(diffConciliacion) + '</span>'}
             </div>
             <div class="progress-bar-container" style="margin-top:0.4rem;">
-              <div class="progress-bar-fill" style="width:${Math.min(100, Math.max(0, raiPctNum))}%; background:linear-gradient(90deg, #38bdf8, #0284c7)"></div>
+              <div class="progress-bar-fill" style="width:${Math.min(100, Math.max(0, raiPctNum))}%; background:${diffConciliacion <= 0.05 ? 'linear-gradient(90deg, #38bdf8, #0284c7)' : 'linear-gradient(90deg, #ef4444, #b91c1c)'}"></div>
             </div>
           </div>
 

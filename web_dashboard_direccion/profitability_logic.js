@@ -2101,7 +2101,9 @@ function renderProfitFullCostView() {
             <span class="tab-badge badge-warning" style="font-size:0.75rem; font-weight:800">⚙️ CALIBRANDO REPARTOS</span>
           </div>
           <p style="margin:0; font-size:0.84rem; color:var(--muted)">
-            Suma global de cuentas cuadradas al céntimo con el RAI contable (<strong>${fmtEur(raiCalculado)} | Diferencia = ${fmtEur(diffConciliacion)}</strong>). Reconciliando actualmente el detalle analítico de nóminas mensuales, inventarios y maquila.
+            ${diffConciliacion <= 0.05 
+              ? 'Suma global de cuentas cuadradas al céntimo con el RAI contable (<strong>' + fmtEur(raiCalculado) + ' | Diferencia = 0,00 €</strong>). Reconciliando el detalle analítico de nóminas mensuales, inventarios y maquila.'
+              : '<span style=\"color:#f87171; font-weight:700\">⚠️ Desviación contable de ' + fmtEur(diffConciliacion) + ' detectada entre el RAI Analítico (' + fmtEur(raiCalculado) + ') y el Libro Mayor</span>.'}
           </p>
         </div>
 
@@ -2112,7 +2114,7 @@ function renderProfitFullCostView() {
           </div>
           <div style="background:rgba(15,23,42,0.85); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
             <div style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700">DESVIACIÓN LIBRO MAYOR</div>
-            <div style="font-size:1.15rem; font-weight:800; color:#38bdf8">${fmtEur(diffConciliacion)}</div>
+            <div style="font-size:1.15rem; font-weight:800; color:${diffConciliacion <= 0.05 ? '#38bdf8' : '#f87171'}">${fmtEur(diffConciliacion)}</div>
           </div>
         </div>
       </div>
@@ -2143,12 +2145,14 @@ function renderProfitFullCostView() {
 
         <div class="kpi-card accent-emerald">
           <div class="kpi-header">
-            <span class="kpi-title">EBIT / RAI OPERATIVO</span>
-            <span class="tab-badge badge-success">${pctRaiS_Ventas} S/Ventas</span>
+            <span class="kpi-title">RAI ANALÍTICO CASCADA</span>
+            <span class="tab-badge ${diffConciliacion <= 0.05 ? 'badge-success' : 'badge-danger'}">
+              ${diffConciliacion <= 0.05 ? pctRaiS_Ventas + ' S/Ventas' : 'Descuadre ' + fmtEur(diffConciliacion)}
+            </span>
           </div>
           <div class="kpi-value" style="color:#34d399">${fmtEur(raiCalculado)}</div>
           <div class="kpi-detail">
-            <span>Conciliación exacta sin desfases con P&G Grupo</span>
+            <span>${diffConciliacion <= 0.05 ? 'Conciliación exacta sin desfases con P&G Grupo' : '<span style=\"color:#f87171; font-weight:700\">Desviación de ' + fmtEur(diffConciliacion) + ' pendiente de conciliar con P&G</span>'}</span>
           </div>
         </div>
 

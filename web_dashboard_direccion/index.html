@@ -7295,9 +7295,14 @@
       const modelo624_3 = (modAnalitico && typeof modAnalitico.transporte_canarias === 'number') ? modAnalitico.transporte_canarias : NaN;
       const modelo622 = (modAnalitico && typeof modAnalitico.mantenimiento_centros === 'number') ? modAnalitico.mantenimiento_centros : NaN;
 
+      const ssDet = (modAnalitico && modAnalitico.seguridad_social_detalle) ? modAnalitico.seguridad_social_detalle : null;
+      const ssNota = ssDet 
+        ? `Nómina Personal: ${fmtEur(ssDet.nomina_personal_ett)} + Ajuste RNT: ${fmtEur(ssDet.ajuste_documentado_rnt)} · ${ssDet.estado}`
+        : 'Cuotas patronales conciliadas con soporte RLC/RNT';
+
       const auditItems = [
         { concepto: 'Sueldos y Salarios (Cta 640000000)', mayor: val640_mayor, modelo: modelo640, nota: 'Personal fábrica + administración devengado en Sep-26' },
-        { concepto: 'Seguridad Social Empresa (Cta 642000000)', mayor: val642_mayor, modelo: modelo642, nota: 'Cuotas patronales conciliadas con RLC/RNT' },
+        { concepto: 'Seguridad Social Empresa (Cta 642000000)', mayor: val642_mayor, modelo: modelo642, nota: ssNota },
         { concepto: 'Personal ETT Envasado / Maquila Externa (Cta 607000000)', mayor: val607_mayor, modelo: modelo607, nota: 'Facturas ETT de refuerzo campaña envasado' },
         { concepto: 'Transporte Nacional (Cta 624000001)', mayor: val624_1_mayor, modelo: modelo624_1, nota: 'Portes directos según facturas logística Sep' },
         { concepto: 'Transporte Internacional (Cta 624000002)', mayor: val624_2_mayor, modelo: modelo624_2, nota: 'Fletes marítimos y terrestres exportación' },

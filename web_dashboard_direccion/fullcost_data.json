@@ -33,8 +33,12 @@
       "mantenimiento_centros": 13546.07,
       "seguridad_social_detalle": {
         "nomina_personal_ett": 33358.66,
-        "ajuste_cuotas_patronales_rnt": 1351.06,
-        "origen": "Conciliación RLC/RNT vs Cuenta Mayor 642000000"
+        "ajuste_documentado_rnt": 1351.06,
+        "total_analitico": 34709.72,
+        "mayor_contable": 34709.72,
+        "diferencia_pendiente": 0.0,
+        "estado": "Conciliado con soporte RLC/RNT",
+        "origen": "Devengos Personal_ETT (33.358,66 €) + Cuotas Patronales RNT/RLC (1.351,06 €)"
       }
     },
     "repartos_dinamicos": {
@@ -243,7 +247,7 @@
     "coste_factura_ett_recurso": 8735.33,
     "conciliacion_ett": "Recurso 36 ETT: 8.735,33 € × (37,5 h maquila / 170,0 h totales) = 1.926,91 € conciliado con hoja Dedicacion (Fila 36000)",
     "propiedad_materiales": "Materiales y envases provistos por SAS (0 € coste propio Codiagro)",
-    "resultado_neto": 3525.33
+    "resultado_neto": -12967.47
   },
   "pricing": {
     "tarifas_horarias": {
@@ -3578,8 +3582,12 @@
     "mantenimiento_centros": 13546.07,
     "seguridad_social_detalle": {
       "nomina_personal_ett": 33358.66,
-      "ajuste_cuotas_patronales_rnt": 1351.06,
-      "origen": "Conciliación RLC/RNT vs Cuenta Mayor 642000000"
+      "ajuste_documentado_rnt": 1351.06,
+      "total_analitico": 34709.72,
+      "mayor_contable": 34709.72,
+      "diferencia_pendiente": 0.0,
+      "estado": "Conciliado con soporte RLC/RNT",
+      "origen": "Devengos Personal_ETT (33.358,66 €) + Cuotas Patronales RNT/RLC (1.351,06 €)"
     }
   }
 }

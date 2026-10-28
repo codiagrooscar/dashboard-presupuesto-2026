@@ -318,12 +318,22 @@ if fc_wb_path:
         if calc_sueldo > 0: modelos_analiticos["personal_devengado"] = round(calc_sueldo, 2)
         if calc_ss > 0:
             ss_mayor = abs(cuentas_detalle.get('642000000', {}).get('saldo_mes', 34709.72))
-            ajuste_ss = round(ss_mayor - calc_ss, 2) if ss_mayor >= calc_ss else 0.0
-            modelos_analiticos["seguridad_social"] = round(calc_ss + ajuste_ss, 2)
+            # Prioridad 2: El ajuste debe proceder de un dato documentado independiente (RLC/RNT)
+            # NO absorber automáticamente reducciones o errores en el fichero de nóminas
+            AJUSTE_DOCUMENTADO_SS = 1351.06
+            total_modelo_ss = round(calc_ss + AJUSTE_DOCUMENTADO_SS, 2)
+            diff_ss = round(abs(ss_mayor - total_modelo_ss), 2)
+            estado_ss = "Conciliado con soporte RLC/RNT" if diff_ss <= 0.05 else f"Pendiente de justificar ({diff_ss:.2f} €)"
+            
+            modelos_analiticos["seguridad_social"] = total_modelo_ss
             modelos_analiticos["seguridad_social_detalle"] = {
                 "nomina_personal_ett": round(calc_ss, 2),
-                "ajuste_cuotas_patronales_rnt": ajuste_ss,
-                "origen": "Conciliación RLC/RNT vs Cuenta Mayor 642000000"
+                "ajuste_documentado_rnt": AJUSTE_DOCUMENTADO_SS,
+                "total_analitico": total_modelo_ss,
+                "mayor_contable": ss_mayor,
+                "diferencia_pendiente": diff_ss,
+                "estado": estado_ss,
+                "origen": "Devengos Personal_ETT (33.358,66 €) + Cuotas Patronales RNT/RLC (1.351,06 €)"
             }
         if calc_ett > 0: modelos_analiticos["ett_envasado"] = round(calc_ett, 2)
 
@@ -405,19 +415,26 @@ if fc_wb_path:
         if tot_orig > 0:
             repartos_dinamicos[orig] = {d: dests[d] / tot_orig for d in dests}
 
-    delta_aux_210 = ca_sum_by_ceco.get('210', 0.0) - BASE_CA_CECO.get('210', 0.0)
-    delta_aux_240 = ca_sum_by_ceco.get('240', 0.0) - BASE_CA_CECO.get('240', 0.0)
+    # Prioridad 1: Redistribución del coste auxiliar completo de CECO 210 y 240
+    # Coste directo base de los centros productivos (antes de repartos auxiliares)
+    BASE_DIRECT_COST_CECO = {'110': 6217.56, '120': 15188.23, '130': 22888.82, '140': 56060.05}
+    BASE_POOL_210 = 4516.60   # Mantenimiento compartido completo
+    BASE_POOL_240 = 19690.51  # Suministros, energía y amortizaciones compartidas
 
-    pct_210 = repartos_dinamicos.get('210', {'110': 0.1649, '120': 0.2887, '130': 0.2062, '140': 0.3402})
+    # Si hay variaciones en Costes_activos para 210 o 240, se suman al pool distribuible
+    pool_210 = BASE_POOL_210 + (ca_sum_by_ceco.get('210', 0.0) - BASE_CA_CECO.get('210', 0.0))
+    pool_240 = BASE_POOL_240 + (ca_sum_by_ceco.get('240', 0.0) - BASE_CA_CECO.get('240', 0.0))
+
+    pct_210 = repartos_dinamicos.get('210', {'110': 0.164948, '120': 0.288660, '130': 0.206186, '140': 0.340206})
     pct_240 = repartos_dinamicos.get('240', {'110': 0.25, '120': 0.45, '130': 0.15, '140': 0.15})
 
     final_cost_by_ceco = {}
     rate_by_ceco = {}
     total_target_plant_cost = 0.0
     for c in ['110', '120', '130', '140']:
-        alloc_210 = delta_aux_210 * pct_210.get(c, 0.0)
-        alloc_240 = delta_aux_240 * pct_240.get(c, 0.0)
-        cost_c = BASE_COST_CECO[c] + delta_ceco_direct[c] + alloc_210 + alloc_240
+        alloc_210 = pool_210 * pct_210.get(c, 0.0)
+        alloc_240 = pool_240 * pct_240.get(c, 0.0)
+        cost_c = round(BASE_DIRECT_COST_CECO[c] + delta_ceco_direct[c] + alloc_210 + alloc_240, 2)
         final_cost_by_ceco[c] = cost_c
         total_target_plant_cost += cost_c
         h_c = std_hours_by_ceco.get(c, 0.0)
@@ -469,7 +486,11 @@ if fc_wb_path:
         maq_data["ingreso_ordinario_total"] = round(maq_data["cuenta_705_servicios"] + maq_data["cuenta_703_accesorios"], 2)
         maq_data["margen_ordinario_eur"] = round(maq_data["ingreso_ordinario_total"] - maq_data["coste_total"], 2)
         maq_data["margen_ordinario_pct"] = round(maq_data["margen_ordinario_eur"] / maq_data["ingreso_ordinario_total"] * 100, 1) if maq_data["ingreso_ordinario_total"] > 0 else 0.0
-        maq_data["resultado_neto"] = round(maq_data["margen_ordinario_eur"] - maq_data.get("gastos_generales", 0.0), 2)
+        # Prioridad 4: Sincronización completa de campos históricos (ajuste de agosto y resultados netos)
+        ajuste_agosto = maq_data.get("cuenta_702_ajuste_agosto", -16492.80)
+        maq_data["ingreso_neto_contable_sep"] = round(maq_data["ingreso_ordinario_total"] + ajuste_agosto, 2)
+        maq_data["resultado_neto_sep"] = round(maq_data["ingreso_neto_contable_sep"] - maq_data["coste_total"], 2)
+        maq_data["resultado_neto"] = maq_data["resultado_neto_sep"]
 
     wb_fc.close()
 else:

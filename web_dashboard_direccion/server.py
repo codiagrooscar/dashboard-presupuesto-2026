@@ -3,15 +3,48 @@ import socketserver
 import os
 import json
 import urllib.parse
+import secrets
+import time
 from pathlib import Path
+from http import cookies
 
 PORT = 3026
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BASE_DIR.parent if BASE_DIR.name in ['web_dashboard', 'web_dashboard_direccion'] else BASE_DIR
 
+VALID_USERS = {
+    'oscar.ocampo': 'Codiagro2026!',
+    'oscar': 'Codiagro2026!',
+    'direccion': 'Codiagro2026!',
+    'admin': 'Codiagro2026!'
+}
+
+# In-memory session store: { token: { 'user': username, 'created': timestamp } }
+ACTIVE_SESSIONS = {}
+
 class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(BASE_DIR), **kwargs)
+
+    def get_session_user(self):
+        cookie_header = self.headers.get('Cookie')
+        if not cookie_header:
+            return None
+        c = cookies.SimpleCookie()
+        try:
+            c.load(cookie_header)
+            if 'codiagro_auth_token' in c:
+                token = c['codiagro_auth_token'].value
+                session = ACTIVE_SESSIONS.get(token)
+                if session:
+                    # 7 days expiration
+                    if time.time() - session['created'] < 7 * 86400:
+                        return session['user']
+                    else:
+                        ACTIVE_SESSIONS.pop(token, None)
+        except Exception:
+            pass
+        return None
 
     def end_headers(self):
         self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
@@ -19,9 +52,95 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Expires', '0')
         super().end_headers()
 
+    def do_POST(self):
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+
+        if path == '/api/login':
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_body = self.rfile.read(content_length)
+            try:
+                data = json.loads(post_body.decode('utf-8'))
+                username = str(data.get('username', '')).strip().lower()
+                password = str(data.get('password', ''))
+
+                if username in VALID_USERS and VALID_USERS[username] == password:
+                    token = secrets.token_hex(24)
+                    ACTIVE_SESSIONS[token] = {
+                        'user': username,
+                        'created': time.time()
+                    }
+
+                    resp_body = json.dumps({
+                        'success': True,
+                        'user': username,
+                        'token': token
+                    }).encode('utf-8')
+
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.send_header('Set-Cookie', f'codiagro_auth_token={token}; Path=/; Max-Age=604800; SameSite=Lax')
+                    self.send_header('Content-Length', str(len(resp_body)))
+                    self.end_headers()
+                    self.wfile.write(resp_body)
+                    return
+                else:
+                    err_body = json.dumps({
+                        'success': False,
+                        'error': 'Usuario o contraseña incorrectos'
+                    }).encode('utf-8')
+                    self.send_response(401)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.send_header('Content-Length', str(len(err_body)))
+                    self.end_headers()
+                    self.wfile.write(err_body)
+                    return
+            except Exception as e:
+                err_body = json.dumps({'success': False, 'error': str(e)}).encode('utf-8')
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(err_body)))
+                self.end_headers()
+                self.wfile.write(err_body)
+                return
+
+        elif path == '/api/logout':
+            cookie_header = self.headers.get('Cookie')
+            if cookie_header:
+                c = cookies.SimpleCookie()
+                try:
+                    c.load(cookie_header)
+                    if 'codiagro_auth_token' in c:
+                        token = c['codiagro_auth_token'].value
+                        ACTIVE_SESSIONS.pop(token, None)
+                except Exception:
+                    pass
+            resp_body = json.dumps({'success': True}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Set-Cookie', 'codiagro_auth_token=; Path=/; Max-Age=0; SameSite=Lax')
+            self.send_header('Content-Length', str(len(resp_body)))
+            self.end_headers()
+            self.wfile.write(resp_body)
+            return
+
+        self.send_error(404, "Endpoint no encontrado")
+
     def do_HEAD(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
+
+        # Static assets needed for login
+        if path in ['/login.html', '/codiagro_logo.png']:
+            return super().do_HEAD()
+
+        # Auth check for protected resources
+        user = self.get_session_user()
+        if not user:
+            self.send_response(302)
+            self.send_header('Location', '/login.html')
+            self.end_headers()
+            return
 
         if path in ['/download/treasury', '/download/tesoreria', '/Prevision_Tesoreria_CashFlow_2026.xlsx']:
             target_file = BASE_DIR / 'Prevision_Tesoreria_CashFlow_2026.xlsx'
@@ -62,6 +181,62 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
 
+        # Status check
+        if path == '/api/auth/status':
+            user = self.get_session_user()
+            resp = json.dumps({
+                'authenticated': bool(user),
+                'user': user
+            }).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(resp)))
+            self.end_headers()
+            self.wfile.write(resp)
+            return
+
+        elif path == '/api/logout':
+            cookie_header = self.headers.get('Cookie')
+            if cookie_header:
+                c = cookies.SimpleCookie()
+                try:
+                    c.load(cookie_header)
+                    if 'codiagro_auth_token' in c:
+                        token = c['codiagro_auth_token'].value
+                        ACTIVE_SESSIONS.pop(token, None)
+                except Exception:
+                    pass
+            self.send_response(302)
+            self.send_header('Set-Cookie', 'codiagro_auth_token=; Path=/; Max-Age=0; SameSite=Lax')
+            self.send_header('Location', '/login.html')
+            self.end_headers()
+            return
+
+        # Public assets needed for login
+        if path in ['/login.html', '/codiagro_logo.png']:
+            return super().do_GET()
+
+        # Check authentication for everything else
+        user = self.get_session_user()
+        if not user:
+            if path in ['/', '/index.html', '']:
+                self.send_response(302)
+                self.send_header('Location', '/login.html')
+                self.end_headers()
+                return
+            elif path.endswith('.json') or path.endswith('.js') or path.startswith('/api/') or path.startswith('/download/'):
+                self.send_response(401)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(b'{"error": "Autenticacion requerida", "login_url": "/login.html"}')
+                return
+            else:
+                self.send_response(302)
+                self.send_header('Location', '/login.html')
+                self.end_headers()
+                return
+
+        # Authenticated requests
         if path == '/api/data':
             json_file = BASE_DIR / 'dashboard_data.json'
             if not json_file.exists():
@@ -161,7 +336,9 @@ def run_server():
     socketserver.TCPServer.allow_reuse_address = True
     HOST = "127.0.0.1"
     with socketserver.TCPServer((HOST, PORT), DashboardHandler) as httpd:
-        print(f"=== Servidor Dashboard Presupuesto Septiembre 2026 iniciado en http://{HOST}:{PORT} ===")
+        print(f"=== Servidor Dashboard Dirección General con Autenticación en http://{HOST}:{PORT} ===")
+        print(f"  Usuario: oscar.ocampo (o oscar / direccion)")
+        print(f"  Contraseña: Codiagro2026!")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

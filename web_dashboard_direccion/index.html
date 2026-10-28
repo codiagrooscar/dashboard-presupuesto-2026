@@ -1988,6 +1988,13 @@
               <span>🇬🇧 EN</span>
             </button>
           </div>
+
+          <!-- USER PROFILE & LOGOUT -->
+          <div class="user-auth-badge" id="userAuthBadge" style="display:inline-flex; align-items:center; gap:0.5rem; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.12); padding:0.3rem 0.75rem; border-radius:9999px; font-size:0.78rem;">
+            <span style="font-size:0.85rem">👤</span>
+            <span id="headerUserName" style="font-weight:600; color:#e2e8f0;">oscar.ocampo</span>
+            <button onclick="doLogout()" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; border-radius:9999px; padding:0.2rem 0.55rem; font-size:0.7rem; font-weight:700; cursor:pointer; margin-left:0.25rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'" title="Cerrar sesión segura">Salir 🚪</button>
+          </div>
         </div>
       </header>
 
@@ -2195,6 +2202,42 @@
   </footer>
 
   <script>
+    function checkAuthSession() {
+      fetch('/api/auth/status')
+        .then(r => r.json())
+        .then(d => {
+          if (!d.authenticated) {
+            window.location.href = '/login.html';
+          } else if (d.user) {
+            const uEl = document.getElementById('headerUserName');
+            if (uEl) uEl.textContent = d.user;
+          }
+        })
+        .catch(() => {
+          const session = sessionStorage.getItem('codiagro_auth') || localStorage.getItem('codiagro_auth');
+          if (!session) {
+            window.location.href = '/login.html';
+          } else {
+            try {
+              const p = JSON.parse(session);
+              if (p && p.user) {
+                const uEl = document.getElementById('headerUserName');
+                if (uEl) uEl.textContent = p.user;
+              }
+            } catch(e){}
+          }
+        });
+    }
+    checkAuthSession();
+
+    function doLogout() {
+      sessionStorage.removeItem('codiagro_auth');
+      localStorage.removeItem('codiagro_auth');
+      fetch('/api/logout').finally(() => {
+        window.location.href = '/login.html';
+      });
+    }
+
     let allPeriodsData = null;
     let currentPeriod = '2026-10'; // Por defecto Octubre 2026
     let appData = null;

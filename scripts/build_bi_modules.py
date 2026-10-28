@@ -18,6 +18,7 @@ with open(dash_path, "r", encoding="utf-8") as f:
 # --- MEJORA 1: FORECAST ACCURACY & BIAS ---
 p_oct = dash_data.get("periods", {}).get("2026-10", {})
 resumen_com = p_oct.get("resumen_comerciales", [])
+comerciales_dict = p_oct.get("comerciales", {})
 
 forecast_comerciales = []
 for c in resumen_com:
@@ -27,13 +28,27 @@ for c in resumen_com:
     imp_neto = float(c.get("importe_neto", 0))
     pct_consec = float(c.get("pct_consec", 0))
     
-    # Error absoluto y error con signo (bias)
+    # Error neto agregado (bias)
     bias_uds = p_uds - b_uds
     bias_tipo = "Subestimó (Ventas > Presupuesto)" if bias_uds > 0 else ("Sobreestimó (Ventas < Presupuesto)" if bias_uds < 0 else "Exacto")
     
-    # Forecast accuracy standard: 1 - (|Actual - Forecast| / max(Actual, Forecast))
-    denom = max(p_uds, b_uds)
-    acc_pct = round(max(0, 1 - (abs(p_uds - b_uds) / denom)) * 100, 1) if denom > 0 else 100.0
+    # Hallazgo H21 (Auditoría WMAPE): Sumar errores absolutos por SKU antes de dividir
+    com_lines = comerciales_dict.get(com_name, {}).get("lineas", [])
+    if com_lines:
+        com_sku_abs_error = sum(abs(float(l.get("pedidos_uds", 0)) - float(l.get("budget_uds", 0))) for l in com_lines)
+        com_denom_orders = sum(float(l.get("pedidos_uds", 0)) for l in com_lines)
+        com_denom_budget = sum(float(l.get("budget_uds", 0)) for l in com_lines)
+        denom_wmape = com_denom_orders if com_denom_orders > 0 else com_denom_budget
+        
+        com_wmape_err = (com_sku_abs_error / denom_wmape) if denom_wmape > 0 else 0.0
+        acc_pct = round(max(0.0, 1.0 - com_wmape_err) * 100, 1) if denom_wmape > 0 else 100.0
+        wmape_err_pct = round(com_wmape_err * 100, 1)
+    else:
+        com_sku_abs_error = abs(p_uds - b_uds)
+        denom_wmape = p_uds if p_uds > 0 else b_uds
+        com_wmape_err = (com_sku_abs_error / denom_wmape) if denom_wmape > 0 else 0.0
+        acc_pct = round(max(0.0, 1.0 - com_wmape_err) * 100, 1) if denom_wmape > 0 else 100.0
+        wmape_err_pct = round(com_wmape_err * 100, 1)
 
     forecast_comerciales.append({
         "comercial": com_name,
@@ -41,27 +56,50 @@ for c in resumen_com:
         "budget_uds": b_uds,
         "pedidos_uds": p_uds,
         "desv_uds": bias_uds,
+        "error_abs_sku_uds": round(com_sku_abs_error, 2),
         "pct_consec": pct_consec,
-        "forecast_accuracy_pct": acc_pct,
+        "forecast_accuracy_pct": acc_pct,  # WMAPE Accuracy a nivel SKU
+        "wmape_error_pct": wmape_err_pct,
         "bias_tipo": bias_tipo,
         "importe_neto_eur": imp_neto
     })
 
-# Totales forecast empresa
+# Totales forecast empresa a nivel SKU consolidado (Hallazgo H21)
 tot_b_uds = sum(x["budget_uds"] for x in forecast_comerciales)
 tot_p_uds = sum(x["pedidos_uds"] for x in forecast_comerciales)
 tot_imp_eur = sum(x["importe_neto_eur"] for x in forecast_comerciales)
 tot_bias = tot_p_uds - tot_b_uds
-tot_denom = max(tot_b_uds, tot_p_uds)
-tot_acc = round(max(0, 1 - (abs(tot_p_uds - tot_b_uds) / tot_denom)) * 100, 1) if tot_denom > 0 else 100.0
+
+all_sku_lines = []
+for c_data in comerciales_dict.values():
+    all_sku_lines.extend(c_data.get("lineas", []))
+
+if all_sku_lines:
+    tot_sku_abs_error = sum(abs(float(l.get("pedidos_uds", 0)) - float(l.get("budget_uds", 0))) for l in all_sku_lines)
+    denom_tot = tot_p_uds if tot_p_uds > 0 else tot_b_uds
+    tot_wmape_err = (tot_sku_abs_error / denom_tot) if denom_tot > 0 else 0.0
+    tot_acc = round(max(0.0, 1.0 - tot_wmape_err) * 100, 1) if denom_tot > 0 else 100.0
+    tot_wmape_err_pct = round(tot_wmape_err * 100, 1)
+else:
+    tot_sku_abs_error = sum(x.get("error_abs_sku_uds", abs(x["pedidos_uds"] - x["budget_uds"])) for x in forecast_comerciales)
+    denom_tot = tot_p_uds if tot_p_uds > 0 else tot_b_uds
+    tot_wmape_err = (tot_sku_abs_error / denom_tot) if denom_tot > 0 else 0.0
+    tot_acc = round(max(0.0, 1.0 - tot_wmape_err) * 100, 1) if denom_tot > 0 else 100.0
+    tot_wmape_err_pct = round(tot_wmape_err * 100, 1)
+
+tot_consec_pct = round(tot_p_uds / tot_b_uds * 100, 1) if tot_b_uds > 0 else 0.0
 
 forecast_resumen = {
     "tot_budget_uds": tot_b_uds,
     "tot_pedidos_uds": tot_p_uds,
     "tot_bias_uds": tot_bias,
+    "tot_error_abs_sku_uds": round(tot_sku_abs_error, 2),
     "tot_importe_neto_eur": tot_imp_eur,
-    "tot_consecucion_pct": round(tot_p_uds / tot_b_uds * 100, 1) if tot_b_uds > 0 else 0,
+    "tot_consecucion_pct": tot_consec_pct,
+    "tot_consecucion_volumen_pct": tot_consec_pct,
     "tot_forecast_accuracy_pct": tot_acc,
+    "tot_forecast_accuracy_sku_wmape_pct": tot_acc,
+    "tot_wmape_error_pct": tot_wmape_err_pct,
     "comerciales": forecast_comerciales
 }
 

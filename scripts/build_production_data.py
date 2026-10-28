@@ -432,6 +432,10 @@ for sku, d in detailed_skus.items():
         'monthly_forecast': d['monthly_forecast']
     })
 
+# Aliases de compatibilidad para H12 (Stock Compartido en MRP):
+for b_sku, b_item in base_skus_dict.items():
+    b_item['sub_items'] = b_item['destinos']
+
 # CÁLCULO DE ROTACIÓN: SLOWMOVERS Y NOMOVERS BASADO EXCLUSIVAMENTE EN MERCADO NACIONAL
 # (La exportación se fabrica siempre sobre pedido)
 # El stock importante y todas las métricas van en unidades reales (Litros o Kilos), independientemente del envasado
@@ -471,6 +475,7 @@ for b_sku, b_item in base_skus_dict.items():
 for sku, d in detailed_skus.items():
     b_sku = d['base_sku']
     b_item = base_skus_dict[b_sku]
+    d['pedidos_pendientes'] = d.get('pendientes_uds', 0.0)
     d['stock_actual'] = b_item['stock_actual']
     d['stock_envasado'] = b_item['stock_envasado']
     d['stock_litros'] = b_item['stock_litros']

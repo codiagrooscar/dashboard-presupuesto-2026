@@ -5101,18 +5101,19 @@
       const baseItem = (productionData.base_skus || []).find(b => b.base_sku === baseCode);
       const stockInitial = Number(baseItem ? baseItem.stock_actual : item.stock_actual) || 0;
       
+      const subList = (baseItem && (baseItem.destinos || baseItem.sub_items)) || [];
       let sharedPendingTotal = 0;
       let sharedSubItemsList = [];
-      if (baseItem && baseItem.sub_items && baseItem.sub_items.length > 0) {
-        sharedSubItemsList = baseItem.sub_items.filter(s => (Number(s.pendientes_uds) || 0) > 0);
-        sharedPendingTotal = baseItem.sub_items.reduce((acc, s) => acc + (Number(s.pendientes_uds) || 0), 0);
+      if (subList.length > 0) {
+        sharedSubItemsList = subList.filter(s => (Number(s.pendientes_uds) || 0) > 0);
+        sharedPendingTotal = subList.reduce((acc, s) => acc + (Number(s.pendientes_uds) || 0), 0);
       }
       if (sharedPendingTotal === 0) {
         sharedPendingTotal = Number(item.pedidos_pendientes || item.pendientes_uds) || 0;
       }
       
-      const pendingUnits = isBaseView ? sharedPendingTotal : (Number(item.pedidos_pendientes || item.pendientes_uds) || sharedPendingTotal);
-      const isSharedOvercommitted = (sharedSubItemsList.length > 1 && sharedPendingTotal > stockInitial);
+      const pendingUnits = isBaseView ? sharedPendingTotal : (Number(item.pedidos_pendientes || item.pendientes_uds) || 0);
+      const isSharedOvercommitted = (sharedPendingTotal > stockInitial && (subList.length > 1 || sharedSubItemsList.length > 1));
       const sharedDeficit = Math.max(0, sharedPendingTotal - stockInitial);
 
       // Calcular trayectoria a 15 meses (sobre la demanda combinada si el stock es compartido)
@@ -9168,6 +9169,19 @@ function renderResumenTab(container) {
         let bBg = 'rgba(15, 23, 42, 0.7)';
         let bBorder = 'var(--card-border)';
 
+        // Hallazgo H12: Comprobar sobrecompromiso de stock compartido multi-destino
+        let isSharedOvercommitted = false;
+        let sharedPendingTotal = 0;
+        let sharedDeficit = 0;
+        if (bas && (bas.destinos || bas.sub_items)) {
+          const dList = bas.destinos || bas.sub_items || [];
+          sharedPendingTotal = dList.reduce((acc, s) => acc + (Number(s.pendientes_uds) || 0), 0);
+          if (dList.length > 1 && sharedPendingTotal > stockEnvasado && stockEnvasado > 0) {
+            isSharedOvercommitted = true;
+            sharedDeficit = sharedPendingTotal - stockEnvasado;
+          }
+        }
+
         if (totalPendientes === 0) {
           if (totalPedidos > 0) {
             bIcon = '🎉';
@@ -9182,6 +9196,12 @@ function renderResumenTab(container) {
             bBg = 'linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(15,23,42,0.85) 100%)';
             bBorder = '1px solid rgba(56,189,248,0.5)';
           }
+        } else if (isSharedOvercommitted) {
+          bIcon = '⚠️';
+          bTitle = `Stock Compartido Sobrecomprometido (Déficit Global: -${fmtNum(sharedDeficit)} u)`;
+          bDesc = `<strong>Hecho observado:</strong> Aunque para este destino específico constan ${fmtNum(totalPendientes)} u pendientes y el stock físico es ${fmtNum(stockEnvasado)} u, la <strong>reserva global compartida de todos los países suma ${fmtNum(sharedPendingTotal)} u</strong>.<br><strong>Diagnóstico operativo:</strong> El stock físico está superado por la demanda multi-destino. No evaluar aisladamente. Se requiere <strong>Orden de Fabricación inmediata por ${fmtNum(sharedDeficit)} u</strong>.`;
+          bBg = 'linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(15,23,42,0.85) 100%)';
+          bBorder = '1px solid rgba(239,68,68,0.5)';
         } else if (stockEnvasado >= totalPendientes) {
           bIcon = '📦';
           bTitle = `Stock Disponible en Almacén (${fmtNum(stockEnvasado)} u fabricadas para ${fmtNum(totalPendientes)} u pendientes)`;

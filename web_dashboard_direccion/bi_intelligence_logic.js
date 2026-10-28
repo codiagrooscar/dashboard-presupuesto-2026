@@ -684,7 +684,7 @@ function renderForecastAccuracySection() {
           <div style="background:rgba(15,23,42,0.85); padding:0.6rem 1.15rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
             <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700">Consecución Presupuesto</div>
             <div style="font-size:1.6rem; font-weight:800; color:#34d399">${fa.tot_consecucion_pct}%</div>
-            <div style="font-size:0.72rem; color:#94a3b8">Accuracy WAPE (Mes Abierto): <strong style="color:#fbbf24">0,0%*</strong></div>
+            <div style="font-size:0.72rem; color:#94a3b8">Accuracy WMAPE SKU: <strong style="color:#fbbf24">${fa.tot_forecast_accuracy_sku_wmape_pct !== undefined ? fa.tot_forecast_accuracy_sku_wmape_pct + '%' : '0,0%'}</strong></div>
           </div>
         </div>
       </div>
@@ -693,9 +693,9 @@ function renderForecastAccuracySection() {
       <div style="background:rgba(30,41,59,0.7); border:1px solid rgba(56,189,248,0.25); border-radius:var(--radius-md); padding:0.9rem 1.25rem; font-size:0.83rem; color:#cbd5e1; display:flex; align-items:center; gap:0.75rem;">
         <span style="font-size:1.4rem;">ℹ️</span>
         <div>
-          <strong style="color:#38bdf8;">Distinción de Conceptos (Auditoría H21):</strong>
-          El <strong>81,5%</strong> mide el grado de <em>consecución volumétrica del presupuesto mensual</em> (254.091 uds registradas sobre 311.917 uds objetivo).
-          El <strong>0,0%</strong> de Forecast Accuracy en el módulo comercial corresponde a la fórmula WAPE estricta por SKU, que al estar en un <em>mes abierto en curso</em> refleja pedidos en entrada continua y no un fallo cerrado de estimación.
+          <strong style="color:#38bdf8;">Metodología Oficial WMAPE (Auditoría H21):</strong>
+          El <strong>${fa.tot_consecucion_pct}%</strong> mide el grado de <em>consecución volumétrica agregada</em> (${fmtNum(fa.tot_pedidos_uds)} uds pedidas sobre ${fmtNum(fa.tot_budget_uds)} uds presupuestadas).
+          El <strong>${fa.tot_forecast_accuracy_sku_wmape_pct !== undefined ? fa.tot_forecast_accuracy_sku_wmape_pct : 0}%</strong> corresponde a la <em>fiabilidad oficial WMAPE SKU a SKU</em>, calculada sumando los errores absolutos de cada producto individual (|Real - Estimación|) antes de dividir por el volumen real, eliminando cualquier compensación cruzada errónea entre referencias.
         </div>
       </div>
 

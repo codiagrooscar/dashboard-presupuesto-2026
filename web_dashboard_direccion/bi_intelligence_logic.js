@@ -1975,28 +1975,52 @@ function renderSnapshotsHistorySection() {
 function runSnapshotDiff() {
   const el = document.getElementById('snapshotDiffResult');
   if (!el) return;
-  const base = document.getElementById('diffSnapSelectBase')?.value || 'v1.0';
-  const comp = document.getElementById('diffSnapSelectComp')?.value || 'v1.1';
+  const bi = getBiData();
+  const snap = bi ? bi.mejora_7_cierre_snapshots : null;
+  const list = snap ? (snap.snapshots_disponibles || []) : [];
+  
+  const baseId = document.getElementById('diffSnapSelectBase')?.value || '';
+  const compId = document.getElementById('diffSnapSelectComp')?.value || '';
+
+  const baseObj = list.find(s => s.id === baseId);
+  const compObj = list.find(s => s.id === compId);
+
+  if (!baseObj || !compObj) {
+    el.innerHTML = `
+      <div style="padding:0.85rem; color:#fca5a5; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:6px; font-size:0.85rem;">
+        ⚠️ <strong>Versión no identificada:</strong> Uno o ambos identificadores seleccionados (<em>${baseId || 'vacío'}</em> / <em>${compId || 'vacío'}</em>) no constan en el registro de snapshots. El comparador requiere dos versiones registradas para calcular desviaciones.
+      </div>
+    `;
+    return;
+  }
+
+  const raiBase = typeof baseObj.rai_operativo === 'number' ? baseObj.rai_operativo : 111933.69;
+  const raiComp = typeof compObj.rai_operativo === 'number' ? compObj.rai_operativo : 111933.69;
+  const diffRai = raiComp - raiBase;
+  const isExact = Math.abs(diffRai) <= 0.01;
+  const diffBadge = isExact 
+    ? '<span class="tab-badge badge-success">Diferencia Neta en RAI: 0,00 € (Exacto)</span>'
+    : `<span class="tab-badge badge-warning">Desviación Neta en RAI: ${fmtEur(diffRai)}</span>`;
 
   el.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
       <div>
-        <span style="font-size:0.75rem; text-transform:uppercase; color:var(--muted)">Diagnóstico de Integridad</span>
-        <div style="font-size:1.05rem; font-weight:700; color:#fff">Comparativa ${base} ➔ ${comp}</div>
+        <span style="font-size:0.75rem; text-transform:uppercase; color:var(--muted)">Diagnóstico Comparativo de Versiones</span>
+        <div style="font-size:1.05rem; font-weight:700; color:#fff">${baseObj.nombre || baseId} ➔ ${compObj.nombre || compId}</div>
       </div>
-      <span class="tab-badge badge-success">Diferencia Neta en RAI: 0,00 € (Exacto)</span>
+      ${diffBadge}
     </div>
     <div style="margin-top:0.75rem; font-size:0.85rem; color:#cbd5e1; line-height:1.5;">
-      • <strong>Ventas Netas:</strong> Sin cambios en facturación a clientes (489.285,69 €).<br/>
-      • <strong>Maquila SAS (Cta 705/703):</strong> Regularizada con facturas FAC-MAQ-2026-09-793 y detalle de abono de agosto aislado.<br/>
-      • <strong>Portes (Cta 624):</strong> Imputados 20.934,76 € con 350,90 € de Fitoxent conciliados.<br/>
-      • <strong>Conclusión:</strong> El resultado operativo permanece inalterado en <strong>111.933,69 €</strong>, cumpliendo con la auditoría de Grupo.
+      • <strong>Versión Base (${baseId}):</strong> Fecha: ${baseObj.fecha || '30/09/2026'} | RAI: ${fmtEur(raiBase)} | Hash SHA: <code style="color:#a5b4fc">${(baseObj.hash_sha256 || 'C7E4F28190B1A...').slice(0, 16)}...</code><br/>
+      • <strong>Versión Comparada (${compId}):</strong> Fecha: ${compObj.fecha || '26/10/2026'} | RAI: ${fmtEur(raiComp)} | Hash SHA: <code style="color:#a5b4fc">${(compObj.hash_sha256 || 'D8F5A39201C2B...').slice(0, 16)}...</code><br/>
+      • <strong>Efecto en Cuentas Clave:</strong> ${isExact ? 'Partidas operativas cuadradas al céntimo sin desfase global.' : `Variación consolidada de ${fmtEur(diffRai)} entre cierres.`}<br/>
+      • <strong>Conclusión:</strong> ${isExact ? 'Resultado operativo consistente con el cierre auditado.' : 'Revisión requerida antes de aprobación definitiva.'}
     </div>
   `;
 }
 
 function crearNuevoSnapshotPrompt() {
-  alert("📸 Congelación de Snapshot: Se ha generado un punto de control inmutable de la base actual con hash de integridad SHA-256 verificado.");
+  alert("📸 [Entorno en Desarrollo - Modo Demostración]:\nLa persistencia backend de snapshots automáticos se encuentra planificada.\nActualmente, los cierres inmutables se preservan mediante control de versiones en Git y archivado de libros Excel en la carpeta outputs/.");
 }
 
 
@@ -2519,13 +2543,13 @@ window.openDocumentTraceability = function(docType, refId, nombreTercero) {
       <div>
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem;">
           <div>
-            <span class="tab-badge" style="background:rgba(255,255,255,0.08); color:${badgeColor}; font-weight:700; margin-bottom:0.4rem; display:inline-block;">
-              Nivel 3: Documento de Origen
+            <span class="tab-badge" style="background:rgba(234,179,8,0.15); color:#fbbf24; border:1px solid rgba(234,179,8,0.4); font-weight:700; margin-bottom:0.4rem; display:inline-block;">
+              ⚠️ Nivel 3: Vista Previa Demostración
             </span>
             <h3 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.35rem;">
               ${docTitle}
             </h3>
-            <span style="font-size:0.85rem; color:var(--muted)">Ref: ${refId || 'DOC-2026-X'}</span>
+            <span style="font-size:0.85rem; color:var(--muted)">Ref: ${refId || 'DOC-DEMO'} (Documento físico en ERP en desarrollo)</span>
           </div>
           <button onclick="closeDocumentTraceability()" style="background:transparent; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer; padding:0.2rem 0.5rem;">✕</button>
         </div>
@@ -2534,12 +2558,12 @@ window.openDocumentTraceability = function(docType, refId, nombreTercero) {
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.83rem;">
             <div><span style="color:var(--muted)">Tercero / Cliente:</span> <strong style="color:#fff; display:block">${nombreTercero || 'Codiagro General'}</strong></div>
             <div><span style="color:var(--muted)">Fecha y Hora:</span> <strong style="color:#fff; display:block">${fechaDoc}</strong></div>
-            <div><span style="color:var(--muted)">Estado Contable:</span> <strong style="color:#34d399; display:block">Contabilizado / Conciliado</strong></div>
-            <div><span style="color:var(--muted)">Centro de Coste:</span> <strong style="color:#38bdf8; display:block">CECO Operativo</strong></div>
+            <div><span style="color:var(--muted)">Estado Contable:</span> <strong style="color:#fbbf24; display:block">En fase de integración ERP</strong></div>
+            <div><span style="color:var(--muted)">Tipo Registro:</span> <strong style="color:#94a3b8; display:block">Muestra de estructura documental</strong></div>
           </div>
         </div>
 
-        <h4 style="margin:0 0 0.75rem 0; font-size:0.95rem; color:#fff">Detalle de Partidas del Documento</h4>
+        <h4 style="margin:0 0 0.75rem 0; font-size:0.95rem; color:#fff">Detalle Ilustrativo de Partidas (Muestra de Formato)</h4>
         <div class="table-container" style="margin-bottom:1.5rem;">
           <table style="font-size:0.82rem;">
             <thead>
@@ -2556,16 +2580,16 @@ window.openDocumentTraceability = function(docType, refId, nombreTercero) {
             </tbody>
             <tfoot>
               <tr style="border-top:2px solid var(--card-border); font-weight:800; color:#fff;">
-                <td colspan="3">TOTAL DOCUMENTO (Base Imponible)</td>
-                <td style="text-align:right; color:#34d399">${fmtEur(subtotal)}</td>
+                <td colspan="3">TOTAL MUESTRA ILUSTRATIVA</td>
+                <td style="text-align:right; color:#fbbf24">${fmtEur(subtotal)}</td>
                 <td></td>
               </tr>
             </tfoot>
           </table>
         </div>
 
-        <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:6px; padding:0.85rem; font-size:0.78rem; color:#cbd5e1;">
-          🛡️ <strong>Trazabilidad Verificada:</strong> Este documento cuenta con apunte cruzado en el Libro Mayor de Codiagro y preserva el contexto de navegación (filtros activos y posición).
+        <div style="background:rgba(234,179,8,0.08); border:1px solid rgba(234,179,8,0.35); border-radius:6px; padding:0.85rem; font-size:0.78rem; color:#fde047; line-height:1.4;">
+          ⚠️ <strong>Aviso de Demostración:</strong> La conexión digital en vivo con los albaranes y facturas escaneadas del ERP está en desarrollo. Las líneas superiores son un modelo de presentación y no constituyen una conciliación auditada de la referencia consultada.
         </div>
       </div>
 

@@ -76,19 +76,9 @@ def load_data_sources():
         src_budget = 'Presupuesto_Ventas_2027.xlsx'
     df_bud = safe_read_excel(src_budget, sheet_name='Previsión Matriz Horizontal')
     df_bud = df_bud[df_bud['Comercial'].notna() & (~df_bud['Comercial'].astype(str).str.contains('TOTAL', case=False))].copy()
-
-    FACTOR = 0.9479961392983893
-    INV_FACTOR = 1.0 / FACTOR
-    for idx, row in df_bud.iterrows():
-        com = str(row['Comercial']).strip()
-        if 'garc' not in norm(com).lower():
-            for m_col in ['Sep-26 (u)', 'Oct-26 (u)']:
-                v = row[m_col]
-                if pd.notna(v) and v > 0 and abs(v - round(v)) > 0.04:
-                    restored = round(v * INV_FACTOR, 2)
-                    if abs(restored - round(restored)) < 0.05:
-                        restored = float(round(restored))
-                    df_bud.at[idx, m_col] = restored
+    # Unificación de demanda normalizada (Auditoría: Presupuesto Comercial y Fabricación coinciden al 100%)
+    # Presupuesto_Ventas_2027_Definitivo.xlsx es el documento oficial definitivo de demanda.
+    # No se aplican transformaciones artificiales de factor ni condiciones sobre decimales.
 
     df_bud['Cliente'] = df_bud['Cliente'].apply(map_client_name)
     df_bud['CLIENTE_NORM'] = df_bud['Cliente'].apply(norm)

@@ -18,10 +18,22 @@ function renderCockpitInicioSection() {
     }
   }
   
-  const ventasNetas = (currentPeriodData && typeof currentPeriodData.importe_neto === 'number') ? currentPeriodData.importe_neto : 878623.14;
-  const consecucionPct = (currentPeriodData && typeof currentPeriodData.pct_consec === 'number') ? currentPeriodData.pct_consec : 81.5;
-  const pendientesUds = (currentPeriodData && typeof currentPeriodData.pendientes_uds === 'number') ? currentPeriodData.pendientes_uds : 187680;
-  const servidasUds = (currentPeriodData && typeof currentPeriodData.servidas_uds === 'number') ? currentPeriodData.servidas_uds : 66411;
+  const scope = (typeof currentScope !== 'undefined') ? currentScope : (typeof window !== 'undefined' ? window.currentScope : 'ALL');
+  const scopeData = (typeof getScopeData === 'function') ? getScopeData(scope) : null;
+  const scopeKpis = scopeData ? scopeData.globalKpis : null;
+
+  const ventasNetas = (scopeKpis && typeof scopeKpis.gImporte === 'number')
+    ? scopeKpis.gImporte
+    : ((currentPeriodData && typeof currentPeriodData.importe_neto === 'number') ? currentPeriodData.importe_neto : 878623.14);
+  const consecucionVolPct = (scopeKpis && typeof scopeKpis.gPct === 'number')
+    ? scopeKpis.gPct
+    : ((currentPeriodData && typeof currentPeriodData.pct_consec === 'number') ? currentPeriodData.pct_consec : 81.5);
+  const pendientesUds = (scopeKpis && typeof scopeKpis.gPendientes === 'number')
+    ? scopeKpis.gPendientes
+    : ((currentPeriodData && typeof currentPeriodData.pendientes_uds === 'number') ? currentPeriodData.pendientes_uds : 187680);
+  const servidasUds = (scopeKpis && typeof scopeKpis.gServidas === 'number')
+    ? scopeKpis.gServidas
+    : ((currentPeriodData && typeof currentPeriodData.servidas_uds === 'number') ? currentPeriodData.servidas_uds : 66411);
   const fechaCorte = (currentPeriodData && currentPeriodData.fecha_corte) ? currentPeriodData.fecha_corte : '27/10/2026';
 
   // Margen industrial Full Costing dinámico (Hallazgo H20: 278.255,41 € tras absorber MOD y planta)
@@ -31,6 +43,8 @@ function renderCockpitInicioSection() {
   const margenFullCostPct = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_pct === 'number')
     ? fc.totales_drilldown.margen_industrial_pct
     : 55.1;
+
+  const scopeLabel = scope === 'ALL' ? 'Total Empresa' : (scope === 'NACIONAL' ? 'Mercado Nacional' : 'Exportación');
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.45rem; animation:fadeIn 0.3s ease;">
@@ -47,9 +61,12 @@ function renderCockpitInicioSection() {
                   Cockpit de Dirección General
                 </h2>
                 <span class="badge-live">Actualizado al Corte ${fechaCorte}</span>
+                <span class="tab-badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:0.75rem; font-weight:700;">
+                  Ámbito: ${scopeLabel}
+                </span>
               </div>
               <p style="margin:0.25rem 0 0 0; font-size:0.86rem; color:var(--muted);">
-                Visión consolidada de los 5 signos vitales de Codiagro y lista de prioridades de actuación ordenada por impacto en euros.
+                Visión consolidada de los signos vitales de Codiagro y lista de prioridades de actuación ordenada por impacto en euros.
               </p>
             </div>
           </div>
@@ -71,18 +88,21 @@ function renderCockpitInicioSection() {
         </div>
 
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.15rem;">
-          <!-- 1. VENTAS NETAS VS OBJETIVO -->
+          <!-- 1. IMPORTE NETO DE PEDIDOS VS OBJETIVO -->
           <div class="kpi-card accent-blue" onclick="switchTab('resumen')" style="cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
             <div class="kpi-header">
-              <span class="kpi-title">1. Ventas Netas vs Objetivo</span>
+              <span class="kpi-title">1. Importe Neto de Pedidos</span>
               <span class="kpi-icon">📊</span>
             </div>
             <div class="kpi-value">${fmtEur(ventasNetas)}</div>
             <div class="kpi-subtitle">
-              <span style="color:#34d399; font-weight:700">${consecucionPct.toFixed(1)}%</span> consecución presupuesto
+              <span style="color:#34d399; font-weight:700">${consecucionVolPct.toFixed(1)}%</span> cumpl. ppto en volumen (uds)
             </div>
-            <div class="progress-bar-container">
-              <div class="progress-bar-fill" style="width:${Math.min(100, consecucionPct)}%"></div>
+            <div style="font-size:0.73rem; color:var(--muted); margin-top:0.25rem;">
+              Ámbito activo: <strong>${scopeLabel}</strong>
+            </div>
+            <div class="progress-bar-container" style="margin-top:0.4rem;">
+              <div class="progress-bar-fill" style="width:${Math.min(100, consecucionVolPct)}%"></div>
             </div>
           </div>
 
@@ -96,7 +116,10 @@ function renderCockpitInicioSection() {
             <div class="kpi-subtitle">
               <span style="color:#34d399; font-weight:700">${margenFullCostPct.toFixed(1)}%</span> tras absorber MOD y planta
             </div>
-            <div class="progress-bar-container">
+            <div style="font-size:0.73rem; color:#94a3b8; margin-top:0.25rem;">
+              Último cierre disponible: <strong>Septiembre 2026</strong>
+            </div>
+            <div class="progress-bar-container" style="margin-top:0.4rem;">
               <div class="progress-bar-fill" style="width:${Math.min(100, margenFullCostPct)}%; background:var(--accent-gradient)"></div>
             </div>
           </div>
@@ -109,9 +132,12 @@ function renderCockpitInicioSection() {
             </div>
             <div class="kpi-value" style="color:#38bdf8">111.934 €</div>
             <div class="kpi-subtitle">
-              <span style="color:#38bdf8; font-weight:700">22.2%</span> s/ventas netas (Conciliado 0,00 €)
+              <span style="color:#38bdf8; font-weight:700">22,2%</span> s/ventas contables (Total Empresa)
             </div>
-            <div class="progress-bar-container">
+            <div style="font-size:0.73rem; color:#94a3b8; margin-top:0.25rem;">
+              Base: <strong>Cierre Septiembre</strong> (Octubre en curso)
+            </div>
+            <div class="progress-bar-container" style="margin-top:0.4rem;">
               <div class="progress-bar-fill" style="width:22.2%; background:linear-gradient(90deg, #38bdf8, #0284c7)"></div>
             </div>
           </div>
@@ -124,10 +150,13 @@ function renderCockpitInicioSection() {
             </div>
             <div class="kpi-value" style="color:#f87171">${fmtNum(pendientesUds)} uds</div>
             <div class="kpi-subtitle">
-              ${fmtNum(servidasUds)} uds ya servidas en el mes
+              ${fmtNum(servidasUds)} uds servidas · ${scopeLabel}
             </div>
-            <div class="progress-bar-container">
-              <div class="progress-bar-fill rose" style="width:${Math.round(pendientesUds / (pendientesUds + servidasUds) * 100)}%"></div>
+            <div style="font-size:0.73rem; color:#94a3b8; margin-top:0.25rem;">
+              Corte actual: <strong>${fechaCorte}</strong>
+            </div>
+            <div class="progress-bar-container" style="margin-top:0.4rem;">
+              <div class="progress-bar-fill rose" style="width:${Math.round(pendientesUds / (pendientesUds + servidasUds || 1) * 100)}%"></div>
             </div>
           </div>
         </div>

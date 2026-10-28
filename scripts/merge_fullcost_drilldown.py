@@ -237,26 +237,39 @@ if fc_wb_path:
                 "tipo": tipo if tipo else "Gasto"
             }
         rai_calc = round(ingresos_tot - gastos_tot, 2)
-        if '622010200' in cuentas_detalle:
-            delta_cta = abs(cuentas_detalle['622010200']['saldo_mes']) - 1288.62
-            if abs(delta_cta) > 0.01:
-                delta_plant_cost += delta_cta
 
-    # 2. Delta desde Costes_activos (Mantenimiento/CIF industrial)
+    # 2. Delta desde Costes_activos (Mantenimiento/CIF industrial) respetando exclusión de Col N (Ya en fórmula SKU)
+    BASE_CA_IND = 34086.40
+    ca_ind_sum = 0.0
+    ca_622010200_imp = 1288.62
     if 'Costes_activos' in wb_fc.sheetnames:
         ws_ca = wb_fc['Costes_activos']
-        ca_ind_sum = 0.0
         for r in range(7, 35):
             ceco_ca = str(ws_ca.cell(r, 6).value or '').strip()
             imp_ca = ws_ca.cell(r, 5).value
+            ya_formula = str(ws_ca.cell(r, 14).value or '').strip().lower()
+            cta_ca = str(ws_ca.cell(r, 2).value or '').strip()
+            if cta_ca == '622010200' and imp_ca is not None:
+                try: ca_622010200_imp = float(imp_ca)
+                except: pass
+            
+            # Excluir materias primas/envases ya incluidos en fórmula SKU (Columna N)
+            if ya_formula in ['si', 'sí', 'yes']:
+                continue
+                
             if ceco_ca in ['110', '120', '130', '140', '210', '220', '240'] and imp_ca is not None:
                 try:
                     ca_ind_sum += float(imp_ca)
                 except (ValueError, TypeError):
                     pass
-        delta_ca = ca_ind_sum - 30951.25
-        if abs(delta_ca) > 0.01 and abs(delta_plant_cost) < 0.01:
-            delta_plant_cost = delta_ca
+        delta_ca = ca_ind_sum - BASE_CA_IND
+        delta_plant_cost += delta_ca
+
+    # Si la cuenta 622010200 en Cuentas tiene un incremento adicional que no está en Costes_activos:
+    if '622010200' in cuentas_detalle:
+        delta_cta = max(0.0, abs(cuentas_detalle['622010200']['saldo_mes']) - ca_622010200_imp)
+        if abs(delta_cta) > 0.01:
+            delta_plant_cost += delta_cta
 
     # 3. Actualizar horas reales por CECO desde la hoja 'Produccion' (Hallazgo H05: proceso K + limpieza L y filtro temporal estricto)
     if 'Produccion' in wb_fc.sheetnames:
@@ -529,18 +542,21 @@ fc_full["capacidades"] = [
 ]
 
 # Sincronización viva de capacidades desde Producción (Hallazgo H05: proceso K + limpieza L y fechas de sep-26)
-if h_tot_by_ceco:
+if fc_wb_path and 'Produccion' in wb_fc.sheetnames:
     for cap in fc_full["capacidades"]:
         c_code = cap["ceco"]
-        if c_code in h_tot_by_ceco:
-            h_real = round(h_tot_by_ceco[c_code], 2)
-            cap["horas_reales"] = h_real
-            cap["horas_proceso"] = round(h_k_by_ceco[c_code], 2)
-            cap["horas_preparacion_limpieza"] = round(h_l_by_ceco[c_code], 2)
-            cap["horas_personas"] = round(h_m_by_ceco[c_code], 2)
-            cap["subactividad_horas"] = round(cap["horas_nominales"] - h_real, 2)
-            cap["utilizacion_pct"] = round(h_real / cap["horas_nominales"] * 100, 1) if cap["horas_nominales"] > 0 else 0.0
-            cap["subactividad_pct"] = round(100.0 - cap["utilizacion_pct"], 1)
+        h_real = round(h_tot_by_ceco.get(c_code, 0.0), 2)
+        h_proc = round(h_k_by_ceco.get(c_code, 0.0), 2)
+        h_prep = round(h_l_by_ceco.get(c_code, 0.0), 2)
+        h_pers = round(h_m_by_ceco.get(c_code, 0.0), 2)
+        cap["horas_reales"] = h_real
+        cap["horas_proceso"] = h_proc
+        cap["horas_preparacion_limpieza"] = h_prep
+        cap["horas_personas"] = h_pers
+        cap["subactividad_horas"] = round(cap["horas_nominales"] - h_real, 2)
+        cap["utilizacion_pct"] = round(h_real / cap["horas_nominales"] * 100, 1) if cap["horas_nominales"] > 0 else 0.0
+        cap["subactividad_pct"] = round(100.0 - cap["utilizacion_pct"], 1)
+        cap["estado"] = "Auditado ERP" if h_real > 0 else "0 h registradas en período"
 
 # Sincronización viva de cuentas del mayor y RAI (Hallazgo H15)
 if cuentas_detalle:
@@ -556,14 +572,19 @@ if cuentas_detalle:
         fc_full["cuentas_resumen"]["total_cuentas"] = len(cuentas_detalle)
 
 # Actualizar cascada PnL (pnl_waterfall) dinámicamente con los costes de planta y RAI vigentes
+# Garantiza que el sumatorio exacto de Niveles 1 a 6 coincida al céntimo con el RAI final
 if "pnl_waterfall" in fc_full:
+    sub4_val = round(214693.96 - delta_plant_cost, 2)
     for item in fc_full["pnl_waterfall"]:
         if item.get("nivel") == 4:
             item["importe"] = round(-56220.56 - delta_plant_cost, 2)
         elif item.get("nivel") == "SUB3":
             item["importe"] = round(278255.41 - delta_plant_cost, 2)
         elif item.get("nivel") == "SUB4":
-            item["importe"] = round(214693.96 - delta_plant_cost, 2)
+            item["importe"] = sub4_val
+        elif item.get("nivel") == 6:
+            # Nivel 6 explica la diferencia entre SUB4 y el RAI final contable
+            item["importe"] = round(rai_calc - sub4_val, 2)
         elif item.get("nivel") == "FINAL":
             item["importe"] = round(rai_calc, 2)
 

@@ -5004,6 +5004,8 @@
             </div>
           </div>
         `;
+      }
+
       let sharedStockAlertHtml = '';
       if (isSharedOvercommitted) {
         sharedStockAlertHtml = `
@@ -5011,12 +5013,12 @@
             <span style="font-size:1.4rem; line-height:1">⚠️</span>
             <div>
               <div style="font-weight:800; color:#f87171; font-size:0.92rem">
-                Reserva Única de Stock Compartido (${code}): Déficit Neto -${fmtNum(sharedDeficit)} uds
+                Demanda Compartida y Sobrecompromiso (${code}): Déficit Conjunto -${fmtNum(sharedDeficit)} uds
               </div>
               <div style="font-size:0.8rem; color:#cbd5e1; margin-top:0.3rem; line-height:1.45">
                 El stock físico disponible (${fmtNum(stockInitial)} uds) se comparte entre varios destinos (${sharedSubItemsList.map(s => `<strong>${s.sku || s.pais}</strong>: ${fmtNum(s.pendientes_uds)} u`).join(' + ')} = <strong>${fmtNum(sharedPendingTotal)} uds</strong> demandadas).
                 <br/>
-                <span style="color:#fca5a5">No se evalúa cada destino de forma aislada; la demanda combinada agota el stock y exige <strong>Orden de Fabricación inmediata por ${fmtNum(sharedDeficit)} uds</strong>.</span>
+                <span style="color:#fca5a5">Demanda concurrente sobre el mismo SKU físico. Asignación y reserva por pedido en desarrollo; fechas ATP orientativas. Exige <strong>Orden de Fabricación por ${fmtNum(sharedDeficit)} uds</strong>.</span>
               </div>
             </div>
           </div>

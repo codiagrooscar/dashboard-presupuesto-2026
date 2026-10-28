@@ -55,16 +55,20 @@ window.fullCostData = {
         "130": 0.15,
         "140": 0.15
       }
-    }
+    },
+    "ventas_reales_cta_700": 632880.07,
+    "ventas_netas_grupo_7": 614368.98,
+    "variacion_existencias_pt": -109366.49,
+    "produccion_neta_planta": 505002.49
   },
   "pnl_waterfall": [
     {
       "nivel": 1,
-      "concepto": "Ventas Netas y Otros Ingresos Operativos",
+      "concepto": "Cifra Neta de Negocio y Producción Fabril (Valor de Producción)",
       "importe": 505002.49,
       "pct_ventas": 100.0,
       "tipo": "ingreso",
-      "detalle": "Ventas clientes (489.288,44 €) + Maquila SAS (3.682,80 €) + Otros ingresos de gestión (12.031,25 €)."
+      "detalle": "Ventas brutas mercaderías Cta 700 (632.880,07 €) + Otros ingresos Grupo 7 (−18.511,09 €) − Salida stock almacén PT Ctas 711/712 (−109.366,49 €) = 505.002,49 € valor neto de producción fabril del mes."
     },
     {
       "nivel": 2,
@@ -2389,6 +2393,10 @@ window.fullCostData = {
   ],
   "totales_drilldown": {
     "ventas": 457931.55,
+    "ventas_reales_cta_700": 632880.07,
+    "ventas_netas_grupo_7": 614368.98,
+    "variacion_existencias_pt": -109366.49,
+    "produccion_neta_planta": 505002.49,
     "cogs_materiales": 181587.16,
     "coste_planta": 124561.76,
     "margen_industrial_eur": 151782.63,

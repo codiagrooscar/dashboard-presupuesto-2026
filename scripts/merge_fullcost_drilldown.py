@@ -803,7 +803,10 @@ if "metadata" in fc_full:
 
 if "pnl_waterfall" in fc_full:
     for item in fc_full["pnl_waterfall"]:
-        if item.get("nivel") == 4:
+        if item.get("nivel") == 1:
+            item["concepto"] = "Cifra Neta de Negocio y Producción Fabril (Valor de Producción)"
+            item["detalle"] = "Ventas brutas mercaderías Cta 700 (632.880,07 €) + Otros ingresos Grupo 7 (−18.511,09 €) − Salida stock almacén PT Ctas 711/712 (−109.366,49 €) = 505.002,49 € valor neto de producción fabril del mes."
+        elif item.get("nivel") == 4:
             item["importe"] = round(-56220.56 - delta_plant_cost, 2)
         elif item.get("nivel") == "SUB3":
             item["importe"] = round(278255.41 - delta_plant_cost, 2)
@@ -827,11 +830,19 @@ fc_full["metadata"]["incidencias_costes_activos"] = incidencias_ca
 fc_full["metadata"]["tarifas_ceco_eur_h"] = {c: round(rate_by_ceco[c], 2) for c in rate_by_ceco}
 fc_full["metadata"]["costes_ceco_eur"] = {c: round(final_cost_by_ceco[c], 2) for c in final_cost_by_ceco}
 fc_full["metadata"]["modelos_analiticos"] = modelos_analiticos
+fc_full["metadata"]["ventas_reales_cta_700"] = 632880.07
+fc_full["metadata"]["ventas_netas_grupo_7"] = 614368.98
+fc_full["metadata"]["variacion_existencias_pt"] = -109366.49
+fc_full["metadata"]["produccion_neta_planta"] = 505002.49
 
 fc_full["modelos_analiticos"] = modelos_analiticos
 
 fc_full["totales_drilldown"] = {
     "ventas": round(tot_v_sep, 2),
+    "ventas_reales_cta_700": 632880.07,
+    "ventas_netas_grupo_7": 614368.98,
+    "variacion_existencias_pt": -109366.49,
+    "produccion_neta_planta": 505002.49,
     "cogs_materiales": round(tot_cogs_sep, 2),
     "coste_planta": round(target_plant_cost, 2),
     "margen_industrial_eur": round(tot_v_sep - tot_cogs_sep - target_plant_cost, 2),

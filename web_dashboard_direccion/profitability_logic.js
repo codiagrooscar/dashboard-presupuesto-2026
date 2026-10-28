@@ -2054,7 +2054,20 @@ function renderProfitFullCostView() {
   const waterfall = fc.pnl_waterfall || [];
   const ingWaterfall = waterfall.find(x => x.nivel === 1 || x.tipo === 'ingreso');
   const totalIngresos = (ingWaterfall && typeof ingWaterfall.importe === 'number') ? ingWaterfall.importe : 505002.49;
-  const pctRaiS_Ventas = (totalIngresos > 0 && typeof raiCalculado === 'number' && !isNaN(raiCalculado))
+  const cDet = (fc && fc.cuentas_detalle) ? fc.cuentas_detalle : null;
+  const ventasReales700 = (meta && typeof meta.ventas_reales_cta_700 === 'number')
+    ? meta.ventas_reales_cta_700
+    : ((cDet && cDet['700000000'] && typeof cDet['700000000'].saldo_mes === 'number')
+        ? Math.abs(cDet['700000000'].saldo_mes)
+        : 632880.07);
+  const ventasNetasGrupo7 = (meta && typeof meta.ventas_netas_grupo_7 === 'number') ? meta.ventas_netas_grupo_7 : 614368.98;
+  const varExistenciasPT = (meta && typeof meta.variacion_existencias_pt === 'number') ? meta.variacion_existencias_pt : -109366.49;
+  const produccionNetaPlanta = totalIngresos;
+
+  const pctRaiS_VentasNetas = (ventasNetasGrupo7 > 0 && typeof raiCalculado === 'number' && !isNaN(raiCalculado))
+    ? (raiCalculado / ventasNetasGrupo7 * 100).toFixed(1).replace('.', ',') + '%'
+    : '18,2%';
+  const pctRaiS_Prod = (totalIngresos > 0 && typeof raiCalculado === 'number' && !isNaN(raiCalculado))
     ? (raiCalculado / totalIngresos * 100).toFixed(1).replace('.', ',') + '%'
     : '22,2%';
   const sub3Item = waterfall.find(x => x.nivel === 'SUB3');
@@ -2123,12 +2136,15 @@ function renderProfitFullCostView() {
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem">
         <div class="kpi-card accent-blue">
           <div class="kpi-header">
-            <span class="kpi-title">INGRESOS TOTALES SEP-26</span>
-            <span class="tab-badge badge-info">100% Ventas</span>
+            <span class="kpi-title">VENTAS FACTURADAS REALES (SEP-26)</span>
+            <span class="tab-badge badge-info" style="font-weight:800">> 600k € Libro Mayor</span>
           </div>
-          <div class="kpi-value" style="color:#60a5fa">505.002,49 €</div>
+          <div class="kpi-value" style="color:#60a5fa">${fmtEur(ventasReales700)}</div>
           <div class="kpi-detail">
-            <span>Clientes: 489,3k € | Maquila SAS: 3,7k € | Otros: 12,0k €</span>
+            <span>Cta 700 Mercaderías: <strong>${fmtEur(ventasReales700)}</strong> | Neto Grupo 7: <strong>${fmtEur(ventasNetasGrupo7)}</strong></span>
+          </div>
+          <div style="font-size:0.71rem; color:#94a3b8; margin-top:0.35rem; border-top:1px dashed rgba(255,255,255,0.12); padding-top:0.35rem; line-height:1.35">
+            Salida stock PT almacén (Ctas 711/712): <strong style="color:#cbd5e1">${fmtEur(varExistenciasPT)}</strong> → Producción fabril: <strong style="color:#38bdf8">${fmtEur(produccionNetaPlanta)}</strong>
           </div>
         </div>
 
@@ -2147,12 +2163,12 @@ function renderProfitFullCostView() {
           <div class="kpi-header">
             <span class="kpi-title">RAI ANALÍTICO CASCADA</span>
             <span class="tab-badge ${diffConciliacion <= 0.05 ? 'badge-success' : 'badge-danger'}">
-              ${diffConciliacion <= 0.05 ? pctRaiS_Ventas + ' S/Ventas' : 'Descuadre ' + fmtEur(diffConciliacion)}
+              ${diffConciliacion <= 0.05 ? pctRaiS_VentasNetas + ' S/Ventas Netas' : 'Descuadre ' + fmtEur(diffConciliacion)}
             </span>
           </div>
           <div class="kpi-value" style="color:#34d399">${fmtEur(raiCalculado)}</div>
           <div class="kpi-detail">
-            <span>${diffConciliacion <= 0.05 ? 'Conciliación exacta sin desfases con P&G Grupo' : '<span style=\"color:#f87171; font-weight:700\">Desviación de ' + fmtEur(diffConciliacion) + ' pendiente de conciliar con P&G</span>'}</span>
+            <span>${diffConciliacion <= 0.05 ? 'Conciliación exacta sin desfases con P&G Grupo (0,00 € | ' + pctRaiS_Prod + ' s/producción fabril)' : '<span style=\"color:#f87171; font-weight:700\">Desviación de ' + fmtEur(diffConciliacion) + ' pendiente de conciliar con P&G</span>'}</span>
           </div>
         </div>
 
@@ -2656,13 +2672,13 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
                   <td style="color:#fff">Margen Planta Completo (Reportado en Cascada / Portada)</td>
                   <td style="text-align:right; color:#38bdf8; font-weight:800">${fmtEur((fc && fc.pnl_waterfall && fc.pnl_waterfall.find(x => x.nivel === 'SUB3')) ? fc.pnl_waterfall.find(x => x.nivel === 'SUB3').importe : 278255.41)}</td>
                   <td style="text-align:right; color:#38bdf8">55,1%</td>
-                  <td style="color:#cbd5e1">Margen global contable de septiembre (505.002 € ventas - 102.185 € materiales - 124.562 € planta).</td>
+                  <td style="color:#cbd5e1">Margen global contable de septiembre (505.002 € producción fabril - 102.185 € materiales - 124.562 € planta).</td>
                 </tr>
                 <tr>
                   <td style="color:#f87171">(-) Diferencia de Perímetro Comercial en Ingresos de Venta</td>
                   <td style="text-align:right; color:#f87171; font-weight:700">-47.070,94 €</td>
                   <td style="text-align:right; color:#f87171">-9,3%</td>
-                  <td style="color:#94a3b8">Ingresos globales del Libro Mayor (505.002,49 €) vs pedidos/albaranes comerciales desagregados (457.931,55 €).</td>
+                  <td style="color:#94a3b8">Producción imputable fabril (505.002,49 € tras -109,4k € stock PT) vs pedidos de clientes analizados (457.931,55 €). Ventas reales Cta 700: 632.880,07 € (Neto G7: 614.368,98 €).</td>
                 </tr>
                 <tr>
                   <td style="color:#f87171">(-) Diferencia de Criterio de Valoración en Materiales y Envases</td>

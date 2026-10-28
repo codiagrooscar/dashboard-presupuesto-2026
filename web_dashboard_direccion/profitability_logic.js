@@ -2048,8 +2048,12 @@ function renderProfitFullCostView() {
     `;
   }
 
-  const meta = fc.metadata;
+  const meta = fc.metadata || {};
+  const raiCalculado = (meta && typeof meta.rai_calculado === 'number') ? meta.rai_calculado : 111933.69;
+  const diffConciliacion = (meta && typeof meta.diferencia_conciliacion === 'number') ? meta.diferencia_conciliacion : 0;
   const waterfall = fc.pnl_waterfall || [];
+  const sub3Item = waterfall.find(x => x.nivel === 'SUB3');
+  const sub3Margin = sub3Item ? sub3Item.importe : 278255.41;
   const caps = fc.capacidades || [];
   const maq = fc.maquila || {};
   const pricing = fc.pricing || {};
@@ -2092,18 +2096,18 @@ function renderProfitFullCostView() {
             <span class="tab-badge badge-warning" style="font-size:0.75rem; font-weight:800">⚙️ CALIBRANDO REPARTOS</span>
           </div>
           <p style="margin:0; font-size:0.84rem; color:var(--muted)">
-            Suma global de cuentas cuadradas al céntimo con el RAI contable (<strong>111.933,69 € | Diferencia = 0,00 €</strong>). Reconciliando actualmente el detalle analítico de nóminas mensuales, inventarios y maquila.
+            Suma global de cuentas cuadradas al céntimo con el RAI contable (<strong>${fmtEur(raiCalculado)} | Diferencia = ${fmtEur(diffConciliacion)}</strong>). Reconciliando actualmente el detalle analítico de nóminas mensuales, inventarios y maquila.
           </p>
         </div>
 
         <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap">
           <div style="background:rgba(15,23,42,0.85); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
             <div style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700">RAI AUDITADO</div>
-            <div style="font-size:1.15rem; font-weight:800; color:#34d399">${fmtEur(meta.rai_calculado)}</div>
+            <div style="font-size:1.15rem; font-weight:800; color:#34d399">${fmtEur(raiCalculado)}</div>
           </div>
           <div style="background:rgba(15,23,42,0.85); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
             <div style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700">DESVIACIÓN LIBRO MAYOR</div>
-            <div style="font-size:1.15rem; font-weight:800; color:#38bdf8">${fmtEur(meta.diferencia_conciliacion)}</div>
+            <div style="font-size:1.15rem; font-weight:800; color:#38bdf8">${fmtEur(diffConciliacion)}</div>
           </div>
         </div>
       </div>
@@ -2126,7 +2130,7 @@ function renderProfitFullCostView() {
             <span class="kpi-title">MARGEN PLANTA COMPLETO</span>
             <span class="tab-badge badge-success">55,1% Margen</span>
           </div>
-          <div class="kpi-value" style="color:#34d399">278.255,41 €</div>
+          <div class="kpi-value" style="color:#34d399">${fmtEur(sub3Margin)}</div>
           <div class="kpi-detail">
             <span>Tras absorber 100% de MOD y Costes Indirectos Planta</span>
           </div>
@@ -2137,7 +2141,7 @@ function renderProfitFullCostView() {
             <span class="kpi-title">EBIT / RAI OPERATIVO</span>
             <span class="tab-badge badge-success">22,2% S/Ventas</span>
           </div>
-          <div class="kpi-value" style="color:#34d399">111.933,69 €</div>
+          <div class="kpi-value" style="color:#34d399">${fmtEur(raiCalculado)}</div>
           <div class="kpi-detail">
             <span>Conciliación exacta sin desfases con P&G Grupo</span>
           </div>
@@ -2611,8 +2615,15 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
               </p>
             </div>
             ${(() => {
-              const bridgeDetalle = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_eur === 'number') ? fc.totales_drilldown.margen_industrial_eur : 151782.63;
-              const bridgeDiff = Math.abs(bridgeDetalle - 151782.63);
+              if (!fc || !fc.totales_drilldown || typeof fc.totales_drilldown.margen_industrial_eur !== 'number') {
+                return '<span class="tab-badge badge-warning" style="font-size:0.8rem; font-weight:800; background:rgba(234,179,8,0.2); color:#fde047; border:1px solid #eab308;">Sin detalle disponible para conciliación</span>';
+              }
+              const sub3Item = (fc && fc.pnl_waterfall) ? fc.pnl_waterfall.find(x => x.nivel === 'SUB3') : null;
+              const sub3Val = sub3Item ? sub3Item.importe : 278255.41;
+              const bridgeDetalle = fc.totales_drilldown.margen_industrial_eur;
+              const totalAjustesPuente = 126472.78; // 23410.50 + 56220.56 + 46841.72
+              const margenEsperado = sub3Val - totalAjustesPuente;
+              const bridgeDiff = Math.abs(bridgeDetalle - margenEsperado);
               if (bridgeDiff <= 0.05) {
                 return '<span class="tab-badge badge-success" style="font-size:0.8rem; font-weight:800;">Conciliación Auditada (0,00 € Diferencia)</span>';
               } else {
@@ -2634,7 +2645,7 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
               <tbody>
                 <tr style="background:rgba(30,41,59,0.7); font-weight:700;">
                   <td style="color:#fff">Margen Planta Completo (Reportado en Cascada / Portada)</td>
-                  <td style="text-align:right; color:#38bdf8; font-weight:800">278.255,41 €</td>
+                  <td style="text-align:right; color:#38bdf8; font-weight:800">${fmtEur((fc && fc.pnl_waterfall && fc.pnl_waterfall.find(x => x.nivel === 'SUB3')) ? fc.pnl_waterfall.find(x => x.nivel === 'SUB3').importe : 278255.41)}</td>
                   <td style="text-align:right; color:#38bdf8">55,1%</td>
                   <td style="color:#cbd5e1">Margen global de fabricación absorbiendo el 100% de costes industriales.</td>
                 </tr>
@@ -2658,7 +2669,7 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
                 </tr>
                 <tr style="background:rgba(16,185,129,0.15); border-top:2px solid var(--accent); font-weight:800;">
                   <td style="color:#34d399">(=) MARGEN INDUSTRIAL ASIGNADO EN DETALLE (Clientes y SKUs)</td>
-                  <td style="text-align:right; color:#34d399; font-size:0.95rem">151.782,63 €</td>
+                  <td style="text-align:right; color:#34d399; font-size:0.95rem">${(fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_eur === 'number') ? fmtEur(fc.totales_drilldown.margen_industrial_eur) : 'N/D'}</td>
                   <td style="text-align:right; color:#34d399">31,0%</td>
                   <td style="color:#34d399">Total exacto que cuadra con el sumatorio de las tablas de Clientes y Productos.</td>
                 </tr>

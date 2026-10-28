@@ -45,8 +45,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         path = parsed.path
 
         if path == '/api/data':
-            json_file = PROJECT_DIR / 'dashboard_data.json'
+            json_file = BASE_DIR / 'dashboard_data.json'
             if not json_file.exists():
+                json_file = PROJECT_DIR / 'dashboard_data.json'
+            if not json_file.exists():
+                import sys
+                scripts_dir = str(PROJECT_DIR / 'scripts')
+                if scripts_dir not in sys.path:
+                    sys.path.insert(0, scripts_dir)
                 from build_dataset import build_dataset
                 data = build_dataset()
                 with open(json_file, 'w', encoding='utf-8') as f:

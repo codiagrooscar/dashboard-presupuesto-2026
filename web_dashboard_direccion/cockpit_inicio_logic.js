@@ -22,19 +22,19 @@ function renderCockpitInicioSection() {
   const scopeData = (typeof getScopeData === 'function') ? getScopeData(scope) : null;
   const scopeKpis = scopeData ? scopeData.globalKpis : null;
 
-  const ventasNetas = (scopeKpis && typeof scopeKpis.gImporte === 'number')
-    ? scopeKpis.gImporte
-    : ((currentPeriodData && typeof currentPeriodData.importe_neto === 'number') ? currentPeriodData.importe_neto : 878623.14);
-  const consecucionVolPct = (scopeKpis && typeof scopeKpis.gPct === 'number')
-    ? scopeKpis.gPct
-    : ((currentPeriodData && typeof currentPeriodData.pct_consec === 'number') ? currentPeriodData.pct_consec : 81.5);
-  const pendientesUds = (scopeKpis && typeof scopeKpis.gPendientes === 'number')
-    ? scopeKpis.gPendientes
-    : ((currentPeriodData && typeof currentPeriodData.pendientes_uds === 'number') ? currentPeriodData.pendientes_uds : 187680);
-  const servidasUds = (scopeKpis && typeof scopeKpis.gServidas === 'number')
-    ? scopeKpis.gServidas
-    : ((currentPeriodData && typeof currentPeriodData.servidas_uds === 'number') ? currentPeriodData.servidas_uds : 66411);
-  const fechaCorte = (currentPeriodData && currentPeriodData.fecha_corte) ? currentPeriodData.fecha_corte : '27/10/2026';
+  const ventasNetas = (scopeKpis && typeof scopeKpis.importe_neto === 'number')
+    ? scopeKpis.importe_neto
+    : ((currentPeriodData && typeof currentPeriodData.importe_neto === 'number') ? currentPeriodData.importe_neto : 926645.70);
+  const consecucionVolPct = (scopeKpis && typeof scopeKpis.pct_consec === 'number')
+    ? scopeKpis.pct_consec
+    : ((currentPeriodData && typeof currentPeriodData.pct_consec === 'number') ? currentPeriodData.pct_consec : 96.6);
+  const pendientesUds = (scopeKpis && typeof scopeKpis.pendientes_uds === 'number')
+    ? scopeKpis.pendientes_uds
+    : ((currentPeriodData && typeof currentPeriodData.pendientes_uds === 'number') ? currentPeriodData.pendientes_uds : 194436);
+  const servidasUds = (scopeKpis && typeof scopeKpis.servidas_uds === 'number')
+    ? scopeKpis.servidas_uds
+    : ((currentPeriodData && typeof currentPeriodData.servidas_uds === 'number') ? currentPeriodData.servidas_uds : 69919);
+  const fechaCorte = (currentPeriodData && currentPeriodData.fecha_corte) ? currentPeriodData.fecha_corte : '28/10/2026';
 
   // Margen industrial Full Costing dinámico (Hallazgo H20: 278.255,41 € tras absorber MOD y planta)
   const margenFullCostEur = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_eur === 'number')
@@ -43,6 +43,11 @@ function renderCockpitInicioSection() {
   const margenFullCostPct = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_pct === 'number')
     ? fc.totales_drilldown.margen_industrial_pct
     : 55.1;
+
+  // RAI contable dinámico desde fullCostData
+  const raiEur = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.rai_neto === 'number')
+    ? fc.totales_drilldown.rai_neto
+    : ((fc && fc.metadata && typeof fc.metadata.rai_calculado === 'number') ? fc.metadata.rai_calculado : 111933.69);
 
   const scopeLabel = scope === 'ALL' ? 'Total Empresa' : (scope === 'NACIONAL' ? 'Mercado Nacional' : 'Exportación');
 
@@ -72,7 +77,7 @@ function renderCockpitInicioSection() {
           </div>
           <div style="display:flex; gap:0.6rem; align-items:center;">
             <div style="background:rgba(15,23,42,0.7); border:1px solid var(--card-border); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); font-size:0.82rem; color:#cbd5e1;">
-              📅 Ejercicio 2026 · Corte: <strong>${fechaCorte} (Pedidos 27.10)</strong>
+              📅 Ejercicio 2026 · Corte: <strong>${fechaCorte} (Pedidos 28.10)</strong>
             </div>
           </div>
         </div>
@@ -117,7 +122,7 @@ function renderCockpitInicioSection() {
               <span style="color:#34d399; font-weight:700">${margenFullCostPct.toFixed(1)}%</span> tras absorber MOD y planta
             </div>
             <div style="font-size:0.73rem; color:#94a3b8; margin-top:0.25rem;">
-              Último cierre disponible: <strong>Septiembre 2026</strong>
+              Último cierre disponible: <strong>Septiembre 2026</strong> ${scope !== 'ALL' ? '· <span style=\"color:#f59e0b\">Total Empresa</span>' : ''}
             </div>
             <div class="progress-bar-container" style="margin-top:0.4rem;">
               <div class="progress-bar-fill" style="width:${Math.min(100, margenFullCostPct)}%; background:var(--accent-gradient)"></div>
@@ -130,7 +135,7 @@ function renderCockpitInicioSection() {
               <span class="kpi-title">3. Resultado Antes Impuestos</span>
               <span class="kpi-icon">💎</span>
             </div>
-            <div class="kpi-value" style="color:#38bdf8">111.934 €</div>
+            <div class="kpi-value" style="color:#38bdf8">${fmtEur(raiEur)}</div>
             <div class="kpi-subtitle">
               <span style="color:#38bdf8; font-weight:700">22,2%</span> s/ventas contables (Total Empresa)
             </div>

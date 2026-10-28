@@ -1982,8 +1982,8 @@ function runSnapshotDiff() {
   const baseId = document.getElementById('diffSnapSelectBase')?.value || '';
   const compId = document.getElementById('diffSnapSelectComp')?.value || '';
 
-  const baseObj = list.find(s => s.id === baseId);
-  const compObj = list.find(s => s.id === compId);
+  const baseObj = list.find(s => s.version === baseId || s.id === baseId);
+  const compObj = list.find(s => s.version === compId || s.id === compId);
 
   if (!baseObj || !compObj) {
     el.innerHTML = `
@@ -1994,8 +1994,27 @@ function runSnapshotDiff() {
     return;
   }
 
-  const raiBase = typeof baseObj.rai_operativo === 'number' ? baseObj.rai_operativo : 111933.69;
-  const raiComp = typeof compObj.rai_operativo === 'number' ? compObj.rai_operativo : 111933.69;
+  const getRai = (obj) => {
+    if (!obj) return null;
+    if (obj.kpis && typeof obj.kpis.rai_ebit_eur === 'number') return obj.kpis.rai_ebit_eur;
+    if (typeof obj.rai_ebit_eur === 'number') return obj.rai_ebit_eur;
+    if (typeof obj.rai_operativo === 'number') return obj.rai_operativo;
+    return null;
+  };
+
+  const raiBase = getRai(baseObj);
+  const raiComp = getRai(compObj);
+
+  if (raiBase === null || raiComp === null) {
+    const missingName = (raiBase === null ? (baseObj.version || baseId) : '') + (raiComp === null ? (' ' + (compObj.version || compId)) : '');
+    el.innerHTML = `
+      <div style="padding:0.85rem; color:#fbbf24; background:rgba(234,179,8,0.15); border:1px solid #eab308; border-radius:6px; font-size:0.85rem;">
+        ℹ️ <strong>RAI no disponible:</strong> La versión <em>${missingName.trim()}</em> corresponde a un período provisional en curso y no dispone de cuenta de pérdidas y ganancias definitiva para el cálculo del diferencial de RAI.
+      </div>
+    `;
+    return;
+  }
+
   const diffRai = raiComp - raiBase;
   const isExact = Math.abs(diffRai) <= 0.01;
   const diffBadge = isExact 
@@ -2006,13 +2025,13 @@ function runSnapshotDiff() {
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
       <div>
         <span style="font-size:0.75rem; text-transform:uppercase; color:var(--muted)">Diagnóstico Comparativo de Versiones</span>
-        <div style="font-size:1.05rem; font-weight:700; color:#fff">${baseObj.nombre || baseId} ➔ ${compObj.nombre || compId}</div>
+        <div style="font-size:1.05rem; font-weight:700; color:#fff">${baseObj.version || baseObj.nombre || baseId} ➔ ${compObj.version || compObj.nombre || compId}</div>
       </div>
       ${diffBadge}
     </div>
     <div style="margin-top:0.75rem; font-size:0.85rem; color:#cbd5e1; line-height:1.5;">
-      • <strong>Versión Base (${baseId}):</strong> Fecha: ${baseObj.fecha || '30/09/2026'} | RAI: ${fmtEur(raiBase)} | Hash SHA: <code style="color:#a5b4fc">${(baseObj.hash_sha256 || 'C7E4F28190B1A...').slice(0, 16)}...</code><br/>
-      • <strong>Versión Comparada (${compId}):</strong> Fecha: ${compObj.fecha || '26/10/2026'} | RAI: ${fmtEur(raiComp)} | Hash SHA: <code style="color:#a5b4fc">${(compObj.hash_sha256 || 'D8F5A39201C2B...').slice(0, 16)}...</code><br/>
+      • <strong>Versión Base (${baseObj.version || baseId}):</strong> Fecha: ${baseObj.fecha_corte || baseObj.fecha || '30/09/2026'} | RAI: ${fmtEur(raiBase)} | Hash SHA: <code style="color:#a5b4fc">${(baseObj.hash_sha256 || 'C7E4F28190B1A...').slice(0, 16)}...</code><br/>
+      • <strong>Versión Comparada (${compObj.version || compId}):</strong> Fecha: ${compObj.fecha_corte || compObj.fecha || '26/10/2026'} | RAI: ${fmtEur(raiComp)} | Hash SHA: <code style="color:#a5b4fc">${(compObj.hash_sha256 || 'D8F5A39201C2B...').slice(0, 16)}...</code><br/>
       • <strong>Efecto en Cuentas Clave:</strong> ${isExact ? 'Partidas operativas cuadradas al céntimo sin desfase global.' : `Variación consolidada de ${fmtEur(diffRai)} entre cierres.`}<br/>
       • <strong>Conclusión:</strong> ${isExact ? 'Resultado operativo consistente con el cierre auditado.' : 'Revisión requerida antes de aprobación definitiva.'}
     </div>

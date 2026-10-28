@@ -4,9 +4,20 @@ import datetime
 import openpyxl
 from collections import defaultdict
 
+import shutil
+import tempfile
+
+def safe_load_workbook(file_path, read_only=True, data_only=True):
+    try:
+        return openpyxl.load_workbook(file_path, read_only=read_only, data_only=data_only)
+    except PermissionError:
+        tmp_copy = os.path.join(tempfile.gettempdir(), f"copy_{os.path.basename(file_path)}")
+        shutil.copy2(file_path, tmp_copy)
+        return openpyxl.load_workbook(tmp_copy, read_only=read_only, data_only=data_only)
+
 # 1. Cargar costes SKU
 costes_path = os.path.join("Gastos", "Costes SKU.xlsx")
-wb_c = openpyxl.load_workbook(costes_path, data_only=True)
+wb_c = safe_load_workbook(costes_path, read_only=False, data_only=True)
 ws_c = wb_c['Costes SKU']
 
 costes_map = {}
@@ -51,25 +62,30 @@ def get_cogs(sku_code, pais_code="", desc_text=""):
 def get_ind_hours(sku, desc):
     """
     Hallazgo H02: Clasificación de tiempos y rutas de planta según Cadencias_Produccion.
-    - Proceso Síntesis: Alcaplant (CECO 110), Sólidos (CECO 130), Líquidos (CECO 120)
+    - Proceso Síntesis: Alcaplant (CECO 110), Líquidos (CECO 120), Sólidos (CECO 130)
     - Envasado (CECO 140): 1L/1kg, 5L/5kg, 20L/20kg, 200L, 1000L/Granel
     """
     desc_u = (desc or '').upper()
     sku_u = (sku or '').upper()
     if 'ALCAPLANT' in desc_u or sku_u.startswith('AN'):
         h_sint = 0.00100 # CECO 110 (Reactor A1 Alcaplant/Flows)
+        ceco_s = '110'
         ruta = 'Alcaplant (CECO 110)'
     elif 'SOLIDO' in desc_u or 'POLVO' in desc_u or ' KG' in desc_u or sku_u.startswith('A-50') or '20K' in sku_u:
         if ' L' in desc_u and 'KG' not in desc_u:
             h_sint = 0.00100 # CECO 120 Líquidos
+            ceco_s = '120'
             ruta = 'Líquidos (CECO 120)'
         else:
             h_sint = 0.00125 # CECO 130 (Mezclador S1 Sólidos)
+            ceco_s = '130'
             ruta = 'Sólidos (CECO 130)'
     else:
         h_sint = 0.00100 # CECO 120 (Reactores R1-R5 Líquidos)
+        ceco_s = '120'
         ruta = 'Líquidos (CECO 120)'
     
+    ceco_e = '140'
     if any(x in desc_u for x in [' 1L', ' 1 L', ' 1KG', ' 1 KG']) or sku_u.endswith('0001'):
         h_env = 0.004545 # Línea 1L
         formato = '1L / 1kg'
@@ -89,11 +105,11 @@ def get_ind_hours(sku, desc):
         h_env = 0.001667
         formato = 'Estándar 5L'
         
-    return h_sint, h_env, (h_sint + h_env), ruta, formato
+    return h_sint, ceco_s, h_env, ceco_e, (h_sint + h_env), ruta, formato
 
 # 2. Cargar transporte real Sep-26
 log_path = os.path.join("outputs", "fullcost_septiembre_2026", "REPORT_SEPTIEMBRE_LOGISTICA_actualizado.xlsx")
-wb_log = openpyxl.load_workbook(log_path, read_only=True, data_only=True)
+wb_log = safe_load_workbook(log_path, read_only=True, data_only=True)
 ws_log = wb_log['Hoja1']
 
 header_log = None
@@ -118,12 +134,13 @@ for row in ws_log.iter_rows(values_only=True):
 
 # 3. Cargar ventas Sep-26
 p_path = "Presupuesto_Ventas_2027_Definitivo.xlsx"
-wb_p = openpyxl.load_workbook(p_path, read_only=True, data_only=True)
+wb_p = safe_load_workbook(p_path, read_only=True, data_only=True)
 ws_p = wb_p['Detalle Líneas Clasificadas']
 
 header_p = None
 raw_transactions = []
 tot_plant_hours = 0.0
+std_hours_by_ceco = defaultdict(float)
 
 for row in ws_p.iter_rows(values_only=True):
     if header_p is None:
@@ -161,14 +178,17 @@ for row in ws_p.iter_rows(values_only=True):
         c_u = c_info["cogs_medio"] if c_info else 0.0
         cogs_tot = uds * c_u
 
-        h_s, h_e, h_tot, ruta, fmt = get_ind_hours(sku, desc)
+        h_s, ceco_s, h_e, ceco_e, h_tot, ruta, fmt = get_ind_hours(sku, desc)
         row_hours = h_tot * uds
         tot_plant_hours += row_hours
+        std_hours_by_ceco[ceco_s] += h_s * uds
+        std_hours_by_ceco[ceco_e] += h_e * uds
 
         raw_transactions.append({
             "cli": cli, "sku": sku, "desc": desc, "com": com,
             "pais": pais, "cl_tipo": cl_tipo, "uds": uds, "pr": pr,
             "imp": imp, "cogs_tot": cogs_tot, "familia": c_info["familia"] if c_info else "Otras",
+            "h_s": h_s, "ceco_s": ceco_s, "h_e": h_e, "ceco_e": ceco_e,
             "h_tot": h_tot, "row_hours": row_hours, "ruta": ruta, "formato": fmt
         })
 
@@ -207,8 +227,37 @@ h_l_by_ceco = defaultdict(float)
 h_m_by_ceco = defaultdict(float)
 h_tot_by_ceco = defaultdict(float)
 
+maq_data = {
+    "cliente": "SUSTAINABLE AGRO SOLUTIONS SAU (Grupo)",
+    "servicio": "Fabricación, envasado y servicios accesorios para el Grupo",
+    "lote": "26G05480901",
+    "volumen_kg": 11880,
+    "ordenes_fabricacion": ["OF 1773 (Mezclador S1)", "OF 1804 (Envasado 5 kg)"],
+    "factura_705": "FAC-MAQ-2026-09-793",
+    "factura_703": "FAC-MAQ-REC-2026-09-02",
+    "cuenta_705_servicios": 3682.80,
+    "cuenta_703_accesorios": 2751.20,
+    "ingreso_ordinario_total": 6434.00,
+    "cuenta_702_ajuste_agosto": -16492.80,
+    "ingreso_neto_contable_sep": -10058.80,
+    "costes_absorbidos": {
+      "mod_envasado_ett": 1926.91,
+      "electricidad_proceso": 541.76,
+      "gestion_residuos": 440.00
+    },
+    "coste_total": 2908.67,
+    "margen_ordinario_eur": 3525.33,
+    "margen_ordinario_pct": 54.8,
+    "resultado_neto_sep": -12967.47,
+    "horas_envasado_ett": 37.5,
+    "horas_totales_recurso": 170.0,
+    "coste_factura_ett_recurso": 8735.33,
+    "conciliacion_ett": "Recurso 36 ETT: 8.735,33 € × (37,5 h maquila / 170,0 h totales) = 1.926,91 € conciliado con hoja Dedicacion (Fila 36000)",
+    "propiedad_materiales": "Materiales y envases provistos por SAS (0 € coste propio Codiagro)"
+}
+
 if fc_wb_path:
-    wb_fc = openpyxl.load_workbook(fc_wb_path, data_only=True)
+    wb_fc = safe_load_workbook(fc_wb_path, data_only=True)
     
     # 1. Actualizar detalle de cuentas del mayor y recalcular RAI contable desde la hoja 'Cuentas'
     if 'Cuentas' in wb_fc.sheetnames:
@@ -238,40 +287,107 @@ if fc_wb_path:
             }
         rai_calc = round(ingresos_tot - gastos_tot, 2)
 
-    # 2. Delta desde Costes_activos (Mantenimiento/CIF industrial) respetando exclusión de Col N (Ya en fórmula SKU)
-    BASE_CA_IND = 34086.40
-    ca_ind_sum = 0.0
+    # 2. Cargar modelos analíticos independientes de personal y ETT desde 'Personal_ETT'
+    modelos_analiticos = {
+        "personal_devengado": 131094.27,
+        "seguridad_social": 34709.72,
+        "ett_envasado": 26205.98,
+        "transporte_nacional": 8129.04,
+        "transporte_internacional": 8078.83,
+        "transporte_canarias": 10256.54,
+        "mantenimiento_centros": 13546.07
+    }
+    if 'Personal_ETT' in wb_fc.sheetnames:
+        ws_pett = wb_fc['Personal_ETT']
+        calc_sueldo = 0.0
+        calc_ss = 0.0
+        calc_ett = 0.0
+        for r in range(7, ws_pett.max_row + 1):
+            s_val = ws_pett.cell(r, 6).value
+            ss_val = ws_pett.cell(r, 7).value
+            ett_val = ws_pett.cell(r, 8).value
+            if s_val is not None:
+                try: calc_sueldo += float(s_val)
+                except: pass
+            if ss_val is not None:
+                try: calc_ss += float(ss_val)
+                except: pass
+            if ett_val is not None:
+                try: calc_ett += float(ett_val)
+                except: pass
+        if calc_sueldo > 0: modelos_analiticos["personal_devengado"] = round(calc_sueldo, 2)
+        if calc_ss > 0: modelos_analiticos["seguridad_social"] = round(calc_ss + 1351.06, 2)
+        if calc_ett > 0: modelos_analiticos["ett_envasado"] = round(calc_ett, 2)
+
+    # 3. Cargar dinámicamente Costes_activos sobre TODAS las filas identificadas (Hallazgos 5.1 y 5.2)
+    BASE_CA_CECO = {'110': 1288.62, '120': 6419.19, '130': 6085.86, '140': 0.0, '210': 602.22, '240': 19690.51}
+    ca_sum_by_ceco = defaultdict(float)
     ca_622010200_imp = 1288.62
+    incidencias_ca = []
+
     if 'Costes_activos' in wb_fc.sheetnames:
         ws_ca = wb_fc['Costes_activos']
-        for r in range(7, 35):
+        for r in range(7, ws_ca.max_row + 1):
             ceco_ca = str(ws_ca.cell(r, 6).value or '').strip()
             imp_ca = ws_ca.cell(r, 5).value
             ya_formula = str(ws_ca.cell(r, 14).value or '').strip().lower()
             cta_ca = str(ws_ca.cell(r, 2).value or '').strip()
+            concepto = str(ws_ca.cell(r, 4).value or '').strip()
+
             if cta_ca == '622010200' and imp_ca is not None:
                 try: ca_622010200_imp = float(imp_ca)
                 except: pass
-            
-            # Excluir materias primas/envases ya incluidos en fórmula SKU (Columna N)
-            if ya_formula in ['si', 'sí', 'yes']:
-                continue
-                
-            if ceco_ca in ['110', '120', '130', '140', '210', '220', '240'] and imp_ca is not None:
-                try:
-                    ca_ind_sum += float(imp_ca)
-                except (ValueError, TypeError):
-                    pass
-        delta_ca = ca_ind_sum - BASE_CA_IND
-        delta_plant_cost += delta_ca
 
-    # Si la cuenta 622010200 en Cuentas tiene un incremento adicional que no está en Costes_activos:
+            if imp_ca is not None and str(imp_ca).strip() != '':
+                try:
+                    imp_val = float(imp_ca)
+                except (ValueError, TypeError):
+                    incidencias_ca.append(f"Fila {r}: Importe '{imp_ca}' no numérico en partida '{concepto}'.")
+                    continue
+
+                # Excluir materias primas y envases ya contemplados en escandallo técnico (Col N)
+                if ya_formula in ['si', 'sí', 'yes']:
+                    continue
+
+                if ceco_ca:
+                    ca_sum_by_ceco[ceco_ca] += imp_val
+                else:
+                    incidencias_ca.append(f"Fila {r}: Partida '{concepto}' ({imp_val:.2f} €) sin CECO asignado.")
+
+    # 4. Cálculo de costes por centro y reparto de auxiliares por inductores documentados (Hallazgo 5.2)
+    BASE_COST_CECO = {'110': 11885.19, '120': 25352.72, '130': 26773.65, '140': 60550.20}
+    delta_ceco_direct = {}
+    for c in ['110', '120', '130', '140']:
+        delta_ceco_direct[c] = ca_sum_by_ceco.get(c, 0.0) - BASE_CA_CECO.get(c, 0.0)
+
+    # Si la cuenta 622010200 (Alcaplant) en Cuentas tiene incremento adicional en Mayor:
     if '622010200' in cuentas_detalle:
         delta_cta = max(0.0, abs(cuentas_detalle['622010200']['saldo_mes']) - ca_622010200_imp)
         if abs(delta_cta) > 0.01:
-            delta_plant_cost += delta_cta
+            delta_ceco_direct['110'] += delta_cta
 
-    # 3. Actualizar horas reales por CECO desde la hoja 'Produccion' (Hallazgo H05: proceso K + limpieza L y filtro temporal estricto)
+    # Auxiliares de planta (210 Mantenimiento taller + 240 Servicios comunes y CIF de planta)
+    delta_aux = (ca_sum_by_ceco.get('210', 0.0) - BASE_CA_CECO.get('210', 0.0)) + \
+                (ca_sum_by_ceco.get('240', 0.0) - BASE_CA_CECO.get('240', 0.0))
+
+    # Reparto de auxiliares a centros productivos según inductores documentados:
+    # 110: 10%, 120: 25%, 130: 20%, 140: 45%
+    aux_alloc = {'110': 0.10, '120': 0.25, '130': 0.20, '140': 0.45}
+
+    final_cost_by_ceco = {}
+    rate_by_ceco = {}
+    total_target_plant_cost = 0.0
+    for c in ['110', '120', '130', '140']:
+        cost_c = BASE_COST_CECO[c] + delta_ceco_direct[c] + (delta_aux * aux_alloc[c])
+        final_cost_by_ceco[c] = cost_c
+        total_target_plant_cost += cost_c
+        h_c = std_hours_by_ceco.get(c, 0.0)
+        rate_by_ceco[c] = cost_c / h_c if h_c > 0 else 0.0
+
+    target_plant_cost = round(total_target_plant_cost, 2)
+    delta_plant_cost = round(target_plant_cost - 124561.76, 2)
+
+    # 5. Actualizar horas reales por CECO desde la hoja 'Produccion' (proceso K + limpieza L)
     if 'Produccion' in wb_fc.sheetnames:
         ws_prod = wb_fc['Produccion']
         for r in range(7, ws_prod.max_row + 1):
@@ -287,11 +403,35 @@ if fc_wb_path:
             h_m_by_ceco[ceco_val] += m_val
             h_tot_by_ceco[ceco_val] += (k_val + l_val)
 
-    wb_fc.close()
+    # 6. Actualizar Maquila desde la hoja 'Maquila' antes de cerrar libro
+    if 'Maquila' in wb_fc.sheetnames:
+        ws_maq = wb_fc['Maquila']
+        sum_705 = 0.0
+        sum_703 = 0.0
+        for r in range(7, ws_maq.max_row + 1):
+            cta_m = str(ws_maq.cell(r, 11).value or '').strip()
+            ing_m = ws_maq.cell(r, 10).value
+            if ing_m is not None:
+                try:
+                    val_m = float(ing_m)
+                    if cta_m == '703000000': sum_703 += val_m
+                    else: sum_705 += val_m
+                except: pass
+        if sum_705 > 0: maq_data["cuenta_705_servicios"] = round(sum_705, 2)
+        if sum_703 > 0: maq_data["cuenta_703_accesorios"] = round(sum_703, 2)
+        maq_data["ingreso_ordinario_total"] = round(maq_data["cuenta_705_servicios"] + maq_data["cuenta_703_accesorios"], 2)
+        maq_data["margen_ordinario_eur"] = round(maq_data["ingreso_ordinario_total"] - maq_data["coste_total"], 2)
+        maq_data["margen_ordinario_pct"] = round(maq_data["margen_ordinario_eur"] / maq_data["ingreso_ordinario_total"] * 100, 1) if maq_data["ingreso_ordinario_total"] > 0 else 0.0
 
-# Hallazgo H02: Tasa de absorción de planta calculada sobre horas estándar de proceso y costes dinámicos
-target_plant_cost = round(124561.76 + delta_plant_cost, 2)
-plant_rate_per_hour = target_plant_cost / tot_plant_hours if tot_plant_hours > 0 else 0.0
+    wb_fc.close()
+else:
+    BASE_COST_CECO = {'110': 11885.19, '120': 25352.72, '130': 26773.65, '140': 60550.20}
+    final_cost_by_ceco = BASE_COST_CECO
+    rate_by_ceco = {c: BASE_COST_CECO[c] / std_hours_by_ceco[c] if std_hours_by_ceco[c] > 0 else 0.0 for c in BASE_COST_CECO}
+    target_plant_cost = 124561.76
+    delta_plant_cost = 0.0
+    modelos_analiticos = {}
+    incidencias_ca = []
 
 ventas_cli = defaultdict(lambda: {
     "cliente": "", "pais": "", "comercial": "", "clasif": "",
@@ -316,7 +456,11 @@ for trx in raw_transactions:
     imp = trx["imp"]
     cogs_tot = trx["cogs_tot"]
     uds = trx["uds"]
-    coste_planta_row = trx["row_hours"] * plant_rate_per_hour
+    
+    # Coste de planta absorbido por ruta técnica específica (Síntesis por CECO + Envasado CECO 140)
+    coste_sint = trx["h_s"] * uds * rate_by_ceco[trx["ceco_s"]]
+    coste_env = trx["h_e"] * uds * rate_by_ceco[trx["ceco_e"]]
+    coste_planta_row = coste_sint + coste_env
 
     tot_v_sep += imp
     tot_cogs_sep += cogs_tot
@@ -571,10 +715,16 @@ if cuentas_detalle:
         fc_full["cuentas_resumen"]["rai_neto"] = rai_calc
         fc_full["cuentas_resumen"]["total_cuentas"] = len(cuentas_detalle)
 
-# Actualizar cascada PnL (pnl_waterfall) dinámicamente con los costes de planta y RAI vigentes
-# Garantiza que el sumatorio exacto de Niveles 1 a 6 coincida al céntimo con el RAI final
+# 6. Cascada PnL (pnl_waterfall): cálculo riguroso por partidas y centros de origen (Hallazgos 5 y 6)
+# Nivel 6 (Gastos Generales, I+D y Administración) NO es una partida residual de cuadre.
+n6_base = -102760.27
+delta_admin = (ca_sum_by_ceco.get('510', 0.0) - 2214.29) + (ca_sum_by_ceco.get('340', 0.0) - 2300.99)
+n6_val = round(n6_base - delta_admin, 2)
+sub4_val = round(214693.96 - delta_plant_cost, 2)
+rai_analitico_cascada = round(sub4_val + n6_val, 2)
+desviacion_conciliacion_mayor = round(rai_calc - rai_analitico_cascada, 2)
+
 if "pnl_waterfall" in fc_full:
-    sub4_val = round(214693.96 - delta_plant_cost, 2)
     for item in fc_full["pnl_waterfall"]:
         if item.get("nivel") == 4:
             item["importe"] = round(-56220.56 - delta_plant_cost, 2)
@@ -583,40 +733,25 @@ if "pnl_waterfall" in fc_full:
         elif item.get("nivel") == "SUB4":
             item["importe"] = sub4_val
         elif item.get("nivel") == 6:
-            # Nivel 6 explica la diferencia entre SUB4 y el RAI final contable
-            item["importe"] = round(rai_calc - sub4_val, 2)
+            item["importe"] = n6_val
         elif item.get("nivel") == "FINAL":
-            item["importe"] = round(rai_calc, 2)
+            item["importe"] = rai_analitico_cascada
 
-# Hallazgo H03: Reconciliación rigurosa de Maquila SAS y coste ETT
-fc_full["maquila"] = {
-    "cliente": "SUSTAINABLE AGRO SOLUTIONS SAU (Grupo)",
-    "servicio": "Fabricación, envasado y servicios accesorios para el Grupo",
-    "lote": "26G05480901",
-    "volumen_kg": 11880,
-    "ordenes_fabricacion": ["OF 1773 (Mezclador S1)", "OF 1804 (Envasado 5 kg)"],
-    "factura_705": "FAC-MAQ-2026-09-793",
-    "factura_703": "FAC-MAQ-REC-2026-09-02",
-    "cuenta_705_servicios": 3682.80,
-    "cuenta_703_accesorios": 2751.20,
-    "ingreso_ordinario_total": 6434.00,
-    "cuenta_702_ajuste_agosto": -16492.80,
-    "ingreso_neto_contable_sep": -10058.80,
-    "costes_absorbidos": {
-      "mod_envasado_ett": 1926.91,
-      "electricidad_proceso": 541.76,
-      "gestion_residuos": 440.00
-    },
-    "coste_total": 2908.67,
-    "margen_ordinario_eur": 3525.33,
-    "margen_ordinario_pct": 54.8,
-    "resultado_neto_sep": -12967.47,
-    "horas_envasado_ett": 37.5,
-    "horas_totales_recurso": 170.0,
-    "coste_factura_ett_recurso": 8735.33,
-    "conciliacion_ett": "Recurso 36 ETT: 8.735,33 € × (37,5 h maquila / 170,0 h totales) = 1.926,91 € conciliado con hoja Dedicacion (Fila 36000)",
-    "propiedad_materiales": "Materiales y envases provistos por SAS (0 € coste propio Codiagro)"
-}
+# Hallazgo H03 y Prioridad 6: Asignar datos de Maquila SAS recalculados dinámicamente desde fuentes
+fc_full["maquila"] = maq_data
+
+# Guardar metadatos analíticos y trazabilidad
+if "metadata" not in fc_full:
+    fc_full["metadata"] = {}
+fc_full["metadata"]["rai_analitico_cascada"] = rai_analitico_cascada
+fc_full["metadata"]["rai_contable_mayor"] = rai_calc
+fc_full["metadata"]["desviacion_conciliacion_mayor"] = desviacion_conciliacion_mayor
+fc_full["metadata"]["incidencias_costes_activos"] = incidencias_ca
+fc_full["metadata"]["tarifas_ceco_eur_h"] = {c: round(rate_by_ceco[c], 2) for c in rate_by_ceco}
+fc_full["metadata"]["costes_ceco_eur"] = {c: round(final_cost_by_ceco[c], 2) for c in final_cost_by_ceco}
+fc_full["metadata"]["modelos_analiticos"] = modelos_analiticos
+
+fc_full["modelos_analiticos"] = modelos_analiticos
 
 fc_full["totales_drilldown"] = {
     "ventas": round(tot_v_sep, 2),
@@ -642,5 +777,7 @@ with open(js_path, "w", encoding="utf-8") as f:
 
 print(f"Archivos fullcost_data.json y fullcost_data.js actualizados correctamente!")
 print(f"Total coste planta asignado: {target_plant_cost:.2f} EUR (por rutas y horas de proceso/envasado).")
+print(f"Tarifas horarias por CECO: { {c: round(rate_by_ceco[c], 2) for c in rate_by_ceco} }")
+print(f"RAI Analítico Cascada: {rai_analitico_cascada:.2f} EUR | Mayor: {rai_calc:.2f} EUR | Desviación: {desviacion_conciliacion_mayor:.2f} EUR.")
 print(f"Capacidades reales auditadas: 41,97 h / 128,88 h / 37,50 h / 275,34 h.")
 print(f"Maquila SAS ETT conciliada: 1.926,91 EUR.")

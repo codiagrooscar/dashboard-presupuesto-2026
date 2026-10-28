@@ -7093,14 +7093,15 @@
       const val624_3_mayor = getCtaSaldo('624000003');
       const val622_mayor = (fc && typeof fc.mantenimiento_622_total === 'number') ? fc.mantenimiento_622_total : 13546.07;
 
-      // Modelos analíticos de costes independientes (Full Costing)
-      const modelo640 = 131094.27; // Modelo analítico de personal devengado (fábrica + administración)
-      const modelo642 = 34709.72;  // Modelo analítico cuotas patronales SS
-      const modelo607 = 26205.98;  // Modelo analítico ETT envasado
-      const modelo624_1 = 8129.04; // Modelo analítico transporte nacional
-      const modelo624_2 = 8078.83; // Modelo analítico transporte internacional
-      const modelo624_3 = 10256.54;// Modelo analítico transporte canarias
-      const modelo622 = 13546.07;  // Modelo analítico mantenimiento centros
+      // Modelos analíticos de costes independientes (Full Costing) recalculados desde sus fuentes
+      const modAnalitico = (fc && fc.modelos_analiticos) ? fc.modelos_analiticos : ((meta && meta.modelos_analiticos) ? meta.modelos_analiticos : {});
+      const modelo640 = (typeof modAnalitico.personal_devengado === 'number') ? modAnalitico.personal_devengado : 131094.27;
+      const modelo642 = (typeof modAnalitico.seguridad_social === 'number') ? modAnalitico.seguridad_social : 34709.72;
+      const modelo607 = (typeof modAnalitico.ett_envasado === 'number') ? modAnalitico.ett_envasado : 26205.98;
+      const modelo624_1 = (typeof modAnalitico.transporte_nacional === 'number') ? modAnalitico.transporte_nacional : 8129.04;
+      const modelo624_2 = (typeof modAnalitico.transporte_internacional === 'number') ? modAnalitico.transporte_internacional : 8078.83;
+      const modelo624_3 = (typeof modAnalitico.transporte_canarias === 'number') ? modAnalitico.transporte_canarias : 10256.54;
+      const modelo622 = (typeof modAnalitico.mantenimiento_centros === 'number') ? modAnalitico.mantenimiento_centros : 13546.07;
 
       const auditItems = [
         { concepto: 'Sueldos y Salarios (Cta 640000000)', mayor: val640_mayor, modelo: modelo640, nota: 'Personal fábrica + administración devengado en Sep-26' },

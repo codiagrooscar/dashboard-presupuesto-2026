@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-10-28T11:41:28.010119",
+    "generated_at": "2026-10-28T13:26:57.789701",
     "stock_source": "Stock 27.10.xlsx",
     "orders_source": "Pedidos28.10 comerciales.xlsx",
     "forecast_source": "Presupuesto_Ventas_2027_Definitivo.xlsx",
@@ -203,7 +203,7 @@
       "stock_envasado_total": 49360.0,
       "pedidos_pendientes_total": 37700.0,
       "monthly_forecast_total": {
-        "2026-10": 53081.663,
+        "2026-10": 55689.83,
         "2026-11": 69962.04149999999,
         "2026-12": 51987.696299999996,
         "2027-01": 56355.0,
@@ -234,7 +234,7 @@
       "stock_envasado_total": 0.0,
       "pedidos_pendientes_total": 1500.0,
       "monthly_forecast_total": {
-        "2026-10": 1806.8858,
+        "2026-10": 1855.05,
         "2026-11": 2096.241,
         "2026-12": 4270.1079,
         "2027-01": 5311.0,
@@ -264,7 +264,7 @@
       "stock_envasado_total": 1975.0,
       "pedidos_pendientes_total": 5410.0,
       "monthly_forecast_total": {
-        "2026-10": 1933.438,
+        "2026-10": 1943.0700000000002,
         "2026-11": 2253.459,
         "2026-12": 2887.3944,
         "2027-01": 3120.0,
@@ -379,7 +379,7 @@
       "stock_envasado_total": 0.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 903.4428,
+        "2026-10": 927.55,
         "2026-11": 838.4964,
         "2026-12": 4773.4947,
         "2027-01": 0.0,
@@ -661,7 +661,7 @@
       "stock_envasado_total": 0.0,
       "pedidos_pendientes_total": 6840.0,
       "monthly_forecast_total": {
-        "2026-10": 3515.3419,
+        "2026-10": 3708.18,
         "2026-11": 5911.3994999999995,
         "2026-12": 11268.9191,
         "2027-01": 2120.0,
@@ -722,7 +722,7 @@
       "stock_envasado_total": 18295.0,
       "pedidos_pendientes_total": 29000.0,
       "monthly_forecast_total": {
-        "2026-10": 40405.3402,
+        "2026-10": 41944.2,
         "2026-11": 50142.08329999999,
         "2026-12": 31609.213700000004,
         "2027-01": 59726.0,
@@ -836,7 +836,7 @@
       "stock_envasado_total": 0.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 1106.8152,
         "2026-12": 433.9541,
         "2027-01": 0.0,
@@ -865,7 +865,7 @@
       "stock_envasado_total": 833.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 1757.671,
+        "2026-10": 1757.67,
         "2026-11": 0.0,
         "2026-12": 824.5127,
         "2027-01": 80.0,
@@ -952,7 +952,7 @@
       "stock_envasado_total": 7240.0,
       "pedidos_pendientes_total": 19800.0,
       "monthly_forecast_total": {
-        "2026-10": 38668.7612,
+        "2026-10": 40790.0,
         "2026-11": 69175.9511,
         "2026-12": 57281.9361,
         "2027-01": 50260.0,
@@ -982,7 +982,7 @@
       "stock_envasado_total": 896.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 87.8835,
+        "2026-10": 92.7,
         "2026-11": 104.812,
         "2026-12": 0.0,
         "2027-01": 120.0,
@@ -1070,7 +1070,7 @@
       "stock_envasado_total": 2796.0,
       "pedidos_pendientes_total": 2600.0,
       "monthly_forecast_total": {
-        "2026-10": 6890.0699,
+        "2026-10": 7089.65,
         "2026-11": 2368.7521,
         "2026-12": 8522.8577,
         "2027-01": 2703.0,
@@ -1134,7 +1134,7 @@
       "stock_envasado_total": 5683.0,
       "pedidos_pendientes_total": 6656.0,
       "monthly_forecast_total": {
-        "2026-10": 4675.4046,
+        "2026-10": 4931.879999999999,
         "2026-11": 5504.7287,
         "2026-12": 2732.1748000000002,
         "2027-01": 1720.0,
@@ -1250,7 +1250,7 @@
       "stock_envasado_total": 14640.0,
       "pedidos_pendientes_total": 34892.0,
       "monthly_forecast_total": {
-        "2026-10": 13790.686300000001,
+        "2026-10": 14006.61,
         "2026-11": 21343.9253,
         "2026-12": 32841.6434,
         "2027-01": 16020.0,
@@ -1472,7 +1472,7 @@
       "stock_envasado_total": 2528.0,
       "pedidos_pendientes_total": 800.0,
       "monthly_forecast_total": {
-        "2026-10": 1915.8613,
+        "2026-10": 2020.96,
         "2026-11": 733.6842,
         "2026-12": 1440.7274,
         "2027-01": 3245.0,
@@ -1505,7 +1505,7 @@
       "stock_envasado_total": 6300.0,
       "pedidos_pendientes_total": 5168.0,
       "monthly_forecast_total": {
-        "2026-10": 4566.429099999999,
+        "2026-10": 4788.0,
         "2026-11": 6141.9859,
         "2026-12": 2829.3804,
         "2027-01": 6392.0,
@@ -1588,7 +1588,7 @@
       "stock_envasado_total": 885.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 200.3745,
+        "2026-10": 211.37,
         "2026-11": 113.197,
         "2026-12": 187.4682,
         "2027-01": 215.0,
@@ -1618,7 +1618,7 @@
       "stock_envasado_total": 1168.0,
       "pedidos_pendientes_total": 804.0,
       "monthly_forecast_total": {
-        "2026-10": 871.8048,
+        "2026-10": 881.4499999999999,
         "2026-11": 524.0602,
         "2026-12": 4339.5406,
         "2027-01": 1527.0,
@@ -1678,7 +1678,7 @@
       "stock_envasado_total": 2344.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 703.0683,
+        "2026-10": 741.6300000000001,
         "2026-11": 0.0,
         "2026-12": 694.3265,
         "2027-01": 713.0,
@@ -1734,7 +1734,7 @@
       "stock_envasado_total": 3850.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 725.0393,
+        "2026-10": 761.1899999999999,
         "2026-11": 1939.0229,
         "2026-12": 1518.8392,
         "2027-01": 255.0,
@@ -1762,7 +1762,7 @@
       "stock_envasado_total": 770.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 439.4177,
+        "2026-10": 463.52,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -1905,7 +1905,7 @@
       "stock_envasado_total": 23.0,
       "pedidos_pendientes_total": 1000.0,
       "monthly_forecast_total": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 1048.1205,
         "2026-12": 2937.0011,
         "2027-01": 0.0,
@@ -1935,7 +1935,7 @@
       "stock_envasado_total": 10220.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 6046.3881,
+        "2026-10": 6378.08,
         "2026-11": 7630.317,
         "2026-12": 1666.3836,
         "2027-01": 5500.0,
@@ -2025,7 +2025,7 @@
       "stock_envasado_total": 960.0,
       "pedidos_pendientes_total": 5200.0,
       "monthly_forecast_total": {
-        "2026-10": 966.719,
+        "2026-10": 1019.75,
         "2026-11": 1152.9325,
         "2026-12": 954.6989,
         "2027-01": 1200.0,
@@ -2217,7 +2217,7 @@
       "stock_envasado_total": 851.0,
       "pedidos_pendientes_total": 648.0,
       "monthly_forecast_total": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 1152.9325,
         "2026-12": 0.0,
         "2027-01": 2129.0,
@@ -2248,7 +2248,7 @@
       "stock_envasado_total": 0.0,
       "pedidos_pendientes_total": 2000.0,
       "monthly_forecast_total": {
-        "2026-10": 2636.5064,
+        "2026-10": 2781.14,
         "2026-11": 3563.6096,
         "2026-12": 1721.9297,
         "2027-01": 2000.0,
@@ -2307,7 +2307,7 @@
       "stock_envasado_total": 490.0,
       "pedidos_pendientes_total": 2200.0,
       "monthly_forecast_total": {
-        "2026-10": 263.6506,
+        "2026-10": 263.65,
         "2026-11": 628.8722,
         "2026-12": 13365.785,
         "2027-01": 7680.0,
@@ -2395,7 +2395,7 @@
       "stock_envasado_total": 2900.0,
       "pedidos_pendientes_total": 240.0,
       "monthly_forecast_total": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 208.2979,
         "2027-01": 146.0,
@@ -2482,7 +2482,7 @@
       "stock_envasado_total": 2316.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 1160.0628,
+        "2026-10": 1223.6999999999998,
         "2026-11": 1383.519,
         "2026-12": 121.50710000000001,
         "2027-01": 740.0,
@@ -2539,7 +2539,7 @@
       "stock_envasado_total": 1530.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 87.8835,
+        "2026-10": 87.88,
         "2026-11": 2683.1884,
         "2026-12": 867.9081,
         "2027-01": 3640.0,
@@ -2628,7 +2628,7 @@
       "stock_envasado_total": 3212.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -2800,7 +2800,7 @@
       "stock_envasado_total": 824.0,
       "pedidos_pendientes_total": 1200.0,
       "monthly_forecast_total": {
-        "2026-10": 1933.4380999999998,
+        "2026-10": 1933.44,
         "2026-11": 104.812,
         "2026-12": 555.4612,
         "2027-01": 227.0,
@@ -2856,7 +2856,7 @@
       "stock_envasado_total": 2020.0,
       "pedidos_pendientes_total": 1040.0,
       "monthly_forecast_total": {
-        "2026-10": 4499.6376,
+        "2026-10": 4746.4800000000005,
         "2026-11": 3353.9855,
         "2026-12": 1666.3836,
         "2027-01": 0.0,
@@ -3000,7 +3000,7 @@
       "stock_envasado_total": 16248.0,
       "pedidos_pendientes_total": 10780.0,
       "monthly_forecast_total": {
-        "2026-10": 15010.509799999998,
+        "2026-10": 15562.03,
         "2026-11": 12661.295300000002,
         "2026-12": 2888.3981000000003,
         "2027-01": 4039.0,
@@ -3088,7 +3088,7 @@
       "stock_envasado_total": 18780.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 21408.4323,
+        "2026-10": 22341.78,
         "2026-11": 27251.132299999997,
         "2026-12": 555.4612,
         "2027-01": 12820.0,
@@ -3145,7 +3145,7 @@
       "stock_envasado_total": 0.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 351.5342,
+        "2026-10": 370.82,
         "2026-11": 943.3084,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -3175,7 +3175,7 @@
       "stock_envasado_total": 1862.0,
       "pedidos_pendientes_total": 10596.0,
       "monthly_forecast_total": {
-        "2026-10": 5519.086799999999,
+        "2026-10": 5580.8,
         "2026-11": 10858.5281,
         "2026-12": 0.0,
         "2027-01": 80.0,
@@ -3257,7 +3257,7 @@
       "stock_envasado_total": 8510.0,
       "pedidos_pendientes_total": 3728.0,
       "monthly_forecast_total": {
-        "2026-10": 10433.535,
+        "2026-10": 10858.56,
         "2026-11": 10470.7235,
         "2026-12": 3582.7245999999996,
         "2027-01": 10914.0,
@@ -3285,7 +3285,7 @@
       "stock_envasado_total": 400.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 175.7671,
+        "2026-10": 175.77,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 240.0,
@@ -3315,7 +3315,7 @@
       "stock_envasado_total": 0.0,
       "pedidos_pendientes_total": 31004.0,
       "monthly_forecast_total": {
-        "2026-10": 18455.5451,
+        "2026-10": 18455.55,
         "2026-11": 32491.734600000003,
         "2026-12": 0.0,
         "2027-01": 79479.0,
@@ -3373,7 +3373,7 @@
       "stock_envasado_total": 210.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 421.8409,
+        "2026-10": 441.12,
         "2026-11": 419.2481,
         "2026-12": 569.3477,
         "2027-01": 1035.0,
@@ -3402,7 +3402,7 @@
       "stock_envasado_total": 10520.0,
       "pedidos_pendientes_total": 0.0,
       "monthly_forecast_total": {
-        "2026-10": 966.719,
+        "2026-10": 966.72,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -3442,7 +3442,7 @@
       "pedidos_pendientes_nacional": 600.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1757.671,
+        "2026-10": 1757.67,
         "2026-11": 0.0,
         "2026-12": 869.5081,
         "2027-01": 2500.0,
@@ -3476,7 +3476,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 1757.671,
+        "2026-10": 1757.67,
         "2026-11": 0.0,
         "2026-12": 867.9081,
         "2027-01": 2380.0,
@@ -3528,7 +3528,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1757.671,
+            "2026-10": 1757.67,
             "2026-11": 0.0,
             "2026-12": 867.9081,
             "2027-01": 2380.0,
@@ -3584,7 +3584,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1757.671,
+            "2026-10": 1757.67,
             "2026-11": 0.0,
             "2026-12": 867.9081,
             "2027-01": 2380.0,
@@ -3640,7 +3640,7 @@
       "pedidos_pendientes_nacional": 7040.0,
       "pedidos_pendientes_export": 10060.0,
       "monthly_forecast": {
-        "2026-10": 9104.7355,
+        "2026-10": 9241.640000000001,
         "2026-11": 8405.9262,
         "2026-12": 32841.6434,
         "2027-01": 15620.0,
@@ -3657,7 +3657,7 @@
         "2027-12": 46880.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 4148.1034,
+        "2026-10": 4285.01,
         "2026-11": 5785.625,
         "2026-12": 2464.8590999999997,
         "2027-01": 3660.0,
@@ -3674,7 +3674,7 @@
         "2027-12": 3380.0
       },
       "monthly_forecast_export": {
-        "2026-10": 4956.6321,
+        "2026-10": 4956.63,
         "2026-11": 2620.3012,
         "2026-12": 30376.7843,
         "2027-01": 11960.0,
@@ -3700,7 +3700,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 7040.0,
           "monthly_forecast": {
-            "2026-10": 4148.1034,
+            "2026-10": 4285.01,
             "2026-11": 5785.625,
             "2026-12": 2464.8590999999997,
             "2027-01": 3660.0,
@@ -3726,7 +3726,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 4394.1774,
+            "2026-10": 4394.18,
             "2026-11": 0.0,
             "2026-12": 4339.5406,
             "2027-01": 0.0,
@@ -3752,7 +3752,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 562.4547,
+            "2026-10": 562.45,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -3912,7 +3912,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 7040.0,
           "monthly_forecast": {
-            "2026-10": 4148.1034,
+            "2026-10": 4285.01,
             "2026-11": 5785.625,
             "2026-12": 2464.8590999999997,
             "2027-01": 3660.0,
@@ -3938,7 +3938,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 4394.1774,
+            "2026-10": 4394.18,
             "2026-11": 0.0,
             "2026-12": 4339.5406,
             "2027-01": 0.0,
@@ -3964,7 +3964,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 562.4547,
+            "2026-10": 562.45,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -4112,9 +4112,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 12398.59,
+      "demanda_nac_q4": 12535.49,
       "demanda_nac_q1_27": 9380.0,
-      "demanda_nac_6m": 21778.59,
+      "demanda_nac_6m": 21915.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9800.0,
@@ -4150,7 +4150,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 0.0,
         "2026-12": 833.1918,
         "2027-01": 1220.0,
@@ -4167,7 +4167,7 @@
         "2027-12": 980.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 0.0,
         "2026-12": 833.1918,
         "2027-01": 1220.0,
@@ -4210,7 +4210,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1124.9094,
+            "2026-10": 1186.62,
             "2026-11": 0.0,
             "2026-12": 833.1918,
             "2027-01": 1220.0,
@@ -4240,7 +4240,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1124.9094,
+            "2026-10": 1186.62,
             "2026-11": 0.0,
             "2026-12": 833.1918,
             "2027-01": 1220.0,
@@ -4258,9 +4258,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 1958.1,
+      "demanda_nac_q4": 2019.81,
       "demanda_nac_q1_27": 3180.0,
-      "demanda_nac_6m": 5138.1,
+      "demanda_nac_6m": 5199.81,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 820.0,
@@ -4494,7 +4494,7 @@
       "pedidos_pendientes_nacional": 840.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 4499.6376,
+        "2026-10": 4746.4800000000005,
         "2026-11": 3353.9855,
         "2026-12": 1666.3836,
         "2027-01": 0.0,
@@ -4511,7 +4511,7 @@
         "2027-12": 1980.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 4499.6376,
+        "2026-10": 4746.4800000000005,
         "2026-11": 3353.9855,
         "2026-12": 1666.3836,
         "2027-01": 0.0,
@@ -4554,7 +4554,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 840.0,
           "monthly_forecast": {
-            "2026-10": 4499.6376,
+            "2026-10": 4746.4800000000005,
             "2026-11": 3353.9855,
             "2026-12": 1666.3836,
             "2027-01": 0.0,
@@ -4584,7 +4584,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 840.0,
           "monthly_forecast": {
-            "2026-10": 4499.6376,
+            "2026-10": 4746.4800000000005,
             "2026-11": 3353.9855,
             "2026-12": 1666.3836,
             "2027-01": 0.0,
@@ -4602,9 +4602,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 9520.01,
+      "demanda_nac_q4": 9766.85,
       "demanda_nac_q1_27": 980.0,
-      "demanda_nac_6m": 10500.01,
+      "demanda_nac_6m": 10746.85,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1820.0,
@@ -4640,7 +4640,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 3000.0,
       "monthly_forecast": {
-        "2026-10": 11143.6338,
+        "2026-10": 11483.04,
         "2026-11": 8678.4375,
         "2026-12": 260.3724,
         "2027-01": 1580.0,
@@ -4657,7 +4657,7 @@
         "2027-12": 3460.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 6749.456400000001,
+        "2026-10": 7088.86,
         "2026-11": 8049.565199999999,
         "2026-12": 260.3724,
         "2027-01": 1580.0,
@@ -4674,7 +4674,7 @@
         "2027-12": 320.0
       },
       "monthly_forecast_export": {
-        "2026-10": 4394.1774,
+        "2026-10": 4394.18,
         "2026-11": 628.8723,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -4700,7 +4700,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 6749.456400000001,
+            "2026-10": 7088.86,
             "2026-11": 8049.565199999999,
             "2026-12": 260.3724,
             "2027-01": 1580.0,
@@ -4726,7 +4726,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 3000.0,
           "monthly_forecast": {
-            "2026-10": 4394.1774,
+            "2026-10": 4394.18,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -4782,7 +4782,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 6749.456400000001,
+            "2026-10": 7088.86,
             "2026-11": 8049.565199999999,
             "2026-12": 260.3724,
             "2027-01": 1580.0,
@@ -4808,7 +4808,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 3000.0,
           "monthly_forecast": {
-            "2026-10": 4394.1774,
+            "2026-10": 4394.18,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -4852,9 +4852,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 15059.39,
+      "demanda_nac_q4": 15398.8,
       "demanda_nac_q1_27": 20520.0,
-      "demanda_nac_6m": 35579.39,
+      "demanda_nac_6m": 35918.8,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 13880.0,
@@ -4890,7 +4890,7 @@
       "pedidos_pendientes_nacional": 640.0,
       "pedidos_pendientes_export": 7000.0,
       "monthly_forecast": {
-        "2026-10": 29159.761199999997,
+        "2026-10": 30390.07,
         "2026-11": 35678.0208,
         "2026-12": 18903.0389,
         "2027-01": 31580.0,
@@ -4907,7 +4907,7 @@
         "2027-12": 22100.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 16328.7632,
+        "2026-10": 17096.25,
         "2026-11": 18069.5969,
         "2026-12": 14563.4983,
         "2027-01": 14560.0,
@@ -4924,7 +4924,7 @@
         "2027-12": 16880.0
       },
       "monthly_forecast_export": {
-        "2026-10": 12830.998,
+        "2026-10": 13293.82,
         "2026-11": 17608.4239,
         "2026-12": 4339.5406,
         "2027-01": 17020.0,
@@ -4950,7 +4950,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 640.0,
           "monthly_forecast": {
-            "2026-10": 16328.7632,
+            "2026-10": 17096.25,
             "2026-11": 18069.5969,
             "2026-12": 14563.4983,
             "2027-01": 14560.0,
@@ -4976,7 +4976,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 7000.0,
           "monthly_forecast": {
-            "2026-10": 4394.1774,
+            "2026-10": 4394.18,
             "2026-11": 0.0,
             "2026-12": 4339.5406,
             "2027-01": 6540.0,
@@ -5028,7 +5028,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 8436.8206,
+            "2026-10": 8899.64,
             "2026-11": 17608.4239,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -5058,7 +5058,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 640.0,
           "monthly_forecast": {
-            "2026-10": 16328.7632,
+            "2026-10": 17096.25,
             "2026-11": 18069.5969,
             "2026-12": 14563.4983,
             "2027-01": 14560.0,
@@ -5084,7 +5084,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 7000.0,
           "monthly_forecast": {
-            "2026-10": 4394.1774,
+            "2026-10": 4394.18,
             "2026-11": 0.0,
             "2026-12": 4339.5406,
             "2027-01": 6540.0,
@@ -5136,7 +5136,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 8436.8206,
+            "2026-10": 8899.64,
             "2026-11": 17608.4239,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -5154,9 +5154,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 48961.86,
+      "demanda_nac_q4": 49729.35,
       "demanda_nac_q1_27": 45800.0,
-      "demanda_nac_6m": 94761.86,
+      "demanda_nac_6m": 95529.35,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 17500.0,
@@ -5338,7 +5338,7 @@
       "pedidos_pendientes_nacional": 26400.0,
       "pedidos_pendientes_export": 5100.0,
       "monthly_forecast": {
-        "2026-10": 29001.5709,
+        "2026-10": 30486.440000000002,
         "2026-11": 35112.0359,
         "2026-12": 17184.5807,
         "2027-01": 44240.0,
@@ -5355,7 +5355,7 @@
         "2027-12": 15740.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 10546.0258,
+        "2026-10": 11018.490000000002,
         "2026-11": 17818.0481,
         "2026-12": 954.6989,
         "2027-01": 7200.0,
@@ -5372,7 +5372,7 @@
         "2027-12": 1140.0
       },
       "monthly_forecast_export": {
-        "2026-10": 18455.5451,
+        "2026-10": 19467.95,
         "2026-11": 17293.9878,
         "2026-12": 16229.8818,
         "2027-01": 37040.0,
@@ -5398,7 +5398,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 26400.0,
           "monthly_forecast": {
-            "2026-10": 10546.0258,
+            "2026-10": 11018.490000000002,
             "2026-11": 17818.0481,
             "2026-12": 954.6989,
             "2027-01": 7200.0,
@@ -5606,7 +5606,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 9667.1903,
+            "2026-10": 10197.5,
             "2026-11": 16141.0553,
             "2026-12": 0.0,
             "2027-01": 15600.0,
@@ -5632,7 +5632,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 8788.3548,
+            "2026-10": 9270.45,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 10060.0,
@@ -5688,7 +5688,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 26400.0,
           "monthly_forecast": {
-            "2026-10": 10546.0258,
+            "2026-10": 11018.490000000002,
             "2026-11": 17818.0481,
             "2026-12": 954.6989,
             "2027-01": 7200.0,
@@ -5896,7 +5896,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 9667.1903,
+            "2026-10": 10197.5,
             "2026-11": 16141.0553,
             "2026-12": 0.0,
             "2027-01": 15600.0,
@@ -5922,7 +5922,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 8788.3548,
+            "2026-10": 9270.45,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 10060.0,
@@ -5966,9 +5966,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 29318.77,
+      "demanda_nac_q4": 29791.24,
       "demanda_nac_q1_27": 51020.0,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -6306,7 +6306,7 @@
       "pedidos_pendientes_nacional": 960.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1863.1312,
+        "2026-10": 1965.34,
         "2026-11": 2096.241,
         "2026-12": 0.0,
         "2027-01": 440.0,
@@ -6323,7 +6323,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 1863.1312,
+        "2026-10": 1965.34,
         "2026-11": 1760.8424,
         "2026-12": 0.0,
         "2027-01": 440.0,
@@ -6366,7 +6366,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 960.0,
           "monthly_forecast": {
-            "2026-10": 1863.1312,
+            "2026-10": 1965.34,
             "2026-11": 1760.8424,
             "2026-12": 0.0,
             "2027-01": 440.0,
@@ -6474,7 +6474,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 960.0,
           "monthly_forecast": {
-            "2026-10": 1863.1312,
+            "2026-10": 1965.34,
             "2026-11": 1760.8424,
             "2026-12": 0.0,
             "2027-01": 440.0,
@@ -6570,9 +6570,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 3623.97,
+      "demanda_nac_q4": 3726.18,
       "demanda_nac_q1_27": 3380.0,
-      "demanda_nac_6m": 7003.97,
+      "demanda_nac_6m": 7106.18,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2940.0,
@@ -6806,7 +6806,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 2249.8188,
+        "2026-10": 2373.24,
         "2026-11": 3353.9855,
         "2026-12": 555.4612,
         "2027-01": 4420.0,
@@ -6823,7 +6823,7 @@
         "2027-12": 660.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 2249.8188,
+        "2026-10": 2373.24,
         "2026-11": 3353.9855,
         "2026-12": 555.4612,
         "2027-01": 4420.0,
@@ -6866,7 +6866,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2249.8188,
+            "2026-10": 2373.24,
             "2026-11": 3353.9855,
             "2026-12": 555.4612,
             "2027-01": 4420.0,
@@ -6896,7 +6896,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2249.8188,
+            "2026-10": 2373.24,
             "2026-11": 3353.9855,
             "2026-12": 555.4612,
             "2027-01": 4420.0,
@@ -6914,9 +6914,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 6159.27,
+      "demanda_nac_q4": 6282.69,
       "demanda_nac_q1_27": 19600.0,
-      "demanda_nac_6m": 25759.27,
+      "demanda_nac_6m": 25882.69,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 4440.0,
@@ -6952,7 +6952,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 16697.8741,
+        "2026-10": 17372.82,
         "2026-11": 20962.409399999997,
         "2026-12": 0.0,
         "2027-01": 8000.0,
@@ -6969,7 +6969,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 16697.8741,
+        "2026-10": 17372.82,
         "2026-11": 20962.409399999997,
         "2026-12": 0.0,
         "2027-01": 8000.0,
@@ -7012,7 +7012,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 16697.8741,
+            "2026-10": 17372.82,
             "2026-11": 20962.409399999997,
             "2026-12": 0.0,
             "2027-01": 8000.0,
@@ -7042,7 +7042,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 16697.8741,
+            "2026-10": 17372.82,
             "2026-11": 20962.409399999997,
             "2026-12": 0.0,
             "2027-01": 8000.0,
@@ -7060,9 +7060,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 37660.28,
+      "demanda_nac_q4": 38335.23,
       "demanda_nac_q1_27": 61000.0,
-      "demanda_nac_6m": 98660.28,
+      "demanda_nac_6m": 99335.23,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 5000.0,
@@ -7244,7 +7244,7 @@
       "pedidos_pendientes_nacional": 250.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 175.767,
+        "2026-10": 185.4,
         "2026-11": 1414.9626,
         "2026-12": 282.0701,
         "2027-01": 620.0,
@@ -7261,7 +7261,7 @@
         "2027-12": 1710.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 175.767,
+        "2026-10": 185.4,
         "2026-11": 1414.9626,
         "2026-12": 282.0701,
         "2027-01": 620.0,
@@ -7304,7 +7304,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 250.0,
           "monthly_forecast": {
-            "2026-10": 175.767,
+            "2026-10": 185.4,
             "2026-11": 1414.9626,
             "2026-12": 282.0701,
             "2027-01": 620.0,
@@ -7360,7 +7360,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 250.0,
           "monthly_forecast": {
-            "2026-10": 175.767,
+            "2026-10": 185.4,
             "2026-11": 1414.9626,
             "2026-12": 282.0701,
             "2027-01": 620.0,
@@ -7404,9 +7404,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 1872.8,
+      "demanda_nac_q4": 1882.43,
       "demanda_nac_q1_27": 2955.0,
-      "demanda_nac_6m": 4827.8,
+      "demanda_nac_6m": 4837.43,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1375.0,
@@ -7984,7 +7984,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 16800.0,
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 175.77,
         "2026-11": 2096.2409,
         "2026-12": 867.9081,
         "2027-01": 17146.0,
@@ -8001,7 +8001,7 @@
         "2027-12": 1095.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 175.7671,
+        "2026-10": 175.77,
         "2026-11": 2096.2409,
         "2026-12": 0.0,
         "2027-01": 25.0,
@@ -8044,7 +8044,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 175.77,
             "2026-11": 2096.2409,
             "2026-12": 0.0,
             "2027-01": 25.0,
@@ -8178,7 +8178,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 175.77,
             "2026-11": 2096.2409,
             "2026-12": 0.0,
             "2027-01": 25.0,
@@ -8484,7 +8484,7 @@
       "pedidos_pendientes_nacional": 4000.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 16346.339899999999,
+        "2026-10": 17098.420000000002,
         "2026-11": 3458.7976,
         "2026-12": 34803.1156,
         "2027-01": 2515.0,
@@ -8518,7 +8518,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 16346.339899999999,
+        "2026-10": 17098.420000000002,
         "2026-11": 3458.7976,
         "2026-12": 34803.1156,
         "2027-01": 2515.0,
@@ -8570,7 +8570,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2636.5064,
+            "2026-10": 2636.51,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -8674,7 +8674,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 9667.1903,
+            "2026-10": 10197.5,
             "2026-11": 0.0,
             "2026-12": 6075.3569,
             "2027-01": 0.0,
@@ -8726,7 +8726,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 3866.8761,
+            "2026-10": 4079.0,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 2515.0,
@@ -8752,7 +8752,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 185.41,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -8834,7 +8834,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2636.5064,
+            "2026-10": 2636.51,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -8938,7 +8938,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 9667.1903,
+            "2026-10": 10197.5,
             "2026-11": 0.0,
             "2026-12": 6075.3569,
             "2027-01": 0.0,
@@ -8990,7 +8990,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 3866.8761,
+            "2026-10": 4079.0,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 2515.0,
@@ -9016,7 +9016,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 185.41,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -9390,7 +9390,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 1000.0,
       "monthly_forecast": {
-        "2026-10": 615.1848,
+        "2026-10": 620.0,
         "2026-11": 314.4361,
         "2026-12": 1041.4897,
         "2027-01": 1660.0,
@@ -9407,7 +9407,7 @@
         "2027-12": 1280.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 615.1848,
+        "2026-10": 620.0,
         "2026-11": 314.4361,
         "2026-12": 173.5816,
         "2027-01": 1660.0,
@@ -9450,7 +9450,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 615.1848,
+            "2026-10": 620.0,
             "2026-11": 314.4361,
             "2026-12": 173.5816,
             "2027-01": 1660.0,
@@ -9584,7 +9584,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 615.1848,
+            "2026-10": 620.0,
             "2026-11": 314.4361,
             "2026-12": 173.5816,
             "2027-01": 1660.0,
@@ -9706,18 +9706,18 @@
           }
         }
       ],
-      "demanda_nac_q4": 1103.2,
+      "demanda_nac_q4": 1108.02,
       "demanda_nac_q1_27": 2130.0,
-      "demanda_nac_6m": 3233.2,
+      "demanda_nac_6m": 3238.02,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 496.8,
-      "fast_mover_qty": 1103.2,
+      "slow_mover_qty": 491.98,
+      "fast_mover_qty": 1108.02,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 496.8,
+      "slow_mover_litros": 491.98,
       "no_mover_envases": 0.0,
-      "slow_mover_envases": 99.4,
+      "slow_mover_envases": 98.4,
       "no_mover_eur": 0.0,
-      "slow_mover_eur": 862.57,
+      "slow_mover_eur": 854.21,
       "stock_eur": 2778.01,
       "is_nomover": false,
       "is_slowmover": true,
@@ -10088,7 +10088,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 0.0,
         "2027-01": 240.0,
@@ -10105,7 +10105,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 0.0,
         "2027-01": 240.0,
@@ -10148,7 +10148,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1124.9094,
+            "2026-10": 1186.62,
             "2026-11": 1341.5942,
             "2026-12": 0.0,
             "2027-01": 240.0,
@@ -10178,7 +10178,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1124.9094,
+            "2026-10": 1186.62,
             "2026-11": 1341.5942,
             "2026-12": 0.0,
             "2027-01": 240.0,
@@ -10196,9 +10196,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 2466.5,
+      "demanda_nac_q4": 2528.21,
       "demanda_nac_q1_27": 2880.0,
-      "demanda_nac_6m": 5346.5,
+      "demanda_nac_6m": 5408.21,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2000.0,
@@ -10234,7 +10234,7 @@
       "pedidos_pendientes_nacional": 1260.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 175.767,
+        "2026-10": 185.4,
         "2026-11": 1048.1205,
         "2026-12": 433.95400000000006,
         "2027-01": 875.0,
@@ -10251,7 +10251,7 @@
         "2027-12": 3660.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 175.767,
+        "2026-10": 185.4,
         "2026-11": 0.0,
         "2026-12": 433.95400000000006,
         "2027-01": 875.0,
@@ -10294,7 +10294,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 1260.0,
           "monthly_forecast": {
-            "2026-10": 175.767,
+            "2026-10": 185.4,
             "2026-11": 0.0,
             "2026-12": 433.95400000000006,
             "2027-01": 875.0,
@@ -10402,7 +10402,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 1260.0,
           "monthly_forecast": {
-            "2026-10": 175.767,
+            "2026-10": 185.4,
             "2026-11": 0.0,
             "2026-12": 433.95400000000006,
             "2027-01": 875.0,
@@ -10498,18 +10498,18 @@
           }
         }
       ],
-      "demanda_nac_q4": 609.72,
+      "demanda_nac_q4": 619.35,
       "demanda_nac_q1_27": 1420.0,
-      "demanda_nac_6m": 2029.72,
+      "demanda_nac_6m": 2039.35,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 470.28,
-      "fast_mover_qty": 609.72,
+      "slow_mover_qty": 460.65,
+      "fast_mover_qty": 619.35,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 470.28,
+      "slow_mover_litros": 460.65,
       "no_mover_envases": 0.0,
-      "slow_mover_envases": 94.1,
+      "slow_mover_envases": 92.1,
       "no_mover_eur": 0.0,
-      "slow_mover_eur": 535.88,
+      "slow_mover_eur": 524.9,
       "stock_eur": 1230.66,
       "is_nomover": false,
       "is_slowmover": true,
@@ -10536,7 +10536,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 966.719,
+        "2026-10": 966.72,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -10553,7 +10553,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 966.719,
+        "2026-10": 966.72,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -10596,7 +10596,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 966.719,
+            "2026-10": 966.72,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -10704,7 +10704,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 966.719,
+            "2026-10": 966.72,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -10838,7 +10838,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 2000.0,
       "monthly_forecast": {
-        "2026-10": 2320.1256000000003,
+        "2026-10": 2437.7599999999998,
         "2026-11": 1215.8197,
         "2026-12": 2013.5467999999998,
         "2027-01": 840.0,
@@ -10855,7 +10855,7 @@
         "2027-12": 6980.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 2320.1256000000003,
+        "2026-10": 2437.7599999999998,
         "2026-11": 1215.8197,
         "2026-12": 2013.5467999999998,
         "2027-01": 840.0,
@@ -10898,7 +10898,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2320.1256000000003,
+            "2026-10": 2437.7599999999998,
             "2026-11": 1215.8197,
             "2026-12": 2013.5467999999998,
             "2027-01": 840.0,
@@ -10954,7 +10954,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2320.1256000000003,
+            "2026-10": 2437.7599999999998,
             "2026-11": 1215.8197,
             "2026-12": 2013.5467999999998,
             "2027-01": 840.0,
@@ -10998,9 +10998,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 5549.49,
+      "demanda_nac_q4": 5667.13,
       "demanda_nac_q1_27": 9900.0,
-      "demanda_nac_6m": 15449.49,
+      "demanda_nac_6m": 15567.13,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -11036,7 +11036,7 @@
       "pedidos_pendientes_nacional": 800.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 790.9519,
+        "2026-10": 834.34,
         "2026-11": 733.6842,
         "2026-12": 607.5356,
         "2027-01": 2025.0,
@@ -11053,7 +11053,7 @@
         "2027-12": 725.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 790.9519,
+        "2026-10": 834.34,
         "2026-11": 733.6842,
         "2026-12": 607.5356,
         "2027-01": 2025.0,
@@ -11096,7 +11096,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 800.0,
           "monthly_forecast": {
-            "2026-10": 790.9519,
+            "2026-10": 834.34,
             "2026-11": 733.6842,
             "2026-12": 607.5356,
             "2027-01": 2025.0,
@@ -11126,7 +11126,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 800.0,
           "monthly_forecast": {
-            "2026-10": 790.9519,
+            "2026-10": 834.34,
             "2026-11": 733.6842,
             "2026-12": 607.5356,
             "2027-01": 2025.0,
@@ -11144,9 +11144,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 2132.17,
+      "demanda_nac_q4": 2175.56,
       "demanda_nac_q1_27": 4000.0,
-      "demanda_nac_6m": 6132.17,
+      "demanda_nac_6m": 6175.56,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1660.0,
@@ -11182,7 +11182,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 421.8409,
+        "2026-10": 441.12,
         "2026-11": 419.2481,
         "2026-12": 381.8795,
         "2027-01": 820.0,
@@ -11199,7 +11199,7 @@
         "2027-12": 545.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 421.8409,
+        "2026-10": 441.12,
         "2026-11": 419.2481,
         "2026-12": 381.8795,
         "2027-01": 820.0,
@@ -11242,7 +11242,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 421.8409,
+            "2026-10": 441.12,
             "2026-11": 419.2481,
             "2026-12": 381.8795,
             "2027-01": 820.0,
@@ -11272,7 +11272,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 421.8409,
+            "2026-10": 441.12,
             "2026-11": 419.2481,
             "2026-12": 381.8795,
             "2027-01": 820.0,
@@ -11290,9 +11290,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 1222.97,
+      "demanda_nac_q4": 1242.25,
       "demanda_nac_q1_27": 2425.0,
-      "demanda_nac_6m": 3647.97,
+      "demanda_nac_6m": 3667.25,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 55.0,
@@ -11328,7 +11328,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 200.3745,
+        "2026-10": 211.37,
         "2026-11": 113.197,
         "2026-12": 187.4682,
         "2027-01": 215.0,
@@ -11345,7 +11345,7 @@
         "2027-12": 248.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 200.3745,
+        "2026-10": 211.37,
         "2026-11": 113.197,
         "2026-12": 187.4682,
         "2027-01": 215.0,
@@ -11388,7 +11388,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 200.3745,
+            "2026-10": 211.37,
             "2026-11": 113.197,
             "2026-12": 187.4682,
             "2027-01": 215.0,
@@ -11470,7 +11470,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 200.3745,
+            "2026-10": 211.37,
             "2026-11": 113.197,
             "2026-12": 187.4682,
             "2027-01": 215.0,
@@ -11540,18 +11540,18 @@
           }
         }
       ],
-      "demanda_nac_q4": 501.04,
+      "demanda_nac_q4": 512.04,
       "demanda_nac_q1_27": 358.0,
-      "demanda_nac_6m": 859.04,
+      "demanda_nac_6m": 870.04,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 128.96,
-      "fast_mover_qty": 501.04,
+      "slow_mover_qty": 117.96,
+      "fast_mover_qty": 512.04,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 128.96,
+      "slow_mover_litros": 117.96,
       "no_mover_envases": 0.0,
-      "slow_mover_envases": 129.0,
+      "slow_mover_envases": 118.0,
       "no_mover_eur": 0.0,
-      "slow_mover_eur": 339.06,
+      "slow_mover_eur": 310.15,
       "stock_eur": 1656.37,
       "is_nomover": false,
       "is_slowmover": true,
@@ -11724,7 +11724,7 @@
       "pedidos_pendientes_nacional": 2200.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 263.6506,
+        "2026-10": 263.65,
         "2026-11": 628.8722,
         "2026-12": 11456.3871,
         "2027-01": 7680.0,
@@ -11741,7 +11741,7 @@
         "2027-12": 13316.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 263.6506,
+        "2026-10": 263.65,
         "2026-11": 628.8722,
         "2026-12": 1041.4897,
         "2027-01": 825.0,
@@ -11784,7 +11784,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 2200.0,
           "monthly_forecast": {
-            "2026-10": 263.6506,
+            "2026-10": 263.65,
             "2026-11": 628.8722,
             "2026-12": 1041.4897,
             "2027-01": 825.0,
@@ -11918,7 +11918,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 2200.0,
           "monthly_forecast": {
-            "2026-10": 263.6506,
+            "2026-10": 263.65,
             "2026-11": 628.8722,
             "2026-12": 1041.4897,
             "2027-01": 825.0,
@@ -12620,7 +12620,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 87.8835,
+        "2026-10": 92.7,
         "2026-11": 104.812,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -12637,7 +12637,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 87.8835,
+        "2026-10": 92.7,
         "2026-11": 104.812,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -12680,7 +12680,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 87.8835,
+            "2026-10": 92.7,
             "2026-11": 104.812,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -12710,7 +12710,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 87.8835,
+            "2026-10": 92.7,
             "2026-11": 104.812,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -12728,9 +12728,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 192.7,
+      "demanda_nac_q4": 197.51,
       "demanda_nac_q1_27": 80.0,
-      "demanda_nac_6m": 272.7,
+      "demanda_nac_6m": 277.51,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -13746,7 +13746,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1933.4379,
+        "2026-10": 2015.38,
         "2026-11": 419.2481,
         "2026-12": 3905.5865000000003,
         "2027-01": 875.0,
@@ -13763,7 +13763,7 @@
         "2027-12": 4700.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 1933.4379,
+        "2026-10": 2015.38,
         "2026-11": 419.2481,
         "2026-12": 1301.8621,
         "2027-01": 875.0,
@@ -13806,7 +13806,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1933.4379,
+            "2026-10": 2015.38,
             "2026-11": 419.2481,
             "2026-12": 1301.8621,
             "2027-01": 875.0,
@@ -13888,7 +13888,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1933.4379,
+            "2026-10": 2015.38,
             "2026-11": 419.2481,
             "2026-12": 1301.8621,
             "2027-01": 875.0,
@@ -13958,9 +13958,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 3654.55,
+      "demanda_nac_q4": 3736.49,
       "demanda_nac_q1_27": 5040.0,
-      "demanda_nac_6m": 8694.55,
+      "demanda_nac_6m": 8776.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2640.0,
@@ -13996,7 +13996,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 351.53409999999997,
+        "2026-10": 370.81,
         "2026-11": 20.9624,
         "2026-12": 86.7908,
         "2027-01": 90.0,
@@ -14013,7 +14013,7 @@
         "2027-12": 105.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 351.53409999999997,
+        "2026-10": 370.81,
         "2026-11": 20.9624,
         "2026-12": 86.7908,
         "2027-01": 90.0,
@@ -14056,7 +14056,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 351.53409999999997,
+            "2026-10": 370.81,
             "2026-11": 20.9624,
             "2026-12": 86.7908,
             "2027-01": 90.0,
@@ -14086,7 +14086,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 351.53409999999997,
+            "2026-10": 370.81,
             "2026-11": 20.9624,
             "2026-12": 86.7908,
             "2027-01": 90.0,
@@ -14104,22 +14104,22 @@
           }
         }
       ],
-      "demanda_nac_q4": 459.29,
+      "demanda_nac_q4": 478.56,
       "demanda_nac_q1_27": 435.0,
-      "demanda_nac_6m": 894.29,
+      "demanda_nac_6m": 913.56,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 15.71,
-      "fast_mover_qty": 459.29,
+      "slow_mover_qty": 0.0,
+      "fast_mover_qty": 475.0,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 15.71,
+      "slow_mover_litros": 0.0,
       "no_mover_envases": 0.0,
-      "slow_mover_envases": 3.1,
+      "slow_mover_envases": 0.0,
       "no_mover_eur": 0.0,
-      "slow_mover_eur": 15.6,
+      "slow_mover_eur": 0.0,
       "stock_eur": 471.56,
       "is_nomover": false,
-      "is_slowmover": true,
-      "is_fastmover": false
+      "is_slowmover": false,
+      "is_fastmover": true
     },
     {
       "base_sku": "BIO0005",
@@ -14142,7 +14142,7 @@
       "pedidos_pendientes_nacional": 3900.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1353.4065999999998,
+        "2026-10": 1384.2599999999998,
         "2026-11": 5366.3768,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -14159,7 +14159,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 826.1052999999999,
+        "2026-10": 856.9599999999999,
         "2026-11": 1572.1807,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -14176,7 +14176,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 527.3013,
+        "2026-10": 527.3,
         "2026-11": 3794.1961,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -14202,7 +14202,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 3900.0,
           "monthly_forecast": {
-            "2026-10": 826.1052999999999,
+            "2026-10": 856.9599999999999,
             "2026-11": 1572.1807,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -14254,7 +14254,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 527.3013,
+            "2026-10": 527.3,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -14336,7 +14336,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 3900.0,
           "monthly_forecast": {
-            "2026-10": 826.1052999999999,
+            "2026-10": 856.9599999999999,
             "2026-11": 1572.1807,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -14388,7 +14388,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 527.3013,
+            "2026-10": 527.3,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -14458,9 +14458,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 2398.29,
+      "demanda_nac_q4": 2429.14,
       "demanda_nac_q1_27": 945.0,
-      "demanda_nac_6m": 3343.29,
+      "demanda_nac_6m": 3374.14,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1840.0,
@@ -14694,7 +14694,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 35.1534,
+        "2026-10": 37.08,
         "2026-11": 41.9248,
         "2026-12": 121.50710000000001,
         "2027-01": 425.0,
@@ -14711,7 +14711,7 @@
         "2027-12": 170.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 35.1534,
+        "2026-10": 37.08,
         "2026-11": 41.9248,
         "2026-12": 121.50710000000001,
         "2027-01": 425.0,
@@ -14754,7 +14754,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 35.1534,
+            "2026-10": 37.08,
             "2026-11": 41.9248,
             "2026-12": 121.50710000000001,
             "2027-01": 425.0,
@@ -14810,7 +14810,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 35.1534,
+            "2026-10": 37.08,
             "2026-11": 41.9248,
             "2026-12": 121.50710000000001,
             "2027-01": 425.0,
@@ -14854,9 +14854,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 198.59,
+      "demanda_nac_q4": 200.51,
       "demanda_nac_q1_27": 675.0,
-      "demanda_nac_6m": 873.59,
+      "demanda_nac_6m": 875.51,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 160.0,
@@ -14892,7 +14892,7 @@
       "pedidos_pendientes_nacional": 600.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1406.1368,
+        "2026-10": 1406.14,
         "2026-11": 104.812,
         "2026-12": 0.0,
         "2027-01": 150.0,
@@ -14926,7 +14926,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 1406.1368,
+        "2026-10": 1406.14,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -14978,7 +14978,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1406.1368,
+            "2026-10": 1406.14,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -15034,7 +15034,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1406.1368,
+            "2026-10": 1406.14,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -15382,7 +15382,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 0.0,
         "2027-01": 100.0,
@@ -15399,7 +15399,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 0.0,
         "2027-01": 100.0,
@@ -15442,7 +15442,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1124.9094,
+            "2026-10": 1186.62,
             "2026-11": 1341.5942,
             "2026-12": 0.0,
             "2027-01": 100.0,
@@ -15472,7 +15472,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1124.9094,
+            "2026-10": 1186.62,
             "2026-11": 1341.5942,
             "2026-12": 0.0,
             "2027-01": 100.0,
@@ -15490,18 +15490,18 @@
           }
         }
       ],
-      "demanda_nac_q4": 2466.5,
+      "demanda_nac_q4": 2528.21,
       "demanda_nac_q1_27": 3080.0,
-      "demanda_nac_6m": 5546.5,
+      "demanda_nac_6m": 5608.21,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 73.5,
-      "fast_mover_qty": 2466.5,
+      "slow_mover_qty": 11.79,
+      "fast_mover_qty": 2528.21,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 73.5,
+      "slow_mover_litros": 11.79,
       "no_mover_envases": 0.0,
-      "slow_mover_envases": 3.7,
+      "slow_mover_envases": 0.6,
       "no_mover_eur": 0.0,
-      "slow_mover_eur": 132.14,
+      "slow_mover_eur": 21.19,
       "stock_eur": 4566.8,
       "is_nomover": false,
       "is_slowmover": true,
@@ -15726,7 +15726,7 @@
       "pedidos_pendientes_nacional": 400.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 209.6241,
         "2026-12": 2603.7244,
         "2027-01": 1380.0,
@@ -15743,7 +15743,7 @@
         "2027-12": 3350.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 209.6241,
         "2026-12": 0.0,
         "2027-01": 1380.0,
@@ -15786,7 +15786,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 400.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 185.41,
             "2026-11": 209.6241,
             "2026-12": 0.0,
             "2027-01": 1380.0,
@@ -15842,7 +15842,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 400.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 185.41,
             "2026-11": 209.6241,
             "2026-12": 0.0,
             "2027-01": 1380.0,
@@ -15886,18 +15886,18 @@
           }
         }
       ],
-      "demanda_nac_q4": 385.39,
+      "demanda_nac_q4": 395.03,
       "demanda_nac_q1_27": 5555.0,
-      "demanda_nac_6m": 5940.39,
+      "demanda_nac_6m": 5950.03,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 454.61,
-      "fast_mover_qty": 385.39,
+      "slow_mover_qty": 444.97,
+      "fast_mover_qty": 395.03,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 454.61,
+      "slow_mover_litros": 444.97,
       "no_mover_envases": 0.0,
-      "slow_mover_envases": 90.9,
+      "slow_mover_envases": 89.0,
       "no_mover_eur": 0.0,
-      "slow_mover_eur": 877.73,
+      "slow_mover_eur": 859.11,
       "stock_eur": 1621.82,
       "is_nomover": false,
       "is_slowmover": true,
@@ -15924,7 +15924,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 439.4177,
+        "2026-10": 463.52,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -15941,7 +15941,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 439.4177,
+        "2026-10": 463.52,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -15984,7 +15984,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 439.4177,
+            "2026-10": 463.52,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -16014,7 +16014,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 439.4177,
+            "2026-10": 463.52,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -16032,17 +16032,17 @@
           }
         }
       ],
-      "demanda_nac_q4": 439.42,
+      "demanda_nac_q4": 463.52,
       "demanda_nac_q1_27": 0.0,
-      "demanda_nac_6m": 439.42,
-      "no_mover_qty": 330.58,
+      "demanda_nac_6m": 463.52,
+      "no_mover_qty": 306.48,
       "slow_mover_qty": 0.0,
-      "fast_mover_qty": 439.42,
-      "no_mover_litros": 330.58,
+      "fast_mover_qty": 463.52,
+      "no_mover_litros": 306.48,
       "slow_mover_litros": 0.0,
-      "no_mover_envases": 66.1,
+      "no_mover_envases": 61.3,
       "slow_mover_envases": 0.0,
-      "no_mover_eur": 211.09,
+      "no_mover_eur": 195.7,
       "slow_mover_eur": 0.0,
       "stock_eur": 491.67,
       "is_nomover": true,
@@ -16070,7 +16070,7 @@
       "pedidos_pendientes_nacional": 300.0,
       "pedidos_pendientes_export": 10296.0,
       "monthly_forecast": {
-        "2026-10": 4394.1774,
+        "2026-10": 4394.18,
         "2026-11": 10858.5281,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -16104,7 +16104,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 4394.1774,
+        "2026-10": 4394.18,
         "2026-11": 10858.5281,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -16156,7 +16156,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 10296.0,
           "monthly_forecast": {
-            "2026-10": 4394.1774,
+            "2026-10": 4394.18,
             "2026-11": 10481.2047,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -16264,7 +16264,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 10296.0,
           "monthly_forecast": {
-            "2026-10": 4394.1774,
+            "2026-10": 4394.18,
             "2026-11": 10481.2047,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -16570,7 +16570,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 928.0503,
+        "2026-10": 928.05,
         "2026-11": 0.0,
         "2026-12": 1666.3836,
         "2027-01": 946.0,
@@ -16604,7 +16604,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 928.0503,
+        "2026-10": 928.05,
         "2026-11": 0.0,
         "2026-12": 1666.3836,
         "2027-01": 946.0,
@@ -16656,7 +16656,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 928.0503,
+            "2026-10": 928.05,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 946.0,
@@ -16764,7 +16764,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 928.0503,
+            "2026-10": 928.05,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 946.0,
@@ -17226,7 +17226,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 4978.5722,
         "2026-12": 347.1632,
         "2027-01": 2555.0,
@@ -17260,7 +17260,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 4192.4818,
         "2026-12": 347.1632,
         "2027-01": 2150.0,
@@ -17338,7 +17338,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 878.8355,
+            "2026-10": 927.0,
             "2026-11": 0.0,
             "2026-12": 347.1632,
             "2027-01": 0.0,
@@ -17446,7 +17446,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 878.8355,
+            "2026-10": 927.0,
             "2026-11": 0.0,
             "2026-12": 347.1632,
             "2027-01": 0.0,
@@ -17528,7 +17528,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 7206.450999999999,
+        "2026-10": 7322.16,
         "2026-11": 2934.7374,
         "2026-12": 6943.2649,
         "2027-01": 6000.0,
@@ -17545,7 +17545,7 @@
         "2027-12": 6000.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 2812.2736,
+        "2026-10": 2927.98,
         "2026-11": 2934.7374,
         "2026-12": 2603.7243,
         "2027-01": 800.0,
@@ -17562,7 +17562,7 @@
         "2027-12": 1800.0
       },
       "monthly_forecast_export": {
-        "2026-10": 4394.1774,
+        "2026-10": 4394.18,
         "2026-11": 0.0,
         "2026-12": 4339.5406,
         "2027-01": 5200.0,
@@ -17588,7 +17588,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2812.2736,
+            "2026-10": 2927.98,
             "2026-11": 2934.7374,
             "2026-12": 2603.7243,
             "2027-01": 800.0,
@@ -17614,7 +17614,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 4394.1774,
+            "2026-10": 4394.18,
             "2026-11": 0.0,
             "2026-12": 4339.5406,
             "2027-01": 5200.0,
@@ -17644,7 +17644,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2812.2736,
+            "2026-10": 2927.98,
             "2026-11": 2934.7374,
             "2026-12": 2603.7243,
             "2027-01": 800.0,
@@ -17670,7 +17670,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 4394.1774,
+            "2026-10": 4394.18,
             "2026-11": 0.0,
             "2026-12": 4339.5406,
             "2027-01": 5200.0,
@@ -17688,9 +17688,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 8350.74,
+      "demanda_nac_q4": 8466.44,
       "demanda_nac_q1_27": 9400.0,
-      "demanda_nac_6m": 17750.74,
+      "demanda_nac_6m": 17866.44,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -17726,7 +17726,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1687.3641,
+        "2026-10": 1779.9299999999998,
         "2026-11": 2012.3913,
         "2026-12": 0.0,
         "2027-01": 180.0,
@@ -17743,7 +17743,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 1687.3641,
+        "2026-10": 1779.9299999999998,
         "2026-11": 2012.3913,
         "2026-12": 0.0,
         "2027-01": 180.0,
@@ -17786,7 +17786,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1687.3641,
+            "2026-10": 1779.9299999999998,
             "2026-11": 2012.3913,
             "2026-12": 0.0,
             "2027-01": 180.0,
@@ -17816,7 +17816,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1687.3641,
+            "2026-10": 1779.9299999999998,
             "2026-11": 2012.3913,
             "2026-12": 0.0,
             "2027-01": 180.0,
@@ -17834,18 +17834,18 @@
           }
         }
       ],
-      "demanda_nac_q4": 3699.76,
+      "demanda_nac_q4": 3792.32,
       "demanda_nac_q1_27": 9060.0,
-      "demanda_nac_6m": 12759.76,
+      "demanda_nac_6m": 12852.32,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 1460.24,
-      "fast_mover_qty": 3699.76,
+      "slow_mover_qty": 1367.68,
+      "fast_mover_qty": 3792.32,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 1460.24,
+      "slow_mover_litros": 1367.68,
       "no_mover_envases": 0.0,
-      "slow_mover_envases": 73.0,
+      "slow_mover_envases": 68.4,
       "no_mover_eur": 0.0,
-      "slow_mover_eur": 1246.71,
+      "slow_mover_eur": 1167.68,
       "stock_eur": 4405.46,
       "is_nomover": false,
       "is_slowmover": true,
@@ -18216,7 +18216,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -18233,7 +18233,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -18276,7 +18276,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1124.9094,
+            "2026-10": 1186.62,
             "2026-11": 1341.5942,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -18306,7 +18306,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1124.9094,
+            "2026-10": 1186.62,
             "2026-11": 1341.5942,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -18324,18 +18324,18 @@
           }
         }
       ],
-      "demanda_nac_q4": 2466.5,
+      "demanda_nac_q4": 2528.21,
       "demanda_nac_q1_27": 1440.0,
-      "demanda_nac_6m": 3906.5,
+      "demanda_nac_6m": 3968.21,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 613.5,
-      "fast_mover_qty": 2466.5,
+      "slow_mover_qty": 551.79,
+      "fast_mover_qty": 2528.21,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 613.5,
+      "slow_mover_litros": 551.79,
       "no_mover_envases": 0.0,
-      "slow_mover_envases": 30.7,
+      "slow_mover_envases": 27.6,
       "no_mover_eur": 0.0,
-      "slow_mover_eur": 503.0,
+      "slow_mover_eur": 452.41,
       "stock_eur": 2525.27,
       "is_nomover": false,
       "is_slowmover": true,
@@ -18362,7 +18362,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 209.6241,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -18379,7 +18379,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 209.6241,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -18422,7 +18422,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 185.41,
             "2026-11": 209.6241,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -18478,7 +18478,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 185.41,
             "2026-11": 209.6241,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -18522,9 +18522,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 385.39,
+      "demanda_nac_q4": 395.03,
       "demanda_nac_q1_27": 200.0,
-      "demanda_nac_6m": 585.39,
+      "demanda_nac_6m": 595.03,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -18560,7 +18560,7 @@
       "pedidos_pendientes_nacional": 4000.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 3515.3419,
+        "2026-10": 3708.18,
         "2026-11": 0.0,
         "2026-12": 1735.8162,
         "2027-01": 0.0,
@@ -18594,7 +18594,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 3515.3419,
+        "2026-10": 3708.18,
         "2026-11": 0.0,
         "2026-12": 1735.8162,
         "2027-01": 0.0,
@@ -18646,7 +18646,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 3515.3419,
+            "2026-10": 3708.18,
             "2026-11": 0.0,
             "2026-12": 1735.8162,
             "2027-01": 0.0,
@@ -18702,7 +18702,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 3515.3419,
+            "2026-10": 3708.18,
             "2026-11": 0.0,
             "2026-12": 1735.8162,
             "2027-01": 0.0,
@@ -18758,7 +18758,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 2460.7394,
+        "2026-10": 2595.7200000000003,
         "2026-11": 2934.7374,
         "2026-12": 0.0,
         "2027-01": 400.0,
@@ -18775,7 +18775,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 2460.7394,
+        "2026-10": 2595.7200000000003,
         "2026-11": 2934.7374,
         "2026-12": 0.0,
         "2027-01": 400.0,
@@ -18818,7 +18818,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2460.7394,
+            "2026-10": 2595.7200000000003,
             "2026-11": 2934.7374,
             "2026-12": 0.0,
             "2027-01": 400.0,
@@ -18848,7 +18848,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2460.7394,
+            "2026-10": 2595.7200000000003,
             "2026-11": 2934.7374,
             "2026-12": 0.0,
             "2027-01": 400.0,
@@ -18866,18 +18866,18 @@
           }
         }
       ],
-      "demanda_nac_q4": 5395.48,
+      "demanda_nac_q4": 5530.46,
       "demanda_nac_q1_27": 4000.0,
-      "demanda_nac_6m": 9395.48,
+      "demanda_nac_6m": 9530.46,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 3404.52,
-      "fast_mover_qty": 5395.48,
+      "slow_mover_qty": 3269.54,
+      "fast_mover_qty": 5530.46,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 3404.52,
+      "slow_mover_litros": 3269.54,
       "no_mover_envases": 0.0,
-      "slow_mover_envases": 17.0,
+      "slow_mover_envases": 16.3,
       "no_mover_eur": 0.0,
-      "slow_mover_eur": 1818.97,
+      "slow_mover_eur": 1746.85,
       "stock_eur": 4701.67,
       "is_nomover": false,
       "is_slowmover": true,
@@ -19540,7 +19540,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 87.8835,
+        "2026-10": 87.88,
         "2026-11": 0.0,
         "2026-12": 867.9081,
         "2027-01": 2280.0,
@@ -19557,7 +19557,7 @@
         "2027-12": 1070.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 87.8835,
+        "2026-10": 87.88,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 45.0,
@@ -19600,7 +19600,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 87.8835,
+            "2026-10": 87.88,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 45.0,
@@ -19656,7 +19656,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 87.8835,
+            "2026-10": 87.88,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 45.0,
@@ -20040,7 +20040,7 @@
       "pedidos_pendientes_nacional": 640.0,
       "pedidos_pendientes_export": 2000.0,
       "monthly_forecast": {
-        "2026-10": 7698.5989,
+        "2026-10": 8024.51,
         "2026-11": 4821.3542,
         "2026-12": 2430.1427,
         "2027-01": 5480.0,
@@ -20057,7 +20057,7 @@
         "2027-12": 820.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 3515.342,
+        "2026-10": 3708.1899999999996,
         "2026-11": 4192.4819,
         "2026-12": 0.0,
         "2027-01": 960.0,
@@ -20074,7 +20074,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 4183.2569,
+        "2026-10": 4316.32,
         "2026-11": 628.8723,
         "2026-12": 2430.1427,
         "2027-01": 4520.0,
@@ -20100,7 +20100,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 640.0,
           "monthly_forecast": {
-            "2026-10": 3515.342,
+            "2026-10": 3708.1899999999996,
             "2026-11": 4192.4819,
             "2026-12": 0.0,
             "2027-01": 960.0,
@@ -20126,7 +20126,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 2000.0,
           "monthly_forecast": {
-            "2026-10": 1757.671,
+            "2026-10": 1757.67,
             "2026-11": 0.0,
             "2026-12": 1735.8162,
             "2027-01": 0.0,
@@ -20204,7 +20204,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2425.5859,
+            "2026-10": 2558.65,
             "2026-11": 0.0,
             "2026-12": 694.3265,
             "2027-01": 1080.0,
@@ -20234,7 +20234,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 640.0,
           "monthly_forecast": {
-            "2026-10": 3515.342,
+            "2026-10": 3708.1899999999996,
             "2026-11": 4192.4819,
             "2026-12": 0.0,
             "2027-01": 960.0,
@@ -20260,7 +20260,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 2000.0,
           "monthly_forecast": {
-            "2026-10": 1757.671,
+            "2026-10": 1757.67,
             "2026-11": 0.0,
             "2026-12": 1735.8162,
             "2027-01": 0.0,
@@ -20338,7 +20338,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2425.5859,
+            "2026-10": 2558.65,
             "2026-11": 0.0,
             "2026-12": 694.3265,
             "2027-01": 1080.0,
@@ -20356,9 +20356,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 7707.82,
+      "demanda_nac_q4": 7900.67,
       "demanda_nac_q1_27": 11600.0,
-      "demanda_nac_6m": 19307.82,
+      "demanda_nac_6m": 19500.67,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 6240.0,
@@ -20394,7 +20394,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 11000.0,
       "monthly_forecast": {
-        "2026-10": 2636.5065,
+        "2026-10": 2684.67,
         "2026-11": 6288.7228,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -20411,7 +20411,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 2636.5065,
+        "2026-10": 2684.67,
         "2026-11": 6288.7228,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -20454,7 +20454,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2636.5065,
+            "2026-10": 2684.67,
             "2026-11": 6288.7228,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -20510,7 +20510,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2636.5065,
+            "2026-10": 2684.67,
             "2026-11": 6288.7228,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -20554,9 +20554,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 8925.23,
+      "demanda_nac_q4": 8973.39,
       "demanda_nac_q1_27": 0.0,
-      "demanda_nac_6m": 8925.23,
+      "demanda_nac_6m": 8973.39,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 3000.0,
@@ -20592,7 +20592,7 @@
       "pedidos_pendientes_nacional": 84.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 696.0377,
+        "2026-10": 696.04,
         "2026-11": 314.4361,
         "2026-12": 0.0,
         "2027-01": 127.0,
@@ -20626,7 +20626,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 696.0377,
+        "2026-10": 696.04,
         "2026-11": 314.4361,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -20678,7 +20678,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 696.0377,
+            "2026-10": 696.04,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -20786,7 +20786,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 696.0377,
+            "2026-10": 696.04,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -20894,7 +20894,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 4288.7171,
+        "2026-10": 4523.99,
         "2026-11": 4695.5797,
         "2026-12": 1666.3836,
         "2027-01": 3500.0,
@@ -20911,7 +20911,7 @@
         "2027-12": 1940.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 4288.7171,
+        "2026-10": 4523.99,
         "2026-11": 4695.5797,
         "2026-12": 1666.3836,
         "2027-01": 3500.0,
@@ -20954,7 +20954,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 4288.7171,
+            "2026-10": 4523.99,
             "2026-11": 4695.5797,
             "2026-12": 1666.3836,
             "2027-01": 3500.0,
@@ -20984,7 +20984,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 4288.7171,
+            "2026-10": 4523.99,
             "2026-11": 4695.5797,
             "2026-12": 1666.3836,
             "2027-01": 3500.0,
@@ -21002,9 +21002,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 10650.68,
+      "demanda_nac_q4": 10885.95,
       "demanda_nac_q1_27": 10500.0,
-      "demanda_nac_6m": 21150.68,
+      "demanda_nac_6m": 21385.95,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9220.0,
@@ -21530,7 +21530,7 @@
       "pedidos_pendientes_nacional": 21000.0,
       "pedidos_pendientes_export": 8480.0,
       "monthly_forecast": {
-        "2026-10": 18455.5451,
+        "2026-10": 18455.55,
         "2026-11": 22010.5299,
         "2026-12": 0.0,
         "2027-01": 64190.0,
@@ -21564,7 +21564,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 18455.5451,
+        "2026-10": 18455.55,
         "2026-11": 22010.5299,
         "2026-12": 0.0,
         "2027-01": 64190.0,
@@ -21616,7 +21616,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 8000.0,
           "monthly_forecast": {
-            "2026-10": 18455.5451,
+            "2026-10": 18455.55,
             "2026-11": 22010.5299,
             "2026-12": 0.0,
             "2027-01": 64190.0,
@@ -21724,7 +21724,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 8000.0,
           "monthly_forecast": {
-            "2026-10": 18455.5451,
+            "2026-10": 18455.55,
             "2026-11": 22010.5299,
             "2026-12": 0.0,
             "2027-01": 64190.0,
@@ -22124,7 +22124,7 @@
       "pedidos_pendientes_nacional": 600.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 2636.5064,
+        "2026-10": 2636.51,
         "2026-11": 314.4361,
         "2026-12": 2603.7244,
         "2027-01": 788.0,
@@ -22158,7 +22158,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 2636.5064,
+        "2026-10": 2636.51,
         "2026-11": 314.4361,
         "2026-12": 2603.7244,
         "2027-01": 788.0,
@@ -22184,7 +22184,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2636.5064,
+            "2026-10": 2636.51,
             "2026-11": 0.0,
             "2026-12": 2603.7244,
             "2027-01": 0.0,
@@ -22292,7 +22292,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2636.5064,
+            "2026-10": 2636.51,
             "2026-11": 0.0,
             "2026-12": 2603.7244,
             "2027-01": 0.0,
@@ -22770,7 +22770,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1757.671,
+        "2026-10": 1757.67,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -22804,7 +22804,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 1757.671,
+        "2026-10": 1757.67,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -22830,7 +22830,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1757.671,
+            "2026-10": 1757.67,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -22886,7 +22886,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1757.671,
+            "2026-10": 1757.67,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -23260,7 +23260,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 3515.342,
+        "2026-10": 3708.18,
         "2026-11": 8384.9637,
         "2026-12": 4339.5406,
         "2027-01": 5000.0,
@@ -23277,7 +23277,7 @@
         "2027-12": 1000.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 3515.342,
+        "2026-10": 3708.18,
         "2026-11": 8384.9637,
         "2026-12": 4339.5406,
         "2027-01": 5000.0,
@@ -23320,7 +23320,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 3515.342,
+            "2026-10": 3708.18,
             "2026-11": 8384.9637,
             "2026-12": 4339.5406,
             "2027-01": 5000.0,
@@ -23350,7 +23350,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 3515.342,
+            "2026-10": 3708.18,
             "2026-11": 8384.9637,
             "2026-12": 4339.5406,
             "2027-01": 5000.0,
@@ -23368,9 +23368,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 16239.85,
+      "demanda_nac_q4": 16432.68,
       "demanda_nac_q1_27": 14000.0,
-      "demanda_nac_6m": 30239.85,
+      "demanda_nac_6m": 30432.68,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -23552,7 +23552,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 3866.8761000000004,
+        "2026-10": 4025.9700000000003,
         "2026-11": 3458.7974999999997,
         "2026-12": 0.0,
         "2027-01": 2400.0,
@@ -23569,7 +23569,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 3866.8761000000004,
+        "2026-10": 4025.9700000000003,
         "2026-11": 3458.7974999999997,
         "2026-12": 0.0,
         "2027-01": 2400.0,
@@ -23612,7 +23612,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 3866.8761000000004,
+            "2026-10": 4025.9700000000003,
             "2026-11": 3458.7974999999997,
             "2026-12": 0.0,
             "2027-01": 2400.0,
@@ -23642,7 +23642,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 3866.8761000000004,
+            "2026-10": 4025.9700000000003,
             "2026-11": 3458.7974999999997,
             "2026-12": 0.0,
             "2027-01": 2400.0,
@@ -23660,17 +23660,17 @@
           }
         }
       ],
-      "demanda_nac_q4": 7325.67,
+      "demanda_nac_q4": 7484.77,
       "demanda_nac_q1_27": 4800.0,
-      "demanda_nac_6m": 12125.67,
-      "no_mover_qty": 594.33,
+      "demanda_nac_6m": 12284.77,
+      "no_mover_qty": 435.23,
       "slow_mover_qty": 4800.0,
-      "fast_mover_qty": 7325.67,
-      "no_mover_litros": 594.33,
+      "fast_mover_qty": 7484.77,
+      "no_mover_litros": 435.23,
       "slow_mover_litros": 4800.0,
-      "no_mover_envases": 29.7,
+      "no_mover_envases": 21.8,
       "slow_mover_envases": 240.0,
-      "no_mover_eur": 243.46,
+      "no_mover_eur": 178.29,
       "slow_mover_eur": 1966.24,
       "stock_eur": 5210.55,
       "is_nomover": true,
@@ -24876,7 +24876,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 725.0393,
+        "2026-10": 761.1899999999999,
         "2026-11": 890.9024000000001,
         "2026-12": 1518.8392,
         "2027-01": 135.0,
@@ -24893,7 +24893,7 @@
         "2027-12": 2265.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 725.0393,
+        "2026-10": 761.1899999999999,
         "2026-11": 890.9024000000001,
         "2026-12": 650.9311,
         "2027-01": 135.0,
@@ -24936,7 +24936,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 725.0393,
+            "2026-10": 761.1899999999999,
             "2026-11": 890.9024000000001,
             "2026-12": 650.9311,
             "2027-01": 135.0,
@@ -24992,7 +24992,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 725.0393,
+            "2026-10": 761.1899999999999,
             "2026-11": 890.9024000000001,
             "2026-12": 650.9311,
             "2027-01": 135.0,
@@ -25036,9 +25036,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 2266.87,
+      "demanda_nac_q4": 2303.02,
       "demanda_nac_q1_27": 890.0,
-      "demanda_nac_6m": 3156.87,
+      "demanda_nac_6m": 3193.02,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1730.0,
@@ -25074,7 +25074,7 @@
       "pedidos_pendientes_nacional": 2200.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 3866.8761,
+        "2026-10": 4079.0,
         "2026-11": 6970.0010999999995,
         "2026-12": 0.0,
         "2027-01": 7200.0,
@@ -25091,7 +25091,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 3866.8761,
+        "2026-10": 4079.0,
         "2026-11": 6970.0010999999995,
         "2026-12": 0.0,
         "2027-01": 7200.0,
@@ -25134,7 +25134,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 2200.0,
           "monthly_forecast": {
-            "2026-10": 3866.8761,
+            "2026-10": 4079.0,
             "2026-11": 6970.0010999999995,
             "2026-12": 0.0,
             "2027-01": 7200.0,
@@ -25164,7 +25164,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 2200.0,
           "monthly_forecast": {
-            "2026-10": 3866.8761,
+            "2026-10": 4079.0,
             "2026-11": 6970.0010999999995,
             "2026-12": 0.0,
             "2027-01": 7200.0,
@@ -25182,9 +25182,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 10836.88,
+      "demanda_nac_q4": 11049.0,
       "demanda_nac_q1_27": 16800.0,
-      "demanda_nac_6m": 27636.88,
+      "demanda_nac_6m": 27849.0,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 10760.0,
@@ -25366,7 +25366,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 175.77,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 240.0,
@@ -25383,7 +25383,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 175.7671,
+        "2026-10": 175.77,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 240.0,
@@ -25426,7 +25426,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 175.77,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 240.0,
@@ -25482,7 +25482,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 175.77,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 240.0,
@@ -26440,7 +26440,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 439.4177,
+        "2026-10": 463.52,
         "2026-11": 0.0,
         "2026-12": 4773.4947,
         "2027-01": 0.0,
@@ -26474,7 +26474,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 439.4177,
+        "2026-10": 463.52,
         "2026-11": 0.0,
         "2026-12": 4773.4947,
         "2027-01": 0.0,
@@ -26526,7 +26526,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 439.4177,
+            "2026-10": 463.52,
             "2026-11": 0.0,
             "2026-12": 433.9541,
             "2027-01": 0.0,
@@ -26582,7 +26582,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 439.4177,
+            "2026-10": 463.52,
             "2026-11": 0.0,
             "2026-12": 433.9541,
             "2027-01": 0.0,
@@ -27670,7 +27670,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 703.0683,
+        "2026-10": 741.6300000000001,
         "2026-11": 0.0,
         "2026-12": 694.3265,
         "2027-01": 675.0,
@@ -27687,7 +27687,7 @@
         "2027-12": 915.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 703.0683,
+        "2026-10": 741.6300000000001,
         "2026-11": 0.0,
         "2026-12": 694.3265,
         "2027-01": 675.0,
@@ -27756,7 +27756,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 703.0683,
+            "2026-10": 741.6300000000001,
             "2026-11": 0.0,
             "2026-12": 694.3265,
             "2027-01": 675.0,
@@ -27812,7 +27812,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 703.0683,
+            "2026-10": 741.6300000000001,
             "2026-11": 0.0,
             "2026-12": 694.3265,
             "2027-01": 675.0,
@@ -27830,9 +27830,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 1397.39,
+      "demanda_nac_q4": 1435.96,
       "demanda_nac_q1_27": 2885.0,
-      "demanda_nac_6m": 4282.39,
+      "demanda_nac_6m": 4320.96,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 940.0,
@@ -28306,7 +28306,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 600.0,
       "monthly_forecast": {
-        "2026-10": 527.3013,
+        "2026-10": 527.3,
         "2026-11": 0.0,
         "2026-12": 555.4612,
         "2027-01": 0.0,
@@ -28340,7 +28340,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 527.3013,
+        "2026-10": 527.3,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -28366,7 +28366,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 600.0,
           "monthly_forecast": {
-            "2026-10": 527.3013,
+            "2026-10": 527.3,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -28422,7 +28422,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 600.0,
           "monthly_forecast": {
-            "2026-10": 527.3013,
+            "2026-10": 527.3,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -28504,7 +28504,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 80.0,
@@ -28521,7 +28521,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 80.0,
@@ -28590,7 +28590,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1124.9094,
+            "2026-10": 1186.62,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 80.0,
@@ -28646,7 +28646,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1124.9094,
+            "2026-10": 1186.62,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 80.0,
@@ -28664,18 +28664,18 @@
           }
         }
       ],
-      "demanda_nac_q4": 1124.91,
+      "demanda_nac_q4": 1186.62,
       "demanda_nac_q1_27": 2360.0,
-      "demanda_nac_6m": 3484.91,
+      "demanda_nac_6m": 3546.62,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 575.09,
-      "fast_mover_qty": 1124.91,
+      "slow_mover_qty": 513.38,
+      "fast_mover_qty": 1186.62,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 575.09,
+      "slow_mover_litros": 513.38,
       "no_mover_envases": 0.0,
-      "slow_mover_envases": 28.8,
+      "slow_mover_envases": 25.7,
       "no_mover_eur": 0.0,
-      "slow_mover_eur": 1911.04,
+      "slow_mover_eur": 1705.97,
       "stock_eur": 5649.13,
       "is_nomover": false,
       "is_slowmover": true,
@@ -28952,7 +28952,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 464.0251,
+        "2026-10": 464.03,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -28986,7 +28986,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 464.0251,
+        "2026-10": 464.03,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -29012,7 +29012,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 464.0251,
+            "2026-10": 464.03,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -29068,7 +29068,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 464.0251,
+            "2026-10": 464.03,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -29994,7 +29994,7 @@
       "pedidos_pendientes_nacional": 4000.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 3515.3419,
+        "2026-10": 3708.18,
         "2026-11": 5240.6024,
         "2026-12": 3471.6325,
         "2027-01": 0.0,
@@ -30028,7 +30028,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 3515.3419,
+        "2026-10": 3708.18,
         "2026-11": 5240.6024,
         "2026-12": 3471.6325,
         "2027-01": 0.0,
@@ -30080,7 +30080,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 3515.3419,
+            "2026-10": 3708.18,
             "2026-11": 4192.4819,
             "2026-12": 3471.6325,
             "2027-01": 0.0,
@@ -30162,7 +30162,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 3515.3419,
+            "2026-10": 3708.18,
             "2026-11": 4192.4819,
             "2026-12": 3471.6325,
             "2027-01": 0.0,
@@ -30244,7 +30244,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 348.0189,
+        "2026-10": 348.02,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -30278,7 +30278,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 348.0189,
+        "2026-10": 348.02,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -30304,7 +30304,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 348.0189,
+            "2026-10": 348.02,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -30334,7 +30334,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 348.0189,
+            "2026-10": 348.02,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -31318,7 +31318,7 @@
       "pedidos_pendientes_nacional": 2892.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 696.0377,
+        "2026-10": 696.04,
         "2026-11": 1282.8995,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -31352,7 +31352,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 696.0377,
+        "2026-10": 696.04,
         "2026-11": 1282.8995,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -31378,7 +31378,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 696.0377,
+            "2026-10": 696.04,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -31486,7 +31486,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 696.0377,
+            "2026-10": 696.04,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -31620,7 +31620,7 @@
       "pedidos_pendientes_nacional": 2208.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 2088.1131,
+        "2026-10": 2202.66,
         "2026-11": 691.7595,
         "2026-12": 1267.1459,
         "2027-01": 737.0,
@@ -31654,7 +31654,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 2088.1131,
+        "2026-10": 2202.66,
         "2026-11": 691.7595,
         "2026-12": 1267.1459,
         "2027-01": 699.0,
@@ -31836,7 +31836,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2088.1131,
+            "2026-10": 2202.66,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -32022,7 +32022,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2088.1131,
+            "2026-10": 2202.66,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -33944,7 +33944,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 696.0377,
+        "2026-10": 696.04,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 864.0,
@@ -33978,7 +33978,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 696.0377,
+        "2026-10": 696.04,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 864.0,
@@ -34004,7 +34004,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 696.0377,
+            "2026-10": 696.04,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -34060,7 +34060,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 696.0377,
+            "2026-10": 696.04,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -34142,7 +34142,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 562.4547,
+        "2026-10": 562.45,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -34176,7 +34176,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 562.4547,
+        "2026-10": 562.45,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -34202,7 +34202,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 562.4547,
+            "2026-10": 562.45,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -34258,7 +34258,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 562.4547,
+            "2026-10": 562.45,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -34632,7 +34632,7 @@
       "pedidos_pendientes_nacional": 1088.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1856.1006,
+        "2026-10": 1907.05,
         "2026-11": 670.7971,
         "2026-12": 805.4187,
         "2027-01": 2879.0,
@@ -34666,7 +34666,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 1856.1006,
+        "2026-10": 1907.05,
         "2026-11": 670.7971,
         "2026-12": 805.4187,
         "2027-01": 2879.0,
@@ -34692,7 +34692,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 928.0503,
+            "2026-10": 928.05,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 2879.0,
@@ -34718,7 +34718,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 928.0503,
+            "2026-10": 979.0,
             "2026-11": 0.0,
             "2026-12": 347.1632,
             "2027-01": 0.0,
@@ -34826,7 +34826,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 928.0503,
+            "2026-10": 928.05,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 2879.0,
@@ -34852,7 +34852,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 928.0503,
+            "2026-10": 979.0,
             "2026-11": 0.0,
             "2026-12": 347.1632,
             "2027-01": 0.0,
@@ -37050,7 +37050,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 1757.671,
+        "2026-10": 1854.09,
         "2026-11": 2096.2409,
         "2026-12": 0.0,
         "2027-01": 2000.0,
@@ -37067,7 +37067,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 1757.671,
+        "2026-10": 1854.09,
         "2026-11": 2096.2409,
         "2026-12": 0.0,
         "2027-01": 2000.0,
@@ -37110,7 +37110,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1757.671,
+            "2026-10": 1854.09,
             "2026-11": 2096.2409,
             "2026-12": 0.0,
             "2027-01": 2000.0,
@@ -37140,7 +37140,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 1757.671,
+            "2026-10": 1854.09,
             "2026-11": 2096.2409,
             "2026-12": 0.0,
             "2027-01": 2000.0,
@@ -37158,9 +37158,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 3853.91,
+      "demanda_nac_q4": 3950.33,
       "demanda_nac_q1_27": 2000.0,
-      "demanda_nac_6m": 5853.91,
+      "demanda_nac_6m": 5950.33,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1000.0,
@@ -37196,7 +37196,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -37213,7 +37213,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_nacional": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -37256,7 +37256,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 185.41,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -37286,7 +37286,7 @@
           "fabricacion_tipo": "Para Stock / Previsión Nacional",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 175.7671,
+            "2026-10": 185.41,
             "2026-11": 0.0,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -37304,9 +37304,9 @@
           }
         }
       ],
-      "demanda_nac_q4": 175.77,
+      "demanda_nac_q4": 185.41,
       "demanda_nac_q1_27": 200.0,
-      "demanda_nac_6m": 375.77,
+      "demanda_nac_6m": 385.41,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -40396,7 +40396,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 1048.1205,
         "2026-12": 867.9081,
         "2027-01": 4365.0,
@@ -40430,7 +40430,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 1048.1205,
         "2026-12": 867.9081,
         "2027-01": 4365.0,
@@ -40508,7 +40508,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 878.8355,
+            "2026-10": 927.0,
             "2026-11": 1048.1205,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -40590,7 +40590,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 878.8355,
+            "2026-10": 927.0,
             "2026-11": 1048.1205,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -47078,7 +47078,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 0.0,
         "2026-12": 433.9541,
         "2027-01": 0.0,
@@ -47112,7 +47112,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 0.0,
         "2026-12": 433.9541,
         "2027-01": 0.0,
@@ -47138,7 +47138,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 878.8355,
+            "2026-10": 927.0,
             "2026-11": 0.0,
             "2026-12": 433.9541,
             "2027-01": 0.0,
@@ -47168,7 +47168,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 878.8355,
+            "2026-10": 927.0,
             "2026-11": 0.0,
             "2026-12": 433.9541,
             "2027-01": 0.0,
@@ -47224,7 +47224,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 2636.5064,
+        "2026-10": 2781.14,
         "2026-11": 0.0,
         "2026-12": 2603.7244,
         "2027-01": 0.0,
@@ -47258,7 +47258,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 2636.5064,
+        "2026-10": 2781.14,
         "2026-11": 0.0,
         "2026-12": 2603.7244,
         "2027-01": 0.0,
@@ -47284,7 +47284,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2636.5064,
+            "2026-10": 2781.14,
             "2026-11": 0.0,
             "2026-12": 2603.7244,
             "2027-01": 0.0,
@@ -47314,7 +47314,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2636.5064,
+            "2026-10": 2781.14,
             "2026-11": 0.0,
             "2026-12": 2603.7244,
             "2027-01": 0.0,
@@ -47370,7 +47370,7 @@
       "pedidos_pendientes_nacional": 1000.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 1048.1205,
         "2026-12": 867.9081,
         "2027-01": 0.0,
@@ -47404,7 +47404,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 1048.1205,
         "2026-12": 867.9081,
         "2027-01": 0.0,
@@ -47430,7 +47430,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 878.8355,
+            "2026-10": 927.0,
             "2026-11": 1048.1205,
             "2026-12": 867.9081,
             "2027-01": 0.0,
@@ -47486,7 +47486,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 878.8355,
+            "2026-10": 927.0,
             "2026-11": 1048.1205,
             "2026-12": 867.9081,
             "2027-01": 0.0,
@@ -47568,7 +47568,7 @@
       "pedidos_pendientes_nacional": 2200.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 966.719,
+        "2026-10": 1019.75,
         "2026-11": 1152.9325,
         "2026-12": 954.6989,
         "2027-01": 1200.0,
@@ -47602,7 +47602,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 966.719,
+        "2026-10": 1019.75,
         "2026-11": 1152.9325,
         "2026-12": 954.6989,
         "2027-01": 1200.0,
@@ -47628,7 +47628,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 966.719,
+            "2026-10": 1019.75,
             "2026-11": 1152.9325,
             "2026-12": 954.6989,
             "2027-01": 1200.0,
@@ -47684,7 +47684,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 966.719,
+            "2026-10": 1019.75,
             "2026-11": 1152.9325,
             "2026-12": 954.6989,
             "2027-01": 1200.0,
@@ -47912,7 +47912,7 @@
       "pedidos_pendientes_nacional": 2000.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 2636.5064,
+        "2026-10": 2781.14,
         "2026-11": 3144.3614,
         "2026-12": 0.0,
         "2027-01": 2000.0,
@@ -47946,7 +47946,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 2636.5064,
+        "2026-10": 2781.14,
         "2026-11": 3144.3614,
         "2026-12": 0.0,
         "2027-01": 2000.0,
@@ -47972,7 +47972,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2636.5064,
+            "2026-10": 2781.14,
             "2026-11": 3144.3614,
             "2026-12": 0.0,
             "2027-01": 2000.0,
@@ -48028,7 +48028,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 2636.5064,
+            "2026-10": 2781.14,
             "2026-11": 3144.3614,
             "2026-12": 0.0,
             "2027-01": 2000.0,
@@ -48110,7 +48110,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 0.0,
         "2026-12": 433.9541,
         "2027-01": 0.0,
@@ -48144,7 +48144,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 0.0,
         "2026-12": 433.9541,
         "2027-01": 0.0,
@@ -48170,7 +48170,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 878.8355,
+            "2026-10": 927.0,
             "2026-11": 0.0,
             "2026-12": 433.9541,
             "2027-01": 0.0,
@@ -48200,7 +48200,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 878.8355,
+            "2026-10": 927.0,
             "2026-11": 0.0,
             "2026-12": 433.9541,
             "2027-01": 0.0,
@@ -48746,7 +48746,7 @@
       "pedidos_pendientes_nacional": 0.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 351.5342,
+        "2026-10": 370.82,
         "2026-11": 419.2482,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -48780,7 +48780,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 351.5342,
+        "2026-10": 370.82,
         "2026-11": 419.2482,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -48806,7 +48806,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 351.5342,
+            "2026-10": 370.82,
             "2026-11": 419.2482,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -48836,7 +48836,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 351.5342,
+            "2026-10": 370.82,
             "2026-11": 419.2482,
             "2026-12": 0.0,
             "2027-01": 0.0,
@@ -50414,7 +50414,7 @@
       "pedidos_pendientes_nacional": 19800.0,
       "pedidos_pendientes_export": 0.0,
       "monthly_forecast": {
-        "2026-10": 38668.7612,
+        "2026-10": 40790.0,
         "2026-11": 69175.9511,
         "2026-12": 57281.9361,
         "2027-01": 50260.0,
@@ -50448,7 +50448,7 @@
         "2027-12": 0.0
       },
       "monthly_forecast_export": {
-        "2026-10": 38668.7612,
+        "2026-10": 40790.0,
         "2026-11": 69175.9511,
         "2026-12": 57281.9361,
         "2027-01": 50260.0,
@@ -50474,7 +50474,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 38668.7612,
+            "2026-10": 40790.0,
             "2026-11": 69175.9511,
             "2026-12": 57281.9361,
             "2027-01": 50260.0,
@@ -50530,7 +50530,7 @@
           "fabricacion_tipo": "Sobre Pedido (Exportación)",
           "pendientes_uds": 0.0,
           "monthly_forecast": {
-            "2026-10": 38668.7612,
+            "2026-10": 40790.0,
             "2026-11": 69175.9511,
             "2026-12": 57281.9361,
             "2027-01": 50260.0,
@@ -52861,7 +52861,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 4148.1034,
+        "2026-10": 4285.01,
         "2026-11": 5785.625,
         "2026-12": 2464.8590999999997,
         "2027-01": 3660.0,
@@ -52915,8 +52915,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.82548993,
-      "demanda_nac_q4": 12398.59,
-      "demanda_nac_6m": 21778.59,
+      "demanda_nac_q4": 12535.49,
+      "demanda_nac_6m": 21915.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9800.0,
@@ -52935,7 +52935,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 0.0,
         "2026-12": 833.1918,
         "2027-01": 1220.0,
@@ -52983,8 +52983,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.125647362,
-      "demanda_nac_q4": 1958.1,
-      "demanda_nac_6m": 5138.1,
+      "demanda_nac_q4": 2019.81,
+      "demanda_nac_6m": 5199.81,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 820.0,
@@ -53064,7 +53064,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 4499.6376,
+        "2026-10": 4746.4800000000005,
         "2026-11": 3353.9855,
         "2026-12": 1666.3836,
         "2027-01": 0.0,
@@ -53108,8 +53108,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.715896795,
-      "demanda_nac_q4": 9520.01,
-      "demanda_nac_6m": 10500.01,
+      "demanda_nac_q4": 9766.85,
+      "demanda_nac_6m": 10746.85,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1820.0,
@@ -53128,7 +53128,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 6749.456400000001,
+        "2026-10": 7088.86,
         "2026-11": 8049.565199999999,
         "2026-12": 260.3724,
         "2027-01": 1580.0,
@@ -53191,8 +53191,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.035782567,
-      "demanda_nac_q4": 15059.39,
-      "demanda_nac_6m": 35579.39,
+      "demanda_nac_q4": 15398.8,
+      "demanda_nac_6m": 35918.8,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 13880.0,
@@ -53211,7 +53211,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 16328.7632,
+        "2026-10": 17096.25,
         "2026-11": 18069.5969,
         "2026-12": 14563.4983,
         "2027-01": 14560.0,
@@ -53278,8 +53278,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.892292282,
-      "demanda_nac_q4": 48961.86,
-      "demanda_nac_6m": 94761.86,
+      "demanda_nac_q4": 49729.35,
+      "demanda_nac_6m": 95529.35,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 17500.0,
@@ -53359,7 +53359,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 10546.0258,
+        "2026-10": 11018.490000000002,
         "2026-11": 17818.0481,
         "2026-12": 954.6989,
         "2027-01": 7200.0,
@@ -53420,8 +53420,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -53508,7 +53508,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 1863.1312,
+        "2026-10": 1965.34,
         "2026-11": 1760.8424,
         "2026-12": 0.0,
         "2027-01": 440.0,
@@ -53562,8 +53562,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.421740492,
-      "demanda_nac_q4": 3623.97,
-      "demanda_nac_6m": 7003.97,
+      "demanda_nac_q4": 3726.18,
+      "demanda_nac_6m": 7106.18,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2940.0,
@@ -53644,7 +53644,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 2249.8188,
+        "2026-10": 2373.24,
         "2026-11": 3353.9855,
         "2026-12": 555.4612,
         "2027-01": 4420.0,
@@ -53707,8 +53707,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.606027343,
-      "demanda_nac_q4": 6159.27,
-      "demanda_nac_6m": 25759.27,
+      "demanda_nac_q4": 6282.69,
+      "demanda_nac_6m": 25882.69,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 4440.0,
@@ -53727,7 +53727,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 16697.8741,
+        "2026-10": 17372.82,
         "2026-11": 20962.409399999997,
         "2026-12": 0.0,
         "2027-01": 8000.0,
@@ -53773,8 +53773,8 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 1000 L",
       "precio_unitario": 0.345951136,
-      "demanda_nac_q4": 37660.28,
-      "demanda_nac_6m": 98660.28,
+      "demanda_nac_q4": 38335.23,
+      "demanda_nac_6m": 99335.23,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 5000.0,
@@ -53853,7 +53853,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 175.767,
+        "2026-10": 185.4,
         "2026-11": 1414.9626,
         "2026-12": 282.0701,
         "2027-01": 620.0,
@@ -53911,8 +53911,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 5 Kg",
       "precio_unitario": 1.645731742,
-      "demanda_nac_q4": 1872.8,
-      "demanda_nac_6m": 4827.8,
+      "demanda_nac_q4": 1882.43,
+      "demanda_nac_6m": 4837.43,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1375.0,
@@ -54119,7 +54119,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 175.77,
         "2026-11": 2096.2409,
         "2026-12": 0.0,
         "2027-01": 25.0,
@@ -54434,7 +54434,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 615.1848,
+        "2026-10": 620.0,
         "2026-11": 314.4361,
         "2026-12": 173.5816,
         "2027-01": 1660.0,
@@ -54492,13 +54492,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.736254358,
-      "demanda_nac_q4": 1103.2,
-      "demanda_nac_6m": 3233.2,
+      "demanda_nac_q4": 1108.02,
+      "demanda_nac_6m": 3238.02,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 496.8,
-      "fast_mover_qty": 1103.2,
+      "slow_mover_qty": 491.98,
+      "fast_mover_qty": 1108.02,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 496.8,
+      "slow_mover_litros": 491.98,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -54647,7 +54647,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 0.0,
         "2027-01": 240.0,
@@ -54692,8 +54692,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 2.704237109,
-      "demanda_nac_q4": 2466.5,
-      "demanda_nac_6m": 5346.5,
+      "demanda_nac_q4": 2528.21,
+      "demanda_nac_6m": 5408.21,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2000.0,
@@ -54712,7 +54712,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 175.767,
+        "2026-10": 185.4,
         "2026-11": 0.0,
         "2026-12": 433.95400000000006,
         "2027-01": 875.0,
@@ -54770,13 +54770,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.139496735,
-      "demanda_nac_q4": 609.72,
-      "demanda_nac_6m": 2029.72,
+      "demanda_nac_q4": 619.35,
+      "demanda_nac_6m": 2039.35,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 470.28,
-      "fast_mover_qty": 609.72,
+      "slow_mover_qty": 460.65,
+      "fast_mover_qty": 619.35,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 470.28,
+      "slow_mover_litros": 460.65,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -54790,7 +54790,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 966.719,
+        "2026-10": 966.72,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -54869,7 +54869,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 2320.1256000000003,
+        "2026-10": 2437.7599999999998,
         "2026-11": 1215.8197,
         "2026-12": 2013.5467999999998,
         "2027-01": 840.0,
@@ -54926,8 +54926,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.885940073,
-      "demanda_nac_q4": 5549.49,
-      "demanda_nac_6m": 15449.49,
+      "demanda_nac_q4": 5667.13,
+      "demanda_nac_6m": 15567.13,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -54946,7 +54946,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 790.9519,
+        "2026-10": 834.34,
         "2026-11": 733.6842,
         "2026-12": 607.5356,
         "2027-01": 2025.0,
@@ -55000,8 +55000,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.266781043,
-      "demanda_nac_q4": 2132.17,
-      "demanda_nac_6m": 6132.17,
+      "demanda_nac_q4": 2175.56,
+      "demanda_nac_6m": 6175.56,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1660.0,
@@ -55020,7 +55020,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 421.8409,
+        "2026-10": 441.12,
         "2026-11": 419.2481,
         "2026-12": 381.8795,
         "2027-01": 820.0,
@@ -55070,8 +55070,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.879828899,
-      "demanda_nac_q4": 1222.97,
-      "demanda_nac_6m": 3647.97,
+      "demanda_nac_q4": 1242.25,
+      "demanda_nac_6m": 3667.25,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 55.0,
@@ -55090,7 +55090,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 200.3745,
+        "2026-10": 211.37,
         "2026-11": 113.197,
         "2026-12": 187.4682,
         "2027-01": 215.0,
@@ -55133,13 +55133,13 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 1 Kg",
       "precio_unitario": 2.629153095,
-      "demanda_nac_q4": 501.04,
-      "demanda_nac_6m": 859.04,
+      "demanda_nac_q4": 512.04,
+      "demanda_nac_6m": 870.04,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 128.96,
-      "fast_mover_qty": 501.04,
+      "slow_mover_qty": 117.96,
+      "fast_mover_qty": 512.04,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 128.96,
+      "slow_mover_litros": 117.96,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -55212,7 +55212,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 263.6506,
+        "2026-10": 263.65,
         "2026-11": 628.8722,
         "2026-12": 1041.4897,
         "2027-01": 825.0,
@@ -55473,7 +55473,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 87.8835,
+        "2026-10": 92.7,
         "2026-11": 104.812,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -55515,8 +55515,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.649923707,
-      "demanda_nac_q4": 192.7,
-      "demanda_nac_6m": 272.7,
+      "demanda_nac_q4": 197.51,
+      "demanda_nac_6m": 277.51,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -55899,7 +55899,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 1933.4379,
+        "2026-10": 2015.38,
         "2026-11": 419.2481,
         "2026-12": 1301.8621,
         "2027-01": 875.0,
@@ -55951,8 +55951,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 2.233200185,
-      "demanda_nac_q4": 3654.55,
-      "demanda_nac_6m": 8694.55,
+      "demanda_nac_q4": 3736.49,
+      "demanda_nac_6m": 8776.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2640.0,
@@ -55971,7 +55971,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 351.53409999999997,
+        "2026-10": 370.81,
         "2026-11": 20.9624,
         "2026-12": 86.7908,
         "2027-01": 90.0,
@@ -56026,16 +56026,16 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 0.992750935,
-      "demanda_nac_q4": 459.29,
-      "demanda_nac_6m": 894.29,
+      "demanda_nac_q4": 478.56,
+      "demanda_nac_6m": 913.56,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 15.71,
-      "fast_mover_qty": 459.29,
+      "slow_mover_qty": 0.0,
+      "fast_mover_qty": 475.0,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 15.71,
+      "slow_mover_litros": 0.0,
       "is_nomover": false,
-      "is_slowmover": true,
-      "is_fastmover": false
+      "is_slowmover": false,
+      "is_fastmover": true
     },
     {
       "sku": "BIO0005",
@@ -56046,7 +56046,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 826.1052999999999,
+        "2026-10": 856.9599999999999,
         "2026-11": 1572.1807,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -56089,8 +56089,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 0.732839327,
-      "demanda_nac_q4": 2398.29,
-      "demanda_nac_6m": 3343.29,
+      "demanda_nac_q4": 2429.14,
+      "demanda_nac_6m": 3374.14,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1840.0,
@@ -56167,7 +56167,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 35.1534,
+        "2026-10": 37.08,
         "2026-11": 41.9248,
         "2026-12": 121.50710000000001,
         "2027-01": 425.0,
@@ -56212,8 +56212,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 2.864954856,
-      "demanda_nac_q4": 198.59,
-      "demanda_nac_6m": 873.59,
+      "demanda_nac_q4": 200.51,
+      "demanda_nac_6m": 875.51,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 160.0,
@@ -56413,7 +56413,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 0.0,
         "2027-01": 100.0,
@@ -56458,13 +56458,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.797952564,
-      "demanda_nac_q4": 2466.5,
-      "demanda_nac_6m": 5546.5,
+      "demanda_nac_q4": 2528.21,
+      "demanda_nac_6m": 5608.21,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 73.5,
-      "fast_mover_qty": 2466.5,
+      "slow_mover_qty": 11.79,
+      "fast_mover_qty": 2528.21,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 73.5,
+      "slow_mover_litros": 11.79,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -56539,7 +56539,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 209.6241,
         "2026-12": 0.0,
         "2027-01": 1380.0,
@@ -56590,13 +56590,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.930734655,
-      "demanda_nac_q4": 385.39,
-      "demanda_nac_6m": 5940.39,
+      "demanda_nac_q4": 395.03,
+      "demanda_nac_6m": 5950.03,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 454.61,
-      "fast_mover_qty": 385.39,
+      "slow_mover_qty": 444.97,
+      "fast_mover_qty": 395.03,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 454.61,
+      "slow_mover_litros": 444.97,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -56610,7 +56610,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 439.4177,
+        "2026-10": 463.52,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -56650,12 +56650,12 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 5 Kg",
       "precio_unitario": 0.638528424,
-      "demanda_nac_q4": 439.42,
-      "demanda_nac_6m": 439.42,
-      "no_mover_qty": 330.58,
+      "demanda_nac_q4": 463.52,
+      "demanda_nac_6m": 463.52,
+      "no_mover_qty": 306.48,
       "slow_mover_qty": 0.0,
-      "fast_mover_qty": 439.42,
-      "no_mover_litros": 330.58,
+      "fast_mover_qty": 463.52,
+      "no_mover_litros": 306.48,
       "slow_mover_litros": 0.0,
       "is_nomover": true,
       "is_slowmover": false,
@@ -56966,7 +56966,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 2812.2736,
+        "2026-10": 2927.98,
         "2026-11": 2934.7374,
         "2026-12": 2603.7243,
         "2027-01": 800.0,
@@ -57015,8 +57015,8 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 200 L",
       "precio_unitario": 0.97350875,
-      "demanda_nac_q4": 8350.74,
-      "demanda_nac_6m": 17750.74,
+      "demanda_nac_q4": 8466.44,
+      "demanda_nac_6m": 17866.44,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -57035,7 +57035,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 1687.3641,
+        "2026-10": 1779.9299999999998,
         "2026-11": 2012.3913,
         "2026-12": 0.0,
         "2027-01": 180.0,
@@ -57080,13 +57080,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.853770569,
-      "demanda_nac_q4": 3699.76,
-      "demanda_nac_6m": 12759.76,
+      "demanda_nac_q4": 3792.32,
+      "demanda_nac_6m": 12852.32,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 1460.24,
-      "fast_mover_qty": 3699.76,
+      "slow_mover_qty": 1367.68,
+      "fast_mover_qty": 3792.32,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 1460.24,
+      "slow_mover_litros": 1367.68,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -57224,7 +57224,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 1341.5942,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -57268,13 +57268,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.819892978,
-      "demanda_nac_q4": 2466.5,
-      "demanda_nac_6m": 3906.5,
+      "demanda_nac_q4": 2528.21,
+      "demanda_nac_6m": 3968.21,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 613.5,
-      "fast_mover_qty": 2466.5,
+      "slow_mover_qty": 551.79,
+      "fast_mover_qty": 2528.21,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 613.5,
+      "slow_mover_litros": 551.79,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -57288,7 +57288,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 209.6241,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -57331,8 +57331,8 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 200 L",
       "precio_unitario": 0.907585933,
-      "demanda_nac_q4": 385.39,
-      "demanda_nac_6m": 585.39,
+      "demanda_nac_q4": 395.03,
+      "demanda_nac_6m": 595.03,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -57410,7 +57410,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 2460.7394,
+        "2026-10": 2595.7200000000003,
         "2026-11": 2934.7374,
         "2026-12": 0.0,
         "2027-01": 400.0,
@@ -57454,13 +57454,13 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 200 L",
       "precio_unitario": 0.534280133,
-      "demanda_nac_q4": 5395.48,
-      "demanda_nac_6m": 9395.48,
+      "demanda_nac_q4": 5530.46,
+      "demanda_nac_6m": 9530.46,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 3404.52,
-      "fast_mover_qty": 5395.48,
+      "slow_mover_qty": 3269.54,
+      "fast_mover_qty": 5530.46,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 3404.52,
+      "slow_mover_litros": 3269.54,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -57712,7 +57712,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 87.8835,
+        "2026-10": 87.88,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 45.0,
@@ -57839,7 +57839,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 3515.342,
+        "2026-10": 3708.1899999999996,
         "2026-11": 4192.4819,
         "2026-12": 0.0,
         "2027-01": 960.0,
@@ -57883,8 +57883,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 1.105963041,
-      "demanda_nac_q4": 7707.82,
-      "demanda_nac_6m": 19307.82,
+      "demanda_nac_q4": 7900.67,
+      "demanda_nac_6m": 19500.67,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 6240.0,
@@ -57903,7 +57903,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 2636.5065,
+        "2026-10": 2684.67,
         "2026-11": 6288.7228,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -57946,8 +57946,8 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 1000 L",
       "precio_unitario": 0.687835735,
-      "demanda_nac_q4": 8925.23,
-      "demanda_nac_6m": 8925.23,
+      "demanda_nac_q4": 8973.39,
+      "demanda_nac_6m": 8973.39,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 3000.0,
@@ -58026,7 +58026,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 4288.7171,
+        "2026-10": 4523.99,
         "2026-11": 4695.5797,
         "2026-12": 1666.3836,
         "2027-01": 3500.0,
@@ -58070,8 +58070,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.804715192,
-      "demanda_nac_q4": 10650.68,
-      "demanda_nac_6m": 21150.68,
+      "demanda_nac_q4": 10885.95,
+      "demanda_nac_6m": 21385.95,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9220.0,
@@ -58245,8 +58245,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 0.732839327,
-      "demanda_nac_q4": 2398.29,
-      "demanda_nac_6m": 3343.29,
+      "demanda_nac_q4": 2429.14,
+      "demanda_nac_6m": 3374.14,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1840.0,
@@ -58552,7 +58552,7 @@
       "pais": "EGIPTO",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 2636.5064,
+        "2026-10": 2636.51,
         "2026-11": 0.0,
         "2026-12": 2603.7244,
         "2027-01": 0.0,
@@ -58668,7 +58668,7 @@
       "pais": "EGIPTO",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 4394.1774,
+        "2026-10": 4394.18,
         "2026-11": 10481.2047,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -58726,7 +58726,7 @@
       "pais": "EGIPTO",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 18455.5451,
+        "2026-10": 18455.55,
         "2026-11": 22010.5299,
         "2026-12": 0.0,
         "2027-01": 64190.0,
@@ -58842,7 +58842,7 @@
       "pais": "EGIPTO",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 1757.671,
+        "2026-10": 1757.67,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -59024,7 +59024,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 3515.342,
+        "2026-10": 3708.18,
         "2026-11": 8384.9637,
         "2026-12": 4339.5406,
         "2027-01": 5000.0,
@@ -59073,8 +59073,8 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 1000 L",
       "precio_unitario": 0.812075776,
-      "demanda_nac_q4": 16239.85,
-      "demanda_nac_6m": 30239.85,
+      "demanda_nac_q4": 16432.68,
+      "demanda_nac_6m": 30432.68,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -59157,7 +59157,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 3866.8761000000004,
+        "2026-10": 4025.9700000000003,
         "2026-11": 3458.7974999999997,
         "2026-12": 0.0,
         "2027-01": 2400.0,
@@ -59198,12 +59198,12 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.409634067,
-      "demanda_nac_q4": 7325.67,
-      "demanda_nac_6m": 12125.67,
-      "no_mover_qty": 594.33,
+      "demanda_nac_q4": 7484.77,
+      "demanda_nac_6m": 12284.77,
+      "no_mover_qty": 435.23,
       "slow_mover_qty": 4800.0,
-      "fast_mover_qty": 7325.67,
-      "no_mover_litros": 594.33,
+      "fast_mover_qty": 7484.77,
+      "no_mover_litros": 435.23,
       "slow_mover_litros": 4800.0,
       "is_nomover": true,
       "is_slowmover": true,
@@ -59635,7 +59635,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 725.0393,
+        "2026-10": 761.1899999999999,
         "2026-11": 890.9024000000001,
         "2026-12": 650.9311,
         "2027-01": 135.0,
@@ -59677,8 +59677,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 5 Kg",
       "precio_unitario": 1.568672415,
-      "demanda_nac_q4": 2266.87,
-      "demanda_nac_6m": 3156.87,
+      "demanda_nac_q4": 2303.02,
+      "demanda_nac_6m": 3193.02,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1730.0,
@@ -59697,7 +59697,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 3866.8761,
+        "2026-10": 4079.0,
         "2026-11": 6970.0010999999995,
         "2026-12": 0.0,
         "2027-01": 7200.0,
@@ -59736,8 +59736,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 5 Kg",
       "precio_unitario": 0.438175951,
-      "demanda_nac_q4": 10836.88,
-      "demanda_nac_6m": 27636.88,
+      "demanda_nac_q4": 11049.0,
+      "demanda_nac_6m": 27849.0,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 10760.0,
@@ -59870,7 +59870,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 175.77,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 240.0,
@@ -60429,8 +60429,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -60600,8 +60600,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 5 Kg",
       "precio_unitario": 1.645731742,
-      "demanda_nac_q4": 1872.8,
-      "demanda_nac_6m": 4827.8,
+      "demanda_nac_q4": 1882.43,
+      "demanda_nac_6m": 4837.43,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1375.0,
@@ -60620,7 +60620,7 @@
       "pais": "MARRUECOS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 1757.671,
+        "2026-10": 1757.67,
         "2026-11": 0.0,
         "2026-12": 867.9081,
         "2027-01": 2380.0,
@@ -60905,7 +60905,7 @@
       "pais": "MARRUECOS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 4394.1774,
+        "2026-10": 4394.18,
         "2026-11": 0.0,
         "2026-12": 4339.5406,
         "2027-01": 6540.0,
@@ -60942,8 +60942,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.892292282,
-      "demanda_nac_q4": 48961.86,
-      "demanda_nac_6m": 94761.86,
+      "demanda_nac_q4": 49729.35,
+      "demanda_nac_6m": 95529.35,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 17500.0,
@@ -60962,7 +60962,7 @@
       "pais": "MARRUECOS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 4394.1774,
+        "2026-10": 4394.18,
         "2026-11": 0.0,
         "2026-12": 4339.5406,
         "2027-01": 5200.0,
@@ -60999,8 +60999,8 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 200 L",
       "precio_unitario": 0.97350875,
-      "demanda_nac_q4": 8350.74,
-      "demanda_nac_6m": 17750.74,
+      "demanda_nac_q4": 8466.44,
+      "demanda_nac_6m": 17866.44,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -61019,7 +61019,7 @@
       "pais": "MARRUECOS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 2636.5064,
+        "2026-10": 2636.51,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -61113,8 +61113,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -61170,8 +61170,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 2.233200185,
-      "demanda_nac_q4": 3654.55,
-      "demanda_nac_6m": 8694.55,
+      "demanda_nac_q4": 3736.49,
+      "demanda_nac_6m": 8776.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2640.0,
@@ -61227,8 +61227,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.885940073,
-      "demanda_nac_q4": 5549.49,
-      "demanda_nac_6m": 15449.49,
+      "demanda_nac_q4": 5667.13,
+      "demanda_nac_6m": 15567.13,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -61247,7 +61247,7 @@
       "pais": "MARRUECOS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 4394.1774,
+        "2026-10": 4394.18,
         "2026-11": 0.0,
         "2026-12": 4339.5406,
         "2027-01": 0.0,
@@ -61284,8 +61284,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.82548993,
-      "demanda_nac_q4": 12398.59,
-      "demanda_nac_6m": 21778.59,
+      "demanda_nac_q4": 12535.49,
+      "demanda_nac_6m": 21915.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9800.0,
@@ -61512,13 +61512,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.736254358,
-      "demanda_nac_q4": 1103.2,
-      "demanda_nac_6m": 3233.2,
+      "demanda_nac_q4": 1108.02,
+      "demanda_nac_6m": 3238.02,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 496.8,
-      "fast_mover_qty": 1103.2,
+      "slow_mover_qty": 491.98,
+      "fast_mover_qty": 1108.02,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 496.8,
+      "slow_mover_litros": 491.98,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -61683,8 +61683,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 3.871111145,
-      "demanda_nac_q4": 1397.39,
-      "demanda_nac_6m": 4282.39,
+      "demanda_nac_q4": 1435.96,
+      "demanda_nac_6m": 4320.96,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 940.0,
@@ -61740,8 +61740,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 5 Kg",
       "precio_unitario": 1.568672415,
-      "demanda_nac_q4": 2266.87,
-      "demanda_nac_6m": 3156.87,
+      "demanda_nac_q4": 2303.02,
+      "demanda_nac_6m": 3193.02,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1730.0,
@@ -62159,7 +62159,7 @@
       "pais": "MARRUECOS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 1406.1368,
+        "2026-10": 1406.14,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -62216,7 +62216,7 @@
       "pais": "MARRUECOS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 527.3013,
+        "2026-10": 527.3,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -62310,13 +62310,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.139496735,
-      "demanda_nac_q4": 609.72,
-      "demanda_nac_6m": 2029.72,
+      "demanda_nac_q4": 619.35,
+      "demanda_nac_6m": 2039.35,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 470.28,
-      "fast_mover_qty": 609.72,
+      "slow_mover_qty": 460.65,
+      "fast_mover_qty": 619.35,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 470.28,
+      "slow_mover_litros": 460.65,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -62330,7 +62330,7 @@
       "pais": "MARRUECOS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 4394.1774,
+        "2026-10": 4394.18,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -62367,8 +62367,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.035782567,
-      "demanda_nac_q4": 15059.39,
-      "demanda_nac_6m": 35579.39,
+      "demanda_nac_q4": 15398.8,
+      "demanda_nac_6m": 35918.8,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 13880.0,
@@ -62538,13 +62538,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 3.323017189,
-      "demanda_nac_q4": 1124.91,
-      "demanda_nac_6m": 3484.91,
+      "demanda_nac_q4": 1186.62,
+      "demanda_nac_6m": 3546.62,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 575.09,
-      "fast_mover_qty": 1124.91,
+      "slow_mover_qty": 513.38,
+      "fast_mover_qty": 1186.62,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 575.09,
+      "slow_mover_litros": 513.38,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -62615,7 +62615,7 @@
       "pais": "MARRUECOS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 1757.671,
+        "2026-10": 1757.67,
         "2026-11": 0.0,
         "2026-12": 1735.8162,
         "2027-01": 0.0,
@@ -62652,8 +62652,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 1.105963041,
-      "demanda_nac_q4": 7707.82,
-      "demanda_nac_6m": 19307.82,
+      "demanda_nac_q4": 7900.67,
+      "demanda_nac_6m": 19500.67,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 6240.0,
@@ -62729,7 +62729,7 @@
       "pais": "RUMANÍA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 928.0503,
+        "2026-10": 928.05,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 946.0,
@@ -62957,7 +62957,7 @@
       "pais": "RUMANÍA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 464.0251,
+        "2026-10": 464.03,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -63413,7 +63413,7 @@
       "pais": "RUMANÍA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 348.0189,
+        "2026-10": 348.02,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -63507,8 +63507,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -63926,7 +63926,7 @@
       "pais": "RUMANÍA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 696.0377,
+        "2026-10": 696.04,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -63983,7 +63983,7 @@
       "pais": "RUMANÍA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 527.3013,
+        "2026-10": 527.3,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -64020,8 +64020,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 0.732839327,
-      "demanda_nac_q4": 2398.29,
-      "demanda_nac_6m": 3343.29,
+      "demanda_nac_q4": 2429.14,
+      "demanda_nac_6m": 3374.14,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1840.0,
@@ -64040,7 +64040,7 @@
       "pais": "RUMANÍA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 562.4547,
+        "2026-10": 562.45,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -64077,8 +64077,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.82548993,
-      "demanda_nac_q4": 12398.59,
-      "demanda_nac_6m": 21778.59,
+      "demanda_nac_q4": 12535.49,
+      "demanda_nac_6m": 21915.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9800.0,
@@ -64191,8 +64191,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.421740492,
-      "demanda_nac_q4": 3623.97,
-      "demanda_nac_6m": 7003.97,
+      "demanda_nac_q4": 3726.18,
+      "demanda_nac_6m": 7106.18,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2940.0,
@@ -64248,13 +64248,13 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 1 Kg",
       "precio_unitario": 2.629153095,
-      "demanda_nac_q4": 501.04,
-      "demanda_nac_6m": 859.04,
+      "demanda_nac_q4": 512.04,
+      "demanda_nac_6m": 870.04,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 128.96,
-      "fast_mover_qty": 501.04,
+      "slow_mover_qty": 117.96,
+      "fast_mover_qty": 512.04,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 128.96,
+      "slow_mover_litros": 117.96,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -64325,7 +64325,7 @@
       "pais": "RUMANÍA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 696.0377,
+        "2026-10": 696.04,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -65217,13 +65217,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.139496735,
-      "demanda_nac_q4": 609.72,
-      "demanda_nac_6m": 2029.72,
+      "demanda_nac_q4": 619.35,
+      "demanda_nac_6m": 2039.35,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 470.28,
-      "fast_mover_qty": 609.72,
+      "slow_mover_qty": 460.65,
+      "fast_mover_qty": 619.35,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 470.28,
+      "slow_mover_litros": 460.65,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -65274,8 +65274,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.035782567,
-      "demanda_nac_q4": 15059.39,
-      "demanda_nac_6m": 35579.39,
+      "demanda_nac_q4": 15398.8,
+      "demanda_nac_6m": 35918.8,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 13880.0,
@@ -65331,8 +65331,8 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 200 L",
       "precio_unitario": 0.907585933,
-      "demanda_nac_q4": 385.39,
-      "demanda_nac_6m": 585.39,
+      "demanda_nac_q4": 395.03,
+      "demanda_nac_6m": 595.03,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -65351,7 +65351,7 @@
       "pais": "RUMANÍA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 696.0377,
+        "2026-10": 696.04,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -65408,7 +65408,7 @@
       "pais": "RUMANÍA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 562.4547,
+        "2026-10": 562.45,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -65579,7 +65579,7 @@
       "pais": "RUMANÍA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 928.0503,
+        "2026-10": 928.05,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 2879.0,
@@ -65673,8 +65673,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 1.105963041,
-      "demanda_nac_q4": 7707.82,
-      "demanda_nac_6m": 19307.82,
+      "demanda_nac_q4": 7900.67,
+      "demanda_nac_6m": 19500.67,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 6240.0,
@@ -66037,7 +66037,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 703.0683,
+        "2026-10": 741.6300000000001,
         "2026-11": 0.0,
         "2026-12": 694.3265,
         "2027-01": 675.0,
@@ -66083,8 +66083,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 3.871111145,
-      "demanda_nac_q4": 1397.39,
-      "demanda_nac_6m": 4282.39,
+      "demanda_nac_q4": 1435.96,
+      "demanda_nac_6m": 4320.96,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 940.0,
@@ -66854,7 +66854,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 1757.671,
+        "2026-10": 1854.09,
         "2026-11": 2096.2409,
         "2026-12": 0.0,
         "2027-01": 2000.0,
@@ -66891,8 +66891,8 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 1000 L",
       "precio_unitario": 0.67950347,
-      "demanda_nac_q4": 3853.91,
-      "demanda_nac_6m": 5853.91,
+      "demanda_nac_q4": 3950.33,
+      "demanda_nac_6m": 5950.33,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1000.0,
@@ -66911,7 +66911,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -66948,8 +66948,8 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 200 L",
       "precio_unitario": 0.814070292,
-      "demanda_nac_q4": 175.77,
-      "demanda_nac_6m": 375.77,
+      "demanda_nac_q4": 185.41,
+      "demanda_nac_6m": 385.41,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 0.0,
@@ -67719,7 +67719,7 @@
       "pais": "ESPAÑA",
       "ambito": "Nacional",
       "monthly_forecast": {
-        "2026-10": 1124.9094,
+        "2026-10": 1186.62,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 80.0,
@@ -67761,13 +67761,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 3.323017189,
-      "demanda_nac_q4": 1124.91,
-      "demanda_nac_6m": 3484.91,
+      "demanda_nac_q4": 1186.62,
+      "demanda_nac_6m": 3546.62,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 575.09,
-      "fast_mover_qty": 1124.91,
+      "slow_mover_qty": 513.38,
+      "fast_mover_qty": 1186.62,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 575.09,
+      "slow_mover_litros": 513.38,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -68390,8 +68390,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.892292282,
-      "demanda_nac_q4": 48961.86,
-      "demanda_nac_6m": 94761.86,
+      "demanda_nac_q4": 49729.35,
+      "demanda_nac_6m": 95529.35,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 17500.0,
@@ -68504,8 +68504,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -68561,8 +68561,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 2.233200185,
-      "demanda_nac_q4": 3654.55,
-      "demanda_nac_6m": 8694.55,
+      "demanda_nac_q4": 3736.49,
+      "demanda_nac_6m": 8776.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2640.0,
@@ -68675,8 +68675,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.82548993,
-      "demanda_nac_q4": 12398.59,
-      "demanda_nac_6m": 21778.59,
+      "demanda_nac_q4": 12535.49,
+      "demanda_nac_6m": 21915.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9800.0,
@@ -68789,13 +68789,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.736254358,
-      "demanda_nac_q4": 1103.2,
-      "demanda_nac_6m": 3233.2,
+      "demanda_nac_q4": 1108.02,
+      "demanda_nac_6m": 3238.02,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 496.8,
-      "fast_mover_qty": 1103.2,
+      "slow_mover_qty": 491.98,
+      "fast_mover_qty": 1108.02,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 496.8,
+      "slow_mover_litros": 491.98,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -68846,13 +68846,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.930734655,
-      "demanda_nac_q4": 385.39,
-      "demanda_nac_6m": 5940.39,
+      "demanda_nac_q4": 395.03,
+      "demanda_nac_6m": 5950.03,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 454.61,
-      "fast_mover_qty": 385.39,
+      "slow_mover_qty": 444.97,
+      "fast_mover_qty": 395.03,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 454.61,
+      "slow_mover_litros": 444.97,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -69416,8 +69416,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 2.864954856,
-      "demanda_nac_q4": 198.59,
-      "demanda_nac_6m": 873.59,
+      "demanda_nac_q4": 200.51,
+      "demanda_nac_6m": 875.51,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 160.0,
@@ -69587,8 +69587,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 1.105963041,
-      "demanda_nac_q4": 7707.82,
-      "demanda_nac_6m": 19307.82,
+      "demanda_nac_q4": 7900.67,
+      "demanda_nac_6m": 19500.67,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 6240.0,
@@ -69872,8 +69872,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -69929,8 +69929,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.82548993,
-      "demanda_nac_q4": 12398.59,
-      "demanda_nac_6m": 21778.59,
+      "demanda_nac_q4": 12535.49,
+      "demanda_nac_6m": 21915.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9800.0,
@@ -70043,13 +70043,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.736254358,
-      "demanda_nac_q4": 1103.2,
-      "demanda_nac_6m": 3233.2,
+      "demanda_nac_q4": 1108.02,
+      "demanda_nac_6m": 3238.02,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 496.8,
-      "fast_mover_qty": 1103.2,
+      "slow_mover_qty": 491.98,
+      "fast_mover_qty": 1108.02,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 496.8,
+      "slow_mover_litros": 491.98,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -71013,8 +71013,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.82548993,
-      "demanda_nac_q4": 12398.59,
-      "demanda_nac_6m": 21778.59,
+      "demanda_nac_q4": 12535.49,
+      "demanda_nac_6m": 21915.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9800.0,
@@ -71070,8 +71070,8 @@
       "unidad_medida": "L",
       "formato_label": "Depósito 1000 L",
       "precio_unitario": 0.687835735,
-      "demanda_nac_q4": 8925.23,
-      "demanda_nac_6m": 8925.23,
+      "demanda_nac_q4": 8973.39,
+      "demanda_nac_6m": 8973.39,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 3000.0,
@@ -72326,8 +72326,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -72725,8 +72725,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -72953,13 +72953,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.736254358,
-      "demanda_nac_q4": 1103.2,
-      "demanda_nac_6m": 3233.2,
+      "demanda_nac_q4": 1108.02,
+      "demanda_nac_6m": 3238.02,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 496.8,
-      "fast_mover_qty": 1103.2,
+      "slow_mover_qty": 491.98,
+      "fast_mover_qty": 1108.02,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 496.8,
+      "slow_mover_litros": 491.98,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -73010,8 +73010,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.421740492,
-      "demanda_nac_q4": 3623.97,
-      "demanda_nac_6m": 7003.97,
+      "demanda_nac_q4": 3726.18,
+      "demanda_nac_6m": 7106.18,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2940.0,
@@ -73543,7 +73543,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 1048.1205,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -73657,7 +73657,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 439.4177,
+        "2026-10": 463.52,
         "2026-11": 0.0,
         "2026-12": 433.9541,
         "2027-01": 0.0,
@@ -73771,7 +73771,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 3515.3419,
+        "2026-10": 3708.18,
         "2026-11": 4192.4819,
         "2026-12": 3471.6325,
         "2027-01": 0.0,
@@ -73885,7 +73885,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 0.0,
         "2026-12": 433.9541,
         "2027-01": 0.0,
@@ -73942,7 +73942,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 9667.1903,
+        "2026-10": 10197.5,
         "2026-11": 0.0,
         "2026-12": 6075.3569,
         "2027-01": 0.0,
@@ -73999,7 +73999,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 9667.1903,
+        "2026-10": 10197.5,
         "2026-11": 16141.0553,
         "2026-12": 0.0,
         "2027-01": 15600.0,
@@ -74036,8 +74036,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -74056,7 +74056,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 2636.5064,
+        "2026-10": 2781.14,
         "2026-11": 0.0,
         "2026-12": 2603.7244,
         "2027-01": 0.0,
@@ -74170,7 +74170,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 1048.1205,
         "2026-12": 867.9081,
         "2027-01": 0.0,
@@ -74227,7 +74227,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 966.719,
+        "2026-10": 1019.75,
         "2026-11": 1152.9325,
         "2026-12": 954.6989,
         "2027-01": 1200.0,
@@ -74341,7 +74341,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 2636.5064,
+        "2026-10": 2781.14,
         "2026-11": 3144.3614,
         "2026-12": 0.0,
         "2027-01": 2000.0,
@@ -74398,7 +74398,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 0.0,
         "2026-12": 433.9541,
         "2027-01": 0.0,
@@ -74512,7 +74512,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 3515.3419,
+        "2026-10": 3708.18,
         "2026-11": 0.0,
         "2026-12": 1735.8162,
         "2027-01": 0.0,
@@ -74797,7 +74797,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 351.5342,
+        "2026-10": 370.82,
         "2026-11": 419.2482,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -74854,7 +74854,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 928.0503,
+        "2026-10": 979.0,
         "2026-11": 0.0,
         "2026-12": 347.1632,
         "2027-01": 0.0,
@@ -74911,7 +74911,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 878.8355,
+        "2026-10": 927.0,
         "2026-11": 0.0,
         "2026-12": 347.1632,
         "2027-01": 0.0,
@@ -74968,7 +74968,7 @@
       "pais": "COSTA RICA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 2425.5859,
+        "2026-10": 2558.65,
         "2026-11": 0.0,
         "2026-12": 694.3265,
         "2027-01": 1080.0,
@@ -75005,8 +75005,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 1.105963041,
-      "demanda_nac_q4": 7707.82,
-      "demanda_nac_6m": 19307.82,
+      "demanda_nac_q4": 7900.67,
+      "demanda_nac_6m": 19500.67,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 6240.0,
@@ -75404,8 +75404,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 0.732839327,
-      "demanda_nac_q4": 2398.29,
-      "demanda_nac_6m": 3343.29,
+      "demanda_nac_q4": 2429.14,
+      "demanda_nac_6m": 3374.14,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1840.0,
@@ -75461,8 +75461,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.82548993,
-      "demanda_nac_q4": 12398.59,
-      "demanda_nac_6m": 21778.59,
+      "demanda_nac_q4": 12535.49,
+      "demanda_nac_6m": 21915.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9800.0,
@@ -76373,13 +76373,13 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 1.139496735,
-      "demanda_nac_q4": 609.72,
-      "demanda_nac_6m": 2029.72,
+      "demanda_nac_q4": 619.35,
+      "demanda_nac_6m": 2039.35,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 470.28,
-      "fast_mover_qty": 609.72,
+      "slow_mover_qty": 460.65,
+      "fast_mover_qty": 619.35,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 470.28,
+      "slow_mover_litros": 460.65,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -76735,7 +76735,7 @@
       "pais": "ECUADOR (INCLUIDAS LAS ISLAS GALÁPAGOS)",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 3866.8761,
+        "2026-10": 4079.0,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 2515.0,
@@ -76792,7 +76792,7 @@
       "pais": "ECUADOR (INCLUIDAS LAS ISLAS GALÁPAGOS)",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 8788.3548,
+        "2026-10": 9270.45,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 10060.0,
@@ -76829,8 +76829,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,
@@ -76906,7 +76906,7 @@
       "pais": "ECUADOR (INCLUIDAS LAS ISLAS GALÁPAGOS)",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 2088.1131,
+        "2026-10": 2202.66,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -77000,13 +77000,13 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 1 Kg",
       "precio_unitario": 2.629153095,
-      "demanda_nac_q4": 501.04,
-      "demanda_nac_6m": 859.04,
+      "demanda_nac_q4": 512.04,
+      "demanda_nac_6m": 870.04,
       "no_mover_qty": 0.0,
-      "slow_mover_qty": 128.96,
-      "fast_mover_qty": 501.04,
+      "slow_mover_qty": 117.96,
+      "fast_mover_qty": 512.04,
       "no_mover_litros": 0.0,
-      "slow_mover_litros": 128.96,
+      "slow_mover_litros": 117.96,
       "is_nomover": false,
       "is_slowmover": true,
       "is_fastmover": false
@@ -77305,7 +77305,7 @@
       "pais": "ITALIA",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 175.7671,
+        "2026-10": 185.41,
         "2026-11": 0.0,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -77476,7 +77476,7 @@
       "pais": "NETHERLANS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 8436.8206,
+        "2026-10": 8899.64,
         "2026-11": 17608.4239,
         "2026-12": 0.0,
         "2027-01": 0.0,
@@ -77513,8 +77513,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.892292282,
-      "demanda_nac_q4": 48961.86,
-      "demanda_nac_6m": 94761.86,
+      "demanda_nac_q4": 49729.35,
+      "demanda_nac_6m": 95529.35,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 17500.0,
@@ -77533,7 +77533,7 @@
       "pais": "NETHERLANS",
       "ambito": "Exportación",
       "monthly_forecast": {
-        "2026-10": 38668.7612,
+        "2026-10": 40790.0,
         "2026-11": 69175.9511,
         "2026-12": 57281.9361,
         "2027-01": 50260.0,
@@ -77684,8 +77684,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 1.421740492,
-      "demanda_nac_q4": 3623.97,
-      "demanda_nac_6m": 7003.97,
+      "demanda_nac_q4": 3726.18,
+      "demanda_nac_6m": 7106.18,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 2940.0,
@@ -78083,8 +78083,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 5L",
       "precio_unitario": 0.732839327,
-      "demanda_nac_q4": 2398.29,
-      "demanda_nac_6m": 3343.29,
+      "demanda_nac_q4": 2429.14,
+      "demanda_nac_6m": 3374.14,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 1840.0,
@@ -78140,8 +78140,8 @@
       "unidad_medida": "L",
       "formato_label": "Garrafas 20L",
       "precio_unitario": 0.82548993,
-      "demanda_nac_q4": 12398.59,
-      "demanda_nac_6m": 21778.59,
+      "demanda_nac_q4": 12535.49,
+      "demanda_nac_6m": 21915.49,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 9800.0,
@@ -78654,8 +78654,8 @@
       "unidad_medida": "Kg",
       "formato_label": "Bolsas 20 Kg",
       "precio_unitario": 0.392857608,
-      "demanda_nac_q4": 29318.77,
-      "demanda_nac_6m": 80338.77,
+      "demanda_nac_q4": 29791.24,
+      "demanda_nac_6m": 80811.24,
       "no_mover_qty": 0.0,
       "slow_mover_qty": 0.0,
       "fast_mover_qty": 24800.0,

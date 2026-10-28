@@ -23,8 +23,14 @@ if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en build_treasury_data.py & exit /b 1
 "%PY%" scripts/build_profitability_data.py
 if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en build_profitability_data.py & exit /b 1 )
 
+"%PY%" scripts/build_bi_modules.py
+if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en build_bi_modules.py & exit /b 1 )
+
 echo 1b. Integrando Full Costing analitico sept/oct...
-if exist "scratch\merge_fullcost_drilldown.py" (
+if exist "scripts\merge_fullcost_drilldown.py" (
+    "%PY%" scripts/merge_fullcost_drilldown.py
+    if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en merge_fullcost_drilldown.py & exit /b 1 )
+) else if exist "scratch\merge_fullcost_drilldown.py" (
     "%PY%" scratch/merge_fullcost_drilldown.py
     if %ERRORLEVEL% NEQ 0 ( echo [ERROR] Fallo en merge_fullcost_drilldown.py & exit /b 1 )
 )

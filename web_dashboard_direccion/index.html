@@ -7257,8 +7257,16 @@
       
       const hasCDet = !!(fc && fc.cuentas_detalle && Object.keys(fc.cuentas_detalle).length > 0);
       const hasModel = !!meta && typeof meta.rai_calculado === 'number' && hasCDet;
-      const raiMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number') ? fc.cuentas_resumen.rai_neto : 111933.69;
-      const raiModelo = hasModel ? meta.rai_calculado : NaN;
+      
+      // RAI Mayor contable oficial (Libro Mayor)
+      const raiMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number') 
+        ? fc.cuentas_resumen.rai_neto 
+        : ((meta && typeof meta.rai_contable_mayor === 'number') ? meta.rai_contable_mayor : NaN);
+        
+      // RAI Modelo Analítico Cascada: debe provenir del PnL Cascada analítico, no del Mayor contable
+      const raiModelo = (hasModel && typeof meta.rai_analitico_cascada === 'number') 
+        ? meta.rai_analitico_cascada 
+        : ((hasModel && typeof meta.rai_calculado === 'number') ? meta.rai_calculado : NaN);
 
       const cDet = (fc && fc.cuentas_detalle) ? fc.cuentas_detalle : null;
       const getCtaSaldo = (cta) => {
@@ -7274,17 +7282,18 @@
       const val624_1_mayor = getCtaSaldo('624000001');
       const val624_2_mayor = getCtaSaldo('624000002');
       const val624_3_mayor = getCtaSaldo('624000003');
-      const val622_mayor = (fc && typeof fc.mantenimiento_622_total === 'number') ? fc.mantenimiento_622_total : 13546.07;
+      const val622_mayor = (fc && typeof fc.mantenimiento_622_total === 'number') ? fc.mantenimiento_622_total : NaN;
 
       // Modelos analíticos de costes independientes (Full Costing) recalculados desde sus fuentes
-      const modAnalitico = (fc && fc.modelos_analiticos) ? fc.modelos_analiticos : ((meta && meta.modelos_analiticos) ? meta.modelos_analiticos : {});
-      const modelo640 = (typeof modAnalitico.personal_devengado === 'number') ? modAnalitico.personal_devengado : 131094.27;
-      const modelo642 = (typeof modAnalitico.seguridad_social === 'number') ? modAnalitico.seguridad_social : 34709.72;
-      const modelo607 = (typeof modAnalitico.ett_envasado === 'number') ? modAnalitico.ett_envasado : 26205.98;
-      const modelo624_1 = (typeof modAnalitico.transporte_nacional === 'number') ? modAnalitico.transporte_nacional : 8129.04;
-      const modelo624_2 = (typeof modAnalitico.transporte_internacional === 'number') ? modAnalitico.transporte_internacional : 8078.83;
-      const modelo624_3 = (typeof modAnalitico.transporte_canarias === 'number') ? modAnalitico.transporte_canarias : 10256.54;
-      const modelo622 = (typeof modAnalitico.mantenimiento_centros === 'number') ? modAnalitico.mantenimiento_centros : 13546.07;
+      // SIN sustitución silenciosa por constantes fijas si el modelo no está disponible
+      const modAnalitico = (fc && fc.modelos_analiticos) ? fc.modelos_analiticos : ((meta && meta.modelos_analiticos) ? meta.modelos_analiticos : null);
+      const modelo640 = (modAnalitico && typeof modAnalitico.personal_devengado === 'number') ? modAnalitico.personal_devengado : NaN;
+      const modelo642 = (modAnalitico && typeof modAnalitico.seguridad_social === 'number') ? modAnalitico.seguridad_social : NaN;
+      const modelo607 = (modAnalitico && typeof modAnalitico.ett_envasado === 'number') ? modAnalitico.ett_envasado : NaN;
+      const modelo624_1 = (modAnalitico && typeof modAnalitico.transporte_nacional === 'number') ? modAnalitico.transporte_nacional : NaN;
+      const modelo624_2 = (modAnalitico && typeof modAnalitico.transporte_internacional === 'number') ? modAnalitico.transporte_internacional : NaN;
+      const modelo624_3 = (modAnalitico && typeof modAnalitico.transporte_canarias === 'number') ? modAnalitico.transporte_canarias : NaN;
+      const modelo622 = (modAnalitico && typeof modAnalitico.mantenimiento_centros === 'number') ? modAnalitico.mantenimiento_centros : NaN;
 
       const auditItems = [
         { concepto: 'Sueldos y Salarios (Cta 640000000)', mayor: val640_mayor, modelo: modelo640, nota: 'Personal fábrica + administración devengado en Sep-26' },
@@ -7301,10 +7310,20 @@
       let allPassed = hasModel;
       let sumaMayor = 0;
       let sumaModelo = 0;
+      let hasMissingData = false;
 
       auditItems.forEach(item => {
-        sumaMayor += (typeof item.mayor === 'number' && !isNaN(item.mayor)) ? item.mayor : 0;
-        sumaModelo += (typeof item.modelo === 'number' && !isNaN(item.modelo)) ? item.modelo : 0;
+        if (typeof item.mayor === 'number' && !isNaN(item.mayor)) {
+          sumaMayor += item.mayor;
+        } else {
+          hasMissingData = true;
+        }
+        
+        if (typeof item.modelo === 'number' && !isNaN(item.modelo)) {
+          sumaModelo += item.modelo;
+        } else {
+          hasMissingData = true;
+        }
         
         if (typeof item.mayor !== 'number' || typeof item.modelo !== 'number' || isNaN(item.mayor) || isNaN(item.modelo)) {
           item.diff = NaN;
@@ -7318,7 +7337,12 @@
       });
 
       const totalDiff = Math.abs(sumaMayor - sumaModelo);
-      const totalOk = allPassed;
+      const totalOk = allPassed && !hasMissingData;
+
+      const renderVal = (v) => {
+        if (typeof v === 'number' && !isNaN(v)) return fmtEur(v);
+        return '<span style="color:#f87171; font-weight:700">Sin datos</span>';
+      };
 
       container.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
@@ -7331,7 +7355,7 @@
                     Auditoría Dinámica & Conciliación Contable en Vivo
                   </h3>
                   <span class="tab-badge ${totalOk ? 'badge-success' : 'badge-danger'}">
-                    ${totalOk ? 'Cálculo Cuadrado en Tiempo Real' : 'Descuadre Detectado'}
+                    ${totalOk ? 'Cálculo Cuadrado en Tiempo Real' : (hasMissingData ? 'Sin datos de auditoría' : 'Descuadre Detectado')}
                   </span>
                 </div>
                 <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px;">
@@ -7340,8 +7364,8 @@
               </div>
               <div style="background:rgba(15,23,42,0.85); padding:0.55rem 1.15rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
                 <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700">Diferencia Calculada en Vivo</div>
-                <div style="font-size:1.5rem; font-weight:800; color:${totalOk ? '#34d399' : '#f87171'}">${fmtEur(totalDiff)}</div>
-                <div style="font-size:0.72rem; color:var(--muted)">${totalOk ? 'Tolerancia < 0,05 €' : 'Requiere revisión contable'}</div>
+                <div style="font-size:1.5rem; font-weight:800; color:${totalOk ? '#34d399' : '#f87171'}">${hasMissingData ? '<span style="color:#f87171">Sin datos</span>' : fmtEur(totalDiff)}</div>
+                <div style="font-size:0.72rem; color:var(--muted)">${totalOk ? 'Tolerancia < 0,05 €' : (hasMissingData ? 'Faltan fuentes contables' : 'Requiere revisión contable')}</div>
               </div>
             </div>
           </div>
@@ -7369,15 +7393,15 @@
                   ${auditItems.map(item => `
                     <tr>
                       <td style="font-weight:700; color:#fff">${item.concepto}</td>
-                      <td style="text-align:right; font-family:monospace; font-weight:600">${fmtEur(item.mayor)}</td>
-                      <td style="text-align:right; font-family:monospace; font-weight:600; color:#38bdf8">${fmtEur(item.modelo)}</td>
+                      <td style="text-align:right; font-family:monospace; font-weight:600">${renderVal(item.mayor)}</td>
+                      <td style="text-align:right; font-family:monospace; font-weight:600; color:#38bdf8">${renderVal(item.modelo)}</td>
                       <td style="text-align:right; font-weight:800; font-family:monospace; color:${item.isOk ? '#34d399' : '#ef4444'}">
-                        ${item.isOk ? '0,00 €' : fmtEur(item.diff)}
+                        ${isNaN(item.diff) ? '<span style="color:#f87171">—</span>' : (item.isOk ? '0,00 €' : fmtEur(item.diff))}
                       </td>
                       <td style="font-size:0.82rem; color:#94a3b8">${item.nota}</td>
                       <td style="text-align:center">
                         <span class="tab-badge badge-${item.isOk ? 'success' : 'danger'}">
-                          ${item.isOk ? 'Conciliado (0,00 €)' : 'Descuadre ' + fmtEur(item.diff)}
+                          ${isNaN(item.diff) ? 'Sin datos' : (item.isOk ? 'Conciliado (0,00 €)' : 'Descuadre ' + fmtEur(item.diff))}
                         </span>
                       </td>
                     </tr>

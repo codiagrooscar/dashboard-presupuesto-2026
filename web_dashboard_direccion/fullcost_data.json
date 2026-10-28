@@ -10,11 +10,7 @@
     "rai_analitico_cascada": 111933.69,
     "rai_contable_mayor": 111933.69,
     "desviacion_conciliacion_mayor": 0.0,
-    "incidencias_costes_activos": [
-      "Fila 213: Importe 'Estado' no numérico en partida 'Diferencia'.",
-      "Fila 226: Importe 'Estado' no numérico en partida 'Diferencia €'.",
-      "Fila 379: Importe 'Estado' no numérico en partida 'Diferencia €'."
-    ],
+    "incidencias_costes_activos": [],
     "tarifas_ceco_eur_h": {
       "110": 348.21,
       "120": 316.48,
@@ -34,7 +30,27 @@
       "transporte_nacional": 8129.04,
       "transporte_internacional": 8078.83,
       "transporte_canarias": 10256.54,
-      "mantenimiento_centros": 13546.07
+      "mantenimiento_centros": 13546.07,
+      "seguridad_social_detalle": {
+        "nomina_personal_ett": 33358.66,
+        "ajuste_cuotas_patronales_rnt": 1351.06,
+        "origen": "Conciliación RLC/RNT vs Cuenta Mayor 642000000"
+      }
+    },
+    "repartos_dinamicos": {
+      "origen": "Hoja Repartos (dinámico)",
+      "distribucion_210": {
+        "110": 0.16494845360824742,
+        "120": 0.28865979381443296,
+        "130": 0.20618556701030927,
+        "140": 0.3402061855670103
+      },
+      "distribucion_240": {
+        "110": 0.25,
+        "120": 0.45,
+        "130": 0.15,
+        "140": 0.15
+      }
     }
   },
   "pnl_waterfall": [
@@ -226,7 +242,8 @@
     "horas_totales_recurso": 170.0,
     "coste_factura_ett_recurso": 8735.33,
     "conciliacion_ett": "Recurso 36 ETT: 8.735,33 € × (37,5 h maquila / 170,0 h totales) = 1.926,91 € conciliado con hoja Dedicacion (Fila 36000)",
-    "propiedad_materiales": "Materiales y envases provistos por SAS (0 € coste propio Codiagro)"
+    "propiedad_materiales": "Materiales y envases provistos por SAS (0 € coste propio Codiagro)",
+    "resultado_neto": 3525.33
   },
   "pricing": {
     "tarifas_horarias": {
@@ -3558,6 +3575,11 @@
     "transporte_nacional": 8129.04,
     "transporte_internacional": 8078.83,
     "transporte_canarias": 10256.54,
-    "mantenimiento_centros": 13546.07
+    "mantenimiento_centros": 13546.07,
+    "seguridad_social_detalle": {
+      "nomina_personal_ett": 33358.66,
+      "ajuste_cuotas_patronales_rnt": 1351.06,
+      "origen": "Conciliación RLC/RNT vs Cuenta Mayor 642000000"
+    }
   }
 }

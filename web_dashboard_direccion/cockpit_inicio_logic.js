@@ -49,6 +49,20 @@ function renderCockpitInicioSection() {
     ? fc.totales_drilldown.rai_neto
     : ((fc && fc.metadata && typeof fc.metadata.rai_calculado === 'number') ? fc.metadata.rai_calculado : 111933.69);
 
+  const ingWaterfall = (fc && fc.pnl_waterfall && Array.isArray(fc.pnl_waterfall)) 
+    ? fc.pnl_waterfall.find(x => x.nivel === 1 || x.tipo === 'ingreso')
+    : null;
+  const ventasContables = (ingWaterfall && typeof ingWaterfall.importe === 'number') 
+    ? ingWaterfall.importe 
+    : ((fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.ingresos_totales === 'number') ? fc.cuentas_resumen.ingresos_totales : 505002.49);
+
+  const raiPctNum = (ventasContables > 0 && typeof raiEur === 'number' && !isNaN(raiEur))
+    ? (raiEur / ventasContables * 100)
+    : 22.2;
+  const raiPctFormatted = (typeof raiPctNum === 'number' && !isNaN(raiPctNum))
+    ? raiPctNum.toFixed(1).replace('.', ',') + '%'
+    : '—';
+
   const scopeLabel = scope === 'ALL' ? 'Total Empresa' : (scope === 'NACIONAL' ? 'Mercado Nacional' : 'Exportación');
 
   return `
@@ -137,13 +151,13 @@ function renderCockpitInicioSection() {
             </div>
             <div class="kpi-value" style="color:#38bdf8">${fmtEur(raiEur)}</div>
             <div class="kpi-subtitle">
-              <span style="color:#38bdf8; font-weight:700">22,2%</span> s/ventas contables (Total Empresa)
+              <span style="color:#38bdf8; font-weight:700">${raiPctFormatted}</span> s/ventas contables (Total Empresa)
             </div>
             <div style="font-size:0.73rem; color:#94a3b8; margin-top:0.25rem;">
               Base: <strong>Cierre Septiembre</strong> (Octubre en curso)
             </div>
             <div class="progress-bar-container" style="margin-top:0.4rem;">
-              <div class="progress-bar-fill" style="width:22.2%; background:linear-gradient(90deg, #38bdf8, #0284c7)"></div>
+              <div class="progress-bar-fill" style="width:${Math.min(100, Math.max(0, raiPctNum))}%; background:linear-gradient(90deg, #38bdf8, #0284c7)"></div>
             </div>
           </div>
 

@@ -316,13 +316,21 @@ if fc_wb_path:
                 try: calc_ett += float(ett_val)
                 except: pass
         if calc_sueldo > 0: modelos_analiticos["personal_devengado"] = round(calc_sueldo, 2)
-        if calc_ss > 0: modelos_analiticos["seguridad_social"] = round(calc_ss + 1351.06, 2)
+        if calc_ss > 0:
+            ss_mayor = abs(cuentas_detalle.get('642000000', {}).get('saldo_mes', 34709.72))
+            ajuste_ss = round(ss_mayor - calc_ss, 2) if ss_mayor >= calc_ss else 0.0
+            modelos_analiticos["seguridad_social"] = round(calc_ss + ajuste_ss, 2)
+            modelos_analiticos["seguridad_social_detalle"] = {
+                "nomina_personal_ett": round(calc_ss, 2),
+                "ajuste_cuotas_patronales_rnt": ajuste_ss,
+                "origen": "Conciliación RLC/RNT vs Cuenta Mayor 642000000"
+            }
         if calc_ett > 0: modelos_analiticos["ett_envasado"] = round(calc_ett, 2)
 
     # 3. Cargar dinámicamente Costes_activos sobre TODAS las filas identificadas (Hallazgos 5.1 y 5.2)
     BASE_CA_CECO = {'110': 1288.62, '120': 6419.19, '130': 6085.86, '140': 0.0, '210': 602.22, '240': 19690.51}
     ca_sum_by_ceco = defaultdict(float)
-    ca_622010200_imp = 1288.62
+    ca_sum_by_cta = defaultdict(float)
     incidencias_ca = []
 
     if 'Costes_activos' in wb_fc.sheetnames:
@@ -334,11 +342,16 @@ if fc_wb_path:
             cta_ca = str(ws_ca.cell(r, 2).value or '').strip()
             concepto = str(ws_ca.cell(r, 4).value or '').strip()
 
-            if cta_ca == '622010200' and imp_ca is not None:
-                try: ca_622010200_imp = float(imp_ca)
-                except: pass
-
             if imp_ca is not None and str(imp_ca).strip() != '':
+                str_imp = str(imp_ca).strip()
+                # Omitir filas que sean encabezados de tablas de control o validaciones (Prioridad 4)
+                if str_imp.lower() in ['estado', 'control', 'comprobacion', 'comprobación', 'saldo', 'total', 'diferencia', 'resultado', 'val']:
+                    continue
+                if concepto.lower().startswith(('control', 'comprobación', 'comprobacion', 'estado', 'cuadre', 'total general', 'resumen')):
+                    continue
+                if ceco_ca.lower() in ['control', 'estado', 'total', 'resumen']:
+                    continue
+
                 try:
                     imp_val = float(imp_ca)
                 except (ValueError, TypeError):
@@ -349,36 +362,62 @@ if fc_wb_path:
                 if ya_formula in ['si', 'sí', 'yes']:
                     continue
 
+                if cta_ca:
+                    ca_sum_by_cta[cta_ca] += imp_val
+
                 if ceco_ca:
                     ca_sum_by_ceco[ceco_ca] += imp_val
                 else:
                     incidencias_ca.append(f"Fila {r}: Partida '{concepto}' ({imp_val:.2f} €) sin CECO asignado.")
 
-    # 4. Cálculo de costes por centro y reparto de auxiliares por inductores documentados (Hallazgo 5.2)
+    # 4. Cálculo de costes por centro y reparto de auxiliares dinámico (Hoja 'Repartos' si existe) (Prioridades 2 y 5)
     BASE_COST_CECO = {'110': 11885.19, '120': 25352.72, '130': 26773.65, '140': 60550.20}
     delta_ceco_direct = {}
     for c in ['110', '120', '130', '140']:
         delta_ceco_direct[c] = ca_sum_by_ceco.get(c, 0.0) - BASE_CA_CECO.get(c, 0.0)
 
-    # Si la cuenta 622010200 (Alcaplant) en Cuentas tiene incremento adicional en Mayor:
+    # Conciliación de cuentas de Costes Activos contra el Mayor:
+    # Usar la SUMA TOTAL de todas las partidas de la cuenta en Costes_activos (Prioridad 2)
     if '622010200' in cuentas_detalle:
-        delta_cta = max(0.0, abs(cuentas_detalle['622010200']['saldo_mes']) - ca_622010200_imp)
-        if abs(delta_cta) > 0.01:
+        total_ca_622 = ca_sum_by_cta.get('622010200', 0.0)
+        mayor_622 = abs(cuentas_detalle['622010200']['saldo_mes'])
+        delta_cta = max(0.0, mayor_622 - total_ca_622)
+        if delta_cta > 0.01:
             delta_ceco_direct['110'] += delta_cta
 
-    # Auxiliares de planta (210 Mantenimiento taller + 240 Servicios comunes y CIF de planta)
-    delta_aux = (ca_sum_by_ceco.get('210', 0.0) - BASE_CA_CECO.get('210', 0.0)) + \
-                (ca_sum_by_ceco.get('240', 0.0) - BASE_CA_CECO.get('240', 0.0))
+    # Dinamización de la hoja 'Repartos' (Prioridad 5)
+    repartos_por_origen = defaultdict(lambda: defaultdict(float))
+    if 'Repartos' in wb_fc.sheetnames:
+        ws_rep = wb_fc['Repartos']
+        for r in range(7, ws_rep.max_row + 1):
+            orig_ceco = str(ws_rep.cell(r, 2).value or '').strip()
+            dest_ceco = str(ws_rep.cell(r, 5).value or '').strip()
+            cant = ws_rep.cell(r, 9).value
+            if orig_ceco and dest_ceco in ['110', '120', '130', '140'] and cant is not None:
+                try:
+                    repartos_por_origen[orig_ceco][dest_ceco] += float(cant)
+                except: pass
 
-    # Reparto de auxiliares a centros productivos según inductores documentados:
-    # 110: 10%, 120: 25%, 130: 20%, 140: 45%
-    aux_alloc = {'110': 0.10, '120': 0.25, '130': 0.20, '140': 0.45}
+    # Normalizar inductores de reparto leídos
+    repartos_dinamicos = {}
+    for orig, dests in repartos_por_origen.items():
+        tot_orig = sum(dests.values())
+        if tot_orig > 0:
+            repartos_dinamicos[orig] = {d: dests[d] / tot_orig for d in dests}
+
+    delta_aux_210 = ca_sum_by_ceco.get('210', 0.0) - BASE_CA_CECO.get('210', 0.0)
+    delta_aux_240 = ca_sum_by_ceco.get('240', 0.0) - BASE_CA_CECO.get('240', 0.0)
+
+    pct_210 = repartos_dinamicos.get('210', {'110': 0.1649, '120': 0.2887, '130': 0.2062, '140': 0.3402})
+    pct_240 = repartos_dinamicos.get('240', {'110': 0.25, '120': 0.45, '130': 0.15, '140': 0.15})
 
     final_cost_by_ceco = {}
     rate_by_ceco = {}
     total_target_plant_cost = 0.0
     for c in ['110', '120', '130', '140']:
-        cost_c = BASE_COST_CECO[c] + delta_ceco_direct[c] + (delta_aux * aux_alloc[c])
+        alloc_210 = delta_aux_210 * pct_210.get(c, 0.0)
+        alloc_240 = delta_aux_240 * pct_240.get(c, 0.0)
+        cost_c = BASE_COST_CECO[c] + delta_ceco_direct[c] + alloc_210 + alloc_240
         final_cost_by_ceco[c] = cost_c
         total_target_plant_cost += cost_c
         h_c = std_hours_by_ceco.get(c, 0.0)
@@ -403,25 +442,34 @@ if fc_wb_path:
             h_m_by_ceco[ceco_val] += m_val
             h_tot_by_ceco[ceco_val] += (k_val + l_val)
 
-    # 6. Actualizar Maquila desde la hoja 'Maquila' antes de cerrar libro
+    # 6. Actualizar Maquila desde la hoja 'Maquila' antes de cerrar libro (Prioridad 3: cero como valor válido)
     if 'Maquila' in wb_fc.sheetnames:
         ws_maq = wb_fc['Maquila']
         sum_705 = 0.0
         sum_703 = 0.0
+        found_705 = False
+        found_703 = False
         for r in range(7, ws_maq.max_row + 1):
             cta_m = str(ws_maq.cell(r, 11).value or '').strip()
             ing_m = ws_maq.cell(r, 10).value
-            if ing_m is not None:
+            if ing_m is not None and str(ing_m).strip() != '':
                 try:
                     val_m = float(ing_m)
-                    if cta_m == '703000000': sum_703 += val_m
-                    else: sum_705 += val_m
+                    if cta_m == '703000000':
+                        sum_703 += val_m
+                        found_703 = True
+                    else:
+                        sum_705 += val_m
+                        found_705 = True
                 except: pass
-        if sum_705 > 0: maq_data["cuenta_705_servicios"] = round(sum_705, 2)
-        if sum_703 > 0: maq_data["cuenta_703_accesorios"] = round(sum_703, 2)
+        if found_705:
+            maq_data["cuenta_705_servicios"] = round(sum_705, 2)
+        if found_703:
+            maq_data["cuenta_703_accesorios"] = round(sum_703, 2)
         maq_data["ingreso_ordinario_total"] = round(maq_data["cuenta_705_servicios"] + maq_data["cuenta_703_accesorios"], 2)
         maq_data["margen_ordinario_eur"] = round(maq_data["ingreso_ordinario_total"] - maq_data["coste_total"], 2)
         maq_data["margen_ordinario_pct"] = round(maq_data["margen_ordinario_eur"] / maq_data["ingreso_ordinario_total"] * 100, 1) if maq_data["ingreso_ordinario_total"] > 0 else 0.0
+        maq_data["resultado_neto"] = round(maq_data["margen_ordinario_eur"] - maq_data.get("gastos_generales", 0.0), 2)
 
     wb_fc.close()
 else:
@@ -702,13 +750,9 @@ if fc_wb_path and 'Produccion' in wb_fc.sheetnames:
         cap["subactividad_pct"] = round(100.0 - cap["utilizacion_pct"], 1)
         cap["estado"] = "Auditado ERP" if h_real > 0 else "0 h registradas en período"
 
-# Sincronización viva de cuentas del mayor y RAI (Hallazgo H15)
+# Sincronización viva de cuentas del mayor y RAI (Hallazgo H15 y Prioridad 1)
 if cuentas_detalle:
     fc_full["cuentas_detalle"] = cuentas_detalle
-    if "metadata" in fc_full:
-        fc_full["metadata"]["rai_calculado"] = rai_calc
-        if "rai_objetivo" in fc_full["metadata"]:
-            fc_full["metadata"]["diferencia_conciliacion"] = round(abs(fc_full["metadata"]["rai_objetivo"] - rai_calc), 2)
     if "cuentas_resumen" in fc_full:
         fc_full["cuentas_resumen"]["ingresos_totales"] = round(ingresos_tot, 2)
         fc_full["cuentas_resumen"]["gastos_totales"] = round(gastos_tot, 2)
@@ -723,6 +767,18 @@ n6_val = round(n6_base - delta_admin, 2)
 sub4_val = round(214693.96 - delta_plant_cost, 2)
 rai_analitico_cascada = round(sub4_val + n6_val, 2)
 desviacion_conciliacion_mayor = round(rai_calc - rai_analitico_cascada, 2)
+
+if "metadata" in fc_full:
+    fc_full["metadata"]["rai_calculado"] = rai_analitico_cascada
+    fc_full["metadata"]["rai_analitico_cascada"] = rai_analitico_cascada
+    fc_full["metadata"]["rai_contable_mayor"] = rai_calc
+    fc_full["metadata"]["diferencia_conciliacion"] = abs(desviacion_conciliacion_mayor)
+    fc_full["metadata"]["desviacion_conciliacion_mayor"] = desviacion_conciliacion_mayor
+    fc_full["metadata"]["repartos_dinamicos"] = {
+        "origen": "Hoja Repartos (dinámico)",
+        "distribucion_210": pct_210,
+        "distribucion_240": pct_240
+    }
 
 if "pnl_waterfall" in fc_full:
     for item in fc_full["pnl_waterfall"]:

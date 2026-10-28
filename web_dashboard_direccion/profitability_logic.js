@@ -2052,6 +2052,11 @@ function renderProfitFullCostView() {
   const raiCalculado = (meta && typeof meta.rai_calculado === 'number') ? meta.rai_calculado : 111933.69;
   const diffConciliacion = (meta && typeof meta.diferencia_conciliacion === 'number') ? meta.diferencia_conciliacion : 0;
   const waterfall = fc.pnl_waterfall || [];
+  const ingWaterfall = waterfall.find(x => x.nivel === 1 || x.tipo === 'ingreso');
+  const totalIngresos = (ingWaterfall && typeof ingWaterfall.importe === 'number') ? ingWaterfall.importe : 505002.49;
+  const pctRaiS_Ventas = (totalIngresos > 0 && typeof raiCalculado === 'number' && !isNaN(raiCalculado))
+    ? (raiCalculado / totalIngresos * 100).toFixed(1).replace('.', ',') + '%'
+    : '22,2%';
   const sub3Item = waterfall.find(x => x.nivel === 'SUB3');
   const sub3Margin = sub3Item ? sub3Item.importe : 278255.41;
   const caps = fc.capacidades || [];
@@ -2139,7 +2144,7 @@ function renderProfitFullCostView() {
         <div class="kpi-card accent-emerald">
           <div class="kpi-header">
             <span class="kpi-title">EBIT / RAI OPERATIVO</span>
-            <span class="tab-badge badge-success">22,2% S/Ventas</span>
+            <span class="tab-badge badge-success">${pctRaiS_Ventas} S/Ventas</span>
           </div>
           <div class="kpi-value" style="color:#34d399">${fmtEur(raiCalculado)}</div>
           <div class="kpi-detail">

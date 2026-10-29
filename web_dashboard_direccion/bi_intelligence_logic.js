@@ -2838,6 +2838,9 @@ function openClient360Modal(clientName) {
     modal.classList.add('active');
     modal.style.opacity = '1';
     modal.style.visibility = 'visible';
+    if (typeof applyGlobalDomTranslations === 'function') {
+      applyGlobalDomTranslations(modal);
+    }
   }
 }
 
@@ -2860,6 +2863,9 @@ function switchClientModalTab(tabKey) {
   currentClient360ModalTab = tabKey;
   updateClientModalTabButtons();
   renderClientModalBody();
+  if (typeof applyGlobalDomTranslations === 'function') {
+    applyGlobalDomTranslations(document.getElementById('client360ModalOverlay'));
+  }
 }
 
 function updateClientModalTabButtons() {

@@ -18,8 +18,18 @@ def norm(s):
     return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn').upper().strip()
 
 print("Cargando y procesando datos...")
+os.makedirs('scratch', exist_ok=True)
 
-def get_latest_pedidos_file():
+def get_september_pedidos_file():
+    for cand in [
+        os.path.join('Pedidos', 'Pedidos 01.10 comerciales.xlsx'),
+        os.path.join('Pedidos', 'Pedidos 30.09 comerciales.xlsx'),
+        'Pedidos 01.10 comerciales.xlsx',
+        'Pedidos 30.09 comerciales.xlsx',
+        'Pedidos 23.09 budget.xlsx'
+    ]:
+        if os.path.exists(cand):
+            return cand
     candidates = [
         f for f in os.listdir('.')
         if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
@@ -29,38 +39,28 @@ def get_latest_pedidos_file():
             os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
             if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
         ]
-    if not candidates:
-        return 'Pedidos 23.09 budget.xlsx'
-    def sort_key(f):
-        base_f = os.path.basename(f)
-        m = re.search(r'(\d{1,2})\.(\d{1,2})', base_f)
-        if m:
-            return (int(m.group(2)), int(m.group(1)), os.path.getmtime(f))
-        return (0, 0, os.path.getmtime(f))
-    candidates.sort(key=sort_key, reverse=True)
-    return candidates[0]
+    return candidates[0] if candidates else 'Pedidos 23.09 budget.xlsx'
 
 def safe_copy(src, dst):
+    os.makedirs(os.path.dirname(dst) or '.', exist_ok=True)
     try:
         shutil.copy2(src, dst)
     except Exception:
         import subprocess
         subprocess.run(['powershell', '-Command', f'Copy-Item -LiteralPath "{src}" -Destination "{dst}" -Force'], check=True)
 
-pedidos_file = get_latest_pedidos_file()
-print(f"Excel Dashboard usando pedidos: {pedidos_file}")
+pedidos_file = get_september_pedidos_file()
+print(f"Excel Dashboard Septiembre usando pedidos: {pedidos_file}")
 temp_pedidos = os.path.join('scratch', 'temp_pedidos_input.xlsx')
 safe_copy(pedidos_file, temp_pedidos)
 df_ped = pd.read_excel(temp_pedidos)
+if 'FechaPedido' in df_ped.columns and df_ped['FechaPedido'].notna().any():
+    df_ped['_dt'] = pd.to_datetime(df_ped['FechaPedido'], errors='coerce')
+    if (df_ped['_dt'].dt.month == 9).any():
+        df_ped = df_ped[df_ped['_dt'].dt.month == 9].copy()
+    df_ped.drop(columns=['_dt'], inplace=True)
 
-m_fc = re.search(r'(\d{1,2})\.(\d{1,2})', pedidos_file)
-if m_fc:
-    fecha_corte = f"{m_fc.group(1).zfill(2)}/{m_fc.group(2).zfill(2)}/2026"
-elif 'FechaPedido' in df_ped.columns and df_ped['FechaPedido'].notna().any():
-    max_dt = pd.to_datetime(df_ped['FechaPedido']).max()
-    fecha_corte = max_dt.strftime('%d/%m/%Y')
-else:
-    fecha_corte = datetime.now().strftime('%d/%m/%Y')
+fecha_corte = "30/09/2026"
 
 def map_client_name(c):
     if not isinstance(c, str): return c
@@ -76,33 +76,14 @@ df_ped['SKU_CLEAN'] = df_ped['CodigoArticulo'].astype(str).str.strip().str.upper
 # Excluir Sustainable Agro Solutions
 df_ped = df_ped[~df_ped['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
 
-# 2. Cargar Budget de forma segura
-sin_aplanar_path = os.path.join('antiguos', 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx')
-if os.path.exists(sin_aplanar_path):
-    src_budget = sin_aplanar_path
-elif os.path.exists('Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx'):
-    src_budget = 'Presupuesto_Ventas_2027_Original_Sin_Aplanar.xlsx'
-elif os.path.exists('Presupuesto_Ventas_2027_Definitivo.xlsx'):
+# 2. Cargar Budget oficial de Septiembre (Presupuesto_Ventas_2027_Definitivo.xlsx: 172.503,07 u)
+if os.path.exists('Presupuesto_Ventas_2027_Definitivo.xlsx'):
     src_budget = 'Presupuesto_Ventas_2027_Definitivo.xlsx'
 else:
     src_budget = 'Presupuesto_Ventas_2027.xlsx'
-os.makedirs('scratch', exist_ok=True)
 temp_budget = os.path.join('scratch', 'temp_budget_input.xlsx')
 safe_copy(src_budget, temp_budget)
 df_bud = pd.read_excel(temp_budget, sheet_name='Previsión Matriz Horizontal')
-df_bud = df_bud[df_bud['Comercial'].notna() & (~df_bud['Comercial'].astype(str).str.contains('TOTAL', case=False))].copy()
-
-FACTOR = 0.9479961392983893
-INV_FACTOR = 1.0 / FACTOR
-for idx, row in df_bud.iterrows():
-    com = str(row['Comercial']).strip()
-    if 'garc' not in norm(com).lower():
-        v = row['Sep-26 (u)']
-        if pd.notna(v) and v > 0 and abs(v - round(v)) > 0.04:
-            restored = round(v * INV_FACTOR, 2)
-            if abs(restored - round(restored)) < 0.05:
-                restored = float(round(restored))
-            df_bud.at[idx, 'Sep-26 (u)'] = restored
 df_bud = df_bud[df_bud['Comercial'].notna() & (~df_bud['Comercial'].astype(str).str.contains('TOTAL', case=False))].copy()
 df_bud['Cliente'] = df_bud['Cliente'].apply(map_client_name)
 df_bud['CLIENTE_NORM'] = df_bud['Cliente'].apply(norm)

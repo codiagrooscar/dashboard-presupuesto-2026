@@ -1863,8 +1863,8 @@ function renderSnapshotsHistorySection() {
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
                 Mejora 7: Cierre de Períodos y Snapshots Históricos Inmutables
               </h3>
-              <span class="tab-badge" style="background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.4)">
-                Gobernanza Contable
+              <span class="tab-badge" style="background:rgba(234,179,8,0.2); color:#fbbf24; border:1px solid rgba(234,179,8,0.4)">
+                ⚠️ Demostración (Snapshots en Desarrollo)
               </span>
             </div>
             <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px">
@@ -2009,7 +2009,7 @@ function runSnapshotDiff() {
     const missingName = (raiBase === null ? (baseObj.version || baseId) : '') + (raiComp === null ? (' ' + (compObj.version || compId)) : '');
     el.innerHTML = `
       <div style="padding:0.85rem; color:#fbbf24; background:rgba(234,179,8,0.15); border:1px solid #eab308; border-radius:6px; font-size:0.85rem;">
-        ℹ️ <strong>RAI no disponible:</strong> La versión <em>${missingName.trim()}</em> corresponde a un período provisional en curso y no dispone de cuenta de pérdidas y ganancias definitiva para el cálculo del diferencial de RAI.
+        ⚠️ <strong>Sin datos (RAI no disponible):</strong> La versión <em>${missingName.trim()}</em> corresponde a un período provisional en curso y no dispone de cuenta de pérdidas y ganancias cerrada para calcular el diferencial de RAI.
       </div>
     `;
     return;

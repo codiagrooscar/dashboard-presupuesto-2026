@@ -45,19 +45,32 @@ function renderCockpitInicioSection() {
     : 55.1;
 
   const meta = (fc && fc.metadata) ? fc.metadata : {};
+  const hasFcIncidents = !!(meta && Array.isArray(meta.incidencias_datos) && meta.incidencias_datos.length > 0);
+  const hasFcModels = !!(fc && (fc.modelos_analiticos || (meta && meta.modelos_analiticos)));
+  const isFcValid = !!(fc && hasFcModels && !hasFcIncidents);
+
   // RAI contable oficial del Libro Mayor (Cierre)
   const raiContableMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number')
     ? fc.cuentas_resumen.rai_neto
     : ((meta && typeof meta.rai_contable_mayor === 'number') ? meta.rai_contable_mayor : 111933.69);
 
   // RAI analítico calculado en la cascada PnL Full Costing
-  const raiAnalitico = (meta && typeof meta.rai_analitico_cascada === 'number')
-    ? meta.rai_analitico_cascada
-    : ((fc && fc.totales_drilldown && typeof fc.totales_drilldown.rai_neto === 'number') ? fc.totales_drilldown.rai_neto : raiContableMayor);
+  let raiAnalitico = raiContableMayor;
+  if (meta && typeof meta.rai_calculado === 'number' && Math.abs(meta.rai_calculado - raiContableMayor) > 0.005) {
+    raiAnalitico = meta.rai_calculado;
+  } else if (meta && typeof meta.rai_analitico_cascada === 'number') {
+    raiAnalitico = meta.rai_analitico_cascada;
+  } else if (meta && typeof meta.rai_calculado === 'number') {
+    raiAnalitico = meta.rai_calculado;
+  } else if (fc && fc.totales_drilldown && typeof fc.totales_drilldown.rai_neto === 'number') {
+    raiAnalitico = fc.totales_drilldown.rai_neto;
+  }
 
-  const diffConciliacion = (meta && typeof meta.diferencia_conciliacion === 'number')
-    ? meta.diferencia_conciliacion
-    : Math.abs(raiContableMayor - raiAnalitico);
+  const diffConciliacion = Math.max(
+    Math.abs(raiContableMayor - raiAnalitico),
+    (meta && typeof meta.diferencia_conciliacion === 'number') ? Math.abs(meta.diferencia_conciliacion) : 0,
+    (meta && typeof meta.desviacion_conciliacion_mayor === 'number') ? Math.abs(meta.desviacion_conciliacion_mayor) : 0
+  );
 
   const ingWaterfall = (fc && fc.pnl_waterfall && Array.isArray(fc.pnl_waterfall)) 
     ? fc.pnl_waterfall.find(x => x.nivel === 1 || x.tipo === 'ingreso')
@@ -155,22 +168,26 @@ function renderCockpitInicioSection() {
           </div>
 
           <!-- 3. RAI CONTABLE & ANALÍTICO -->
-          <div class="kpi-card" onclick="switchTab('rentabilidad_fullcost')" style="cursor:pointer; transition:transform 0.2s; border-color:${diffConciliacion <= 0.05 ? 'rgba(56,189,248,0.4)' : 'rgba(239,68,68,0.6)'}" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
+          <div class="kpi-card" onclick="switchTab('rentabilidad_fullcost')" style="cursor:pointer; transition:transform 0.2s; border-color:${(!isFcValid || diffConciliacion > 0.05) ? 'rgba(239,68,68,0.6)' : 'rgba(56,189,248,0.4)'}" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
             <div class="kpi-header">
-              <span class="kpi-title">3. RAI Contable Oficial (Cierre)</span>
+              <span class="kpi-title">3. RAI Contable vs Analítico (Sep-26)</span>
               <span class="kpi-icon">💎</span>
             </div>
-            <div class="kpi-value" style="color:#38bdf8">${fmtEur(raiContableMayor)}</div>
+            <div class="kpi-value" style="color:${!isFcValid ? '#f87171' : '#38bdf8'}">${!isFcValid ? 'Sin datos' : fmtEur(raiContableMayor)}</div>
             <div class="kpi-subtitle">
-              <span style="color:#38bdf8; font-weight:700">${raiPctFormatted}</span> s/ventas netas facturadas (614,4k €)
+              ${!isFcValid
+                ? '<span style="color:#f87171; font-weight:700">Sin datos (Incidencia en fuentes)</span>'
+                : '<span style="color:#38bdf8; font-weight:700">' + raiPctFormatted + '</span> s/ventas netas (614,4k €) · <span style="color:#fbbf24">Pendiente de conciliación</span>'}
             </div>
             <div style="font-size:0.73rem; color:#94a3b8; margin-top:0.25rem;">
-              ${diffConciliacion <= 0.05
-                ? 'RAI Analítico: <strong>' + fmtEur(raiAnalitico) + '</strong> · <span style=\"color:#34d399; font-weight:700\">Cuadrado (0,00 €)</span>'
-                : 'RAI Analítico: <strong>' + fmtEur(raiAnalitico) + '</strong> · <span style=\"color:#f87171; font-weight:700\">Desviación: ' + fmtEur(diffConciliacion) + '</span>'}
+              ${!isFcValid
+                ? 'Faltan datos requeridos en el modelo analítico'
+                : (diffConciliacion <= 0.05
+                  ? 'RAI Analítico: <strong>' + fmtEur(raiAnalitico) + '</strong> · <span style=\"color:#34d399; font-weight:700\">Comprobado (Dif. 0,00 €)</span>'
+                  : 'RAI Analítico: <strong>' + fmtEur(raiAnalitico) + '</strong> · <span style=\"color:#f87171; font-weight:700\">Desviación: ' + fmtEur(diffConciliacion) + '</span>')}
             </div>
             <div class="progress-bar-container" style="margin-top:0.4rem;">
-              <div class="progress-bar-fill" style="width:${Math.min(100, Math.max(0, raiPctNum))}%; background:${diffConciliacion <= 0.05 ? 'linear-gradient(90deg, #38bdf8, #0284c7)' : 'linear-gradient(90deg, #ef4444, #b91c1c)'}"></div>
+              <div class="progress-bar-fill" style="width:${Math.min(100, Math.max(0, raiPctNum))}%; background:${(isFcValid && diffConciliacion <= 0.05) ? 'linear-gradient(90deg, #38bdf8, #0284c7)' : 'linear-gradient(90deg, #ef4444, #b91c1c)'}"></div>
             </div>
           </div>
 

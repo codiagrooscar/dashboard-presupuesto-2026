@@ -4,6 +4,32 @@ import subprocess
 import openpyxl
 from collections import defaultdict
 
+
+def round_conserving_sum(items, field, target_total, decimals=2):
+    """
+    Política explícita de redondeo por Mayor Resto (Largest Remainder Method):
+    conserva exactamente la suma `target_total` entre los detalles redondeados.
+    """
+    if not items:
+        return
+    factor = 10 ** decimals
+    target_cents = int(round(target_total * factor))
+    exact_vals = [float(item.get(field, 0.0)) * factor for item in items]
+    floored = [int(x // 1) for x in exact_vals]
+    remainders = [exact_vals[i] - floored[i] for i in range(len(items))]
+    diff = target_cents - sum(floored)
+    if diff > 0:
+        order = sorted(range(len(items)), key=lambda i: remainders[i], reverse=True)
+        for idx in order[:diff]:
+            floored[idx] += 1
+    elif diff < 0:
+        order = sorted(range(len(items)), key=lambda i: remainders[i])
+        for idx in order[:abs(diff)]:
+            floored[idx] -= 1
+    for i, item in enumerate(items):
+        item[field] = round(floored[i] / factor, decimals)
+
+
 def build_data():
     print("=== Procesando fichero de seguimiento de Cierre 2026 (UNIDADES & EUROS) ===")
 
@@ -158,12 +184,12 @@ def build_data():
             "pais": pais,
             "cliente": cl_raw,
             "clasificacion": clasif,
-            "ventas_2025_tot": round(v25_u_tot, 2),
-            "ventas_2025_sep": round(v25_u_sep, 2),
-            "ventas_2025_oct": round(v25_u_oct, 2),
-            "ventas_2026_sep": round(v26_u_sep, 2),
-            "estimacion_2026": round(est26_u, 2),
-            "pendiente_oct_dic": round(pend_u, 2),
+            "ventas_2025_tot": v25_u_tot,
+            "ventas_2025_sep": v25_u_sep,
+            "ventas_2025_oct": v25_u_oct,
+            "ventas_2026_sep": v26_u_sep,
+            "estimacion_2026": est26_u,
+            "pendiente_oct_dic": pend_u,
             "pct_vendido": round(pct_vend_u, 1) if pct_vend_u is not None else None,
             "crec_real_sep_pct": round(crec_real_sep_u, 1) if crec_real_sep_u is not None else None,
             "crec_nec_oct_pct": round(crec_nec_oct_u, 1) if crec_nec_oct_u is not None else None,
@@ -184,7 +210,7 @@ def build_data():
         v25_eur_oct = float(ws_mc.cell(r, 7).value or 0)
         v26_eur_sep = float(ws_mc.cell(r, 8).value or 0)
         est26_eur = float(ws_mc.cell(r, 9).value or 0)
-        pend_eur = float(ws_mc.cell(r, 12).value or (est26_eur - v26_eur_sep))
+        pend_eur = est26_eur - v26_eur_sep
 
         pct_raw = ws_mc.cell(r, 14).value
         if pct_raw not in [None, 'n/a', '']:
@@ -215,12 +241,12 @@ def build_data():
             "pais": pais,
             "cliente": cl_raw,
             "clasificacion": clasif,
-            "ventas_2025_tot": round(v25_eur_tot, 2),
-            "ventas_2025_sep": round(v25_eur_sep, 2),
-            "ventas_2025_oct": round(v25_eur_oct, 2),
-            "ventas_2026_sep": round(v26_eur_sep, 2),
-            "estimacion_2026": round(est26_eur, 2),
-            "pendiente_oct_dic": round(pend_eur, 2),
+            "ventas_2025_tot": v25_eur_tot,
+            "ventas_2025_sep": v25_eur_sep,
+            "ventas_2025_oct": v25_eur_oct,
+            "ventas_2026_sep": v26_eur_sep,
+            "estimacion_2026": est26_eur,
+            "pendiente_oct_dic": pend_eur,
             "pct_vendido": round(pct_vend_eur, 1) if pct_vend_eur is not None else None,
             "crec_real_sep_pct": round(crec_real_sep_eur, 1) if crec_real_sep_eur is not None else None,
             "crec_nec_oct_pct": round(crec_nec_oct_eur, 1) if crec_nec_oct_eur is not None else None,
@@ -235,31 +261,48 @@ def build_data():
         by_com_eur[com]['v26_eur_sep'] += v26_eur_sep
         by_com_eur[com]['est26_eur'] += est26_eur
 
-    # 4. Totales y Comerciales para UNIDADES
+    # 4. Totales y Comerciales para UNIDADES (con política de redondeo por Mayor Resto)
     comerciales_u = []
-    tot_v25_u = sum(d['v25_u_tot'] for d in by_com_u.values())
-    tot_v25_sep_u = sum(d['v25_u_sep'] for d in by_com_u.values())
-    tot_v25_oct_u = sum(d['v25_u_oct'] for d in by_com_u.values())
-    tot_v26_sep_u = sum(d['v26_u_sep'] for d in by_com_u.values())
-    tot_est26_u = sum(d['est26_u'] for d in by_com_u.values())
-    tot_pend_u = tot_est26_u - tot_v26_sep_u
+    tot_v25_u = round(sum(d['v25_u_tot'] for d in by_com_u.values()), 2)
+    tot_v25_sep_u = round(sum(d['v25_u_sep'] for d in by_com_u.values()), 2)
+    tot_v25_oct_u = round(sum(d['v25_u_oct'] for d in by_com_u.values()), 2)
+    tot_v26_sep_u = round(sum(d['v26_u_sep'] for d in by_com_u.values()), 2)
+    tot_est26_u = round(sum(d['est26_u'] for d in by_com_u.values()), 2)
+    tot_pend_u = round(tot_est26_u - tot_v26_sep_u, 2)
     tot_pct_vend_u = (tot_v26_sep_u / tot_est26_u * 100.0) if tot_est26_u > 0 else 0.0
     tot_crec_oct_u = ((tot_pend_u / tot_v25_oct_u) - 1.0) * 100.0 if tot_v25_oct_u > 0 else 0.0
 
-    for com, d in sorted(by_com_u.items()):
-        p_u = d['est26_u'] - d['v26_u_sep']
-        pct_u = (d['v26_u_sep'] / d['est26_u'] * 100.0) if d['est26_u'] > 0 else None
-        c_sep_u = ((d['v26_u_sep'] / d['v25_u_sep']) - 1.0) * 100.0 if d['v25_u_sep'] > 0 else None
-        c_oct_u = ((p_u / d['v25_u_oct']) - 1.0) * 100.0 if d['v25_u_oct'] > 0 else None
+    for k_f, tgt_v in [
+        ("ventas_2025_tot", tot_v25_u),
+        ("ventas_2025_sep", tot_v25_sep_u),
+        ("ventas_2025_oct", tot_v25_oct_u),
+        ("ventas_2026_sep", tot_v26_sep_u),
+        ("estimacion_2026", tot_est26_u),
+    ]:
+        round_conserving_sum(clientes_u, k_f, tgt_v, 2)
+    for c_item in clientes_u:
+        c_item["pendiente_oct_dic"] = round(c_item["estimacion_2026"] - c_item["ventas_2026_sep"], 2)
+
+    for com in sorted(by_com_u.keys()):
+        c_rows = [c for c in clientes_u if c["comercial"] == com]
+        v25_t = round(sum(c["ventas_2025_tot"] for c in c_rows), 2)
+        v25_s = round(sum(c["ventas_2025_sep"] for c in c_rows), 2)
+        v25_o = round(sum(c["ventas_2025_oct"] for c in c_rows), 2)
+        v26_s = round(sum(c["ventas_2026_sep"] for c in c_rows), 2)
+        est_26 = round(sum(c["estimacion_2026"] for c in c_rows), 2)
+        p_u = round(est_26 - v26_s, 2)
+        pct_u = (v26_s / est_26 * 100.0) if est_26 > 0 else None
+        c_sep_u = ((v26_s / v25_s) - 1.0) * 100.0 if v25_s > 0 else None
+        c_oct_u = ((p_u / v25_o) - 1.0) * 100.0 if v25_o > 0 else None
         comerciales_u.append({
             "comercial": com,
-            "num_clientes": d['num_clientes'],
-            "ventas_2025_tot": round(d['v25_u_tot'], 2),
-            "ventas_2025_sep": round(d['v25_u_sep'], 2),
-            "ventas_2025_oct": round(d['v25_u_oct'], 2),
-            "ventas_2026_sep": round(d['v26_u_sep'], 2),
-            "estimacion_2026": round(d['est26_u'], 2),
-            "pendiente_oct_dic": round(p_u, 2),
+            "num_clientes": len(c_rows),
+            "ventas_2025_tot": v25_t,
+            "ventas_2025_sep": v25_s,
+            "ventas_2025_oct": v25_o,
+            "ventas_2026_sep": v26_s,
+            "estimacion_2026": est_26,
+            "pendiente_oct_dic": p_u,
             "pct_vendido": round(pct_u, 1) if pct_u is not None else None,
             "crec_real_sep_pct": round(c_sep_u, 1) if c_sep_u is not None else None,
             "crec_nec_oct_pct": round(c_oct_u, 1) if c_oct_u is not None else None
@@ -273,12 +316,12 @@ def build_data():
             "fecha_corte": "30/09/2026",
             "totales": {
                 "num_clientes": len(clientes_u),
-                "ventas_2025_tot": round(tot_v25_u, 2),
-                "ventas_2025_sep": round(tot_v25_sep_u, 2),
-                "ventas_2025_oct": round(tot_v25_oct_u, 2),
-                "ventas_2026_sep": round(tot_v26_sep_u, 2),
-                "estimacion_2026": round(tot_est26_u, 2),
-                "pendiente_oct_dic": round(tot_pend_u, 2),
+                "ventas_2025_tot": tot_v25_u,
+                "ventas_2025_sep": tot_v25_sep_u,
+                "ventas_2025_oct": tot_v25_oct_u,
+                "ventas_2026_sep": tot_v26_sep_u,
+                "estimacion_2026": tot_est26_u,
+                "pendiente_oct_dic": tot_pend_u,
                 "pct_vendido": round(tot_pct_vend_u, 1),
                 "crec_nec_oct_pct": round(tot_crec_oct_u, 1)
             },
@@ -294,31 +337,48 @@ def build_data():
         "clientes": clientes_u
     }
 
-    # 5. Totales y Comerciales para EUROS
+    # 5. Totales y Comerciales para EUROS (con política de redondeo por Mayor Resto)
     comerciales_eur = []
-    tot_v25_eur = sum(d['v25_eur_tot'] for d in by_com_eur.values())
-    tot_v25_sep_eur = sum(d['v25_eur_sep'] for d in by_com_eur.values())
-    tot_v25_oct_eur = sum(d['v25_eur_oct'] for d in by_com_eur.values())
-    tot_v26_sep_eur = sum(d['v26_eur_sep'] for d in by_com_eur.values())
-    tot_est26_eur = sum(d['est26_eur'] for d in by_com_eur.values())
-    tot_pend_eur = tot_est26_eur - tot_v26_sep_eur
+    tot_v25_eur = round(sum(d['v25_eur_tot'] for d in by_com_eur.values()), 2)
+    tot_v25_sep_eur = round(sum(d['v25_eur_sep'] for d in by_com_eur.values()), 2)
+    tot_v25_oct_eur = round(sum(d['v25_eur_oct'] for d in by_com_eur.values()), 2)
+    tot_v26_sep_eur = round(sum(d['v26_eur_sep'] for d in by_com_eur.values()), 2)
+    tot_est26_eur = round(sum(d['est26_eur'] for d in by_com_eur.values()), 2)
+    tot_pend_eur = round(tot_est26_eur - tot_v26_sep_eur, 2)
     tot_pct_vend_eur = (tot_v26_sep_eur / tot_est26_eur * 100.0) if tot_est26_eur > 0 else 0.0
     tot_crec_oct_eur = ((tot_pend_eur / tot_v25_oct_eur) - 1.0) * 100.0 if tot_v25_oct_eur > 0 else 0.0
 
-    for com, d in sorted(by_com_eur.items()):
-        p_eur = d['est26_eur'] - d['v26_eur_sep']
-        pct_eur = (d['v26_eur_sep'] / d['est26_eur'] * 100.0) if d['est26_eur'] > 0 else None
-        c_sep_eur = ((d['v26_eur_sep'] / d['v25_eur_sep']) - 1.0) * 100.0 if d['v25_eur_sep'] > 0 else None
-        c_oct_eur = ((p_eur / d['v25_eur_oct']) - 1.0) * 100.0 if d['v25_eur_oct'] > 0 else None
+    for k_f, tgt_v in [
+        ("ventas_2025_tot", tot_v25_eur),
+        ("ventas_2025_sep", tot_v25_sep_eur),
+        ("ventas_2025_oct", tot_v25_oct_eur),
+        ("ventas_2026_sep", tot_v26_sep_eur),
+        ("estimacion_2026", tot_est26_eur),
+    ]:
+        round_conserving_sum(clientes_eur, k_f, tgt_v, 2)
+    for c_item in clientes_eur:
+        c_item["pendiente_oct_dic"] = round(c_item["estimacion_2026"] - c_item["ventas_2026_sep"], 2)
+
+    for com in sorted(by_com_eur.keys()):
+        c_rows = [c for c in clientes_eur if c["comercial"] == com]
+        v25_t = round(sum(c["ventas_2025_tot"] for c in c_rows), 2)
+        v25_s = round(sum(c["ventas_2025_sep"] for c in c_rows), 2)
+        v25_o = round(sum(c["ventas_2025_oct"] for c in c_rows), 2)
+        v26_s = round(sum(c["ventas_2026_sep"] for c in c_rows), 2)
+        est_26 = round(sum(c["estimacion_2026"] for c in c_rows), 2)
+        p_eur = round(est_26 - v26_s, 2)
+        pct_eur = (v26_s / est_26 * 100.0) if est_26 > 0 else None
+        c_sep_eur = ((v26_s / v25_s) - 1.0) * 100.0 if v25_s > 0 else None
+        c_oct_eur = ((p_eur / v25_o) - 1.0) * 100.0 if v25_o > 0 else None
         comerciales_eur.append({
             "comercial": com,
-            "num_clientes": d['num_clientes'],
-            "ventas_2025_tot": round(d['v25_eur_tot'], 2),
-            "ventas_2025_sep": round(d['v25_eur_sep'], 2),
-            "ventas_2025_oct": round(d['v25_eur_oct'], 2),
-            "ventas_2026_sep": round(d['v26_eur_sep'], 2),
-            "estimacion_2026": round(d['est26_eur'], 2),
-            "pendiente_oct_dic": round(p_eur, 2),
+            "num_clientes": len(c_rows),
+            "ventas_2025_tot": v25_t,
+            "ventas_2025_sep": v25_s,
+            "ventas_2025_oct": v25_o,
+            "ventas_2026_sep": v26_s,
+            "estimacion_2026": est_26,
+            "pendiente_oct_dic": p_eur,
             "pct_vendido": round(pct_eur, 1) if pct_eur is not None else None,
             "crec_real_sep_pct": round(c_sep_eur, 1) if c_sep_eur is not None else None,
             "crec_nec_oct_pct": round(c_oct_eur, 1) if c_oct_eur is not None else None

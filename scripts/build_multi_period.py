@@ -726,8 +726,9 @@ def build_all():
     # Actualizar también módulo de planificación de producción (MRP)
     try:
         import subprocess, sys
+        proj_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         prod_script = os.path.join(os.path.dirname(__file__), 'build_production_data.py')
-        subprocess.run([sys.executable, prod_script], check=True)
+        subprocess.run([sys.executable, prod_script], check=True, cwd=proj_dir)
     except Exception as e:
         print("Aviso al regenerar datos de producción MRP:", e)
 

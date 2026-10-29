@@ -7187,8 +7187,10 @@
     function renderCurrentTab() {
       if (!appData) return;
       const bannerEl = document.getElementById('directorialWorkflowBannerContainer');
-      if (bannerEl && typeof renderWorkflowAuditBannerHtml === 'function') {
-        bannerEl.innerHTML = renderWorkflowAuditBannerHtml();
+      if (bannerEl) {
+        bannerEl.innerHTML = (window.showGuidedAuditBanner === true && typeof renderWorkflowAuditBannerHtml === 'function')
+          ? renderWorkflowAuditBannerHtml()
+          : '';
       }
       const container = document.getElementById('appContent');
       if (currentTab === 'inicio') {
@@ -7250,23 +7252,32 @@
     }
 
     function renderControlesTab(container) {
-      // MOTOR DE CONCILIACIÓN DINÁMICA (Hallazgo H19)
-      // Comprobación real entre Libro Mayor oficial y modelos analíticos de costes independientes
+      // MOTOR DE CONCILIACIÓN DINÁMICA Y PUENTES DE CIERRE (SEPTIEMBRE 2026)
       const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
       const meta = (fc && fc.metadata) ? fc.metadata : null;
-      
+
       const hasCDet = !!(fc && fc.cuentas_detalle && Object.keys(fc.cuentas_detalle).length > 0);
-      const hasModel = !!meta && typeof meta.rai_calculado === 'number' && hasCDet;
-      
+      const hasIncidents = !!(meta && Array.isArray(meta.incidencias_datos) && meta.incidencias_datos.length > 0);
+      const hasModel = !!meta && typeof meta.rai_calculado === 'number' && hasCDet && !hasIncidents;
+
       // RAI Mayor contable oficial (Libro Mayor)
-      const raiMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number') 
-        ? fc.cuentas_resumen.rai_neto 
+      const raiMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number')
+        ? fc.cuentas_resumen.rai_neto
         : ((meta && typeof meta.rai_contable_mayor === 'number') ? meta.rai_contable_mayor : NaN);
-        
-      // RAI Modelo Analítico Cascada: debe provenir del PnL Cascada analítico, no del Mayor contable
-      const raiModelo = (hasModel && typeof meta.rai_analitico_cascada === 'number') 
-        ? meta.rai_analitico_cascada 
-        : ((hasModel && typeof meta.rai_calculado === 'number') ? meta.rai_calculado : NaN);
+
+      // RAI Modelo Analítico Cascada: independiente del Mayor contable
+      let raiModelo = NaN;
+      if (hasModel) {
+        if (typeof meta.rai_analitico_cascada === 'number' && Math.abs(meta.rai_analitico_cascada - raiMayor) > 0.005) {
+          raiModelo = meta.rai_analitico_cascada;
+        } else if (typeof meta.rai_calculado === 'number' && Math.abs(meta.rai_calculado - raiMayor) > 0.005) {
+          raiModelo = meta.rai_calculado;
+        } else if (typeof meta.rai_analitico_cascada === 'number') {
+          raiModelo = meta.rai_analitico_cascada;
+        } else if (typeof meta.rai_calculado === 'number') {
+          raiModelo = meta.rai_calculado;
+        }
+      }
 
       const cDet = (fc && fc.cuentas_detalle) ? fc.cuentas_detalle : null;
       const getCtaSaldo = (cta) => {
@@ -7284,9 +7295,10 @@
       const val624_3_mayor = getCtaSaldo('624000003');
       const val622_mayor = (fc && typeof fc.mantenimiento_622_total === 'number') ? fc.mantenimiento_622_total : NaN;
 
-      // Modelos analíticos de costes independientes (Full Costing) recalculados desde sus fuentes
-      // SIN sustitución silenciosa por constantes fijas si el modelo no está disponible
-      const modAnalitico = (fc && fc.modelos_analiticos) ? fc.modelos_analiticos : ((meta && meta.modelos_analiticos) ? meta.modelos_analiticos : null);
+      // Modelos analíticos independientes recalculados desde las hojas operativas (sin constantes de reemplazo si ausentes)
+      const modAnalitico = (!hasIncidents && fc && fc.modelos_analiticos)
+        ? fc.modelos_analiticos
+        : ((!hasIncidents && meta && meta.modelos_analiticos) ? meta.modelos_analiticos : null);
       const modelo640 = (modAnalitico && typeof modAnalitico.personal_devengado === 'number') ? modAnalitico.personal_devengado : NaN;
       const modelo642 = (modAnalitico && typeof modAnalitico.seguridad_social === 'number') ? modAnalitico.seguridad_social : NaN;
       const modelo607 = (modAnalitico && typeof modAnalitico.ett_envasado === 'number') ? modAnalitico.ett_envasado : NaN;
@@ -7296,26 +7308,25 @@
       const modelo622 = (modAnalitico && typeof modAnalitico.mantenimiento_centros === 'number') ? modAnalitico.mantenimiento_centros : NaN;
 
       const ssDet = (modAnalitico && modAnalitico.seguridad_social_detalle) ? modAnalitico.seguridad_social_detalle : null;
-      const ssNota = ssDet 
-        ? `Nómina Personal: ${fmtEur(ssDet.nomina_personal_ett)} + Ajuste RNT: ${fmtEur(ssDet.ajuste_documentado_rnt)} · ${ssDet.estado}`
-        : 'Cuotas patronales conciliadas con soporte RLC/RNT';
+      const ssNota = ssDet
+        ? `Explícito Personal_ETT: ${fmtEur(ssDet.nomina_personal_ett)} + Cuota 33% ID 31/32: ${fmtEur(ssDet.ajuste_documentado_rnt)} · ${ssDet.estado}`
+        : 'Estimado: pendiente de RLC/RNT nominal';
 
       const auditItems = [
-        { concepto: 'Sueldos y Salarios (Cta 640000000)', mayor: val640_mayor, modelo: modelo640, nota: 'Personal fábrica + administración devengado en Sep-26' },
-        { concepto: 'Seguridad Social Empresa (Cta 642000000)', mayor: val642_mayor, modelo: modelo642, nota: ssNota },
-        { concepto: 'Personal ETT Envasado / Maquila Externa (Cta 607000000)', mayor: val607_mayor, modelo: modelo607, nota: 'Facturas ETT de refuerzo campaña envasado' },
-        { concepto: 'Transporte Nacional (Cta 624000001)', mayor: val624_1_mayor, modelo: modelo624_1, nota: 'Portes directos según facturas logística Sep' },
-        { concepto: 'Transporte Internacional (Cta 624000002)', mayor: val624_2_mayor, modelo: modelo624_2, nota: 'Fletes marítimos y terrestres exportación' },
-        { concepto: 'Transporte Canarias (Cta 624000003)', mayor: val624_3_mayor, modelo: modelo624_3, nota: 'Envíos insulares con DUA y cabotaje' },
-        { concepto: 'Mantenimiento y Reparaciones (Cuentas 622*)', mayor: val622_mayor, modelo: modelo622, nota: 'Intervenciones en reactores y líneas envasado (Suma mayor 622*: 13.546,07 €)' },
-        { concepto: 'Resultado Antes de Impuestos (RAI Sep-26)', mayor: raiMayor, modelo: raiModelo, nota: 'Cuadre final con P&L de Grupo Codiagro' }
+        { concepto: 'Sueldos y Salarios (Cta 640000000)', mayor: val640_mayor, modelo: modelo640, estadoBase: 'Estimado', nota: 'Personal_ETT filas 7..40 (prorrateo presupuestario pendiente de nómina individual)' },
+        { concepto: 'Seguridad Social Empresa (Cta 642000000)', mayor: val642_mayor, modelo: modelo642, estadoBase: 'Estimado', nota: ssNota },
+        { concepto: 'Personal ETT Envasado / Maquila (Cta 607000000)', mayor: val607_mayor, modelo: modelo607, estadoBase: 'Comprobado', nota: '4 facturas ETT (24.279,07 € actividad propia + 1.926,91 € maquila SAS = 37,5 h / 170 h Recurso 36)' },
+        { concepto: 'Transporte Nacional (Cta 624000001)', mayor: val624_1_mayor, modelo: modelo624_1, estadoBase: 'Pendiente de conciliación', nota: 'Mayor: 8.129,04 € vs Reporte logístico Mes=9: 5.943,90 € (Dif: 2.185,14 € en puente de transporte)' },
+        { concepto: 'Transporte Internacional (Cta 624000002)', mayor: val624_2_mayor, modelo: modelo624_2, estadoBase: 'Pendiente de conciliación', nota: 'Mayor: 8.078,83 € vs Reporte logístico Mes=9: 8.065,00 € (Dif: 13,83 €, EX-243 sin precio)' },
+        { concepto: 'Transporte Canarias (Cta 624000003)', mayor: val624_3_mayor, modelo: modelo624_3, estadoBase: 'Pendiente de conciliación', nota: 'Mayor: 10.256,54 € vs Reporte logístico Mes=9: 7.276,76 € (Dif: 2.979,78 €; Alb 834 Mes=8 = 2.657,25 €)' },
+        { concepto: 'Mantenimiento y Reparaciones (Cuentas 622*)', mayor: val622_mayor, modelo: modelo622, estadoBase: 'Comprobado', nota: 'Costes_activos 622* (8.849,84 €) + 4 cuentas 622* en Cuentas (4.696,23 €) = 13.546,07 €' },
+        { concepto: 'Resultado Antes de Impuestos (RAI Sep-26)', mayor: raiMayor, modelo: raiModelo, estadoBase: 'Comprobado', nota: 'Comparación independiente entre RAI Contable Mayor y RAI Analítico Cascada (sin partidas de cuadre)' }
       ];
 
-      // Criterio de Auditoría: cada control individual debe cumplirse sin compensación neta
       let allPassed = hasModel;
       let sumaMayor = 0;
       let sumaModelo = 0;
-      let hasMissingData = false;
+      let hasMissingData = hasIncidents;
 
       auditItems.forEach(item => {
         if (typeof item.mayor === 'number' && !isNaN(item.mayor)) {
@@ -7323,13 +7334,11 @@
         } else {
           hasMissingData = true;
         }
-        
         if (typeof item.modelo === 'number' && !isNaN(item.modelo)) {
           sumaModelo += item.modelo;
         } else {
           hasMissingData = true;
         }
-        
         if (typeof item.mayor !== 'number' || typeof item.modelo !== 'number' || isNaN(item.mayor) || isNaN(item.modelo)) {
           item.diff = NaN;
           item.isOk = false;
@@ -7349,38 +7358,53 @@
         return '<span style="color:#f87171; font-weight:700">Sin datos</span>';
       };
 
+      const pe = (fc && fc.puente_existencias) ? fc.puente_existencias : null;
+      const pt = (fc && fc.puente_transporte) ? fc.puente_transporte : null;
+      const tp = (fc && Array.isArray(fc.trazabilidad_parametros)) ? fc.trazabilidad_parametros : [];
+      const incList = (meta && Array.isArray(meta.incidencias_datos)) ? meta.incidencias_datos : [];
+
       container.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
           <div style="background:linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(15,23,42,0.95) 100%); border:1px solid rgba(16,185,129,0.4); border-radius:var(--radius-md); padding:1.35rem 1.75rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
               <div>
-                <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+                <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem; flex-wrap:wrap;">
                   <span style="font-size:1.4rem">🛡️</span>
                   <h3 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.25rem;">
-                    Auditoría Dinámica & Conciliación Contable en Vivo
+                    Control de Conciliación Contable y Puentes del Piloto (Septiembre 2026)
                   </h3>
                   <span class="tab-badge ${totalOk ? 'badge-success' : 'badge-danger'}">
-                    ${totalOk ? 'Cálculo Cuadrado en Tiempo Real' : (hasMissingData ? 'Sin datos de auditoría' : 'Descuadre Detectado')}
+                    ${totalOk ? 'Cálculo Cuadrado en Tiempo Real' : (hasMissingData ? 'Sin datos' : 'Descuadre Detectado')}
                   </span>
+                  <span class="tab-badge badge-warning">Cierre Contable: Pendiente de conciliación</span>
                 </div>
-                <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px;">
-                  Comprobación algorítmica viva entre los saldos del Balance de Comprobación (Libro Mayor) y los modelos analíticos de costes y rentabilidad. Si algún dato se altera, la diferencia se refleja inmediatamente en esta tabla.
+                <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:880px;">
+                  <strong>Estado de la Aplicación:</strong> ${hasMissingData ? '<span style="color:#f87171">Sin datos</span>' : '<span style="color:#34d399">Comprobado</span>'} (cálculos reproducibles, conservación de importes 0,00 €).
+                  <strong>Estado del Cierre Contable de Septiembre 2026:</strong> <span style="color:#fbbf24">Pendiente de conciliación</span> en corte de existencias (01/10 vs 14/10), facturas logísticas de transporte (subgrupo 624) y soporte nominal RLC/RNT.
                 </p>
               </div>
               <div style="background:rgba(15,23,42,0.85); padding:0.55rem 1.15rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
-                <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700">Diferencia Calculada en Vivo</div>
+                <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700">Diferencia Modelo vs Mayor</div>
                 <div style="font-size:1.5rem; font-weight:800; color:${totalOk ? '#34d399' : '#f87171'}">${hasMissingData ? '<span style="color:#f87171">Sin datos</span>' : fmtEur(totalDiff)}</div>
-                <div style="font-size:0.72rem; color:var(--muted)">${totalOk ? 'Tolerancia < 0,05 €' : (hasMissingData ? 'Faltan fuentes contables' : 'Requiere revisión contable')}</div>
+                <div style="font-size:0.72rem; color:var(--muted)">${totalOk ? 'Tolerancia < 0,05 € · Total Empresa' : (hasMissingData ? 'Faltan datos requeridos' : 'Descuadre activo señalado')}</div>
               </div>
             </div>
+            ${incList.length > 0 ? `
+              <div style="margin-top:0.85rem; padding:0.75rem 1rem; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:6px; color:#fca5a5; font-size:0.82rem;">
+                <strong>⚠️ Incidencias por ausencia de datos requeridos (${incList.length}):</strong>
+                <ul style="margin:0.35rem 0 0 1.2rem; padding:0;">
+                  ${incList.map(inc => `<li>${inc}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
           </div>
 
           <div class="table-card">
             <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center;">
               <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
-                Matriz de Cuentas Contables y Conciliación
+                1. Matriz de Cuentas Contables y Conciliación con el Modelo Analítico
               </h4>
-              <span style="font-size:0.8rem; color:var(--muted)">Corte oficial: Septiembre 2026</span>
+              <span style="font-size:0.8rem; color:var(--muted)">Período: Septiembre 2026 · Ámbito: Total Empresa</span>
             </div>
             <div class="table-container">
               <table>
@@ -7390,7 +7414,7 @@
                     <th style="text-align:right">Libro Mayor (€)</th>
                     <th style="text-align:right">Modelo Costes (€)</th>
                     <th style="text-align:right">Diferencia Real (€)</th>
-                    <th>Trazabilidad / Nota de Auditoría</th>
+                    <th>Trazabilidad / Soporte y Pendientes</th>
                     <th style="text-align:center">Estado</th>
                   </tr>
                 </thead>
@@ -7401,12 +7425,12 @@
                       <td style="text-align:right; font-family:monospace; font-weight:600">${renderVal(item.mayor)}</td>
                       <td style="text-align:right; font-family:monospace; font-weight:600; color:#38bdf8">${renderVal(item.modelo)}</td>
                       <td style="text-align:right; font-weight:800; font-family:monospace; color:${item.isOk ? '#34d399' : '#ef4444'}">
-                        ${isNaN(item.diff) ? '<span style="color:#f87171">—</span>' : (item.isOk ? '0,00 €' : fmtEur(item.diff))}
+                        ${isNaN(item.diff) ? '<span style="color:#f87171">Sin datos</span>' : (item.isOk ? '0,00 €' : fmtEur(item.diff))}
                       </td>
                       <td style="font-size:0.82rem; color:#94a3b8">${item.nota}</td>
                       <td style="text-align:center">
-                        <span class="tab-badge badge-${item.isOk ? 'success' : 'danger'}">
-                          ${isNaN(item.diff) ? 'Sin datos' : (item.isOk ? 'Conciliado (0,00 €)' : 'Descuadre ' + fmtEur(item.diff))}
+                        <span class="tab-badge badge-${item.isOk ? (item.estadoBase === 'Comprobado' ? 'success' : 'warning') : 'danger'}">
+                          ${isNaN(item.diff) ? 'Sin datos' : (item.isOk ? item.estadoBase + ' (0,00 €)' : 'Descuadre ' + fmtEur(item.diff))}
                         </span>
                       </td>
                     </tr>
@@ -7415,6 +7439,127 @@
               </table>
             </div>
           </div>
+
+          ${pe && pe.productos_711_712 ? `
+          <div class="table-card">
+            <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
+                  2. Puente de Existencias: Plantilla Inventarios (−24.062,80 €) vs Cuentas 711/712 (−109.366,49 €)
+                </h4>
+                <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">${pe.convencion_signos}</div>
+              </div>
+              <span class="tab-badge badge-warning">Pendiente de conciliación (Diferencia total: ${fmtEur(pe.productos_711_712.diferencia_total_eur)})</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Paso del Puente (Productos En Curso, Semiterminados y Terminados)</th>
+                    <th style="text-align:right">Importe (€)</th>
+                    <th>Fuente y Justificación Documentada</th>
+                    <th style="text-align:center">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${(pe.productos_711_712.pasos_puente || []).map(p => `
+                    <tr>
+                      <td style="font-weight:700; color:#fff">${p.orden}. ${p.concepto}</td>
+                      <td style="text-align:right; font-family:monospace; font-weight:700; color:${p.importe_eur < 0 ? '#f87171' : '#38bdf8'}">${fmtEur(p.importe_eur)}</td>
+                      <td style="font-size:0.8rem; color:#cbd5e1">${p.fuente}${p.documento_faltante ? `<br/><strong style="color:#fbbf24">Falta:</strong> ${p.documento_faltante}` : ''}</td>
+                      <td style="text-align:center"><span class="tab-badge badge-${p.estado === 'Comprobado' ? 'success' : 'warning'}">${p.estado}</span></td>
+                    </tr>
+                  `).join('')}
+                  <tr style="background:rgba(16,185,129,0.12); font-weight:800;">
+                    <td style="color:#fff">(=) Saldo Conjunto Cuentas 711000000 (−30.979,93 €) + 712000000 (−78.386,56 €) en PYG SEP.xlsx</td>
+                    <td style="text-align:right; font-family:monospace; color:#34d399">${fmtEur(pe.productos_711_712.saldo_contable_conjunto_eur)}</td>
+                    <td style="font-size:0.8rem; color:#cbd5e1">Cierre contable oficial (corte 14/10/2026). Materias primas Cta 611: +168.480,81 € (vs −31.938,49 € en plantilla); Envases Cta 612: −21.053,40 € (vs +6.167,86 € en plantilla).</td>
+                    <td style="text-align:center"><span class="tab-badge badge-success">Comprobado</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          ` : ''}
+
+          ${pt && pt.desglose_por_cuenta ? `
+          <div class="table-card">
+            <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
+                  3. Puente de Transporte: Reporte Logístico (${fmtEur(pt.reporte_logistico_imputado_eur)}) vs Subgrupo 624 (${fmtEur(pt.mayor_tres_cuentas_principales_eur)} / ${fmtEur(pt.mayor_total_subgrupo_624_eur)})
+                </h4>
+                <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">
+                  Conservación exacta: Clientes = Comerciales = Total (${fmtEur(pt.reporte_logistico_imputado_eur)}). Cliente sin venta neta en el mes visible: <strong>FITOXENT S.C.L.V. (350,90 €)</strong>.
+                </div>
+              </div>
+              <span class="tab-badge badge-warning">Pendiente de conciliación (Dif. 3 cuentas: ${fmtEur(pt.diferencia_tres_cuentas_eur)})</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Cuenta Contable</th>
+                    <th style="text-align:right">Reporte Logístico (Mes=9)</th>
+                    <th style="text-align:right">Mayor Contable PYG</th>
+                    <th style="text-align:right">Diferencia (€)</th>
+                    <th style="text-align:right">Albaranes Mes=8 en Sep</th>
+                    <th>Explicación y Soporte Pendiente</th>
+                    <th style="text-align:center">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${pt.desglose_por_cuenta.map(row => `
+                    <tr>
+                      <td style="font-weight:700; color:#fff">${row.cuenta} · ${row.descripcion}</td>
+                      <td style="text-align:right; font-family:monospace">${fmtEur(row.reporte_logistico_eur)}</td>
+                      <td style="text-align:right; font-family:monospace">${fmtEur(row.mayor_contable_eur)}</td>
+                      <td style="text-align:right; font-family:monospace; font-weight:700; color:#fbbf24">${fmtEur(row.diferencia_eur)}</td>
+                      <td style="text-align:right; font-family:monospace; color:#38bdf8">${fmtEur(row.corte_mes8_en_sep_eur)}</td>
+                      <td style="font-size:0.8rem; color:#cbd5e1">${row.explicacion}</td>
+                      <td style="text-align:center"><span class="tab-badge badge-${row.estado === 'Comprobado' ? 'success' : 'warning'}">${row.estado}</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          ` : ''}
+
+          ${tp.length > 0 ? `
+          <div class="table-card">
+            <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center;">
+              <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
+                4. Trazabilidad de Bases y Parámetros del Modelo Económico (Septiembre 2026)
+              </h4>
+              <span style="font-size:0.8rem; color:var(--muted)">Fuente controlable en plantilla Excel</span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Parámetro / Base del Modelo</th>
+                    <th>Origen en Plantilla / Fuente</th>
+                    <th>Período</th>
+                    <th style="text-align:center">Naturaleza / Estado</th>
+                    <th>Procedimiento de Actualización</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tp.map(p => `
+                    <tr>
+                      <td style="font-weight:700; color:#fff">${p.parametro}</td>
+                      <td style="font-size:0.82rem; color:#38bdf8">${p.origen}</td>
+                      <td style="font-size:0.82rem; color:#cbd5e1">${p.periodo}</td>
+                      <td style="text-align:center"><span class="tab-badge badge-${String(p.naturaleza).includes('Comprobado') ? 'success' : 'warning'}">${p.naturaleza}</span></td>
+                      <td style="font-size:0.8rem; color:#94a3b8">${p.como_actualizar}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          ` : ''}
         </div>
       `;
     }

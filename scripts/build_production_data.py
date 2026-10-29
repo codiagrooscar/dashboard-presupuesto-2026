@@ -575,11 +575,11 @@ output_data = {
     "detailed_skus": list(detailed_skus.values())
 }
 
-out_file = 'web_dashboard/production_planning_data.json'
+out_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'web_dashboard', 'production_planning_data.json')
 with open(out_file, 'w', encoding='utf-8') as f:
     json.dump(output_data, f, ensure_ascii=False, indent=2)
 
-out_js_file = 'web_dashboard/production_planning_data.js'
+out_js_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'web_dashboard', 'production_planning_data.js')
 with open(out_js_file, 'w', encoding='utf-8') as f:
     f.write("window.PRODUCTION_PLANNING_DATA = " + json.dumps(output_data, ensure_ascii=False) + ";\n")
 
@@ -594,7 +594,7 @@ def safe_copy(src, dst):
             print(f"Aviso copiando {src} a {dst}: {e}")
 
 # Keep web_dashboard_direccion in sync
-dir_dir = 'web_dashboard_direccion'
+dir_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'web_dashboard_direccion')
 if os.path.exists(dir_dir):
     safe_copy(out_file, os.path.join(dir_dir, 'production_planning_data.json'))
     safe_copy(out_js_file, os.path.join(dir_dir, 'production_planning_data.js'))

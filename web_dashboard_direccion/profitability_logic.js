@@ -2049,8 +2049,27 @@ function renderProfitFullCostView() {
   }
 
   const meta = fc.metadata || {};
-  const raiCalculado = (meta && typeof meta.rai_calculado === 'number') ? meta.rai_calculado : 111933.69;
-  const diffConciliacion = (meta && typeof meta.diferencia_conciliacion === 'number') ? meta.diferencia_conciliacion : 0;
+  const hasFcIncidents = !!(meta && Array.isArray(meta.incidencias_datos) && meta.incidencias_datos.length > 0);
+  const hasFcModels = !!(fc && (fc.modelos_analiticos || (meta && meta.modelos_analiticos)));
+  const isFcValid = !!(fc && hasFcModels && !hasFcIncidents);
+  const raiMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number')
+    ? fc.cuentas_resumen.rai_neto
+    : ((meta && typeof meta.rai_contable_mayor === 'number') ? meta.rai_contable_mayor : 111933.69);
+  let raiCalculado = raiMayor;
+  if (meta && typeof meta.rai_analitico_cascada === 'number' && Math.abs(meta.rai_analitico_cascada - raiMayor) > 0.005) {
+    raiCalculado = meta.rai_analitico_cascada;
+  } else if (meta && typeof meta.rai_calculado === 'number' && Math.abs(meta.rai_calculado - raiMayor) > 0.005) {
+    raiCalculado = meta.rai_calculado;
+  } else if (meta && typeof meta.rai_analitico_cascada === 'number') {
+    raiCalculado = meta.rai_analitico_cascada;
+  } else if (meta && typeof meta.rai_calculado === 'number') {
+    raiCalculado = meta.rai_calculado;
+  }
+  const diffConciliacion = Math.max(
+    Math.abs(raiMayor - raiCalculado),
+    (meta && typeof meta.diferencia_conciliacion === 'number') ? Math.abs(meta.diferencia_conciliacion) : 0,
+    (meta && typeof meta.desviacion_conciliacion_mayor === 'number') ? Math.abs(meta.desviacion_conciliacion_mayor) : 0
+  );
   const waterfall = fc.pnl_waterfall || [];
   const ingWaterfall = waterfall.find(x => x.nivel === 1 || x.tipo === 'ingreso');
   const totalIngresos = (ingWaterfall && typeof ingWaterfall.importe === 'number') ? ingWaterfall.importe : 505002.49;
@@ -2103,31 +2122,42 @@ function renderProfitFullCostView() {
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.35rem;">
-      <!-- CERTIFICACIÓN AUDITORÍA Y CONTROL INTERNO -->
-      <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%); border: 1px solid rgba(16, 185, 129, 0.45); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+      <!-- ESTADO DEL MODELO FULL COSTING Y DEL CIERRE DE SEPTIEMBRE -->
+      <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%); border: 1px solid ${(!isFcValid || diffConciliacion > 0.05) ? 'rgba(239,68,68,0.6)' : 'rgba(16, 185, 129, 0.45)'}; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
         <div>
-          <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.3rem">
+          <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.3rem; flex-wrap:wrap">
             <span style="font-size:1.3rem">🛡️</span>
             <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.2rem; color:#fff">
-              Modelo Full Costing Industrial (Septiembre 2026) — En Calibración de Detalle
+              Piloto Full Costing Industrial · Período: Septiembre 2026
             </h3>
-            <span class="tab-badge badge-warning" style="font-size:0.75rem; font-weight:800">⚙️ CALIBRANDO REPARTOS</span>
+            <span class="tab-badge ${!isFcValid ? 'badge-danger' : (diffConciliacion <= 0.05 ? 'badge-success' : 'badge-danger')}" style="font-size:0.75rem; font-weight:800">
+              ${!isFcValid ? 'Sin datos' : (diffConciliacion <= 0.05 ? 'Aplicación: Comprobado' : 'Descuadre Detectado')}
+            </span>
+            <span class="tab-badge badge-warning" style="font-size:0.75rem; font-weight:800">
+              Cierre Contable: Pendiente de conciliación
+            </span>
           </div>
           <p style="margin:0; font-size:0.84rem; color:var(--muted)">
-            ${diffConciliacion <= 0.05 
-              ? 'Suma global de cuentas cuadradas al céntimo con el RAI contable (<strong>' + fmtEur(raiCalculado) + ' | Diferencia = 0,00 €</strong>). Reconciliando el detalle analítico de nóminas mensuales, inventarios y maquila.'
-              : '<span style=\"color:#f87171; font-weight:700\">⚠️ Desviación contable de ' + fmtEur(diffConciliacion) + ' detectada entre el RAI Analítico (' + fmtEur(raiCalculado) + ') y el Libro Mayor</span>.'}
+            ${!isFcValid
+              ? '<span style=\"color:#f87171; font-weight:700\">⚠️ Sin datos: Se han detectado datos requeridos ausentes o no numéricos en las fuentes del modelo (' + ((meta.incidencias_datos || []).join('; ') || 'modelo analítico ausente') + ').</span>'
+              : (diffConciliacion <= 0.05 
+                ? 'RAI Analítico (' + fmtEur(raiCalculado) + ') calculado desde las hojas operativas y comparado independientemente con el RAI Contable del Mayor (' + fmtEur(raiMayor) + ', Dif = 0,00 €). Puentes de existencias (85.303,69 €) y transporte (5.178,75 €) documentados con sus soportes pendientes.'
+                : '<span style=\"color:#f87171; font-weight:700\">⚠️ Desviación contable de ' + fmtEur(diffConciliacion) + ' detectada entre el RAI Analítico (' + fmtEur(raiCalculado) + ') y el RAI Contable del Libro Mayor (' + fmtEur(raiMayor) + ')</span>.')}
           </p>
         </div>
 
         <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap">
           <div style="background:rgba(15,23,42,0.85); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
-            <div style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700">RAI AUDITADO</div>
-            <div style="font-size:1.15rem; font-weight:800; color:#34d399">${fmtEur(raiCalculado)}</div>
+            <div style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700">RAI CONTABLE MAYOR</div>
+            <div style="font-size:1.15rem; font-weight:800; color:#38bdf8">${!isFcValid ? 'Sin datos' : fmtEur(raiMayor)}</div>
           </div>
           <div style="background:rgba(15,23,42,0.85); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
-            <div style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700">DESVIACIÓN LIBRO MAYOR</div>
-            <div style="font-size:1.15rem; font-weight:800; color:${diffConciliacion <= 0.05 ? '#38bdf8' : '#f87171'}">${fmtEur(diffConciliacion)}</div>
+            <div style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700">RAI ANALÍTICO CASCADA</div>
+            <div style="font-size:1.15rem; font-weight:800; color:${!isFcValid ? '#f87171' : '#34d399'}">${!isFcValid ? 'Sin datos' : fmtEur(raiCalculado)}</div>
+          </div>
+          <div style="background:rgba(15,23,42,0.85); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
+            <div style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700">DIFERENCIA</div>
+            <div style="font-size:1.15rem; font-weight:800; color:${(!isFcValid || diffConciliacion > 0.05) ? '#f87171' : '#34d399'}">${!isFcValid ? 'Sin datos' : fmtEur(diffConciliacion)}</div>
           </div>
         </div>
       </div>
@@ -2249,7 +2279,7 @@ window.setFullcostProdSearch = function(val) {
   if (c) c.innerHTML = renderFullcostProductosSection();
 };
 
-window.exportFullcostClientesCsv = function() {
+function exportFullcostClientesCsv() {
   const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
   if (!fc || !fc.clientes) return;
   const search = fullcostClientSearch || '';
@@ -2280,9 +2310,10 @@ window.exportFullcostClientesCsv = function() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-};
+}
+window.exportFullcostClientesCsv = exportFullcostClientesCsv;
 
-window.exportFullcostProductosCsv = function() {
+function exportFullcostProductosCsv() {
   const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
   if (!fc || !fc.productos) return;
   const headers = ['SKU', 'Descripcion', 'Familia', 'Ruta_Industrial', 'Formato_Envasado', 'Unidades', 'Ventas_EUR', 'Coste_Materiales_EUR', 'Coste_Planta_EUR', 'Margen_Industrial_EUR', 'Margen_Industrial_PCT', 'Semaforo'];
@@ -2307,7 +2338,8 @@ window.exportFullcostProductosCsv = function() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-};
+}
+window.exportFullcostProductosCsv = exportFullcostProductosCsv;
 
 function renderFullcostClientesSection() {
   const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
@@ -2317,43 +2349,56 @@ function renderFullcostClientesSection() {
   const filter = fullcostClientFilter || 'ALL';
   
   const scope = (typeof currentScope !== 'undefined') ? currentScope : (typeof window !== 'undefined' ? window.currentScope : 'ALL');
-  let list = fc.clientes.filter(c => {
+  const scopeLabel = scope === 'NACIONAL' ? 'Mercado Nacional' : ((scope === 'EXPORT' || scope === 'EXPORTACION') ? 'Exportación' : 'Consolidado Global');
+  const scopeClientes = fc.clientes.filter(c => {
     const pUpper = (c.pais || '').toUpperCase().trim();
     const isEspana = pUpper === 'ESPAÑA' || pUpper === 'ESPANA';
     if (scope === 'NACIONAL' && !isEspana) return false;
     if ((scope === 'EXPORT' || scope === 'EXPORTACION') && isEspana) return false;
+    return true;
+  });
+
+  let list = scopeClientes.filter(c => {
     if (search && !c.cliente.toLowerCase().includes(search) && !c.comercial.toLowerCase().includes(search) && !c.pais.toLowerCase().includes(search)) return false;
     if (filter !== 'ALL' && c.semaforo !== filter) return false;
     return true;
   });
 
   const tot = fc.totales_drilldown || {};
-  const cVerde = fc.clientes.filter(c => c.semaforo === 'VERDE').length;
-  const cAmarillo = fc.clientes.filter(c => c.semaforo === 'AMARILLO').length;
-  const cRojo = fc.clientes.filter(c => c.semaforo === 'ROJO').length;
+  const ventasScope = scope === 'ALL' ? (tot.ventas || 0) : scopeClientes.reduce((s, c) => s + (c.ventas || 0), 0);
+  const margenIndScope = scope === 'ALL' ? (tot.margen_industrial_eur || 0) : scopeClientes.reduce((s, c) => s + (c.margen_industrial_eur || 0), 0);
+  const margenIndPctScope = ventasScope > 0 ? ((margenIndScope / ventasScope) * 100).toFixed(1) : '0.0';
+  const portesScope = scope === 'ALL' ? (tot.transporte_real || 0) : scopeClientes.reduce((s, c) => s + (c.transporte_real || 0), 0);
+  const margenContribScope = scope === 'ALL' ? (tot.margen_contribucion_eur || 0) : scopeClientes.reduce((s, c) => s + (c.margen_contribucion_eur || 0), 0);
+  const margenContribPctScope = ventasScope > 0 ? ((margenContribScope / ventasScope) * 100).toFixed(1) : '0.0';
+  const clientesConPorte = scopeClientes.filter(c => (c.transporte_real || 0) > 0).length;
+
+  const cVerde = scopeClientes.filter(c => c.semaforo === 'VERDE').length;
+  const cAmarillo = scopeClientes.filter(c => c.semaforo === 'AMARILLO').length;
+  const cRojo = scopeClientes.filter(c => c.semaforo === 'ROJO').length;
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.25rem;">
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
         <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:1rem; border-radius:var(--radius-md)">
-          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">Ventas Septiembre</div>
-          <div style="font-size:1.35rem; font-weight:800; color:#fff">${fmtEur(tot.ventas)}</div>
-          <div style="font-size:0.75rem; color:var(--muted)">41 clientes activos</div>
+          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">Ventas Sep-26 (${scopeLabel})</div>
+          <div style="font-size:1.35rem; font-weight:800; color:#fff">${fmtEur(ventasScope)}</div>
+          <div style="font-size:0.75rem; color:var(--muted)">${scopeClientes.length} clientes en ${scopeLabel}</div>
         </div>
         <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:1rem; border-radius:var(--radius-md)">
-          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">M. Industrial Planta</div>
-          <div style="font-size:1.35rem; font-weight:800; color:#38bdf8">${fmtEur(tot.margen_industrial_eur)}</div>
-          <div style="font-size:0.75rem; color:#38bdf8; font-weight:600">${tot.margen_industrial_pct}% s/ventas</div>
+          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">M. Industrial Planta (${scopeLabel})</div>
+          <div style="font-size:1.35rem; font-weight:800; color:#38bdf8">${fmtEur(margenIndScope)}</div>
+          <div style="font-size:0.75rem; color:#38bdf8; font-weight:600">${margenIndPctScope}% s/ventas</div>
         </div>
         <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:1rem; border-radius:var(--radius-md)">
-          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">Portes Reales Asignados</div>
-          <div style="font-size:1.35rem; font-weight:800; color:#f59e0b">${fmtEur(tot.transporte_real)}</div>
-          <div style="font-size:0.75rem; color:#f59e0b; font-weight:600">36 clientes con flete directo</div>
+          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">Portes Reales (${scopeLabel})</div>
+          <div style="font-size:1.35rem; font-weight:800; color:#f59e0b">${fmtEur(portesScope)}</div>
+          <div style="font-size:0.75rem; color:#f59e0b; font-weight:600">${clientesConPorte} clientes con flete directo</div>
         </div>
         <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:1rem; border-radius:var(--radius-md)">
-          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">Margen Contribución</div>
-          <div style="font-size:1.35rem; font-weight:800; color:#34d399">${fmtEur(tot.margen_contribucion_eur)}</div>
-          <div style="font-size:0.75rem; color:#34d399; font-weight:600">${tot.margen_contribucion_pct}% tras transporte</div>
+          <div style="font-size:0.75rem; color:var(--muted); font-weight:700; text-transform:uppercase">Margen Contribución (${scopeLabel})</div>
+          <div style="font-size:1.35rem; font-weight:800; color:#34d399">${fmtEur(margenContribScope)}</div>
+          <div style="font-size:0.75rem; color:#34d399; font-weight:600">${margenContribPctScope}% tras transporte</div>
         </div>
       </div>
 
@@ -2361,7 +2406,7 @@ function renderFullcostClientesSection() {
         <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap">
           <input id="fullcostClientSearchInput" type="text" placeholder="Buscar cliente, comercial o país..." value="${fullcostClientSearch}" oninput="setFullcostClientSearch(this.value)" style="background:rgba(15,23,42,0.9); border:1px solid var(--card-border); color:#fff; padding:0.45rem 0.85rem; border-radius:var(--radius-sm); font-size:0.85rem; width:260px;" />
           <div style="display:flex; gap:0.35rem;">
-            <button class="pill-btn ${filter === 'ALL' ? 'active' : ''}" onclick="setFullcostClientFilter('ALL')">Todos (${fc.clientes.length})</button>
+            <button class="pill-btn ${filter === 'ALL' ? 'active' : ''}" onclick="setFullcostClientFilter('ALL')">Todos (${scopeClientes.length})</button>
             <button class="pill-btn ${filter === 'VERDE' ? 'active' : ''}" onclick="setFullcostClientFilter('VERDE')" style="color:#34d399">Verde ≥40% (${cVerde})</button>
             <button class="pill-btn ${filter === 'AMARILLO' ? 'active' : ''}" onclick="setFullcostClientFilter('AMARILLO')" style="color:#fbbf24">Amarillo 25-40% (${cAmarillo})</button>
             <button class="pill-btn ${filter === 'ROJO' ? 'active' : ''}" onclick="setFullcostClientFilter('ROJO')" style="color:#f87171">Rojo <25% (${cRojo})</button>

@@ -133,6 +133,29 @@ def main():
     except Exception as e:
         fail(f"No se pudo abrir o validar Seguimiento_Presupuesto_Sep_2026.xlsx: {e}", last_date)
 
+    # 8. Escudo de seguridad: Verificar aislamiento estricto de web_dashboard (versión comerciales)
+    forbidden_commercial_files = [
+        "fullcost_data.json",
+        "fullcost_data.js",
+        "cockpit_inicio_logic.js",
+        "profitability_logic.js",
+        "bi_intelligence_logic.js",
+        "treasury_data.json",
+        "treasury_data.js",
+        "update_validation_status.json"
+    ]
+    for fn in forbidden_commercial_files:
+        p = os.path.join("web_dashboard", fn)
+        if os.path.exists(p):
+            fail(f"VIOLACIÓN DE SEGURIDAD: Archivo confidencial de Dirección General encontrado en web_dashboard ({fn}).")
+
+    commercial_index = os.path.join("web_dashboard", "index.html")
+    if os.path.exists(commercial_index):
+        with open(commercial_index, "r", encoding="utf-8") as f:
+            html_content = f.read()
+        if "Estimación de Ventas | Codiagro" not in html_content or "fullcost" in html_content.lower():
+            fail("VIOLACIÓN DE SEGURIDAD: web_dashboard/index.html contiene módulos o títulos de Dirección General en lugar de la versión comercial abierta.")
+
     status_payload = {
         "estado": "VALIDADO",
         "fecha_validacion": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),

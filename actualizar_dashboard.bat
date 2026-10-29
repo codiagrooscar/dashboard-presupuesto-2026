@@ -88,6 +88,19 @@ echo [FASE 3] Activando nueva version validada...
 del /q "web_dashboard\treasury_data.*" 2>nul
 del /q "web_dashboard\profitability_data.*" 2>nul
 del /q "web_dashboard\Prevision_Tesoreria_CashFlow_2026*.xlsx" 2>nul
+del /q "web_dashboard\fullcost_data.*" 2>nul
+del /q "web_dashboard\cockpit_inicio_logic.js" 2>nul
+del /q "web_dashboard\profitability_logic.js" 2>nul
+del /q "web_dashboard\bi_intelligence_logic.js" 2>nul
+del /q "web_dashboard\update_validation_status.json" 2>nul
+
+REM ESCUDO DE SEGURIDAD ESTRICTO: Verificar aislamiento absoluto de comerciales
+for %%F in (fullcost_data.json fullcost_data.js cockpit_inicio_logic.js profitability_logic.js bi_intelligence_logic.js treasury_data.json treasury_data.js update_validation_status.json) do (
+    if exist "web_dashboard\%%F" (
+        echo [ERROR CRITICO DE SEGURIDAD] Archivo confidencial detectado en web_dashboard: %%F
+        del /f /q "web_dashboard\%%F"
+    )
+)
 
 echo.
 echo ======================================================================

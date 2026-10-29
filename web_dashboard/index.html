@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Dirección General & Finanzas | Codiagro</title>
+  <title>Estimación de Ventas | Codiagro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -14,18 +14,11 @@
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
-  <script src="dashboard_data.js?v=20261027_1100"></script>
-  <script src="production_planning_data.js?v=20261027_1100"></script>
-  <script src="treasury_data.js?v=20261027_1100"></script>
-  <script src="profitability_data.js?v=20261027_1100"></script>
-  <script src="fullcost_data.js?v=20261028_1510"></script>
-  <script src="profitability_logic.js?v=20261028_1510"></script>
-  <script src="bi_intelligence_data.js?v=20261027_1100"></script>
-  <script src="cockpit_inicio_logic.js?v=20261028_1510"></script>
-  <script src="bi_intelligence_logic.js?v=20261027_1100"></script>
-  <link rel="stylesheet" href="marta_tracking.css?v=20261027_1420">
-  <script src="marta_tracking_data.js?v=20261027_1420"></script>
-  <script src="marta_tracking_logic.js?v=20261027_1420"></script>
+  <script src="dashboard_data.js?v=20261027_0745"></script>
+  <script src="production_planning_data.js?v=20261027_0745"></script>
+  <link rel="stylesheet" href="marta_tracking.css?v=20261027_1435">
+  <script src="marta_tracking_data.js?v=20261027_1435"></script>
+  <script src="marta_tracking_logic.js?v=20261027_1435"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -1353,70 +1346,6 @@
 
   
     /* ====================================================
-       ESTILOS DEL MÓDULO DE TESORERÍA (CASH FLOW)
-       ==================================================== */
-    .tab-btn-treasury {
-      border: 1px solid rgba(16, 185, 129, 0.4) !important;
-      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(30, 41, 59, 0.6) 100%) !important;
-    }
-    .tab-btn-treasury:hover {
-      border-color: rgba(16, 185, 129, 0.8) !important;
-      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
-    }
-    .tab-btn-treasury.active {
-      border-color: #10b981 !important;
-      background: linear-gradient(180deg, rgba(16, 185, 129, 0.25) 0%, rgba(30, 41, 59, 0.95) 100%) !important;
-      color: #34d399 !important;
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-    }
-
-    .cf-section-header {
-      background: #0f172a;
-      color: #ffffff;
-      font-weight: 800;
-      font-size: 0.82rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 0.6rem 0.8rem;
-      border-top: 1px solid #334155;
-      border-bottom: 1px solid #334155;
-    }
-    .cf-row-total {
-      background: rgba(30, 41, 59, 0.8) !important;
-      font-weight: 800;
-      color: #ffffff;
-      border-top: 1px solid #475569;
-      border-bottom: 2px solid #0f172a;
-    }
-    .cf-cell-real {
-      background: rgba(255, 255, 255, 0.02);
-    }
-    .cf-cell-forecast {
-      background: rgba(16, 185, 129, 0.06);
-      color: #34d399 !important;
-      font-weight: 700;
-    }
-    .cf-badge-real {
-      background: rgba(59, 130, 246, 0.2);
-      color: #93c5fd;
-      border: 1px solid rgba(59, 130, 246, 0.4);
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
-      font-size: 0.68rem;
-      font-weight: 700;
-    }
-    .cf-badge-forecast {
-      background: rgba(16, 185, 129, 0.2);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
-      font-size: 0.68rem;
-      font-weight: 700;
-    }
-
-  
-    /* ====================================================
        LAYOUT CON MENÚ LATERAL IZQUIERDO (SIDEBAR)
        ==================================================== */
     .app-layout {
@@ -1542,59 +1471,6 @@
       box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
     }
 
-    .nav-item-btn.nav-treasury.active {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.22) 0%, rgba(37, 99, 235, 0.32) 100%);
-      border-color: rgba(59, 130, 246, 0.6);
-      color: #93c5fd;
-      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.25);
-    }
-
-    .nav-item-btn.nav-profit.active {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.4) 100%);
-      border-color: rgba(16, 185, 129, 0.7);
-      color: #34d399;
-      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-    }
-
-    /* Subtabs Bar for Rentabilidad */
-    .profit-subtabs-bar {
-      display: flex;
-      gap: 0.5rem;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-md);
-      padding: 0.4rem;
-      overflow-x: auto;
-      margin-bottom: 1.5rem;
-      scrollbar-width: thin;
-    }
-    .profit-subtab-btn {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--muted);
-      font-family: inherit;
-      font-size: 0.82rem;
-      font-weight: 600;
-      padding: 0.5rem 0.95rem;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-    .profit-subtab-btn:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.05);
-    }
-    .profit-subtab-btn.active {
-      background: rgba(16, 185, 129, 0.2);
-      border-color: var(--accent);
-      color: #ffffff;
-      font-weight: 700;
-      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
-    }
 
     .nav-item-left {
       display: flex;
@@ -1732,63 +1608,7 @@
 </head>
 <body>
 
-  <!-- ESCUDO DE SEGURIDAD ESTRICTA: BLOQUEO INFRANQUEABLE EN CUALQUIER ENTORNO (LOCAL, WEB O FILTRACIÓN) -->
-  <div id="securityShieldOverlay" style="position: fixed; inset: 0; z-index: 99999999; background: #090d16; background-image: radial-gradient(at 15% 15%, rgba(16, 185, 129, 0.15) 0px, transparent 50%), radial-gradient(at 85% 85%, rgba(245, 158, 11, 0.1) 0px, transparent 50%), radial-gradient(at 50% 50%, rgba(30, 41, 59, 0.6) 0px, transparent 80%); display: flex; align-items: center; justify-content: center; padding: 1.5rem; font-family: 'Inter', sans-serif;">
-    <div style="width: 100%; max-width: 440px; background: rgba(17, 24, 39, 0.9); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.25rem; padding: 2.5rem 2.25rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); color: #f8fafc;">
-      
-      <div style="text-align: center; margin-bottom: 2rem;">
-        <img src="codiagro_logo.png" alt="Codiagro" style="height: 48px; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));" onerror="this.style.display='none'">
-        <h1 style="font-family: 'Outfit', sans-serif; font-size: 1.35rem; font-weight: 700; color: #ffffff; letter-spacing: -0.01em;">CODIAGRO</h1>
-        <div style="display: inline-block; margin-top: 0.35rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.2rem 0.6rem; border-radius: 9999px;">
-          Dirección General & Finanzas
-        </div>
-        <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 0.6rem;">Acceso Seguro y Confidencial · Presupuesto 2026</p>
-      </div>
-
-      <div id="shieldErrorAlert" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #fca5a5; padding: 0.75rem 1rem; border-radius: 0.65rem; font-size: 0.82rem; margin-bottom: 1.25rem; display: none; align-items: center; gap: 0.5rem;">
-        <span>⚠️</span>
-        <span id="shieldErrorMsg">Usuario o contraseña incorrectos.</span>
-      </div>
-
-      <form onsubmit="handleShieldLogin(event)">
-        <div style="margin-bottom: 1.25rem;">
-          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Usuario</label>
-          <div style="position: relative; display: flex; align-items: center;">
-            <span style="position: absolute; left: 1rem; font-size: 1rem; color: #64748b; pointer-events: none;">👤</span>
-            <input type="text" id="shieldUserInput" placeholder="Usuario (ej. oscar.ocampo)" required autofocus autocomplete="username" style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; padding: 0.8rem 1rem 0.8rem 2.75rem; color: #ffffff; font-family: inherit; font-size: 0.95rem; outline: none;">
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1.25rem;">
-          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Contraseña</label>
-          <div style="position: relative; display: flex; align-items: center;">
-            <span style="position: absolute; left: 1rem; font-size: 1rem; color: #64748b; pointer-events: none;">🔒</span>
-            <input type="password" id="shieldPassInput" placeholder="Contraseña de acceso" required autocomplete="current-password" style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; padding: 0.8rem 2.75rem 0.8rem 2.75rem; color: #ffffff; font-family: inherit; font-size: 0.95rem; outline: none;">
-            <button type="button" onclick="toggleShieldPassVisibility()" style="position: absolute; right: 0.75rem; background: transparent; border: none; color: #64748b; cursor: pointer; font-size: 1.1rem; padding: 0.35rem;" id="shieldEyeBtn">👁️</button>
-          </div>
-        </div>
-
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; font-size: 0.82rem; color: #94a3b8;">
-          <label style="display: flex; align-items: center; gap: 0.45rem; cursor: pointer;">
-            <input type="checkbox" id="shieldRememberMe" checked style="accent-color: #10b981;">
-            <span>Recordar en este equipo</span>
-          </label>
-        </div>
-
-        <button type="submit" id="shieldSubmitBtn" style="width: 100%; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; border: none; border-radius: 0.75rem; padding: 0.85rem 1.5rem; font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.35); transition: all 0.2s;">
-          <span>Acceder a Dirección General</span>
-          <span>➜</span>
-        </button>
-      </form>
-
-      <div style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.06); font-size: 0.75rem; color: #64748b; line-height: 1.4; text-align: center;">
-        🔒 Información confidencial de Codiagro S.L.<br>
-        Acceso estrictamente reservado a Dirección y Presidencia.
-      </div>
-    </div>
-  </div>
-
-  <div class="app-layout" id="mainAppLayout" style="display: none;">
+    <div class="app-layout">
     <!-- BARRA LATERAL IZQUIERDA (SIDEBAR DE NAVEGACIÓN) -->
     <aside class="app-sidebar" id="appSidebar">
       <!-- BRAND / LOGO CODIAGRO -->
@@ -1796,49 +1616,20 @@
         <img src="codiagro_logo.png" alt="Codiagro" class="sidebar-logo">
         <div class="sidebar-brand-text">
           <span class="sidebar-title">CODIAGRO</span>
-          <span class="sidebar-subtitle">Dirección General 2026</span>
+          <span class="sidebar-subtitle">Gestión Integral 2026</span>
         </div>
       </div>
 
       <!-- MENÚ ORGANIZADO EN 3 REUNIONES / MÓDULOS -->
       <nav class="sidebar-nav">
         
-        <!-- ÁREA 1: INICIO (COCKPIT DE DIRECCIÓN) -->
-        <div class="nav-group">
-          <div class="nav-group-header">
-            <span>🏠</span>
-            <span>DIRECCIÓN GENERAL</span>
-          </div>
-          <button class="nav-item-btn active" id="navBtnInicio" onclick="switchTab('inicio')">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">🧭</span>
-              <span>Cockpit de Dirección</span>
-            </div>
-            <span class="tab-badge badge-success" id="tabBadgeInicio">4 Vitales</span>
-          </button>
-          <button class="nav-item-btn" id="navBtnBiReunion" onclick="switchTab('bi_reunion')" style="margin-top:0.3rem;">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">📌</span>
-              <span>Modo Reunión & Acuerdos</span>
-            </div>
-            <span class="tab-badge" style="background:rgba(234,179,8,0.2);color:#facc15;border:1px solid rgba(234,179,8,0.4);" id="tabBadgeBiReunion">4 Acuerdos</span>
-          </button>
-          <button class="nav-item-btn" id="navBtnBiSearch" onclick="switchTab('bi_search')" style="margin-top:0.3rem;">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">🔍</span>
-              <span>Búsqueda Global 360°</span>
-            </div>
-            <span class="tab-badge" style="background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(168,85,247,0.4);" id="tabBadgeBiSearch">Omnibox</span>
-          </button>
-        </div>
-
-        <!-- ÁREA 2: COMERCIAL -->
+        <!-- MÓDULO 1: COMERCIAL -->
         <div class="nav-group">
           <div class="nav-group-header">
             <span>💼</span>
             <span>COMERCIAL</span>
           </div>
-          <button class="nav-item-btn" id="navBtnResumen" onclick="switchTab('resumen')">
+          <button class="nav-item-btn active" id="navBtnResumen" onclick="switchTab('resumen')">
             <div class="nav-item-left">
               <span class="nav-item-icon">📊</span>
               <span>Ventas y Previsiones</span>
@@ -1848,38 +1639,17 @@
           <button class="nav-item-btn" id="navBtnTrackingMarta" onclick="switchTab('tracking_marta')" style="margin-top:0.3rem;">
             <div class="nav-item-left">
               <span class="nav-item-icon">🎯</span>
-              <span>Cierre 2026 Q4</span>
+              <span>Cierre 2026</span>
             </div>
             <span class="tab-badge" id="tabBadgeTrackingMarta" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">Unidades</span>
           </button>
-          <button class="nav-item-btn" id="navBtnBiForecast" onclick="switchTab('bi_forecast')" style="margin-top:0.3rem;">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">🎯</span>
-              <span>Fiabilidad Previsiones</span>
-            </div>
-            <span class="tab-badge badge-info" id="tabBadgeBiForecast">79.4%</span>
-          </button>
-          <button class="nav-item-btn" id="navBtnBiChurn" onclick="switchTab('bi_churn')" style="margin-top:0.3rem;">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">⚠️</span>
-              <span>Clientes en Fuga (Churn)</span>
-            </div>
-            <span class="tab-badge badge-danger" id="tabBadgeBiChurn">15 Alertas</span>
-          </button>
-          <button class="nav-item-btn" id="navBtnBiExcepciones" onclick="switchTab('bi_excepciones')" style="margin-top:0.3rem;">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">🏷️</span>
-              <span>Excepciones de Precio</span>
-            </div>
-            <span class="tab-badge badge-warning" id="tabBadgeBiExcepciones">6 Acuerdos</span>
-          </button>
         </div>
 
-        <!-- ÁREA 3: OPERACIONES & FÁBRICA -->
+        <!-- MÓDULO 2: FABRICACIÓN -->
         <div class="nav-group">
           <div class="nav-group-header">
             <span>🏭</span>
-            <span>OPERACIONES</span>
+            <span>FABRICACIÓN</span>
           </div>
           <button class="nav-item-btn nav-mrp" id="navBtnProduccion" onclick="switchTab('produccion')">
             <div class="nav-item-left">
@@ -1887,93 +1657,6 @@
               <span>Planificación & MRP</span>
             </div>
             <span class="tab-badge" id="tabBadgeProduccion" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">Reactores</span>
-          </button>
-          <button class="nav-item-btn" id="navBtnBiComplexity" onclick="switchTab('bi_complexity')" style="margin-top:0.3rem;">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">🏭</span>
-              <span>Complejidad de Lotes</span>
-            </div>
-            <span class="tab-badge badge-warning" id="tabBadgeBiComplexity">26 SKUs</span>
-          </button>
-          <button class="nav-item-btn" id="navBtnBiAtp" onclick="switchTab('bi_atp')" style="margin-top:0.3rem;">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">⏱️</span>
-              <span>Fechas Viables (ATP)</span>
-            </div>
-            <span class="tab-badge badge-info" id="tabBadgeBiAtp">79 SKUs</span>
-          </button>
-        </div>
-
-        <!-- ÁREA 4: RENTABILIDAD & MÁRGENES -->
-        <div class="nav-group">
-          <div class="nav-group-header">
-            <span>📈</span>
-            <span>RENTABILIDAD</span>
-          </div>
-          <button class="nav-item-btn nav-profit" id="navBtnRentabilidadCogs" onclick="switchTab('rentabilidad_cogs')">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">💎</span>
-              <span>Rentabilidad & Márgenes COGS</span>
-            </div>
-            <span class="tab-badge" id="tabBadgeRentabilidadCogs" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.4);">67.3%</span>
-          </button>
-          <button class="nav-item-btn nav-profit" id="navBtnRentabilidadFullCost" onclick="switchTab('rentabilidad_fullcost')">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">🏭</span>
-              <span>Rentabilidad Full Costing</span>
-            </div>
-            <span class="tab-badge" id="tabBadgeRentabilidadFullCost" style="background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.4);">Sep-26</span>
-          </button>
-          <button class="nav-item-btn" id="navBtnBiConcentracion" onclick="switchTab('bi_concentracion')" style="margin-top:0.3rem;">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">⚖️</span>
-              <span>Concentración & Stress Test</span>
-            </div>
-            <span class="tab-badge badge-warning" id="tabBadgeBiConcentracion">Top 5: 46%</span>
-          </button>
-        </div>
-
-        <!-- ÁREA 5: TESORERÍA & CAJA (OCULTO A PETICIÓN DE DIRECCIÓN) -->
-        <div class="nav-group" id="navGroupFinanzas" style="display:none;">
-          <div class="nav-group-header">
-            <span>💶</span>
-            <span>TESORERÍA</span>
-          </div>
-          <button class="nav-item-btn nav-treasury" id="navBtnTesoreria" onclick="switchTab('tesoreria')">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">💰</span>
-              <span>Tesorería y Cash Flow</span>
-            </div>
-            <span class="tab-badge" id="tabBadgeTesoreria" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.4);">3.2M €</span>
-          </button>
-        </div>
-
-        <!-- ÁREA 6: DATOS Y CONTROLES -->
-        <div class="nav-group">
-          <div class="nav-group-header">
-            <span>🔍</span>
-            <span>DATOS Y CONTROLES</span>
-          </div>
-          <button class="nav-item-btn" id="navBtnControles" onclick="switchTab('controles')">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">📋</span>
-              <span>Conciliación & Auditoría</span>
-            </div>
-            <span class="tab-badge badge-success">0,00 €</span>
-          </button>
-          <button class="nav-item-btn" id="navBtnBiSnapshots" onclick="switchTab('bi_snapshots')" style="margin-top:0.3rem;">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">🔒</span>
-              <span>Cierre & Snapshots</span>
-            </div>
-            <span class="tab-badge badge-success" id="tabBadgeBiSnapshots">3 Versiones</span>
-          </button>
-          <button class="nav-item-btn" id="navBtnBiStaging" onclick="switchTab('bi_staging')" style="margin-top:0.3rem;">
-            <div class="nav-item-left">
-              <span class="nav-item-icon">📥</span>
-              <span>Staging Importaciones</span>
-            </div>
-            <span class="tab-badge badge-info" id="tabBadgeBiStaging">Auditado</span>
           </button>
         </div>
 
@@ -2044,19 +1727,10 @@
               <span>🇬🇧 EN</span>
             </button>
           </div>
-
-          <!-- USER PROFILE & LOGOUT -->
-          <div class="user-auth-badge" id="userAuthBadge" style="display:inline-flex; align-items:center; gap:0.5rem; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.12); padding:0.3rem 0.75rem; border-radius:9999px; font-size:0.78rem;">
-            <span style="font-size:0.85rem">👤</span>
-            <span id="headerUserName" style="font-weight:600; color:#e2e8f0;">oscar.ocampo</span>
-            <button onclick="doLogout()" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; border-radius:9999px; padding:0.2rem 0.55rem; font-size:0.7rem; font-weight:700; cursor:pointer; margin-left:0.25rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'" title="Cerrar sesión segura">Salir 🚪</button>
-          </div>
         </div>
       </header>
 
-<!-- MEJORA 20: AUDITORÍA DE USABILIDAD Y FLUJOS DIRECTIVOS GUIADOS -->
-      <div id="directorialWorkflowBannerContainer" style="padding: 0.75rem 2rem 0 2rem;"></div>
-      <main id="appContent">
+<main id="appContent">
     <div style="text-align:center; padding: 4rem; color: var(--muted)">
       Cargando datos de previsión y pedidos...
     </div>
@@ -2258,130 +1932,10 @@
   </footer>
 
   <script>
-    const VALID_SHIELD_USERS = ['oscar.ocampo', 'oscar', 'direccion', 'admin'];
-    const VALID_SHIELD_HASH = 'a64d65628727d9f0e6a8c75fd1313c0a770c664396c0b954bb36c6408ce81861'; // SHA-256 de Codiagro2026!
-
-    async function computeSha256(text) {
-      const enc = new TextEncoder().encode(text);
-      const hashBuf = await crypto.subtle.digest('SHA-256', enc);
-      return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    function toggleShieldPassVisibility() {
-      const input = document.getElementById('shieldPassInput');
-      const btn = document.getElementById('shieldEyeBtn');
-      if (input.type === 'password') {
-        input.type = 'text';
-        btn.textContent = '🙈';
-      } else {
-        input.type = 'password';
-        btn.textContent = '👁️';
-      }
-    }
-
-    function unlockDashboard(userName) {
-      const overlay = document.getElementById('securityShieldOverlay');
-      const layout = document.getElementById('mainAppLayout');
-      if (overlay) overlay.style.display = 'none';
-      if (layout) layout.style.display = '';
-      const uEl = document.getElementById('headerUserName');
-      if (uEl && userName) uEl.textContent = userName;
-    }
-
-    function lockDashboard() {
-      sessionStorage.removeItem('codiagro_auth');
-      localStorage.removeItem('codiagro_auth');
-      fetch('/api/logout').catch(() => {});
-      const overlay = document.getElementById('securityShieldOverlay');
-      const layout = document.getElementById('mainAppLayout');
-      if (overlay) overlay.style.display = 'flex';
-      if (layout) layout.style.display = 'none';
-    }
-
-    function doLogout() {
-      lockDashboard();
-    }
-
-    async function handleShieldLogin(e) {
-      e.preventDefault();
-      const user = document.getElementById('shieldUserInput').value.trim().toLowerCase();
-      const pass = document.getElementById('shieldPassInput').value;
-      const remember = document.getElementById('shieldRememberMe').checked;
-      const errEl = document.getElementById('shieldErrorAlert');
-      const errMsg = document.getElementById('shieldErrorMsg');
-      const btn = document.getElementById('shieldSubmitBtn');
-
-      errEl.style.display = 'none';
-      btn.disabled = true;
-
-      try {
-        // 1. Try local server session if available
-        try {
-          const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username: user, password: pass})
-          });
-          if (res.ok) {
-            const d = await res.json();
-            if (d.success) {
-              const authData = {user: d.user || user, token: d.token || 'auth_token', ts: Date.now()};
-              sessionStorage.setItem('codiagro_auth', JSON.stringify(authData));
-              if (remember) localStorage.setItem('codiagro_auth', JSON.stringify(authData));
-              unlockDashboard(authData.user);
-              return;
-            }
-          }
-        } catch(netErr) {}
-
-        // 2. Cryptographic Client-Side Verification (Zero-leak fallback everywhere in the world)
-        const hash = await computeSha256(pass);
-        if (VALID_SHIELD_USERS.includes(user) && (hash === VALID_SHIELD_HASH || pass === 'Codiagro2026!')) {
-          const authData = {user: user, token: 'shield_sec_' + Date.now(), ts: Date.now()};
-          sessionStorage.setItem('codiagro_auth', JSON.stringify(authData));
-          if (remember) localStorage.setItem('codiagro_auth', JSON.stringify(authData));
-          unlockDashboard(user);
-        } else {
-          errMsg.textContent = 'Usuario o contraseña incorrectos.';
-          errEl.style.display = 'flex';
-        }
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    // Auto-check on load (local server check + local storage check)
-    (async function checkShieldAuthOnLoad() {
-      const session = sessionStorage.getItem('codiagro_auth') || localStorage.getItem('codiagro_auth');
-      if (session) {
-        try {
-          const p = JSON.parse(session);
-          if (p && p.user) {
-            // Verify with local server if active
-            fetch('/api/auth/status')
-              .then(r => r.json())
-              .then(d => {
-                if (d.authenticated) {
-                  unlockDashboard(d.user || p.user);
-                } else {
-                  unlockDashboard(p.user);
-                }
-              })
-              .catch(() => {
-                // Offline or static fallback
-                unlockDashboard(p.user);
-              });
-            return;
-          }
-        } catch(e) {}
-      }
-      lockDashboard();
-    })();
-
     let allPeriodsData = null;
     let currentPeriod = '2026-10'; // Por defecto Octubre 2026
     let appData = null;
-    let currentTab = 'inicio';
+    let currentTab = 'resumen';
     let currentFilter = 'ALL';
     let currentScope = 'ALL'; // 'ALL' | 'NACIONAL' | 'EXPORTACION'
     let searchQuery = '';
@@ -3443,9 +2997,6 @@
               }
             }
           }
-          if (currentTab === 'rentabilidad') {
-            await loadProfitabilityData();
-          }
           if (urlParams.get('modal_sku')) {
             requestedModalSku = urlParams.get('modal_sku');
           }
@@ -3477,15 +3028,6 @@
       updateScopeSwitcherUI();
       updateHeaderInfo();
       updateNavBadges();
-      // Sincronizar subpestaña de Rentabilidad si estamos en esa pestaña
-      if (currentTab === 'rentabilidad' && typeof profitSubtab !== 'undefined') {
-        if (periodId === '2026-09') {
-          profitSubtab = 'fullcost';
-        } else if (profitSubtab === 'fullcost') {
-          profitSubtab = 'radar';
-        }
-      }
-
       renderCurrentTab();
 
       // Sincronizar modal si está visible
@@ -6377,688 +5919,7 @@
     }
 
     
-    // =========================================================================
-    // MÓDULO DE PREVISIÓN DE TESORERÍA (CASH FLOW 2026)
-    // =========================================================================
-    let treasuryData = null;
-    let treasuryViewMode = 'matrix'; // 'matrix', 'clients_q4', 'terms'
-    let treasuryIncludeExpenses = false; // Por defecto FALSE: 'La previsión de gastos déjala de momento'
-    let treasurySearchQuery = '';
-    let treasuryCanalFilter = 'ALL';
-    let treasuryOrigenFilter = 'ALL'; // 'ALL', 'Venta Real Sep', 'Presupuesto (BG)', 'Cartera Real'
-    let treasuryChartInstance = null;
-
-    function loadTreasuryData() {
-      if (typeof window.TREASURY_DATA !== 'undefined') {
-        treasuryData = window.TREASURY_DATA;
-      }
-    }
-
-    function setTreasuryViewMode(mode) {
-      treasuryViewMode = mode;
-      renderCurrentTab();
-    }
-
-    function toggleTreasuryExpenses(include) {
-      treasuryIncludeExpenses = include;
-      renderCurrentTab();
-    }
-
-    function handleTreasurySearch(val) {
-      treasurySearchQuery = val;
-      const input = document.getElementById('treasurySearchInput');
-      const cursorPos = input ? input.selectionStart : (val ? val.length : 0);
-      renderCurrentTab();
-      const newInput = document.getElementById('treasurySearchInput');
-      if (newInput) {
-        newInput.focus();
-        try { newInput.setSelectionRange(cursorPos, cursorPos); } catch(e){}
-      }
-    }
-
-    function setTreasuryCanalFilter(canal) {
-      treasuryCanalFilter = canal;
-      renderCurrentTab();
-    }
-
-    function setTreasuryOrigenFilter(origen) {
-      treasuryOrigenFilter = origen;
-      renderCurrentTab();
-    }
-
-    function renderTesoreriaTab(container) {
-      if (!treasuryData) {
-        loadTreasuryData();
-      }
-
-      if (!treasuryData) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">⚠️</div>
-            <h3>No se han encontrado datos de tesorería</h3>
-            <p>Por favor, asegúrate de haber generado el archivo treasury_data.js.</p>
-          </div>
-        `;
-        return;
-      }
-
-      const meta = treasuryData.metadata;
-      const initialStockSep = meta.saldo_cierre_sep_real; // 3.203.215,24 €
-      const q4Cobros = treasuryData.q4_cobros_proyectados;
-
-      // Calcular totales de cobros proyectados Q4
-      let octCobros = 0, novCobros = 0, dicCobros = 0;
-      if (q4Cobros['2026-10']) octCobros = Object.values(q4Cobros['2026-10']).reduce((a, b) => a + b, 0);
-      if (q4Cobros['2026-11']) novCobros = Object.values(q4Cobros['2026-11']).reduce((a, b) => a + b, 0);
-      if (q4Cobros['2026-12']) dicCobros = Object.values(q4Cobros['2026-12']).reduce((a, b) => a + b, 0);
-      const totalQ4Cobros = octCobros + novCobros + dicCobros; // 3.279.443 €
-
-      // Cobros reales Ene-Sep (Fila Total Cobros con ajuste: Fila 13 o 12)
-      let totRealCobros = 11148973.48;
-      const rCobros = treasuryData.cf_rows.find(r => r.label === 'Total Cobros con ajuste' || r.label === 'Total Cobros');
-      if (rCobros) {
-        totRealCobros = Object.values(rCobros.reales).reduce((a, b) => a + b, 0);
-      }
-
-      const totalCobrosAnualProyectado = totRealCobros + totalQ4Cobros;
-
-      // Tesorería final al 31/12
-      let saldoFinal31Dic = initialStockSep + totalQ4Cobros;
-      if (treasuryIncludeExpenses) {
-        // Restar gastos del budget de Q4
-        let q4Gastos = 0;
-        treasuryData.cf_rows.forEach(r => {
-          if (r.category && r.category !== 'COBROS' && r.category !== 'POSICION DE TESORERIA' && r.category !== 'LIQUIDEZ') {
-            q4Gastos += Object.values(r.budget_q4 || {}).reduce((a, b) => a + b, 0);
-          }
-        });
-        saldoFinal31Dic += q4Gastos; // los gastos vienen en negativo
-      }
-
-      let contentHtml = `
-        <div class="mrp-section">
-          <!-- CABECERA DE CONTROL DE TESORERÍA -->
-          <div class="mrp-control-card">
-            <div class="mrp-control-header">
-              <div>
-                <h2 style="font-size:1.4rem;font-weight:800;color:#f8fafc;display:flex;align-items:center;gap:0.6rem;">
-                  💰 Previsión de Tesorería y Flujo de Caja (Cash Flow 2026)
-                </h2>
-                <p style="color:var(--muted);font-size:0.86rem;margin-top:0.3rem;">
-                  Cierre Real al 30 de Septiembre (Saldo en Bancos: <strong>3.203.215 €</strong>) + Proyección de Cobros Q4 según Formas de Pago de Clientes
-                </p>
-              </div>
-
-              <!-- BOTÓN EXPORTAR EXCEL -->
-              <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
-                <a href="/Prevision_Tesoreria_CashFlow_2026.xlsx" download="Prevision_Tesoreria_CashFlow_2026.xlsx" onclick="exportTreasuryExcel(); return false;" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg, #059669 0%, #10b981 100%);color:#fff;border:none;padding:0.6rem 1.1rem;border-radius:var(--radius-sm);cursor:pointer;font-weight:700;text-decoration:none;">
-                  📊 Descargar Cash Flow Excel (XLSX)
-                </a>
-              </div>
-            </div>
-
-            <!-- FILTRO DE GASTOS Q4 & SELECTOR DE VISTAS -->
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
-              <!-- Selector de Vistas -->
-              <div class="filter-pills">
-                <button class="pill-btn ${treasuryViewMode === 'matrix' ? 'active' : ''}" onclick="setTreasuryViewMode('matrix')">
-                  📊 Matriz Completa Cash Flow (Ene - Dic)
-                </button>
-                <button class="pill-btn ${treasuryViewMode === 'clients_q4' ? 'active' : ''}" onclick="setTreasuryViewMode('clients_q4')">
-                  📅 Detalle Cobros por Cliente Q4 (${treasuryData.client_vencimientos.filter(x => ['10-2026','11-2026','12-2026'].includes(x.mes_vto)).length})
-                </button>
-                <button class="pill-btn ${treasuryViewMode === 'terms' ? 'active' : ''}" onclick="setTreasuryViewMode('terms')">
-                  🏢 Formas de Pago Clientes (${treasuryData.client_master.length})
-                </button>
-              </div>
-
-              <!-- Toggle de Gastos -->
-              <div style="display:flex;align-items:center;gap:0.6rem;background:rgba(15,23,42,0.8);padding:0.4rem 0.8rem;border-radius:var(--radius-sm);border:1px solid #334155;">
-                <span style="font-size:0.75rem;color:var(--muted);font-weight:700;">PREVISIÓN GASTOS Q4:</span>
-                <button class="pill-btn ${!treasuryIncludeExpenses ? 'active' : ''}" onclick="toggleTreasuryExpenses(false)" style="font-size:0.72rem;padding:0.25rem 0.6rem;">
-                  Solo Ingresos (Gastos = 0 €)
-                </button>
-                <button class="pill-btn ${treasuryIncludeExpenses ? 'active' : ''}" onclick="toggleTreasuryExpenses(true)" style="font-size:0.72rem;padding:0.25rem 0.6rem;">
-                  Incluir Gastos Budget Referencia
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- TARJETAS KPI EJECUTIVAS -->
-          <div class="mrp-kpi-grid">
-            <!-- KPI 1: TESORERÍA INICIAL AL 01/10 -->
-            <div class="mrp-kpi-card success">
-              <div style="font-size:0.8rem;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.04em;">
-                Tesorería Inicial al 01/10 (Real)
-              </div>
-              <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
-                ${fmtNum(initialStockSep)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">€</span>
-              </div>
-              <div style="font-size:0.75rem;color:var(--muted)">
-                Saldo real en cuentas bancarias al 30 de septiembre
-              </div>
-            </div>
-
-            <!-- KPI 2: COBROS PROYECTADOS Q4 -->
-            <div class="mrp-kpi-card primary">
-              <div style="font-size:0.8rem;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:0.04em;">
-                Cobros Previstos Q4 (Oct - Dic)
-              </div>
-              <div style="font-size:1.85rem;font-weight:800;color:#38bdf8;line-height:1.2;">
-                ${fmtNum(totalQ4Cobros)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">€</span>
-              </div>
-              <div style="font-size:0.75rem;color:var(--muted)">
-                Oct: ${fmtNum(octCobros)} € | Nov: ${fmtNum(novCobros)} € | Dic: ${fmtNum(dicCobros)} €
-              </div>
-            </div>
-
-            <!-- KPI 3: COBROS REALES ACUMULADOS -->
-            <div class="mrp-kpi-card">
-              <div style="font-size:0.8rem;font-weight:700;color:#a5b4fc;text-transform:uppercase;letter-spacing:0.04em;">
-                Cobros Reales Acumulados (Ene - Sep)
-              </div>
-              <div style="font-size:1.85rem;font-weight:800;color:#f8fafc;line-height:1.2;">
-                ${fmtNum(totRealCobros)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">€</span>
-              </div>
-              <div style="font-size:0.75rem;color:var(--muted)">
-                Total ingresos por ventas cobrados hasta la fecha
-              </div>
-            </div>
-
-            <!-- KPI 4: TOTAL COBROS ANUAL PROYECTADO -->
-            <div class="mrp-kpi-card warning">
-              <div style="font-size:0.8rem;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:0.04em;">
-                Total Cobros 2026 Proyectado
-              </div>
-              <div style="font-size:1.85rem;font-weight:800;color:#fbbf24;line-height:1.2;">
-                ${fmtNum(totalCobrosAnualProyectado)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">€</span>
-              </div>
-              <div style="font-size:0.75rem;color:var(--muted)">
-                85.4% sobre Presupuesto Anual (16.896.845 €)
-              </div>
-            </div>
-
-            <!-- KPI 5: TESORERÍA FINAL AL 31/12 -->
-            <div class="mrp-kpi-card success">
-              <div style="font-size:0.8rem;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.04em;">
-                Tesorería Proyectada al 31/12
-              </div>
-              <div style="font-size:1.85rem;font-weight:800;color:${saldoFinal31Dic > 0 ? '#34d399' : '#f87171'};line-height:1.2;">
-                ${fmtNum(saldoFinal31Dic)} <span style="font-size:0.9rem;font-weight:normal;color:var(--muted)">€</span>
-              </div>
-              <div style="font-size:0.75rem;color:var(--muted)">
-                ${treasuryIncludeExpenses ? 'Con gastos budget deducidos' : 'Sin nuevos gastos en Q4'}
-              </div>
-            </div>
-          </div>
-      `;
-
-      if (treasuryViewMode === 'matrix') {
-        contentHtml += renderTreasuryMatrixHtml();
-      } else if (treasuryViewMode === 'clients_q4') {
-        contentHtml += renderTreasuryClientsQ4Html();
-      } else if (treasuryViewMode === 'terms') {
-        contentHtml += renderTreasuryPaymentTermsHtml();
-      }
-
-      contentHtml += `</div>`;
-      container.innerHTML = contentHtml;
-    }
-
-    // 1. RENDERIZAR MATRIZ COMPLETA DE CASH FLOW
-    function renderTreasuryMatrixHtml() {
-      const rows = treasuryData.cf_rows || [];
-      const q4Cobros = treasuryData.q4_cobros_proyectados;
-      const initialStockSep = treasuryData.metadata.saldo_cierre_sep_real;
-
-      // Calcular filas proyectadas para la sección Cobros y Posición de Tesorería
-      let rowsHtml = '';
-      let currentSection = '';
-
-      // Calculamos el saldo de tesorería mes a mes proyectado
-      let runningTreasury = initialStockSep;
-      const runningBalanceQ4 = {};
-
-      const octCobrosTot = q4Cobros['2026-10'] ? Object.values(q4Cobros['2026-10']).reduce((a, b) => a + b, 0) : 0;
-      const novCobrosTot = q4Cobros['2026-11'] ? Object.values(q4Cobros['2026-11']).reduce((a, b) => a + b, 0) : 0;
-      const dicCobrosTot = q4Cobros['2026-12'] ? Object.values(q4Cobros['2026-12']).reduce((a, b) => a + b, 0) : 0;
-
-      rows.forEach(r => {
-        if (r.category && r.category !== currentSection && r.category !== 'POSICION DE TESORERIA' && r.category !== 'LIQUIDEZ') {
-          currentSection = r.category;
-          rowsHtml += `
-            <tr class="cf-section-header">
-              <td colspan="16" style="padding:0.6rem 0.8rem;background:#0f172a;color:#93c5fd;font-weight:800;">
-                ▶ ${currentSection}
-              </td>
-            </tr>
-          `;
-        }
-
-        const isTotalRow = r.label.includes('Total') || r.label.includes('Cash flow operativo') || r.label.includes('Tesorería');
-        const rowClass = isTotalRow ? 'cf-row-total' : '';
-
-        // Calcular los valores de Oct, Nov, Dic para esta fila
-        let octVal = 0, novVal = 0, dicVal = 0;
-        if (r.label === 'Cobros por canal Clientes nacionales') {
-          octVal = (q4Cobros['2026-10'] && q4Cobros['2026-10']['Cobros por canal Clientes nacionales']) || 0;
-          novVal = (q4Cobros['2026-11'] && q4Cobros['2026-11']['Cobros por canal Clientes nacionales']) || 0;
-          dicVal = (q4Cobros['2026-12'] && q4Cobros['2026-12']['Cobros por canal Clientes nacionales']) || 0;
-        } else if (r.label === 'Cobros por canal Clientes internac.') {
-          octVal = (q4Cobros['2026-10'] && q4Cobros['2026-10']['Cobros por canal Clientes internac.']) || 0;
-          novVal = (q4Cobros['2026-11'] && q4Cobros['2026-11']['Cobros por canal Clientes internac.']) || 0;
-          dicVal = (q4Cobros['2026-12'] && q4Cobros['2026-12']['Cobros por canal Clientes internac.']) || 0;
-        } else if (r.label === 'Cobros por canal U.E.') {
-          octVal = (q4Cobros['2026-10'] && q4Cobros['2026-10']['Cobros por canal U.E.']) || 0;
-          novVal = (q4Cobros['2026-11'] && q4Cobros['2026-11']['Cobros por canal U.E.']) || 0;
-          dicVal = (q4Cobros['2026-12'] && q4Cobros['2026-12']['Cobros por canal U.E.']) || 0;
-        } else if (r.label === 'Total Cobros' || r.label === 'Total Cobros con ajuste') {
-          octVal = octCobrosTot;
-          novVal = novCobrosTot;
-          dicVal = dicCobrosTot;
-        } else if (r.category !== 'COBROS') {
-          // Gastos: si treasuryIncludeExpenses es false, se dejan en 0
-          octVal = treasuryIncludeExpenses ? (r.budget_q4['2026-10'] || 0) : 0;
-          novVal = treasuryIncludeExpenses ? (r.budget_q4['2026-11'] || 0) : 0;
-          dicVal = treasuryIncludeExpenses ? (r.budget_q4['2026-12'] || 0) : 0;
-        }
-
-        // Suma real Ene-Sep
-        let sumReal = 0;
-        for (let i = 1; i <= 9; i++) {
-          sumReal += (r.reales[`2026-${String(i).padStart(2,'0')}`] || 0);
-        }
-
-        // Total Anual Proyectado (Real Ene-Sep + Q4)
-        const totAnual = sumReal + octVal + novVal + dicVal;
-        const desvAnual = totAnual - (r.budget_annual || 0);
-
-        // Generar celdas mensuales reales (Ene a Sep)
-        let realCellsHtml = '';
-        for (let i = 1; i <= 9; i++) {
-          const v = r.reales[`2026-${String(i).padStart(2,'0')}`] || 0;
-          realCellsHtml += `<td class="text-right cf-cell-real" style="${v < 0 ? 'color:#f87171;' : ''}">${v !== 0 ? fmtNum(v) : '-'}</td>`;
-        }
-
-        // Celdas Q4 Proyectadas
-        const q4CellsHtml = `
-          <td class="text-right cf-cell-forecast">${octVal !== 0 ? fmtNum(octVal) : '-'}</td>
-          <td class="text-right cf-cell-forecast">${novVal !== 0 ? fmtNum(novVal) : '-'}</td>
-          <td class="text-right cf-cell-forecast">${dicVal !== 0 ? fmtNum(dicVal) : '-'}</td>
-        `;
-
-        rowsHtml += `
-          <tr class="${rowClass}">
-            <td style="font-weight:${isTotalRow ? '800' : '600'};color:${isTotalRow ? '#f8fafc' : '#cbd5e1'};white-space:nowrap;">
-              ${r.label}
-            </td>
-            <td class="text-right" style="color:var(--muted);font-weight:600;">
-              ${r.budget_annual ? fmtNum(r.budget_annual) : '-'}
-            </td>
-            ${realCellsHtml}
-            ${q4CellsHtml}
-            <td class="text-right" style="font-weight:800;color:${totAnual < 0 ? '#f87171' : '#34d399'};">
-              ${totAnual !== 0 ? fmtNum(totAnual) : '-'}
-            </td>
-            <td class="text-right" style="font-size:0.75rem;color:${desvAnual >= 0 ? '#34d399' : '#f87171'};">
-              ${r.budget_annual ? (desvAnual > 0 ? '+' : '') + fmtNum(desvAnual) : '-'}
-            </td>
-          </tr>
-        `;
-      });
-
-      // Añadimos la sección de POSICIÓN DE TESORERÍA proyectada
-      const saldoOctIni = initialStockSep;
-      const saldoOctFin = saldoOctIni + octCobrosTot + (treasuryIncludeExpenses ? -328832 : 0);
-      const saldoNovIni = saldoOctFin;
-      const saldoNovFin = saldoNovIni + novCobrosTot + (treasuryIncludeExpenses ? -424231 : 0);
-      const saldoDicIni = saldoNovFin;
-      const saldoDicFin = saldoDicIni + dicCobrosTot + (treasuryIncludeExpenses ? -271749 : 0);
-
-      const tesoreriaRealInicios = [786774, 927606, 1327382, 887120, 1206220, 1097457, 1705006, 2547276, 2824682];
-      const tesoreriaRealFinales = [927606, 1327382, 887120, 1206220, 1097457, 1705006, 2547276, 2824682, 3203215];
-
-      rowsHtml += `
-        <tr class="cf-section-header">
-          <td colspan="16" style="padding:0.6rem 0.8rem;background:#0f172a;color:#34d399;font-weight:800;">
-            ▶ POSICIÓN DE TESORERÍA Y SALDO EN BANCOS
-          </td>
-        </tr>
-        <tr class="cf-row-total" style="background:rgba(16,185,129,0.08) !important;">
-          <td style="font-weight:800;color:#34d399;">Tesorería Inicial</td>
-          <td class="text-right" style="color:var(--muted)">786.774</td>
-          ${tesoreriaRealInicios.map(v => `<td class="text-right" style="font-weight:700;">${fmtNum(v)}</td>`).join('')}
-          <td class="text-right cf-cell-forecast">${fmtNum(saldoOctIni)}</td>
-          <td class="text-right cf-cell-forecast">${fmtNum(saldoNovIni)}</td>
-          <td class="text-right cf-cell-forecast">${fmtNum(saldoDicIni)}</td>
-          <td class="text-right" style="font-weight:800;color:#34d399;">${fmtNum(saldoOctIni)}</td>
-          <td class="text-right">-</td>
-        </tr>
-        <tr class="cf-row-total" style="background:rgba(16,185,129,0.15) !important;">
-          <td style="font-weight:800;color:#34d399;">Tesorería Final</td>
-          <td class="text-right" style="color:var(--muted)">6.500.444</td>
-          ${tesoreriaRealFinales.map(v => `<td class="text-right" style="font-weight:800;color:#34d399;">${fmtNum(v)}</td>`).join('')}
-          <td class="text-right cf-cell-forecast" style="font-weight:800;">${fmtNum(saldoOctFin)}</td>
-          <td class="text-right cf-cell-forecast" style="font-weight:800;">${fmtNum(saldoNovFin)}</td>
-          <td class="text-right cf-cell-forecast" style="font-weight:800;">${fmtNum(saldoDicFin)}</td>
-          <td class="text-right" style="font-weight:800;color:#34d399;">${fmtNum(saldoDicFin)}</td>
-          <td class="text-right" style="color:#34d399;">${fmtNum(saldoDicFin - 6500444)}</td>
-        </tr>
-      `;
-
-      return `
-        <div class="table-panel">
-          <div style="margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
-            <div style="font-size:0.85rem;color:var(--muted);">
-              Mostrando meses <strong>01 a 09 con datos REALES</strong> cerrados y <strong>10 a 12 con INGRESOS PROYECTADOS</strong> por vencimientos de clientes.
-            </div>
-            <div style="display:flex;gap:0.5rem;align-items:center;">
-              <span class="cf-badge-real">Meses 01 - 09: REAL</span>
-              <span class="cf-badge-forecast">Meses 10 - 12: PROYECCIÓN COBROS</span>
-            </div>
-          </div>
-
-          <div class="table-container" style="max-height:680px;overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
-              <thead style="position:sticky;top:0;background:#0f172a;z-index:3;">
-                <tr>
-                  <th style="padding:0.6rem 0.8rem;text-align:left;min-width:260px;">Concepto / Partida</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;min-width:110px;">Presupuesto 2026</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">Ene (R)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">Feb (R)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">Mar (R)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">Abr (R)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">May (R)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">Jun (R)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">Jul (R)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">Ago (R)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">Sep (R)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;background:#065f46;color:#fff;">Oct (P)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;background:#065f46;color:#fff;">Nov (P)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;background:#065f46;color:#fff;">Dic (P)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;min-width:120px;">Total 2026</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;min-width:110px;">Desv. vs Ppto</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
-    }
-
-    // 2. RENDERIZAR DETALLE DE VENCIMIENTOS POR CLIENTE (Q4)
-    function renderTreasuryClientsQ4Html() {
-      const vencimientos = (treasuryData.client_vencimientos || []).filter(v => {
-        const mv = v.mes_vto;
-        return mv === '10-2026' || mv === '11-2026' || mv === '12-2026';
-      });
-
-      // Filtros
-      let filtered = vencimientos;
-      if (treasuryCanalFilter !== 'ALL') {
-        filtered = filtered.filter(v => v.canal === treasuryCanalFilter);
-      }
-      if (treasuryOrigenFilter !== 'ALL') {
-        filtered = filtered.filter(v => (v.tipo_origen || 'Presupuesto (BG)') === treasuryOrigenFilter);
-      }
-      if (treasurySearchQuery) {
-        filtered = filtered.filter(v => 
-          (v.cliente || '').toLowerCase().includes(treasurySearchQuery) || 
-          (v.pais || '').toLowerCase().includes(treasurySearchQuery) ||
-          (v.canal || '').toLowerCase().includes(treasurySearchQuery) ||
-          (v.tipo_origen || '').toLowerCase().includes(treasurySearchQuery)
-        );
-      }
-
-      // Ordenar por mes de vencimiento y luego cliente
-      filtered.sort((a, b) => a.mes_vto.localeCompare(b.mes_vto) || a.cliente.localeCompare(b.cliente));
-
-      const totOct = filtered.filter(x => x.mes_vto === '10-2026').reduce((a, b) => a + b.importe, 0);
-      const totNov = filtered.filter(x => x.mes_vto === '11-2026').reduce((a, b) => a + b.importe, 0);
-      const totDic = filtered.filter(x => x.mes_vto === '12-2026').reduce((a, b) => a + b.importe, 0);
-      const totFiltrado = totOct + totNov + totDic;
-
-      let rowsHtml = '';
-      filtered.forEach(v => {
-        const canalColor = v.canal.includes('nacionales') ? '#34d399' : (v.canal.includes('internac') ? '#38bdf8' : '#fbbf24');
-        const badgeMes = v.mes_vto === '10-2026' ? 'Oct 2026' : (v.mes_vto === '11-2026' ? 'Nov 2026' : 'Dic 2026');
-        
-        let origenBadge = '';
-        if (v.tipo_origen === 'Cartera Real Pendiente') {
-          origenBadge = '<span class="tab-badge" style="background:rgba(52,211,153,0.18);color:#34d399;border:1px solid #34d399;font-size:0.68rem;font-weight:700;">📑 Cartera Real (Ageing)</span>';
-        } else if (v.tipo_origen === 'Venta Prevista Q4') {
-          origenBadge = '<span class="tab-badge" style="background:rgba(56,189,248,0.18);color:#38bdf8;border:1px solid #38bdf8;font-size:0.68rem;font-weight:700;">📋 Prev. Venta Q4</span>';
-        } else {
-          origenBadge = `<span class="tab-badge" style="background:rgba(251,191,36,0.18);color:#fbbf24;border:1px solid #fbbf24;font-size:0.68rem;font-weight:700;">${v.tipo_origen || 'Previsión'}</span>`;
-        }
-
-        const fechaOp = v.fecha_operacion || v.fecha_factura || v.mes_venta || '-';
-        const dPact = v.dias_pactados !== undefined ? v.dias_pactados : v.dias;
-        const dEfec = v.dias_efectivos !== undefined ? v.dias_efectivos : v.dias;
-        const ret = dEfec - dPact;
-        const retBadge = ret > 0 ? `<span style="color:#fbbf24;font-size:0.7rem;margin-left:4px;">(+${ret}d)</span>` : (ret < 0 ? `<span style="color:#34d399;font-size:0.7rem;margin-left:4px;">(${ret}d)</span>` : '');
-        const fraLabel = v.num_factura ? `<div style="font-size:0.72rem;color:var(--muted);font-weight:normal;">Fra: ${v.num_factura}</div>` : '';
-
-        rowsHtml += `
-          <tr>
-            <td style="text-align:center;">${origenBadge}</td>
-            <td style="font-weight:700;color:#f8fafc;">${v.cliente}${fraLabel}</td>
-            <td style="text-align:center;color:var(--muted);">${v.comercial || '—'}</td>
-            <td><span class="tab-badge" style="background:rgba(255,255,255,0.06);color:${canalColor};border:1px solid ${canalColor};font-size:0.7rem;">${v.canal.replace('Cobros por canal ', '')}</span></td>
-            <td style="text-align:center;"><span class="tab-badge badge-neutral" style="font-size:0.7rem;">${v.pais}</span></td>
-            <td style="text-align:center;color:var(--muted);">${dPact} d</td>
-            <td style="text-align:center;font-weight:700;color:#c084fc;">${dEfec} d ${retBadge}</td>
-            <td style="text-align:center;color:var(--muted);">${fechaOp}</td>
-            <td style="text-align:center;color:var(--muted);">${v.vto_fecha || '-'}</td>
-            <td style="text-align:center;"><span class="cf-badge-forecast">${badgeMes}</span></td>
-            <td class="text-right" style="color:var(--muted);">${fmtNum(v.facturacion)} €</td>
-            <td class="text-right" style="color:var(--muted);">${fmtNum(v.iva)} €</td>
-            <td class="text-right" style="font-weight:800;color:#38bdf8;font-size:0.9rem;">${fmtNum(v.importe)} €</td>
-          </tr>
-        `;
-      });
-
-      return `
-        <div class="table-panel">
-          <div class="mrp-toolbar" style="margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem;">
-            <div class="mrp-toolbar-left" style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
-              <div class="filter-pills" style="margin:0;">
-                <button class="pill-btn ${treasuryCanalFilter === 'ALL' ? 'active' : ''}" onclick="setTreasuryCanalFilter('ALL')">
-                  Todos Canales
-                </button>
-                <button class="pill-btn ${treasuryCanalFilter === 'Cobros por canal Clientes nacionales' ? 'active' : ''}" onclick="setTreasuryCanalFilter('Cobros por canal Clientes nacionales')">
-                  🇪🇸 Nacional
-                </button>
-                <button class="pill-btn ${treasuryCanalFilter === 'Cobros por canal Clientes internac.' ? 'active' : ''}" onclick="setTreasuryCanalFilter('Cobros por canal Clientes internac.')">
-                  🌍 Internacional
-                </button>
-                <button class="pill-btn ${treasuryCanalFilter === 'Cobros por canal U.E.' ? 'active' : ''}" onclick="setTreasuryCanalFilter('Cobros por canal U.E.')">
-                  🇪🇺 U.E.
-                </button>
-              </div>
-
-              <!-- Filtro de Origen -->
-              <div class="filter-pills" style="margin:0;">
-                <button class="pill-btn ${treasuryOrigenFilter === 'ALL' ? 'active' : ''}" onclick="setTreasuryOrigenFilter('ALL')">
-                  Todos Orígenes
-                </button>
-                <button class="pill-btn ${treasuryOrigenFilter === 'Cartera Real Pendiente' ? 'active' : ''}" onclick="setTreasuryOrigenFilter('Cartera Real Pendiente')">
-                  📑 Cartera Real (Ageing)
-                </button>
-                <button class="pill-btn ${treasuryOrigenFilter === 'Venta Prevista Q4' ? 'active' : ''}" onclick="setTreasuryOrigenFilter('Venta Prevista Q4')">
-                  📋 Previsión Venta Q4
-                </button>
-              </div>
-            </div>
-            <div class="mrp-toolbar-right">
-              <input type="text" id="treasurySearchInput" class="search-input" placeholder="Buscar cliente, comercial, país..." value="${treasurySearchQuery}" oninput="handleTreasurySearch(this.value)">
-            </div>
-          </div>
-
-          <!-- Resumen de Totales Filtrados -->
-          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:0.75rem;margin-bottom:1rem;">
-            <div style="background:rgba(30,41,59,0.7);padding:0.75rem 1rem;border-radius:var(--radius-sm);border:1px solid #334155;">
-              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;">Cobros Octubre 2026</div>
-              <div style="font-size:1.25rem;font-weight:800;color:#38bdf8;">${fmtNum(totOct)} €</div>
-            </div>
-            <div style="background:rgba(30,41,59,0.7);padding:0.75rem 1rem;border-radius:var(--radius-sm);border:1px solid #334155;">
-              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;">Cobros Noviembre 2026</div>
-              <div style="font-size:1.25rem;font-weight:800;color:#38bdf8;">${fmtNum(totNov)} €</div>
-            </div>
-            <div style="background:rgba(30,41,59,0.7);padding:0.75rem 1rem;border-radius:var(--radius-sm);border:1px solid #334155;">
-              <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;">Cobros Diciembre 2026</div>
-              <div style="font-size:1.25rem;font-weight:800;color:#38bdf8;">${fmtNum(totDic)} €</div>
-            </div>
-            <div style="background:rgba(30,41,59,0.7);padding:0.75rem 1rem;border-radius:var(--radius-sm);border:1px solid #334155;">
-              <div style="font-size:0.72rem;color:#34d399;font-weight:700;text-transform:uppercase;">Total Cobros Q4 Seleccionados</div>
-              <div style="font-size:1.25rem;font-weight:800;color:#34d399;">${fmtNum(totFiltrado)} €</div>
-            </div>
-          </div>
-
-          <div class="table-container" style="max-height:600px;overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
-              <thead style="position:sticky;top:0;background:#0f172a;z-index:3;">
-                <tr>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Origen / Tipo</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:left;">Cliente</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Comercial</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:left;">Canal</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">País</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Pactado</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Real/Retraso</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Fecha Factura</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Fecha Vto.</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Mes Cobro</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">Facturación (€)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">IVA (€)</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;color:#38bdf8;">Total Cobro (€)</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
-    }
-
-    // 3. RENDERIZAR MAESTRO DE FORMAS DE PAGO (CATÁLOGO OFICIAL CON RETRASOS)
-    function renderTreasuryPaymentTermsHtml() {
-      const clients = treasuryData.client_master || [];
-      let filtered = clients;
-      if (treasurySearchQuery) {
-        filtered = filtered.filter(c => 
-          (c.cliente || '').toLowerCase().includes(treasurySearchQuery) || 
-          (c.comercial || '').toLowerCase().includes(treasurySearchQuery) || 
-          (c.codigo || '').toLowerCase().includes(treasurySearchQuery) || 
-          (c.pais || '').toLowerCase().includes(treasurySearchQuery)
-        );
-      }
-      filtered.sort((a, b) => (a.codigo || '').localeCompare(b.codigo || '') || a.cliente.localeCompare(b.cliente));
-
-      let rowsHtml = '';
-      filtered.forEach((c, idx) => {
-        const canalBadge = (c.canal || '').includes('nacionales') ? '🇪🇸 Nacional' : ((c.canal || '').includes('internac') ? '🌍 Internacional' : '🇪🇺 U.E.');
-        const dPact = c.dias_pactados !== undefined ? c.dias_pactados : (c.dias || 0);
-        const dObs = c.dias_reales_obs !== undefined && c.dias_reales_obs !== null ? `${c.dias_reales_obs.toFixed(1)} d` : '—';
-        const dEf = c.dias_efectivos !== undefined ? c.dias_efectivos : (c.dias || 0);
-        const ret = c.retraso_dias !== undefined ? c.retraso_dias : (dEf - dPact);
-        const retStr = ret > 0 ? `<span style="color:#fbbf24;font-weight:700;">+${ret} d</span>` : (ret < 0 ? `<span style="color:#34d399;font-weight:700;">${ret} d</span>` : `<span style="color:var(--muted);">0 d</span>`);
-
-        rowsHtml += `
-          <tr>
-            <td style="color:var(--muted);text-align:center;">${idx + 1}</td>
-            <td style="color:#38bdf8;font-family:monospace;font-size:0.75rem;text-align:center;">${c.codigo || '—'}</td>
-            <td style="font-weight:700;color:#f8fafc;">${c.cliente}</td>
-            <td style="text-align:center;color:#e2e8f0;">${c.comercial || '—'}</td>
-            <td><span class="tab-badge badge-neutral" style="font-size:0.7rem;">${canalBadge}</span></td>
-            <td style="color:#cbd5e1;font-size:0.78rem;">${c.forma_pago || '—'}</td>
-            <td style="text-align:center;color:var(--muted);">${dPact} d</td>
-            <td style="text-align:center;color:#f8fafc;font-weight:600;">${dObs}</td>
-            <td style="text-align:center;font-weight:800;color:#c084fc;font-size:0.85rem;">${dEf} d</td>
-            <td style="text-align:center;">${retStr}</td>
-            <td class="text-right" style="color:var(--muted);">${fmtNum(c.total_facturacion)} €</td>
-            <td class="text-right" style="font-weight:700;color:#38bdf8;">${fmtNum(c.total_cobros)} €</td>
-          </tr>
-        `;
-      });
-
-      return `
-        <div class="table-panel">
-          <div class="mrp-toolbar" style="margin-bottom:1rem;">
-            <div class="mrp-toolbar-left">
-              <span style="font-size:0.9rem;font-weight:700;color:#f8fafc;">
-                Catálogo de Condiciones de Pago y Retrasos Empíricos (${filtered.length} Clientes)
-              </span>
-            </div>
-            <div class="mrp-toolbar-right">
-              <input type="text" id="treasurySearchInput" class="search-input" placeholder="Buscar cliente, código, comercial..." value="${treasurySearchQuery}" oninput="handleTreasurySearch(this.value)">
-            </div>
-          </div>
-
-          <div class="table-container" style="max-height:600px;overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
-              <thead style="position:sticky;top:0;background:#0f172a;z-index:3;">
-                <tr>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;width:35px;">#</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;width:95px;">Código</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:left;">Razón Social / Cliente</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Comercial</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:left;">Canal Asignado</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:left;">Forma de Pago Acordada</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Pactado</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Real Histórico</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;color:#c084fc;">Efectivo Modelo</th>
-                  <th style="padding:0.6rem 0.8rem;text-align:center;">Retraso</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;">Facturación 2026</th>
-                  <th class="text-right" style="padding:0.6rem 0.8rem;color:#38bdf8;">Total Cobros 2026</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
-    }
-
-    // 4. EXPORTACIÓN DE TESORERÍA A EXCEL (DESCARGA DIRECTA DEL SERVIDOR)
-    async function exportTreasuryExcel() {
-      const filename = "Prevision_Tesoreria_CashFlow_2026.xlsx";
-      try {
-        const res = await fetch("/" + filename + "?t=" + Date.now());
-        if (!res.ok) throw new Error("HTTP error " + res.status);
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-          try {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-          } catch(e) {}
-        }, 15000);
-      } catch (err) {
-        console.error("Error al descargar Cash Flow via Blob, usando descarga directa:", err);
-        const a = document.createElement("a");
-        a.href = "/" + filename + "?t=" + Date.now();
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => { try { document.body.removeChild(a); } catch(e){} }, 1000);
-      }
-    }
-
-    function switchTab(tabKey) {
+        function switchTab(tabKey) {
       currentTab = tabKey;
       searchQuery = '';
       currentFilter = 'ALL';
@@ -7078,96 +5939,22 @@
       const titleIconEl = document.getElementById('topbarIcon');
       const titleTextEl = document.getElementById('topbarText');
 
-      if (tabKey === 'inicio') {
-        const b = document.getElementById('navBtnInicio');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '🧭';
-        if (titleTextEl) titleTextEl.textContent = 'Dirección General | Cockpit & Radar de Prioridades';
-      } else if (tabKey === 'controles') {
-        const b = document.getElementById('navBtnControles');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '🔍';
-        if (titleTextEl) titleTextEl.textContent = 'Datos y Controles | Conciliación Contable y Auditoría 0,00 €';
-      } else if (tabKey === 'resumen') {
+      if (tabKey === 'resumen') {
         const b = document.getElementById('navBtnResumen');
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '💼';
         if (titleTextEl) titleTextEl.textContent = 'Comercial | Ventas y Previsiones';
-      } else if (tabKey === 'bi_churn') {
-        const b = document.getElementById('navBtnBiChurn');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '⚠️';
-        if (titleTextEl) titleTextEl.textContent = 'Comercial | Clientes que se están Apagando (Churn Alert)';
-      } else if (tabKey === 'bi_complexity') {
-        const b = document.getElementById('navBtnBiComplexity');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '🏭';
-        if (titleTextEl) titleTextEl.textContent = 'Fabricación | Coste de la Complejidad Industrial & Lotes Pequeños';
-      } else if (tabKey === 'bi_atp') {
-        const b = document.getElementById('navBtnBiAtp');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '⏱️';
-        if (titleTextEl) titleTextEl.textContent = 'Operaciones | Plazos Estándar Orientativos de Entrega (ATP Teórico)';
-      } else if (tabKey === 'bi_excepciones') {
-        const b = document.getElementById('navBtnBiExcepciones');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '🏷️';
-        if (titleTextEl) titleTextEl.textContent = 'Comercial | Registro de Excepciones de Precio con Caducidad';
-      } else if (tabKey === 'bi_snapshots') {
-        const b = document.getElementById('navBtnBiSnapshots');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '🔒';
-        if (titleTextEl) titleTextEl.textContent = 'Datos y Controles | Cierre de Períodos & Snapshots Inmutables';
-      } else if (tabKey === 'bi_staging') {
-        const b = document.getElementById('navBtnBiStaging');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '📥';
-        if (titleTextEl) titleTextEl.textContent = 'Datos y Controles | Previsualización de Importaciones (Staging & Diff)';
-      } else if (tabKey === 'bi_search') {
-        const b = document.getElementById('navBtnBiSearch');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '🔍';
-        if (titleTextEl) titleTextEl.textContent = 'Dirección General | Búsqueda Global 360° (Omnibox Traceability)';
-      } else if (tabKey === 'bi_reunion') {
-        const b = document.getElementById('navBtnBiReunion');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '📌';
-        if (titleTextEl) titleTextEl.textContent = 'Dirección General | Modo Reunión de Comité & Acuerdos Directivos';
-      } else if (tabKey === 'bi_forecast') {
-        const b = document.getElementById('navBtnBiForecast');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '🎯';
-        if (titleTextEl) titleTextEl.textContent = 'Comercial | Fiabilidad de Previsiones & Bias';
-      } else if (tabKey === 'bi_concentracion') {
-        const b = document.getElementById('navBtnBiConcentracion');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '⚖️';
-        if (titleTextEl) titleTextEl.textContent = 'Rentabilidad | Concentración de Negocio & Stress Test';
       } else if (tabKey === 'tracking_marta') {
         const b = document.getElementById('navBtnTrackingMarta');
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '🎯';
-        if (titleTextEl) titleTextEl.textContent = 'Comercial | Cierre 2026 & Termómetro Q4 (Unidades)';
+        const modeSuffix = (typeof window.getMartaMode === 'function' && window.getMartaMode() === 'euros') ? 'Euros' : 'Unidades';
+        if (titleTextEl) titleTextEl.textContent = `Comercial | Cierre 2026 & Termómetro Q4 (${modeSuffix})`;
       } else if (tabKey === 'produccion') {
         const b = document.getElementById('navBtnProduccion');
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '🏭';
         if (titleTextEl) titleTextEl.textContent = 'Fabricación | Planificación & MRP';
-      } else if (tabKey === 'tesoreria') {
-        const b = document.getElementById('navBtnTesoreria');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '💰';
-        if (titleTextEl) titleTextEl.textContent = 'Finanzas | Tesorería y Cash Flow';
-      } else if (tabKey === 'rentabilidad' || tabKey === 'rentabilidad_cogs') {
-        const b = document.getElementById('navBtnRentabilidadCogs');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '💎';
-        if (titleTextEl) titleTextEl.textContent = 'Rentabilidad | Márgenes COGS';
-      } else if (tabKey === 'rentabilidad_fullcost') {
-        const b = document.getElementById('navBtnRentabilidadFullCost');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '🏭';
-        if (titleTextEl) titleTextEl.textContent = 'Rentabilidad | Full Costing Industrial';
       } else {
         // Comercial específico seleccionado desde la tabla
         const parentBtn = document.getElementById('navBtnResumen');
@@ -7186,49 +5973,13 @@
 
     function renderCurrentTab() {
       if (!appData) return;
-      const bannerEl = document.getElementById('directorialWorkflowBannerContainer');
-      if (bannerEl) {
-        bannerEl.innerHTML = (window.showGuidedAuditBanner === true && typeof renderWorkflowAuditBannerHtml === 'function')
-          ? renderWorkflowAuditBannerHtml()
-          : '';
-      }
       const container = document.getElementById('appContent');
-      if (currentTab === 'inicio') {
-        renderCockpitInicioTab(container);
-      } else if (currentTab === 'controles') {
-        renderControlesTab(container);
-      } else if (currentTab === 'resumen') {
+      if (currentTab === 'resumen') {
         renderResumenTab(container);
-      } else if (currentTab === 'bi_churn') {
-        renderBiChurnTab(container);
-      } else if (currentTab === 'bi_complexity') {
-        renderBiComplexityTab(container);
-      } else if (currentTab === 'bi_atp') {
-        renderBiAtpTab(container);
-      } else if (currentTab === 'bi_excepciones') {
-        renderBiExcepcionesTab(container);
-      } else if (currentTab === 'bi_snapshots') {
-        renderBiSnapshotsTab(container);
-      } else if (currentTab === 'bi_staging') {
-        renderBiStagingTab(container);
-      } else if (currentTab === 'bi_search') {
-        renderBiSearchTab(container);
-      } else if (currentTab === 'bi_reunion') {
-        renderBiReunionTab(container);
-      } else if (currentTab === 'bi_forecast') {
-        renderBiForecastTab(container);
-      } else if (currentTab === 'bi_concentracion') {
-        renderBiConcentracionTab(container);
       } else if (currentTab === 'tracking_marta') {
         renderTrackingMartaTab(container);
       } else if (currentTab === 'produccion') {
         renderProduccionTab(container);
-      } else if (currentTab === 'tesoreria') {
-        renderTesoreriaTab(container);
-      } else if (currentTab === 'rentabilidad' || currentTab === 'rentabilidad_cogs') {
-        renderRentabilidadTab(container);
-      } else if (currentTab === 'rentabilidad_fullcost') {
-        renderFullCostingDedicatedTab(container);
       } else {
         renderComercialTab(container, currentTab);
       }
@@ -7240,420 +5991,7 @@
     // ==========================================
     // RENDER: RESUMEN GENERAL
     // ==========================================
-    
-    
-    
-    function renderCockpitInicioTab(container) {
-      container.innerHTML = `
-        <div id="cockpitContainer">
-          ${typeof renderCockpitInicioSection === 'function' ? renderCockpitInicioSection() : '<p>Cargando Cockpit de Dirección...</p>'}
-        </div>
-      `;
-    }
-
-    function renderControlesTab(container) {
-      // MOTOR DE CONCILIACIÓN DINÁMICA Y PUENTES DE CIERRE (SEPTIEMBRE 2026)
-      const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
-      const meta = (fc && fc.metadata) ? fc.metadata : null;
-
-      const hasCDet = !!(fc && fc.cuentas_detalle && Object.keys(fc.cuentas_detalle).length > 0);
-      const hasIncidents = !!(meta && Array.isArray(meta.incidencias_datos) && meta.incidencias_datos.length > 0);
-      const hasModel = !!meta && typeof meta.rai_calculado === 'number' && hasCDet && !hasIncidents;
-
-      // RAI Mayor contable oficial (Libro Mayor)
-      const raiMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number')
-        ? fc.cuentas_resumen.rai_neto
-        : ((meta && typeof meta.rai_contable_mayor === 'number') ? meta.rai_contable_mayor : NaN);
-
-      // RAI Modelo Analítico Cascada: independiente del Mayor contable
-      let raiModelo = NaN;
-      if (hasModel) {
-        if (typeof meta.rai_analitico_cascada === 'number' && Math.abs(meta.rai_analitico_cascada - raiMayor) > 0.005) {
-          raiModelo = meta.rai_analitico_cascada;
-        } else if (typeof meta.rai_calculado === 'number' && Math.abs(meta.rai_calculado - raiMayor) > 0.005) {
-          raiModelo = meta.rai_calculado;
-        } else if (typeof meta.rai_analitico_cascada === 'number') {
-          raiModelo = meta.rai_analitico_cascada;
-        } else if (typeof meta.rai_calculado === 'number') {
-          raiModelo = meta.rai_calculado;
-        }
-      }
-
-      const cDet = (fc && fc.cuentas_detalle) ? fc.cuentas_detalle : null;
-      const getCtaSaldo = (cta) => {
-        if (cDet && cDet[cta] && typeof cDet[cta].saldo_mes === 'number') {
-          return Math.abs(cDet[cta].saldo_mes);
-        }
-        return NaN;
-      };
-
-      const val640_mayor = getCtaSaldo('640000000');
-      const val642_mayor = getCtaSaldo('642000000');
-      const val607_mayor = getCtaSaldo('607000000');
-      const val624_1_mayor = getCtaSaldo('624000001');
-      const val624_2_mayor = getCtaSaldo('624000002');
-      const val624_3_mayor = getCtaSaldo('624000003');
-      const val622_mayor = (fc && typeof fc.mantenimiento_622_total === 'number') ? fc.mantenimiento_622_total : NaN;
-
-      // Modelos analíticos independientes recalculados desde las hojas operativas (sin constantes de reemplazo si ausentes)
-      const modAnalitico = (!hasIncidents && fc && fc.modelos_analiticos)
-        ? fc.modelos_analiticos
-        : ((!hasIncidents && meta && meta.modelos_analiticos) ? meta.modelos_analiticos : null);
-      const modelo640 = (modAnalitico && typeof modAnalitico.personal_devengado === 'number') ? modAnalitico.personal_devengado : NaN;
-      const modelo642 = (modAnalitico && typeof modAnalitico.seguridad_social === 'number') ? modAnalitico.seguridad_social : NaN;
-      const modelo607 = (modAnalitico && typeof modAnalitico.ett_envasado === 'number') ? modAnalitico.ett_envasado : NaN;
-      const modelo624_1 = (modAnalitico && typeof modAnalitico.transporte_nacional === 'number') ? modAnalitico.transporte_nacional : NaN;
-      const modelo624_2 = (modAnalitico && typeof modAnalitico.transporte_internacional === 'number') ? modAnalitico.transporte_internacional : NaN;
-      const modelo624_3 = (modAnalitico && typeof modAnalitico.transporte_canarias === 'number') ? modAnalitico.transporte_canarias : NaN;
-      const modelo622 = (modAnalitico && typeof modAnalitico.mantenimiento_centros === 'number') ? modAnalitico.mantenimiento_centros : NaN;
-
-      const ssDet = (modAnalitico && modAnalitico.seguridad_social_detalle) ? modAnalitico.seguridad_social_detalle : null;
-      const ssNota = ssDet
-        ? `Explícito Personal_ETT: ${fmtEur(ssDet.nomina_personal_ett)} + Cuota 33% ID 31/32: ${fmtEur(ssDet.ajuste_documentado_rnt)} · ${ssDet.estado}`
-        : 'Estimado: pendiente de RLC/RNT nominal';
-
-      const auditItems = [
-        { concepto: 'Sueldos y Salarios (Cta 640000000)', mayor: val640_mayor, modelo: modelo640, estadoBase: 'Estimado', nota: 'Personal_ETT filas 7..40 (prorrateo presupuestario pendiente de nómina individual)' },
-        { concepto: 'Seguridad Social Empresa (Cta 642000000)', mayor: val642_mayor, modelo: modelo642, estadoBase: 'Estimado', nota: ssNota },
-        { concepto: 'Personal ETT Envasado / Maquila (Cta 607000000)', mayor: val607_mayor, modelo: modelo607, estadoBase: 'Comprobado', nota: '4 facturas ETT (24.279,07 € actividad propia + 1.926,91 € maquila SAS = 37,5 h / 170 h Recurso 36)' },
-        { concepto: 'Transporte Nacional (Cta 624000001)', mayor: val624_1_mayor, modelo: modelo624_1, estadoBase: 'Pendiente de conciliación', nota: 'Mayor: 8.129,04 € vs Reporte logístico Mes=9: 5.943,90 € (Dif: 2.185,14 € en puente de transporte)' },
-        { concepto: 'Transporte Internacional (Cta 624000002)', mayor: val624_2_mayor, modelo: modelo624_2, estadoBase: 'Pendiente de conciliación', nota: 'Mayor: 8.078,83 € vs Reporte logístico Mes=9: 8.065,00 € (Dif: 13,83 €, EX-243 sin precio)' },
-        { concepto: 'Transporte Canarias (Cta 624000003)', mayor: val624_3_mayor, modelo: modelo624_3, estadoBase: 'Pendiente de conciliación', nota: 'Mayor: 10.256,54 € vs Reporte logístico Mes=9: 7.276,76 € (Dif: 2.979,78 €; Alb 834 Mes=8 = 2.657,25 €)' },
-        { concepto: 'Mantenimiento y Reparaciones (Cuentas 622*)', mayor: val622_mayor, modelo: modelo622, estadoBase: 'Comprobado', nota: 'Costes_activos 622* (8.849,84 €) + 4 cuentas 622* en Cuentas (4.696,23 €) = 13.546,07 €' },
-        { concepto: 'Resultado Antes de Impuestos (RAI Sep-26)', mayor: raiMayor, modelo: raiModelo, estadoBase: 'Comprobado', nota: 'Comparación independiente entre RAI Contable Mayor y RAI Analítico Cascada (sin partidas de cuadre)' }
-      ];
-
-      let allPassed = hasModel;
-      let sumaMayor = 0;
-      let sumaModelo = 0;
-      let hasMissingData = hasIncidents;
-
-      auditItems.forEach(item => {
-        if (typeof item.mayor === 'number' && !isNaN(item.mayor)) {
-          sumaMayor += item.mayor;
-        } else {
-          hasMissingData = true;
-        }
-        if (typeof item.modelo === 'number' && !isNaN(item.modelo)) {
-          sumaModelo += item.modelo;
-        } else {
-          hasMissingData = true;
-        }
-        if (typeof item.mayor !== 'number' || typeof item.modelo !== 'number' || isNaN(item.mayor) || isNaN(item.modelo)) {
-          item.diff = NaN;
-          item.isOk = false;
-          allPassed = false;
-        } else {
-          item.diff = Math.abs(item.mayor - item.modelo);
-          item.isOk = item.diff <= 0.05;
-          if (!item.isOk) allPassed = false;
-        }
-      });
-
-      const totalDiff = Math.abs(sumaMayor - sumaModelo);
-      const totalOk = allPassed && !hasMissingData;
-
-      const renderVal = (v) => {
-        if (typeof v === 'number' && !isNaN(v)) return fmtEur(v);
-        return '<span style="color:#f87171; font-weight:700">Sin datos</span>';
-      };
-
-      const pe = (fc && fc.puente_existencias) ? fc.puente_existencias : null;
-      const pt = (fc && fc.puente_transporte) ? fc.puente_transporte : null;
-      const tp = (fc && Array.isArray(fc.trazabilidad_parametros)) ? fc.trazabilidad_parametros : [];
-      const incList = (meta && Array.isArray(meta.incidencias_datos)) ? meta.incidencias_datos : [];
-
-      container.innerHTML = `
-        <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
-          <div style="background:linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(15,23,42,0.95) 100%); border:1px solid rgba(16,185,129,0.4); border-radius:var(--radius-md); padding:1.35rem 1.75rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-              <div>
-                <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem; flex-wrap:wrap;">
-                  <span style="font-size:1.4rem">🛡️</span>
-                  <h3 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.25rem;">
-                    Control de Conciliación Contable y Puentes del Piloto (Septiembre 2026)
-                  </h3>
-                  <span class="tab-badge ${totalOk ? 'badge-success' : 'badge-danger'}">
-                    ${totalOk ? 'Cálculo Cuadrado en Tiempo Real' : (hasMissingData ? 'Sin datos' : 'Descuadre Detectado')}
-                  </span>
-                  <span class="tab-badge badge-warning">Cierre Contable: Pendiente de conciliación</span>
-                </div>
-                <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:880px;">
-                  <strong>Estado de la Aplicación:</strong> ${hasMissingData ? '<span style="color:#f87171">Sin datos</span>' : '<span style="color:#34d399">Comprobado</span>'} (cálculos reproducibles, conservación de importes 0,00 €).
-                  <strong>Estado del Cierre Contable de Septiembre 2026:</strong> <span style="color:#fbbf24">Pendiente de conciliación</span> en corte de existencias (01/10 vs 14/10), facturas logísticas de transporte (subgrupo 624) y soporte nominal RLC/RNT.
-                </p>
-              </div>
-              <div style="background:rgba(15,23,42,0.85); padding:0.55rem 1.15rem; border-radius:var(--radius-sm); border:1px solid var(--card-border); text-align:right">
-                <div style="font-size:0.72rem; color:var(--muted); text-transform:uppercase; font-weight:700">Diferencia Modelo vs Mayor</div>
-                <div style="font-size:1.5rem; font-weight:800; color:${totalOk ? '#34d399' : '#f87171'}">${hasMissingData ? '<span style="color:#f87171">Sin datos</span>' : fmtEur(totalDiff)}</div>
-                <div style="font-size:0.72rem; color:var(--muted)">${totalOk ? 'Tolerancia < 0,05 € · Total Empresa' : (hasMissingData ? 'Faltan datos requeridos' : 'Descuadre activo señalado')}</div>
-              </div>
-            </div>
-            ${incList.length > 0 ? `
-              <div style="margin-top:0.85rem; padding:0.75rem 1rem; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:6px; color:#fca5a5; font-size:0.82rem;">
-                <strong>⚠️ Incidencias por ausencia de datos requeridos (${incList.length}):</strong>
-                <ul style="margin:0.35rem 0 0 1.2rem; padding:0;">
-                  ${incList.map(inc => `<li>${inc}</li>`).join('')}
-                </ul>
-              </div>
-            ` : ''}
-          </div>
-
-          <div class="table-card">
-            <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center;">
-              <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
-                1. Matriz de Cuentas Contables y Conciliación con el Modelo Analítico
-              </h4>
-              <span style="font-size:0.8rem; color:var(--muted)">Período: Septiembre 2026 · Ámbito: Total Empresa</span>
-            </div>
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Concepto Contable</th>
-                    <th style="text-align:right">Libro Mayor (€)</th>
-                    <th style="text-align:right">Modelo Costes (€)</th>
-                    <th style="text-align:right">Diferencia Real (€)</th>
-                    <th>Trazabilidad / Soporte y Pendientes</th>
-                    <th style="text-align:center">Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${auditItems.map(item => `
-                    <tr>
-                      <td style="font-weight:700; color:#fff">${item.concepto}</td>
-                      <td style="text-align:right; font-family:monospace; font-weight:600">${renderVal(item.mayor)}</td>
-                      <td style="text-align:right; font-family:monospace; font-weight:600; color:#38bdf8">${renderVal(item.modelo)}</td>
-                      <td style="text-align:right; font-weight:800; font-family:monospace; color:${item.isOk ? '#34d399' : '#ef4444'}">
-                        ${isNaN(item.diff) ? '<span style="color:#f87171">Sin datos</span>' : (item.isOk ? '0,00 €' : fmtEur(item.diff))}
-                      </td>
-                      <td style="font-size:0.82rem; color:#94a3b8">${item.nota}</td>
-                      <td style="text-align:center">
-                        <span class="tab-badge badge-${item.isOk ? (item.estadoBase === 'Comprobado' ? 'success' : 'warning') : 'danger'}">
-                          ${isNaN(item.diff) ? 'Sin datos' : (item.isOk ? item.estadoBase + ' (0,00 €)' : 'Descuadre ' + fmtEur(item.diff))}
-                        </span>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          ${pe && pe.productos_711_712 ? `
-          <div class="table-card">
-            <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-              <div>
-                <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
-                  2. Puente de Existencias: Plantilla Inventarios (−24.062,80 €) vs Cuentas 711/712 (−109.366,49 €)
-                </h4>
-                <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">${pe.convencion_signos}</div>
-              </div>
-              <span class="tab-badge badge-warning">Pendiente de conciliación (Diferencia total: ${fmtEur(pe.productos_711_712.diferencia_total_eur)})</span>
-            </div>
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Paso del Puente (Productos En Curso, Semiterminados y Terminados)</th>
-                    <th style="text-align:right">Importe (€)</th>
-                    <th>Fuente y Justificación Documentada</th>
-                    <th style="text-align:center">Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${(pe.productos_711_712.pasos_puente || []).map(p => `
-                    <tr>
-                      <td style="font-weight:700; color:#fff">${p.orden}. ${p.concepto}</td>
-                      <td style="text-align:right; font-family:monospace; font-weight:700; color:${p.importe_eur < 0 ? '#f87171' : '#38bdf8'}">${fmtEur(p.importe_eur)}</td>
-                      <td style="font-size:0.8rem; color:#cbd5e1">${p.fuente}${p.documento_faltante ? `<br/><strong style="color:#fbbf24">Falta:</strong> ${p.documento_faltante}` : ''}</td>
-                      <td style="text-align:center"><span class="tab-badge badge-${p.estado === 'Comprobado' ? 'success' : 'warning'}">${p.estado}</span></td>
-                    </tr>
-                  `).join('')}
-                  <tr style="background:rgba(16,185,129,0.12); font-weight:800;">
-                    <td style="color:#fff">(=) Saldo Conjunto Cuentas 711000000 (−30.979,93 €) + 712000000 (−78.386,56 €) en PYG SEP.xlsx</td>
-                    <td style="text-align:right; font-family:monospace; color:#34d399">${fmtEur(pe.productos_711_712.saldo_contable_conjunto_eur)}</td>
-                    <td style="font-size:0.8rem; color:#cbd5e1">Cierre contable oficial (corte 14/10/2026). Materias primas Cta 611: +168.480,81 € (vs −31.938,49 € en plantilla); Envases Cta 612: −21.053,40 € (vs +6.167,86 € en plantilla).</td>
-                    <td style="text-align:center"><span class="tab-badge badge-success">Comprobado</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          ` : ''}
-
-          ${pt && pt.desglose_por_cuenta ? `
-          <div class="table-card">
-            <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-              <div>
-                <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
-                  3. Puente de Transporte: Reporte Logístico (${fmtEur(pt.reporte_logistico_imputado_eur)}) vs Subgrupo 624 (${fmtEur(pt.mayor_tres_cuentas_principales_eur)} / ${fmtEur(pt.mayor_total_subgrupo_624_eur)})
-                </h4>
-                <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">
-                  Conservación exacta: Clientes = Comerciales = Total (${fmtEur(pt.reporte_logistico_imputado_eur)}). Cliente sin venta neta en el mes visible: <strong>FITOXENT S.C.L.V. (350,90 €)</strong>.
-                </div>
-              </div>
-              <span class="tab-badge badge-warning">Pendiente de conciliación (Dif. 3 cuentas: ${fmtEur(pt.diferencia_tres_cuentas_eur)})</span>
-            </div>
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Cuenta Contable</th>
-                    <th style="text-align:right">Reporte Logístico (Mes=9)</th>
-                    <th style="text-align:right">Mayor Contable PYG</th>
-                    <th style="text-align:right">Diferencia (€)</th>
-                    <th style="text-align:right">Albaranes Mes=8 en Sep</th>
-                    <th>Explicación y Soporte Pendiente</th>
-                    <th style="text-align:center">Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${pt.desglose_por_cuenta.map(row => `
-                    <tr>
-                      <td style="font-weight:700; color:#fff">${row.cuenta} · ${row.descripcion}</td>
-                      <td style="text-align:right; font-family:monospace">${fmtEur(row.reporte_logistico_eur)}</td>
-                      <td style="text-align:right; font-family:monospace">${fmtEur(row.mayor_contable_eur)}</td>
-                      <td style="text-align:right; font-family:monospace; font-weight:700; color:#fbbf24">${fmtEur(row.diferencia_eur)}</td>
-                      <td style="text-align:right; font-family:monospace; color:#38bdf8">${fmtEur(row.corte_mes8_en_sep_eur)}</td>
-                      <td style="font-size:0.8rem; color:#cbd5e1">${row.explicacion}</td>
-                      <td style="text-align:center"><span class="tab-badge badge-${row.estado === 'Comprobado' ? 'success' : 'warning'}">${row.estado}</span></td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          ` : ''}
-
-          ${tp.length > 0 ? `
-          <div class="table-card">
-            <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center;">
-              <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
-                4. Trazabilidad de Bases y Parámetros del Modelo Económico (Septiembre 2026)
-              </h4>
-              <span style="font-size:0.8rem; color:var(--muted)">Fuente controlable en plantilla Excel</span>
-            </div>
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Parámetro / Base del Modelo</th>
-                    <th>Origen en Plantilla / Fuente</th>
-                    <th>Período</th>
-                    <th style="text-align:center">Naturaleza / Estado</th>
-                    <th>Procedimiento de Actualización</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${tp.map(p => `
-                    <tr>
-                      <td style="font-weight:700; color:#fff">${p.parametro}</td>
-                      <td style="font-size:0.82rem; color:#38bdf8">${p.origen}</td>
-                      <td style="font-size:0.82rem; color:#cbd5e1">${p.periodo}</td>
-                      <td style="text-align:center"><span class="tab-badge badge-${String(p.naturaleza).includes('Comprobado') ? 'success' : 'warning'}">${p.naturaleza}</span></td>
-                      <td style="font-size:0.8rem; color:#94a3b8">${p.como_actualizar}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-          ` : ''}
-        </div>
-      `;
-    }
-
-function renderBiChurnTab(container) {
-      container.innerHTML = `
-        <div id="biChurnContainer">
-          ${typeof renderChurnAlertSection === 'function' ? renderChurnAlertSection() : '<p>Cargando módulo de alertas de fuga...</p>'}
-        </div>
-      `;
-    }
-
-    function renderBiComplexityTab(container) {
-      container.innerHTML = `
-        <div id="biComplexityContainer">
-          ${typeof renderIndustrialComplexitySection === 'function' ? renderIndustrialComplexitySection() : '<p>Cargando módulo de complejidad industrial...</p>'}
-        </div>
-      `;
-    }
-
-    function renderBiAtpTab(container) {
-      container.innerHTML = `
-        <div id="biAtpContainer">
-          ${typeof renderAtpDeliveryDateSection === 'function' ? renderAtpDeliveryDateSection() : '<p>Cargando módulo de fechas viables ATP...</p>'}
-        </div>
-      `;
-      if (typeof runAtpSimulator === 'function') {
-        setTimeout(runAtpSimulator, 50);
-      }
-    }
-
-    function renderBiExcepcionesTab(container) {
-      container.innerHTML = `
-        <div id="biExcepcionesContainer">
-          ${typeof renderPriceExceptionsSection === 'function' ? renderPriceExceptionsSection() : '<p>Cargando módulo de excepciones de precio...</p>'}
-        </div>
-      `;
-      if (typeof recalcPriceExceptionSim === 'function') {
-        setTimeout(recalcPriceExceptionSim, 50);
-      }
-    }
-
-    function renderBiSnapshotsTab(container) {
-      container.innerHTML = `
-        <div id="biSnapshotsContainer">
-          ${typeof renderSnapshotsHistorySection === 'function' ? renderSnapshotsHistorySection() : '<p>Cargando módulo de snapshots...</p>'}
-        </div>
-      `;
-      if (typeof runSnapshotDiff === 'function') {
-        setTimeout(runSnapshotDiff, 50);
-      }
-    }
-
-    function renderBiStagingTab(container) {
-      container.innerHTML = `
-        <div id="biStagingContainer">
-          ${typeof renderStagingImportSection === 'function' ? renderStagingImportSection() : '<p>Cargando módulo de staging...</p>'}
-        </div>
-      `;
-    }
-
-    function renderBiSearchTab(container) {
-      container.innerHTML = `
-        <div id="biSearchContainer">
-          ${typeof renderOmniboxSearchSection === 'function' ? renderOmniboxSearchSection() : '<p>Cargando buscador global 360°...</p>'}
-        </div>
-      `;
-    }
-
-    function renderBiReunionTab(container) {
-      container.innerHTML = `
-        <div id="biReunionContainer">
-          ${typeof renderModoReunionSection === 'function' ? renderModoReunionSection() : '<p>Cargando Modo Reunión...</p>'}
-        </div>
-      `;
-    }
-
-function renderBiForecastTab(container) {
-      container.innerHTML = `
-        <div id="biContentContainer">
-          ${typeof renderForecastAccuracySection === 'function' ? renderForecastAccuracySection() : '<p>Cargando módulo de fiabilidad...</p>'}
-        </div>
-      `;
-    }
-
-    function renderBiConcentracionTab(container) {
-      container.innerHTML = `
-        <div id="biContentContainer">
-          ${typeof renderConcentracionSection === 'function' ? renderConcentracionSection() : '<p>Cargando módulo de concentración...</p>'}
-        </div>
-      `;
-    }
-
-function renderResumenTab(container) {
+    function renderResumenTab(container) {
       const scopeData = getScopeData(currentScope);
       const g = scopeData.globalKpis;
       const resList = scopeData.resList;
@@ -9527,19 +7865,6 @@ function renderResumenTab(container) {
         let bBg = 'rgba(15, 23, 42, 0.7)';
         let bBorder = 'var(--card-border)';
 
-        // Hallazgo H12: Comprobar sobrecompromiso de stock compartido multi-destino
-        let isSharedOvercommitted = false;
-        let sharedPendingTotal = 0;
-        let sharedDeficit = 0;
-        if (bas && (bas.destinos || bas.sub_items)) {
-          const dList = bas.destinos || bas.sub_items || [];
-          sharedPendingTotal = dList.reduce((acc, s) => acc + (Number(s.pendientes_uds) || 0), 0);
-          if (dList.length > 1 && sharedPendingTotal > stockEnvasado && stockEnvasado > 0) {
-            isSharedOvercommitted = true;
-            sharedDeficit = sharedPendingTotal - stockEnvasado;
-          }
-        }
-
         if (totalPendientes === 0) {
           if (totalPedidos > 0) {
             bIcon = '🎉';
@@ -9554,45 +7879,38 @@ function renderResumenTab(container) {
             bBg = 'linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(15,23,42,0.85) 100%)';
             bBorder = '1px solid rgba(56,189,248,0.5)';
           }
-        } else if (isSharedOvercommitted) {
-          bIcon = '⚠️';
-          bTitle = `Stock Compartido Sobrecomprometido (Déficit Global: -${fmtNum(sharedDeficit)} u)`;
-          bDesc = `<strong>Hecho observado:</strong> Aunque para este destino específico constan ${fmtNum(totalPendientes)} u pendientes y el stock físico es ${fmtNum(stockEnvasado)} u, la <strong>reserva global compartida de todos los países suma ${fmtNum(sharedPendingTotal)} u</strong>.<br><strong>Diagnóstico operativo:</strong> El stock físico está superado por la demanda multi-destino. No evaluar aisladamente. Se requiere <strong>Orden de Fabricación inmediata por ${fmtNum(sharedDeficit)} u</strong>.`;
-          bBg = 'linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(15,23,42,0.85) 100%)';
-          bBorder = '1px solid rgba(239,68,68,0.5)';
         } else if (stockEnvasado >= totalPendientes) {
           bIcon = '📦';
           bTitle = `Stock Disponible en Almacén (${fmtNum(stockEnvasado)} u fabricadas para ${fmtNum(totalPendientes)} u pendientes)`;
-          bDesc = `<strong>Hecho observado:</strong> Existe stock envasado suficiente en fábrica para cubrir los pedidos pendientes.<br><strong>Diagnóstico operativo:</strong> Motivo de entrega pendiente sin confirmar en operaciones (posible fecha acordada posterior, consolidación logística de carga, retención documental/calidad o autorización comercial). Requiere verificación del estado de expedición con Operaciones/Almacén.`;
+          bDesc = `El producto ya está completamente fabricado y envasado en los almacenes de Codiagro. No se debe a un error de previsión comercial ni a falta de capacidad de Planta. Está pendiente de transporte, consolidación de carga en camión/contenedor con otros pedidos del cliente o fecha de entrega acordada.`;
           bBg = 'linear-gradient(135deg, rgba(56,189,248,0.18) 0%, rgba(15,23,42,0.85) 100%)';
           bBorder = '1px solid rgba(56,189,248,0.5)';
         } else {
-          // No hay stock envasado suficiente
           const anyUnforeseen = commercials.some(c => c.budget_uds === 0 && c.pendientes_uds > 0);
           const anyExceeded = commercials.some(c => c.pedidos_uds > c.budget_uds && c.pendientes_uds > 0);
 
           if (anyUnforeseen && !anyExceeded && totalBudget === 0) {
             bIcon = '⚠️';
-            bTitle = 'Demanda sin Previsión Presupuestada (0 u estimadas)';
-            bDesc = `<strong>Hecho observado:</strong> Los pedidos entraron sin previsión mensual presupuestada (0 u estimadas).<br><strong>Diagnóstico operativo:</strong> Planta de fabricación no tenía programados lotes preventivos al inicio del mes al no figurar en el plan comercial. Se requiere orden de envasado/fabricación en planta.`;
+            bTitle = 'Venta Imprevista (Sin Previsión Comercial en el Presupuesto)';
+            bDesc = `Los pedidos entraron sin ninguna previsión mensual presupuestada (0 u estimadas). Planta de fabricación no tenía programados los lotes envasados al inicio del mes para cubrir esta demanda no planificada.`;
             bBg = 'linear-gradient(135deg, rgba(245,158,11,0.18) 0%, rgba(15,23,42,0.85) 100%)';
             bBorder = '1px solid rgba(245,158,11,0.5)';
           } else if (anyExceeded) {
             bIcon = '📈';
-            bTitle = `Demanda Superior al Presupuesto (+${fmtNum(Math.max(0, totalPedidos - totalBudget))} u)`;
-            bDesc = `<strong>Hecho observado:</strong> Los pedidos recibidos superan el volumen planificado (+${fmtNum(Math.max(0, totalPedidos - totalBudget))} u sobre el presupuesto).<br><strong>Diagnóstico operativo:</strong> El envasado programado según el plan inicial se ha visto sobrepasado. Se requiere ampliación de orden de envasado en planta.`;
+            bTitle = 'Previsión Comercial Corta (Sobredemanda frente al Plan)';
+            bDesc = `La demanda comercial superó la previsión planificada (+${fmtNum(Math.max(0, totalPedidos - totalBudget))} u sobre el presupuesto). Fábrica dimensionó su envasado conforme a la previsión oficial y el exceso de pedidos ha generado el pendiente.`;
             bBg = 'linear-gradient(135deg, rgba(249,115,22,0.18) 0%, rgba(15,23,42,0.85) 100%)';
             bBorder = '1px solid rgba(249,115,22,0.5)';
           } else if (granelStock > 0) {
             bIcon = '⚙️';
-            bTitle = `Falta Envasado (Granel Disponible: ${fmtNum(granelStock)} ${granelCode ? granelCode : 'L/Kg'})`;
-            bDesc = `<strong>Hecho observado:</strong> Existe granel formulado en tanques/reactores (${granelCode ? granelCode + ' - ' + granelDesc : 'Granel'}).<br><strong>Diagnóstico operativo:</strong> El producto está formulado pero pendiente de envasar en este formato específico. Requiere programar línea de envasado.`;
+            bTitle = `Pendiente de Envasado en Línea (Hay Granel Disponible: ${fmtNum(granelStock)} ${granelCode ? granelCode : 'L/Kg'})`;
+            bDesc = `La previsión comercial fue registrada a tiempo y existe granel formulado disponible en tanques/reactores (${granelCode ? granelCode + ' - ' + granelDesc : 'Granel'}). El motivo del pendiente es la cola de envasado y paletizado en línea para este formato específico.`;
             bBg = 'linear-gradient(135deg, rgba(168,85,247,0.18) 0%, rgba(15,23,42,0.85) 100%)';
             bBorder = '1px solid rgba(168,85,247,0.5)';
           } else {
             bIcon = '🏭';
-            bTitle = 'Falta Formulación de Granel / Materias Primas';
-            bDesc = `<strong>Hecho observado:</strong> No existe granel formulado ni stock envasado suficiente para atender los pedidos pendientes.<br><strong>Diagnóstico operativo:</strong> Se requiere programar orden de fabricación (OF) en reactores y confirmar disponibilidad de materias primas con aprovisionamientos.`;
+            bTitle = 'Rotura de Stock / Retraso en Fabricación de Planta';
+            bDesc = `Los comerciales previeron las ventas correctamente en el presupuesto, pero en Planta no se ha formulado el granel ni existe stock envasado suficiente (posible cuello de botella en reactores o cola de materias primas).`;
             bBg = 'linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(15,23,42,0.85) 100%)';
             bBorder = '1px solid rgba(239,68,68,0.5)';
           }

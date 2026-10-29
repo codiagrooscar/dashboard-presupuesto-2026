@@ -17,7 +17,7 @@ import pandas as pd
 import unicodedata
 from datetime import datetime
 
-base_dir = r"c:\Users\oscar.ocampo\OneDrive - Agroquímica Codiagro S.L\Escritorio\Presupuesto 2026\Calsif Comerciales"
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(base_dir)
 
 def norm(s):

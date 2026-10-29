@@ -7316,8 +7316,8 @@
         ssNota = ssDet.texto_explicativo;
       } else if (ssDet) {
         ssNota = (ssAjuste > 0)
-          ? Personal_ETT:  + Ajuste RNT:  = 
-          : Personal_ETT:  (Cuotas integradas en nómina) = ;
+          ? `Personal_ETT: ${fmtEur(ssBase)} + Ajuste RNT: ${fmtEur(ssAjuste)} = ${fmtEur(ssTotal)}`
+          : `Personal_ETT: ${fmtEur(ssBase)} (Cuotas integradas en nómina) = ${fmtEur(ssTotal)}`;
       }
 
       const auditItems = [

@@ -10,7 +10,7 @@ import numpy as np
 import unicodedata
 from collections import Counter
 
-base_dir = r"c:\Users\oscar.ocampo\OneDrive - Agroquímica Codiagro S.L\Escritorio\Presupuesto 2026\Calsif Comerciales"
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(base_dir)
 
 def norm(s):

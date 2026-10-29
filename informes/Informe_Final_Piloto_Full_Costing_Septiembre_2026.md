@@ -284,3 +284,39 @@ Para disipar cualquier duda sobre la versión de datos en producción y evitar d
      - Con cuotas integradas en nómina: `Personal_ETT: 34.709,72 € (Cuotas integradas en nómina) = 34.709,72 €`
 4. **Verificación Formal de Pruebas de Cierre**:
    - Se ejecutó la batería automatizada `scratch/test_chatgpt_round4.py` superando con éxito las 5 pruebas de cierre (100% PASS).
+
+---
+
+## 12. Validación Definitiva de Portabilidad y Cierre (Ronda 5 - 29/10/2026)
+
+Tras la revisión de cierre, se implementaron las siguientes garantías técnicas finales:
+
+1. **Corrección de Sintaxis JavaScript en Pantalla de Dirección**:
+   - En [index.html](file:///c:/Users/oscar.ocampo/OneDrive%20-%20Agroqu%C3%ADmica%20Codiagro%20S.L/Escritorio/Presupuesto%202026/Calsif%20Comerciales/web_dashboard_direccion/index.html) (líneas 7318-7321), se corrigieron las expresiones de plantilla literal con backticks válidos para las ramas alternativas de la nota de Seguridad Social:
+     ```javascript
+     ssNota = (ssAjuste > 0)
+       ? `Personal_ETT: ${fmtEur(ssBase)} + Ajuste RNT: ${fmtEur(ssAjuste)} = ${fmtEur(ssTotal)}`
+       : `Personal_ETT: ${fmtEur(ssBase)} (Cuotas integradas en nómina) = ${fmtEur(ssTotal)}`;
+     ```
+   - Se verificó la ausencia de errores mediante `node --check` sobre todos los bloques de script inline.
+
+2. **Portabilidad Total (Eliminación de Rutas Absolutas Fijas)**:
+   - Se sustituyeron las rutas fijas en `scripts/generate_excel_dashboard.py`, `scripts/build_irene_q4_revision.py`, `scripts/build_q4_forecast_templates.py` y `scripts/build_ventas_consolidadas.py` por la resolución dinámica del directorio raíz del proyecto:
+     ```python
+     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+     os.chdir(base_dir)
+     ```
+   - Esto garantiza que el actualizador se puede clonar o mover a cualquier carpeta o máquina sin salir indebidamente de su propio entorno.
+
+3. **Verificación Automatizada de Sintaxis en el Validador**:
+   - Se integró en [validate_fullcost_update.py](file:///c:/Users/oscar.ocampo/OneDrive%20-%20Agroqu%C3%ADmica%20Codiagro%20S.L/Escritorio/Presupuesto%202026/Calsif%20Comerciales/scripts/validate_fullcost_update.py) (Punto 9) la validación formal de sintaxis JavaScript mediante Node.js sobre los 9 archivos `.js` generados y sobre cada bloque `<script>` de `index.html`. Un error de sintaxis bloquea de inmediato la actualización antes de la activación.
+
+4. **Exigencia Estricta de Código de Salida 0**:
+   - La suite de pruebas y el script por lotes [`actualizar_dashboard.bat`](file:///c:/Users/oscar.ocampo/OneDrive%20-%20Agroqu%C3%ADmica%20Codiagro%20S.L/Escritorio/Presupuesto%202026/Calsif%20Comerciales/actualizar_dashboard.bat) exigen expresamente que la Fase 2 termine con código 0 y que la comprobación de archivos intactos (`verify_untouched`) sea exitosa antes de proceder a la activación.
+
+5. **Prueba Completa en Copia sin Ajustes Especiales**:
+   - Se ejecutó el actualizador completo en un entorno sandbox independiente sin ningún parámetro ni ajuste especial:
+     - `actualizar_dashboard.bat`: Código de salida `0`.
+     - Entregables activos: 100% intactos durante la generación.
+     - Activación: 23 archivos promovidos atómicamente.
+     - Carga en navegador simulado: Portada (Cockpit Inicio con Margen Industrial Completo y subactividad), Navegación y pestaña Controles funcionando al 100% sin excepciones.

@@ -19,6 +19,8 @@ import os
 import sys
 from datetime import datetime
 import openpyxl
+import re
+import subprocess
 
 def fail(msg, last_valid_date="30/09/2026 (Cierre Septiembre) / 28/10/2026 (Pedidos Octubre)"):
     print(f"\n[FALLO DE VALIDACIÓN] {msg}", file=sys.stderr)
@@ -337,6 +339,56 @@ def main():
             html_content = f.read()
         if "Estimación de Ventas | Codiagro" not in html_content or "fullcost" in html_content.lower():
             fail("VIOLACIÓN DE SEGURIDAD: web_dashboard/index.html contiene módulos o títulos de Dirección General en lugar de la versión comercial abierta.")
+
+
+    # 9. Validación estricta de sintaxis JavaScript en archivos generados y bloques HTML
+    js_files_to_check = [
+        get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "marta_tracking_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "dashboard_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "profitability_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "treasury_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "production_planning_data.js")),
+        get_dest(os.path.join("web_dashboard", "dashboard_data.js")),
+        get_dest(os.path.join("web_dashboard", "marta_tracking_data.js")),
+        get_dest(os.path.join("web_dashboard", "production_planning_data.js"))
+    ]
+    for js_path in js_files_to_check:
+        if os.path.exists(js_path):
+            try:
+                res_node = subprocess.run(["node", "--check", js_path], capture_output=True, text=True, encoding="utf-8")
+                if res_node.returncode != 0:
+                    fail(f"Error de sintaxis JavaScript en {js_path}: {res_node.stderr.strip()}", last_date)
+            except Exception as e:
+                pass
+
+    # Comprobar sintaxis de bloques <script> en archivos HTML
+    html_files_to_check = [
+        get_dest(os.path.join("web_dashboard_direccion", "index.html")),
+        get_dest(os.path.join("web_dashboard", "index.html")),
+        os.path.join("web_dashboard_direccion", "index.html"),
+        os.path.join("web_dashboard", "index.html")
+    ]
+    checked_html = set()
+    for h_path in html_files_to_check:
+        norm_h = os.path.normpath(h_path)
+        if norm_h in checked_html or not os.path.exists(h_path):
+            continue
+        checked_html.add(norm_h)
+        with open(h_path, "r", encoding="utf-8") as f_h:
+            h_text = f_h.read()
+        script_blocks = re.findall(r'<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)</script>', h_text, re.I)
+        for s_idx, s_code in enumerate(script_blocks):
+            tmp_chk = f"temp_chk_syntax_{s_idx}.js"
+            try:
+                with open(tmp_chk, "w", encoding="utf-8") as f_tmp:
+                    f_tmp.write(s_code)
+                res_node = subprocess.run(["node", "--check", tmp_chk], capture_output=True, text=True, encoding="utf-8")
+                if res_node.returncode != 0:
+                    fail(f"Error de sintaxis JavaScript en bloque script #{s_idx+1} de {h_path}: {res_node.stderr.strip()}", last_date)
+            finally:
+                if os.path.exists(tmp_chk):
+                    os.remove(tmp_chk)
 
     # Recálculo independiente de la coincidencia del RAI
     rai_mayor = round(float(meta.get("rai_contable_mayor", 0.0) or 0.0), 2)

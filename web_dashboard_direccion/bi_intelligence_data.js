@@ -1672,7 +1672,10 @@ window.BI_INTELLIGENCE_DATA = {
         "caida_eur": -67970.96,
         "caida_pct": -100.0,
         "severidad": "CRÍTICA",
-        "ventas_2025_anual": 67970.96
+        "ventas_2025_anual": 67970.96,
+        "deuda_situacion": "Cliente Argelia. Discrepancias en el último pedido (flete y análisis). Se arreglará en el próximo.",
+        "deuda_badge": "Discrepancia Flete",
+        "deuda_total_eur": 2000.0
       },
       {
         "cliente": "CAMPO ABIERTO, S.A.S.",
@@ -1768,7 +1771,10 @@ window.BI_INTELLIGENCE_DATA = {
         "caida_eur": -12950.24,
         "caida_pct": -33.0,
         "severidad": "MODERADA",
-        "ventas_2025_anual": 39285.44
+        "ventas_2025_anual": 39285.44,
+        "deuda_situacion": "Importes reclamados. En breve pagará.",
+        "deuda_badge": "Importe Reclamado",
+        "deuda_total_eur": 10000.0
       },
       {
         "cliente": "PLANTA SANA, D.O.O.",
@@ -1843,7 +1849,117 @@ window.BI_INTELLIGENCE_DATA = {
         "estado_legal": "En concurso de acreedores (Suspensión de pagos en Turquía)",
         "motivo_exclusion": "Excluido de caída de ventas y de indicadores de rendimiento comercial por resolución de Dirección General. Cuenta en espera de resolución concursal y cobro de deuda pendiente."
       }
-    ]
+    ],
+    "deuda_aging_sep26": {
+      "total_deuda_eur": 719000.0,
+      "tramos": {
+        "d0_30": 214000.0,
+        "d31_60": 140000.0,
+        "d61_90": 84000.0,
+        "d91_120": 37000.0,
+        "d121_plus": 243000.0
+      },
+      "detalle_clientes": [
+        {
+          "cliente": "CODIMED EXPORT, S.L.",
+          "pais": "España",
+          "d0_30": 87000.0,
+          "d31_60": 70000.0,
+          "d61_90": 42000.0,
+          "d91_120": 37000.0,
+          "d121_plus": 152000.0,
+          "total_sep26": 388000.0,
+          "pct_total": 54.0,
+          "estado_cobro": "Plan Oct-Feb / Contado",
+          "badge_class": "badge-success",
+          "observaciones": "Está pagando al contado los pedidos que hace, nos ha enviado un calendario de pago, desde octubre hasta febrero para ponerse al día."
+        },
+        {
+          "cliente": "CAMPOEJIDO S.C.A.",
+          "pais": "España",
+          "d0_30": 122000.0,
+          "d31_60": 0.0,
+          "d61_90": 0.0,
+          "d91_120": 0.0,
+          "d121_plus": 0.0,
+          "total_sep26": 122000.0,
+          "pct_total": 17.0,
+          "estado_cobro": "Abono Pendiente",
+          "badge_class": "badge-warning",
+          "observaciones": "Discrepancias en un abono, nada más esté claro nos hará el pago de inmediato."
+        },
+        {
+          "cliente": "EUROFERTIL, S.A.",
+          "pais": "Costa Rica",
+          "d0_30": 0.0,
+          "d31_60": 64000.0,
+          "d61_90": 42000.0,
+          "d91_120": 0.0,
+          "d121_plus": 0.0,
+          "total_sep26": 106000.0,
+          "pct_total": 15.0,
+          "estado_cobro": "Cobro Activo 8.000 €/sem",
+          "badge_class": "badge-info",
+          "observaciones": "Seguimos cobrando a razón de 8.000 euros semanales, aunque en el mes de agosto sólo han podido enviar 2 transferencias."
+        },
+        {
+          "cliente": "DOGA TARIM TIC.SAN.VE TUR. LTD. STI",
+          "pais": "Turquía",
+          "d0_30": 0.0,
+          "d31_60": 0.0,
+          "d61_90": 0.0,
+          "d91_120": 0.0,
+          "d121_plus": 90000.0,
+          "total_sep26": 90000.0,
+          "pct_total": 12.0,
+          "estado_cobro": "Concordato Turquía",
+          "badge_class": "badge-danger",
+          "observaciones": "Está negociando su salida del Concordato (suspensión de pagos) para poder negociar un plan de pagos. Cuenta neutralizada de caída comercial por resolución directiva."
+        },
+        {
+          "cliente": "T.J AGRICULTURA SL",
+          "pais": "España",
+          "d0_30": 3000.0,
+          "d31_60": 6000.0,
+          "d61_90": 0.0,
+          "d91_120": 0.0,
+          "d121_plus": 0.0,
+          "total_sep26": 10000.0,
+          "pct_total": 1.0,
+          "estado_cobro": "Importe Reclamado",
+          "badge_class": "badge-warning",
+          "observaciones": "Importes reclamados. En breve pagará."
+        },
+        {
+          "cliente": "DAVID BARAHONA HERNAEZ",
+          "pais": "España",
+          "d0_30": 2000.0,
+          "d31_60": 0.0,
+          "d61_90": 0.0,
+          "d91_120": 0.0,
+          "d121_plus": 0.0,
+          "total_sep26": 2000.0,
+          "pct_total": 0.0,
+          "estado_cobro": "Importe Reclamado",
+          "badge_class": "badge-warning",
+          "observaciones": "Importes reclamados. En breve pagará."
+        },
+        {
+          "cliente": "EURL BOUAZZA FILAHA",
+          "pais": "Argelia",
+          "d0_30": 0.0,
+          "d31_60": 0.0,
+          "d61_90": 0.0,
+          "d91_120": 0.0,
+          "d121_plus": 2000.0,
+          "total_sep26": 2000.0,
+          "pct_total": 0.0,
+          "estado_cobro": "Discrepancia Flete",
+          "badge_class": "badge-info",
+          "observaciones": "Cliente Argelia. Discrepancias en el último pedido (flete y análisis). Se arreglará en el próximo."
+        }
+      ]
+    }
   },
   "mejora_4_complejidad_industrial": {
     "total_operaciones_analizadas": 125,

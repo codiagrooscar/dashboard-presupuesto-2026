@@ -605,9 +605,21 @@ window.applyChurnFilters = function() {
       if (emptyState) emptyState.style.display = 'block';
     } else {
       if (emptyState) emptyState.style.display = 'none';
-      tbody.innerHTML = filtered.map(c => `
+      tbody.innerHTML = filtered.map(c => {
+        const debtBadge = c.deuda_badge ? `
+          <div style="margin-top:0.25rem;">
+            <span class="tab-badge" style="font-size:0.68rem; background:rgba(234,179,8,0.15); color:#fbbf24; border:1px solid rgba(234,179,8,0.4);" title="${c.deuda_situacion || ''}">
+              💳 ${c.deuda_badge} (${fmtEur(c.deuda_total_eur || 0)})
+            </span>
+          </div>
+        ` : '';
+
+        return `
         <tr style="${c.severidad === 'CRÍTICA' ? 'background:rgba(239,68,68,0.05);' : ''}">
-          <td style="font-weight:700; color:#fff">${c.cliente}</td>
+          <td style="font-weight:700; color:#fff">
+            <div>${c.cliente}</div>
+            ${debtBadge}
+          </td>
           <td>${c.comercial}</td>
           <td><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${c.pais}</span></td>
           <td class="col-churn-clasif"><span style="font-size:0.8rem; color:var(--muted)">${c.clasificacion}</span></td>
@@ -626,7 +638,8 @@ window.applyChurnFilters = function() {
             </button>
           </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
     }
   }
 
@@ -1042,6 +1055,197 @@ function renderChurnAlertSection() {
         </div>
       </div>
 
+      <!-- PANEL DIRECTIVO: ANTIGÜEDAD DE DEUDA Y SITUACIÓN DE COBROS CLIENTES (CORTE SEPTIEMBRE 2026) -->
+      <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%); border: 1px solid #334155; border-radius: var(--radius-md); padding: 1.25rem 1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.75rem;">
+          <div style="display:flex; align-items:center; gap:0.65rem;">
+            <span style="font-size:1.4rem;">💳</span>
+            <div>
+              <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+                <span>Antigüedad de Deuda y Situación de Cobros</span>
+                <span class="tab-badge badge-info" style="font-size:0.7rem;">Corte Sep-26</span>
+              </h4>
+              <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:#94a3b8;">
+                Seguimiento de saldos deudores, suspensiones de pago y acuerdos de cobro que condicionan la actividad de clientes en riesgo.
+              </p>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700;">Deuda Total Gestionada</span>
+            <div style="font-size:1.35rem; font-weight:800; color:#fbbf24;">719.000 €</div>
+          </div>
+        </div>
+
+        <!-- 5 TRAMOS DE VENCIMIENTO -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.75rem; margin-bottom:1rem;">
+          <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
+            <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">0 - 30 días</span>
+            <div style="font-size:1.05rem; font-weight:700; color:#38bdf8;">214.000 €</div>
+            <span style="font-size:0.68rem; color:#94a3b8;">30% (Corriente)</span>
+          </div>
+          <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
+            <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">31 - 60 días</span>
+            <div style="font-size:1.05rem; font-weight:700; color:#cbd5e1;">140.000 €</div>
+            <span style="font-size:0.68rem; color:#94a3b8;">19% (Vencido corto)</span>
+          </div>
+          <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
+            <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">61 - 90 días</span>
+            <div style="font-size:1.05rem; font-weight:700; color:#fbbf24;">84.000 €</div>
+            <span style="font-size:0.68rem; color:#94a3b8;">12% (En gestión)</span>
+          </div>
+          <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
+            <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">91 - 120 días</span>
+            <div style="font-size:1.05rem; font-weight:700; color:#f97316;">37.000 €</div>
+            <span style="font-size:0.68rem; color:#94a3b8;">5% (Riesgo alto)</span>
+          </div>
+          <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(239,68,68,0.25); text-align:center;">
+            <span style="font-size:0.68rem; color:#f87171; text-transform:uppercase; font-weight:700;">+121 días</span>
+            <div style="font-size:1.05rem; font-weight:700; color:#ef4444;">243.000 €</div>
+            <span style="font-size:0.68rem; color:#f87171;">34% (Concordato / Mora)</span>
+          </div>
+        </div>
+
+        <!-- TABLA DETALLE DEUDORES -->
+        <div style="overflow-x:auto; border:1px solid #334155; border-radius:6px;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.8rem; text-align:left;">
+            <thead style="background:rgba(15,23,42,0.9); color:#94a3b8; font-size:0.72rem; text-transform:uppercase;">
+              <tr>
+                <th style="padding:0.6rem 0.75rem;">Cliente / Razón Social</th>
+                <th style="padding:0.6rem 0.5rem;">País</th>
+                <th style="padding:0.6rem 0.5rem; text-align:right;">0-30 d</th>
+                <th style="padding:0.6rem 0.5rem; text-align:right;">31-60 d</th>
+                <th style="padding:0.6rem 0.5rem; text-align:right;">61-90 d</th>
+                <th style="padding:0.6rem 0.5rem; text-align:right;">91-120 d</th>
+                <th style="padding:0.6rem 0.5rem; text-align:right;">+121 d</th>
+                <th style="padding:0.6rem 0.5rem; text-align:right;">Sep-26 (€)</th>
+                <th style="padding:0.6rem 0.5rem; text-align:right;">% Total</th>
+                <th style="padding:0.6rem 0.75rem;">Situación de Cobro y Observaciones Directivas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.01);">
+                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">CODIMED EXPORT, S.L.</strong></td>
+                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">España</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">87.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">70.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">42.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">37.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:#ef4444; font-weight:700;">152.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fbbf24;">388.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700; color:#fbbf24;">54%</td>
+                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
+                  <span class="tab-badge badge-success" style="font-size:0.68rem; margin-right:0.35rem;">Plan Oct-Feb / Contado</span>
+                  Está pagando al contado los pedidos que hace, nos ha enviado un calendario de pago, desde octubre hasta febrero para ponerse al día.
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">CAMPOEJIDO S.C.A.</strong></td>
+                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">España</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:#38bdf8; font-weight:700;">122.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">122.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">17%</td>
+                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
+                  <span class="tab-badge badge-warning" style="font-size:0.68rem; margin-right:0.35rem;">Abono Pendiente</span>
+                  Discrepancias en un abono, nada más esté claro nos hará el pago de inmediato. (Deuda 100% en tramo corriente 0-30d).
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.01);">
+                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">EUROFERTIL, S.A.</strong></td>
+                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">Costa Rica</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">64.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">42.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">106.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">15%</td>
+                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
+                  <span class="tab-badge badge-info" style="font-size:0.68rem; margin-right:0.35rem;">Cobro Activo 8.000 €/sem</span>
+                  Seguimos cobrando a razón de 8.000 euros semanales, aunque en el mes de agosto sólo han podido enviar 2 transferencias.
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.65rem 0.75rem;"><strong style="color:#f87171;">DOGA TARIM TIC.SAN.VE TUR. LTD. STI</strong></td>
+                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">Turquía</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:#ef4444; font-weight:700;">90.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#f87171;">90.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">12%</td>
+                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
+                  <span class="tab-badge badge-danger" style="font-size:0.68rem; margin-right:0.35rem;">Concordato Turquía</span>
+                  Está negociando su salida del Concordato (suspensión de pagos) para poder negociar un plan de pagos. Neutralizada de caída comercial.
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.01);">
+                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">T.J AGRICULTURA SL</strong></td>
+                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">España</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">3.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">6.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">10.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">1%</td>
+                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
+                  <span class="tab-badge badge-warning" style="font-size:0.68rem; margin-right:0.35rem;">Importes Reclamados</span>
+                  Importes reclamados. En breve pagará.
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">DAVID BARAHONA HERNAEZ</strong></td>
+                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">España</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">2.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">2.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">0%</td>
+                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
+                  <span class="tab-badge badge-warning" style="font-size:0.68rem; margin-right:0.35rem;">Importes Reclamados</span>
+                  Importes reclamados. En breve pagará.
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.01);">
+                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">EURL BOUAZZA FILAHA</strong></td>
+                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">Argelia</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">2.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">2.000 €</td>
+                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">0%</td>
+                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
+                  <span class="tab-badge badge-info" style="font-size:0.68rem; margin-right:0.35rem;">Discrepancia Flete</span>
+                  Cliente Argelia. Discrepancias en el último pedido (flete y análisis). Se arreglará en el próximo.
+                </td>
+              </tr>
+            </tbody>
+            <tfoot style="background:rgba(15,23,42,0.95); font-weight:700; border-top:2px solid #334155; color:#fff;">
+              <tr>
+                <td colspan="2" style="padding:0.75rem;">CODIAGRO (TOTAL CARTERA DEUDORA)</td>
+                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#38bdf8;">214.000 €</td>
+                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace;">140.000 €</td>
+                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace;">84.000 €</td>
+                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace;">37.000 €</td>
+                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#ef4444;">243.000 €</td>
+                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#fbbf24;">719.000 €</td>
+                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#fbbf24;">100%</td>
+                <td style="padding:0.75rem; font-size:0.75rem; color:#94a3b8;">7 deudores auditados a Septiembre 2026</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
       <!-- AVISO DIRECTIVO: CUENTAS EN CONCURSO DE ACREEDORES (EXCLUIDAS DE CAÍDA COMERCIAL) -->
       <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(15, 23, 42, 0.95) 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: var(--radius-md); padding: 1.15rem 1.4rem;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
@@ -1164,9 +1368,21 @@ function renderChurnAlertSection() {
               </tr>
             </thead>
             <tbody id="churnTableBody">
-              ${list.map(c => `
+              ${list.map(c => {
+                const debtBadge = c.deuda_badge ? `
+                  <div style="margin-top:0.25rem;">
+                    <span class="tab-badge" style="font-size:0.68rem; background:rgba(234,179,8,0.15); color:#fbbf24; border:1px solid rgba(234,179,8,0.4);" title="${c.deuda_situacion || ''}">
+                      💳 ${c.deuda_badge} (${fmtEur(c.deuda_total_eur || 0)})
+                    </span>
+                  </div>
+                ` : '';
+
+                return `
                 <tr style="${c.severidad === 'CRÍTICA' ? 'background:rgba(239,68,68,0.05);' : ''}">
-                  <td style="font-weight:700; color:#fff">${c.cliente}</td>
+                  <td style="font-weight:700; color:#fff">
+                    <div>${c.cliente}</div>
+                    ${debtBadge}
+                  </td>
                   <td>${c.comercial}</td>
                   <td><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${c.pais}</span></td>
                   <td><span style="font-size:0.8rem; color:var(--muted)">${c.clasificacion}</span></td>
@@ -1185,7 +1401,7 @@ function renderChurnAlertSection() {
                     </button>
                   </td>
                 </tr>
-              `).join('')}
+              `; }).join('')}
             </tbody>
           </table>
         </div>

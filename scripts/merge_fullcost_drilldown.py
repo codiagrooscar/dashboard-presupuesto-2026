@@ -472,17 +472,23 @@ if fc_wb_path:
         rai_calc = round(ingresos_tot - gastos_tot, 2)
 
     # 5.2 Leer parámetros base desde hoja 'Centros' (si existen en R53:R67)
-    VALID_CECOS = {'110', '120', '130', '140', '210', '220', '230', '240', '310', '320', '330', '340', '510', '520'}
+    VALID_CECOS = {'110', '120', '130', '140', '210', '220', '230', '240', '310', '320', '330', '340', '410', '510', '520', '990'}
+    if 'Centros' in wb_fc.sheetnames:
+        ws_cen_dyn = wb_fc['Centros']
+        for r_c in range(6, 30):
+            val_c = str(ws_cen_dyn.cell(r_c, 1).value or '').strip()
+            if val_c and val_c.isdigit():
+                VALID_CECOS.add(val_c)
     BASE_PERS_CECO = {
         '110': 5756.23, '120': 6263.00, '130': 14491.56, '140': 27971.90,
         '210': 3914.38, '220': 16293.61, '230': 0.00, '240': 16283.96,
-        '310': 23968.75, '320': 21113.07, '330': 8257.35, '340': 9699.12,
+        '310': 23968.75, '320': 21113.07, '330': 8257.35, '340': 9699.12, '410': 0.0,
         '510': 20131.22, '520': 15938.91
     }
     BASE_CA_CECO = {
         '110': 1288.62, '120': 6419.19, '130': 6085.86, '140': 0.0,
         '210': 602.22, '220': 0.0, '230': 787.00, '240': 19379.35,
-        '310': 18385.58, '320': 8078.83, '330': 0.0, '340': 2300.99,
+        '310': 18385.58, '320': 8078.83, '330': 0.0, '340': 2300.99, '410': 0.0,
         '510': 2214.29, '520': 0.0
     }
     BASE_DIRECT_COST_CECO = {'110': 6217.56, '120': 15188.23, '130': 22888.82, '140': 56060.04}
@@ -622,6 +628,7 @@ if fc_wb_path:
             modelos_analiticos["seguridad_social_detalle"] = {
                 "nomina_personal_ett": round(calc_ss_explicit, 2),
                 "ajuste_formula_rnt": round(calc_ss_formula_rows, 2),
+                "ajuste_documentado_rnt": round(calc_ss_formula_rows, 2),
                 "total_analitico": total_modelo_ss,
                 "mayor_contable": ss_mayor,
                 "diferencia_pendiente": diff_ss,
@@ -682,7 +689,8 @@ if fc_wb_path:
                     f"= {cost_assigned:,.2f} € conciliado con hoja Dedicacion (Fila {lid})"
                 ).replace(",", "X").replace(".", ",").replace("X", ".")
 
-        # Control estricto de dedicación por recurso (no sobrepasar base horaria ni imputar > 100%)
+        # Control estricto de dedicación por recurso (no sobrepasar base horaria ni dejar horas sin imputar)
+        personal_no_distribuido = 0.0
         for rid_int, h_tot_asig in res_hours_assigned.items():
             res = res_map.get(rid_int)
             if res and res.get("horas", 0) > 0:
@@ -691,6 +699,13 @@ if fc_wb_path:
                     pct_over = round(h_tot_asig / h_base * 100, 1)
                     incidencias_datos.append(
                         f"Hoja Dedicacion: Recurso {rid_int} ({res.get('tipo', 'Propio')}) con {h_tot_asig:.1f} h asignadas sobre base de {h_base:.1f} h (sobreimputación al {pct_over}%)."
+                    )
+                elif h_tot_asig < (h_base - 0.1):
+                    pct_under = round(h_tot_asig / h_base * 100, 1)
+                    coste_no_dist = round(res["tot"] * ((h_base - h_tot_asig) / h_base), 2)
+                    personal_no_distribuido += coste_no_dist
+                    incidencias_datos.append(
+                        f"Hoja Dedicacion: Recurso {rid_int} ({res.get('tipo', 'Propio')}) con {h_tot_asig:.1f} h asignadas sobre base de {h_base:.1f} h ({pct_under}% asignado; {coste_no_dist:.2f} € sin imputar a ningún centro)."
                     )
 
     # Calcular variaciones de personal por centro frente a la base (excluyendo maquila en 140)
@@ -849,16 +864,6 @@ if fc_wb_path:
     round_conserving_sum(ceco_items, "cost", target_plant_cost, 2)
 
     final_cost_by_ceco = {item["ceco"]: item["cost"] for item in ceco_items}
-    rate_by_ceco = {}
-    for c in ['110', '120', '130', '140']:
-        h_c = std_hours_by_ceco.get(c, 0.0)
-        rate_by_ceco[c] = final_cost_by_ceco[c] / h_c if h_c > 0 else 0.0
-
-    delta_plant_cost = round(target_plant_cost - 124561.76, 2)
-    delta_mod = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['110', '120', '130', '140']), 2)
-    delta_cif = round(delta_plant_cost - delta_mod, 2)
-    delta_comercial_pers = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['310', '320', '330', '340']), 2)
-    delta_admin_pers = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['510', '520']), 2)
 
     # 5.6 Actualizar horas reales por CECO desde la hoja 'Produccion' (proceso K + limpieza L, filtradas por sep-2026)
     if 'Produccion' in wb_fc.sheetnames:
@@ -875,6 +880,48 @@ if fc_wb_path:
             h_l_by_ceco[ceco_val] += l_val
             h_m_by_ceco[ceco_val] += m_val
             h_tot_by_ceco[ceco_val] += (k_val + l_val)
+
+    # 5.6.1 Leer Capacidad nominal y calcular separación efectiva de subactividad (NIC 2)
+    cap_nominales_from_sheet = {'110': 165.0, '120': 495.0, '130': 165.0, '140': 330.0}
+    if 'Capacidad' in wb_fc.sheetnames:
+        ws_cap = wb_fc['Capacidad']
+        for r_cap in range(5, 15):
+            c_code = str(ws_cap.cell(r_cap, 1).value or '').strip()
+            h_nom_val = ws_cap.cell(r_cap, 3).value
+            if c_code in cap_nominales_from_sheet and h_nom_val is not None:
+                try:
+                    cap_nominales_from_sheet[c_code] = float(h_nom_val)
+                except Exception:
+                    pass
+
+    coste_subactividad_by_ceco = {}
+    coste_actividad_by_ceco = {}
+    for c in ['110', '120', '130', '140']:
+        c_cost = final_cost_by_ceco.get(c, 0.0)
+        h_nom = cap_nominales_from_sheet.get(c, 165.0)
+        h_real = round(h_tot_by_ceco.get(c, 0.0), 2)
+        sub_h = max(0.0, h_nom - h_real)
+        sub_pct = round(sub_h / h_nom * 100.0, 1) if h_nom > 0 else 0.0
+        c_sub = round(c_cost * (sub_pct / 100.0), 2)
+        c_act = round(c_cost - c_sub, 2)
+        coste_subactividad_by_ceco[c] = c_sub
+        coste_actividad_by_ceco[c] = c_act
+
+    target_plant_cost_actividad = round(sum(coste_actividad_by_ceco.values()), 2)
+    target_plant_cost_subactividad = round(sum(coste_subactividad_by_ceco.values()), 2)
+    target_plant_cost_total = round(target_plant_cost_actividad + target_plant_cost_subactividad, 2)
+
+    # Tarifas efectivas aplicadas a productos (imputan únicamente el coste de actividad)
+    rate_by_ceco = {}
+    for c in ['110', '120', '130', '140']:
+        h_c = std_hours_by_ceco.get(c, 0.0)
+        rate_by_ceco[c] = coste_actividad_by_ceco[c] / h_c if h_c > 0 else 0.0
+
+    delta_plant_cost = round(target_plant_cost_total - 124561.76, 2)
+    delta_mod = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['110', '120', '130', '140']), 2)
+    delta_cif = round(delta_plant_cost - delta_mod, 2)
+    delta_comercial_pers = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['310', '320', '330', '340']), 2)
+    delta_admin_pers = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['510', '520']), 2)
 
     # 5.7 Actualizar Ajustes_ventas y Maquila (conectados con ingresos, costes, ajustes y cascada)
     ajuste_702_from_sheet = None
@@ -1259,8 +1306,24 @@ else:
     incidencias_datos.append("No se encontró el archivo Plantillas_Full_Costing_Septiembre_2026_Con_PYG_Mejorada.xlsx.")
     BASE_COST_CECO = {'110': 11885.19, '120': 25352.72, '130': 26773.65, '140': 60550.20}
     final_cost_by_ceco = BASE_COST_CECO
-    rate_by_ceco = {c: BASE_COST_CECO[c] / std_hours_by_ceco[c] if std_hours_by_ceco[c] > 0 else 0.0 for c in BASE_COST_CECO}
-    target_plant_cost = 124561.76
+    cap_nominales_from_sheet = {'110': 165.0, '120': 495.0, '130': 165.0, '140': 330.0}
+    h_tot_by_ceco = {'110': 41.97, '120': 128.88, '130': 37.50, '140': 275.34}
+    coste_subactividad_by_ceco = {}
+    coste_actividad_by_ceco = {}
+    for c in ['110', '120', '130', '140']:
+        c_cost = final_cost_by_ceco[c]
+        h_nom = cap_nominales_from_sheet[c]
+        h_real = h_tot_by_ceco[c]
+        sub_pct = ((h_nom - h_real) / h_nom * 100.0) if h_nom > 0 else 0.0
+        c_sub = round(c_cost * (sub_pct / 100.0), 2)
+        c_act = round(c_cost - c_sub, 2)
+        coste_subactividad_by_ceco[c] = c_sub
+        coste_actividad_by_ceco[c] = c_act
+    target_plant_cost_actividad = round(sum(coste_actividad_by_ceco.values()), 2)
+    target_plant_cost_subactividad = round(sum(coste_subactividad_by_ceco.values()), 2)
+    target_plant_cost_total = round(target_plant_cost_actividad + target_plant_cost_subactividad, 2)
+    rate_by_ceco = {c: coste_actividad_by_ceco[c] / std_hours_by_ceco[c] if std_hours_by_ceco[c] > 0 else 0.0 for c in BASE_COST_CECO}
+    personal_no_distribuido = 0.0
     delta_plant_cost = 0.0
     modelos_analiticos = {}
     incidencias_ca = []
@@ -1393,7 +1456,7 @@ for norm_t, t_val in transporte_cliente.items():
 # Aplicar política de redondeo por Mayor Resto en Clientes para conservar totales exactos
 round_conserving_sum(clientes_fc, "ventas", tot_v_sep_round, 2)
 round_conserving_sum(clientes_fc, "cogs_materiales", tot_cogs_sep_round, 2)
-round_conserving_sum(clientes_fc, "coste_planta_fullcost", target_plant_cost, 2)
+round_conserving_sum(clientes_fc, "coste_planta_fullcost", target_plant_cost_actividad, 2)
 round_conserving_sum(clientes_fc, "uds", tot_uds_sep_round, 1)
 
 for c in clientes_fc:
@@ -1433,7 +1496,7 @@ for sku, d in ventas_prod.items():
 
 round_conserving_sum(productos_fc, "ventas", tot_v_sep_round, 2)
 round_conserving_sum(productos_fc, "cogs_materiales", tot_cogs_sep_round, 2)
-round_conserving_sum(productos_fc, "coste_planta_fullcost", target_plant_cost, 2)
+round_conserving_sum(productos_fc, "coste_planta_fullcost", target_plant_cost_actividad, 2)
 round_conserving_sum(productos_fc, "uds", tot_uds_sep_round, 1)
 
 for p in productos_fc:
@@ -1467,7 +1530,7 @@ for com, d in ventas_com.items():
 
 round_conserving_sum(comerciales_fc, "ventas", tot_v_sep_round, 2)
 round_conserving_sum(comerciales_fc, "cogs_materiales", tot_cogs_sep_round, 2)
-round_conserving_sum(comerciales_fc, "coste_planta_fullcost", target_plant_cost, 2)
+round_conserving_sum(comerciales_fc, "coste_planta_fullcost", target_plant_cost_actividad, 2)
 
 for cm in comerciales_fc:
     cm["margen_industrial_eur"] = round(cm["ventas"] - cm["cogs_materiales"] - cm["coste_planta_fullcost"], 2)
@@ -1583,10 +1646,10 @@ if fc_wb_path:
         cap["subactividad_pct"] = round(cap["subactividad_horas"] / h_nom * 100, 1) if h_nom > 0 else 0.0
         cap["estado"] = "Comprobado" if h_real > 0 else "0 h registradas en período"
 
-        coste_total_c = final_cost_by_ceco.get(c_code, 0.0)
-        cap["coste_total_ceco"] = coste_total_c
-        cap["coste_subactividad_eur"] = round(coste_total_c * (cap["subactividad_pct"] / 100.0), 2)
-        cap["coste_actividad_eur"] = round(coste_total_c - cap["coste_subactividad_eur"], 2)
+        cap["coste_total_ceco"] = final_cost_by_ceco.get(c_code, 0.0)
+        cap["coste_subactividad_eur"] = coste_subactividad_by_ceco.get(c_code, 0.0)
+        cap["coste_actividad_eur"] = coste_actividad_by_ceco.get(c_code, 0.0)
+        cap["tarifa_efectiva_hora"] = round(rate_by_ceco.get(c_code, 0.0), 2)
 
 if "pricing" in fc_full and "tarifas_horarias" in fc_full["pricing"]:
     fc_full["pricing"]["tarifas_horarias"] = {
@@ -1631,7 +1694,10 @@ sub4_val = round(sub3_val + n5_val, 2)
 
 n6_base = -102760.27
 delta_admin_ca = (ca_sum_by_ceco.get('510', 0.0) - BASE_CA_CECO.get('510', 0.0)) + (ca_sum_by_ceco.get('520', 0.0) - BASE_CA_CECO.get('520', 0.0))
-n6_val = round(n6_base - delta_admin_ca - delta_admin_pers, 2)
+delta_id_ca = ca_sum_by_ceco.get('410', 0.0) - BASE_CA_CECO.get('410', 0.0)
+delta_id_pers = delta_pers_by_ceco.get('410', 0.0)
+delta_id = round(delta_id_ca + delta_id_pers, 2)
+n6_val = round(n6_base - delta_admin_ca - delta_admin_pers - delta_id - personal_no_distribuido, 2)
 
 rai_analitico_cascada = round(sub4_val + n6_val, 2)
 desviacion_conciliacion_mayor = round(rai_calc - rai_analitico_cascada, 2)
@@ -1672,26 +1738,28 @@ fc_full["puente_existencias"] = puente_existencias
 fc_full["puente_transporte"] = puente_transporte
 
 # 7.3 Puente de Conciliación de Materiales (Consumo Contable vs Escandallos SKU)
+consumo_contable_cascada = 102185.32
+diff_materiales_dinamica = round(tot_cogs_sep_round - consumo_contable_cascada, 2)
 puente_materiales = {
     "titulo": "Conciliación entre Consumo Contable de Aprovisionamientos y Coste Técnico de Materiales Vendidos",
-    "consumo_contable_mayor_eur": -102185.32,
-    "coste_tecnico_escandallos_eur": 181587.16,
-    "diferencia_conciliacion_eur": 79401.84,
-    "explicacion": "El importe de -102.185,32 € de la cascada procede de las compras netas devengadas y variación de existencias contables de materias primas y envases del Grupo 60/61 en el Mayor. Por su parte, los 181.587,16 € del detalle por cliente/producto proceden de los escandallos técnicos estándar (Costes SKU.xlsx) multiplicados por las unidades vendidas del mes. La diferencia de 79.401,84 € corresponde a la variación de eficiencia técnica, mermas fabriles y desfase temporal de cobertura de inventario PMP vs coste técnico de reposición.",
+    "consumo_contable_mayor_eur": -consumo_contable_cascada,
+    "coste_tecnico_escandallos_eur": tot_cogs_sep_round,
+    "diferencia_conciliacion_eur": diff_materiales_dinamica,
+    "explicacion": f"El importe de -{consumo_contable_cascada:,.2f} € de la cascada procede de las compras netas devengadas y variación de existencias contables de materias primas y envases del Grupo 60/61 en el Mayor. Por su parte, los {tot_cogs_sep_round:,.2f} € del detalle por cliente/producto proceden de los escandallos técnicos estándar (Costes SKU.xlsx) multiplicados por las unidades vendidas del mes. La diferencia de {diff_materiales_dinamica:,.2f} € corresponde a la variación de eficiencia técnica, mermas fabriles y desfase temporal de cobertura de inventario PMP vs coste técnico de reposición.".replace(",", "X").replace(".", ",").replace("X", "."),
     "lineas": [
         {
             "concepto": "Coste Técnico de Materiales Vendidos (Escandallos SKU × Unidades Vendidas)",
-            "importe": 181587.16,
+            "importe": tot_cogs_sep_round,
             "origen": "Gastos/Costes SKU.xlsx × Ventas Septiembre (detalle Clientes y Productos)"
         },
         {
-            "concepto": "Ajuste por consumo real en fabricación vs escandallo teórico y cobertura PMP",
-            "importe": -79401.84,
+            "concepto": "Diferencia de consumo pendiente de soporte (Desfase inventario fabril / cobertura PMP vs escandallo estándar)",
+            "importe": -diff_materiales_dinamica,
             "origen": "Desfase inventario fabril y valoración contable almacén materias primas"
         },
         {
             "concepto": "Consumo Contable devengado en PnL Cascada (Grupo 60/61 Mayor)",
-            "importe": 102185.32,
+            "importe": consumo_contable_cascada,
             "origen": "Mayor contable cuentas 601, 602, 611, 612"
         }
     ]
@@ -1781,6 +1849,8 @@ fc_full["metadata"]["incidencias_costes_activos"] = incidencias_ca
 fc_full["metadata"]["incidencias_datos"] = incidencias_datos
 fc_full["metadata"]["tarifas_ceco_eur_h"] = {c: round(rate_by_ceco[c], 2) for c in rate_by_ceco}
 fc_full["metadata"]["costes_ceco_eur"] = {c: round(final_cost_by_ceco[c], 2) for c in final_cost_by_ceco}
+fc_full["metadata"]["costes_ceco_actividad_eur"] = {c: round(coste_actividad_by_ceco[c], 2) for c in coste_actividad_by_ceco}
+fc_full["metadata"]["costes_ceco_subactividad_eur"] = {c: round(coste_subactividad_by_ceco[c], 2) for c in coste_subactividad_by_ceco}
 fc_full["metadata"]["modelos_analiticos"] = modelos_analiticos
 fc_full["metadata"]["repartos_dinamicos"] = {
     "origen": "Hoja Repartos (dinámico)",
@@ -1795,7 +1865,8 @@ fc_full["metadata"]["produccion_neta_planta"] = n1_val
 fc_full["modelos_analiticos"] = modelos_analiticos
 
 tot_transporte_imputado = round(sum(c["transporte_real"] for c in clientes_fc), 2)
-tot_margen_ind = round(tot_v_sep_round - tot_cogs_sep_round - target_plant_cost, 2)
+tot_margen_ind = round(tot_v_sep_round - tot_cogs_sep_round - target_plant_cost_actividad, 2)
+tot_margen_ind_neto = round(tot_v_sep_round - tot_cogs_sep_round - target_plant_cost_total, 2)
 tot_margen_contrib = round(tot_margen_ind - tot_transporte_imputado, 2)
 
 fc_full["totales_drilldown"] = {
@@ -1805,8 +1876,11 @@ fc_full["totales_drilldown"] = {
     "variacion_existencias_pt": -109366.49,
     "produccion_neta_planta": n1_val,
     "cogs_materiales": tot_cogs_sep_round,
-    "coste_planta": target_plant_cost,
+    "coste_planta": target_plant_cost_actividad,
+    "coste_subactividad": target_plant_cost_subactividad,
+    "coste_planta_total": target_plant_cost_total,
     "margen_industrial_eur": tot_margen_ind,
+    "margen_industrial_neto_planta_eur": tot_margen_ind_neto,
     "margen_industrial_pct": round(tot_margen_ind / tot_v_sep_round * 100, 1) if tot_v_sep_round > 0 else 0.0,
     "transporte_real": tot_transporte_imputado,
     "margen_contribucion_eur": tot_margen_contrib,

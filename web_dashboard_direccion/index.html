@@ -7309,7 +7309,7 @@
 
       const ssDet = (modAnalitico && modAnalitico.seguridad_social_detalle) ? modAnalitico.seguridad_social_detalle : null;
       const ssNota = ssDet
-        ? `Explícito Personal_ETT: ${fmtEur(ssDet.nomina_personal_ett)} + Cuota 33% ID 31/32: ${fmtEur(ssDet.ajuste_documentado_rnt)} · ${ssDet.estado}`
+        ? `Explícito Personal_ETT: ${fmtEur(ssDet.total_ss_bruta_personal_ett || 0)} + Cuota 33% ID 31/32: ${fmtEur(ssDet.total_cuota_33_estimada || 0)} · Ajuste: ${fmtEur(ssDet.ajuste_formula_rnt || ssDet.ajuste_documentado_rnt || 0)}`
         : 'Estimado: pendiente de RLC/RNT nominal';
 
       const auditItems = [
@@ -7319,7 +7319,7 @@
         { concepto: 'Transporte Nacional (Cta 624000001)', mayor: val624_1_mayor, modelo: modelo624_1, estadoBase: 'Pendiente de conciliación', nota: 'Mayor: 8.129,04 € vs Reporte logístico Mes=9: 5.943,90 € (Dif: 2.185,14 € en puente de transporte)' },
         { concepto: 'Transporte Internacional (Cta 624000002)', mayor: val624_2_mayor, modelo: modelo624_2, estadoBase: 'Pendiente de conciliación', nota: 'Mayor: 8.078,83 € vs Reporte logístico Mes=9: 8.065,00 € (Dif: 13,83 €, EX-243 sin precio)' },
         { concepto: 'Transporte Canarias (Cta 624000003)', mayor: val624_3_mayor, modelo: modelo624_3, estadoBase: 'Pendiente de conciliación', nota: 'Mayor: 10.256,54 € vs Reporte logístico Mes=9: 7.276,76 € (Dif: 2.979,78 €; Alb 834 Mes=8 = 2.657,25 €)' },
-        { concepto: 'Mantenimiento y Reparaciones (Cuentas 622*)', mayor: val622_mayor, modelo: modelo622, estadoBase: 'Comprobado', nota: 'Costes_activos 622* (8.849,84 €) + 4 cuentas 622* en Cuentas (4.696,23 €) = 13.546,07 €' },
+        { concepto: 'Mantenimiento y Reparaciones (Cuentas 622*)', mayor: val622_mayor, modelo: modelo622, estadoBase: 'Comprobado', nota: 'Costes_activos 622* (8.853,84 €) + 4 cuentas 622* en Cuentas (4.692,23 €) = 13.546,07 €' },
         { concepto: 'Resultado Antes de Impuestos (RAI Sep-26)', mayor: raiMayor, modelo: raiModelo, estadoBase: 'Comprobado', nota: 'Comparación independiente entre RAI Contable Mayor y RAI Analítico Cascada (sin partidas de cuadre)' }
       ];
 

@@ -1,149 +1,135 @@
-@echo off
-chcp 65001 > nul
-setlocal enabledelayedexpansion
-
-echo ======================================================================
-echo   CODIAGRO - ACTUALIZADOR CONTROLADO DE FULL COSTING Y DASHBOARD
-echo   (Fases separadas: 1. Generacion -> 2. Validacion -> 3. Activacion)
-echo ======================================================================
-echo.
-
-set "PY=C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
-set "BACKUP_DIR=scratch\last_valid_backup"
-set "LAST_DATA_DATE=30/09/2026 (Cierre Full Costing Sep-26) / 29/10/2026 (Pedidos y Stock Oct-26)"
-
-REM ----------------------------------------------------------------------
-REM PASO 0: Resguardar la ultima version valida antes de regenerar salidas
-REM ----------------------------------------------------------------------
-echo [PASO 0] Resguardando ultima version valida en %BACKUP_DIR%...
-if not exist "%BACKUP_DIR%" mkdir "%BACKUP_DIR%"
-if not exist "%BACKUP_DIR%\web_dashboard_direccion" mkdir "%BACKUP_DIR%\web_dashboard_direccion"
-if not exist "%BACKUP_DIR%\web_dashboard" mkdir "%BACKUP_DIR%\web_dashboard"
-
-copy /y "web_dashboard_direccion\*.json" "%BACKUP_DIR%\web_dashboard_direccion\" >nul 2>&1
-copy /y "web_dashboard_direccion\*.js" "%BACKUP_DIR%\web_dashboard_direccion\" >nul 2>&1
-copy /y "web_dashboard\*.json" "%BACKUP_DIR%\web_dashboard\" >nul 2>&1
-copy /y "web_dashboard\*.js" "%BACKUP_DIR%\web_dashboard\" >nul 2>&1
-if exist "Seguimiento_Presupuesto_Sep_2026.xlsx" copy /y "Seguimiento_Presupuesto_Sep_2026.xlsx" "%BACKUP_DIR%\" >nul 2>&1
-if exist "Orden_Fabricacion_MRP_Codiagro.xlsx" copy /y "Orden_Fabricacion_MRP_Codiagro.xlsx" "%BACKUP_DIR%\" >nul 2>&1
-
-REM ----------------------------------------------------------------------
-REM FASE 1: GENERACION DE TODAS LAS SALIDAS DESDE FUENTES IDENTIFICADAS
-REM ----------------------------------------------------------------------
-echo.
-echo [FASE 1] Generando salidas analiticas y operativas...
-
-set "FAILED_STEP=build_dataset.py (Dataset comercial)"
-"%PY%" -X utf8 scripts/build_dataset.py
-if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
-
-if exist "scripts\build_multi_period.py" (
-    set "FAILED_STEP=build_multi_period.py (Consolidacion multi-periodo Sep/Oct)"
-    "%PY%" -X utf8 scripts/build_multi_period.py
-    if !ERRORLEVEL! NEQ 0 goto :ROLLBACK
-)
-
-set "FAILED_STEP=build_production_data.py (Planificacion MRP)"
-"%PY%" -X utf8 scripts/build_production_data.py
-if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
-
-set "FAILED_STEP=generar_orden_fabricacion_excel.py (Orden de Fabricacion Excel)"
-"%PY%" -X utf8 scripts/generar_orden_fabricacion_excel.py
-if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
-
-set "FAILED_STEP=build_treasury_data.py (Tesoreria y Cash Flow)"
-"%PY%" -X utf8 scripts/build_treasury_data.py
-if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
-
-set "FAILED_STEP=build_profitability_data.py (Rentabilidad COGS)"
-"%PY%" -X utf8 scripts/build_profitability_data.py
-if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
-
-set "FAILED_STEP=build_marta_tracking_data.py (Seguimiento Cierre 2026)"
-"%PY%" -X utf8 scripts/build_marta_tracking_data.py
-if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
-
-set "FAILED_STEP=merge_fullcost_drilldown.py (Modelo Full Costing Septiembre 2026)"
-"%PY%" -X utf8 scripts/merge_fullcost_drilldown.py
-if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
-
-set "FAILED_STEP=generate_excel_dashboard.py (Excel Seguimiento_Presupuesto_Sep_2026.xlsx)"
-"%PY%" -X utf8 scripts/generate_excel_dashboard.py
-if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
-
-REM ----------------------------------------------------------------------
-REM FASE 2: VALIDACION ESTRICTA DE CALCULOS Y CONSERVACION DE IMPORTES
-REM ----------------------------------------------------------------------
-echo.
-echo [FASE 2] Ejecutando validacion de calculos, redondeos y coherencia...
-set "FAILED_STEP=validate_fullcost_update.py (Validacion de integridad y cuadre)"
-"%PY%" -X utf8 scripts/validate_fullcost_update.py
-if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
-
-REM ----------------------------------------------------------------------
-REM FASE 3: ACTIVACION LOCAL CONTROLADA Y AISLAMIENTO DE DATOS PUBLICOS
-REM ----------------------------------------------------------------------
-echo.
-echo [FASE 3] Activando nueva version validada...
-del /q "web_dashboard\treasury_data.*" 2>nul
-del /q "web_dashboard\profitability_data.*" 2>nul
-del /q "web_dashboard\Prevision_Tesoreria_CashFlow_2026*.xlsx" 2>nul
-del /q "web_dashboard\fullcost_data.*" 2>nul
-del /q "web_dashboard\cockpit_inicio_logic.js" 2>nul
-del /q "web_dashboard\profitability_logic.js" 2>nul
-del /q "web_dashboard\bi_intelligence_logic.js" 2>nul
-del /q "web_dashboard\update_validation_status.json" 2>nul
-
-REM ESCUDO DE SEGURIDAD ESTRICTO: Verificar aislamiento absoluto de comerciales
-for %%F in (fullcost_data.json fullcost_data.js cockpit_inicio_logic.js profitability_logic.js bi_intelligence_logic.js treasury_data.json treasury_data.js update_validation_status.json) do (
-    if exist "web_dashboard\%%F" (
-        echo [ERROR CRITICO DE SEGURIDAD] Archivo confidencial detectado en web_dashboard: %%F
-        del /f /q "web_dashboard\%%F"
-    )
-)
-
-echo.
-echo ======================================================================
-echo   [OK] ACTUALIZACION LOCAL VALIDADA Y ACTIVADA CON EXITO
-echo   Fecha de datos disponibles: %LAST_DATA_DATE%
-echo   Salidas actualizadas:
-echo     - web_dashboard_direccion\fullcost_data.json / .js
-echo     - web_dashboard_direccion\marta_tracking_data.json / .js
-echo     - web_dashboard_direccion\dashboard_data.json / .js
-echo     - Seguimiento_Presupuesto_Sep_2026.xlsx
-echo     - Orden_Fabricacion_MRP_Codiagro.xlsx
-echo ======================================================================
-
-REM ----------------------------------------------------------------------
-REM FASE 4: PUBLICACION SEPARADA (NO AUTOMATICA SALVO FLAG --publish)
-REM ----------------------------------------------------------------------
-if /I "%~1"=="--publish" (
-    echo.
-    echo [FASE 4] Publicando unicamente entregables autorizados de web_dashboard...
-    git add web_dashboard/index.html web_dashboard/dashboard_data.json web_dashboard/dashboard_data.js web_dashboard/production_planning_data.json web_dashboard/production_planning_data.js
-    git commit -m "Publicacion controlada web_dashboard: %date% %time%"
-    git subtree push --prefix web_dashboard origin gh-pages
-) else (
-    echo.
-    echo [INFO] Publicacion automatica desactivada por politica de control.
-    echo        Los documentos internos, copias ^(scratch/^) y pruebas quedan fuera de publicacion.
-    echo        Para publicar manualmente tras revisar, ejecute: actualizar_dashboard.bat --publish
-)
-exit /b 0
-
-:ROLLBACK
-echo.
-echo ======================================================================
-echo   [ERROR CRITICO] Fallo detectado en paso: !FAILED_STEP!
-echo   Restaurando automaticamente la ultima version valida desde %BACKUP_DIR%...
-echo ======================================================================
-copy /y "%BACKUP_DIR%\web_dashboard_direccion\*.json" "web_dashboard_direccion\" >nul 2>&1
-copy /y "%BACKUP_DIR%\web_dashboard_direccion\*.js" "web_dashboard_direccion\" >nul 2>&1
-copy /y "%BACKUP_DIR%\web_dashboard\*.json" "web_dashboard\" >nul 2>&1
-copy /y "%BACKUP_DIR%\web_dashboard\*.js" "web_dashboard\" >nul 2>&1
-if exist "%BACKUP_DIR%\Seguimiento_Presupuesto_Sep_2026.xlsx" copy /y "%BACKUP_DIR%\Seguimiento_Presupuesto_Sep_2026.xlsx" "." >nul 2>&1
-if exist "%BACKUP_DIR%\Orden_Fabricacion_MRP_Codiagro.xlsx" copy /y "%BACKUP_DIR%\Orden_Fabricacion_MRP_Codiagro.xlsx" "." >nul 2>&1
-echo   [RESTAURADO] Se ha conservado intacta la ultima version valida.
-echo   [FECHA DATOS DISPONIBLES] %LAST_DATA_DATE%
-echo ======================================================================
-exit /b 1
+@echo off
+chcp 65001 > nul
+setlocal enabledelayedexpansion
+
+echo ======================================================================
+echo   CODIAGRO - ACTUALIZADOR CONTROLADO DE FULL COSTING Y DASHBOARD
+echo   (Fases separadas: 1. Generacion -> 2. Validacion -> 3. Activacion)
+echo ======================================================================
+echo.
+
+set "PY=C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
+set "BACKUP_DIR=scratch\last_valid_backup"
+set "LAST_DATA_DATE=30/09/2026 (Cierre Full Costing Sep-26) / 29/10/2026 (Pedidos y Stock Oct-26)"
+
+REM ----------------------------------------------------------------------
+REM PASO 0: Resguardar la ultima version valida antes de regenerar salidas
+REM ----------------------------------------------------------------------
+echo [PASO 0] Resguardando ultima version valida en %BACKUP_DIR%...
+"%PY%" -X utf8 scripts/clean_rollback.py
+
+REM ----------------------------------------------------------------------
+REM FASE 1: GENERACION DE TODAS LAS SALIDAS DESDE FUENTES IDENTIFICADAS
+REM ----------------------------------------------------------------------
+echo.
+echo [FASE 1] Generando salidas analiticas y operativas...
+
+set "FAILED_STEP=build_dataset.py (Dataset comercial)"
+"%PY%" -X utf8 scripts/build_dataset.py
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+if exist "scripts\build_multi_period.py" (
+    set "FAILED_STEP=build_multi_period.py (Consolidacion multi-periodo Sep/Oct)"
+    "%PY%" -X utf8 scripts/build_multi_period.py
+    if !ERRORLEVEL! NEQ 0 goto :ROLLBACK
+)
+
+set "FAILED_STEP=build_production_data.py (Planificacion MRP)"
+"%PY%" -X utf8 scripts/build_production_data.py
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+set "FAILED_STEP=generar_orden_fabricacion_excel.py (Orden de Fabricacion Excel)"
+"%PY%" -X utf8 scripts/generar_orden_fabricacion_excel.py
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+set "FAILED_STEP=build_treasury_data.py (Tesoreria y Cash Flow)"
+"%PY%" -X utf8 scripts/build_treasury_data.py
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+set "FAILED_STEP=build_profitability_data.py (Rentabilidad COGS)"
+"%PY%" -X utf8 scripts/build_profitability_data.py
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+set "FAILED_STEP=build_marta_tracking_data.py (Seguimiento Cierre 2026)"
+"%PY%" -X utf8 scripts/build_marta_tracking_data.py
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+set "FAILED_STEP=merge_fullcost_drilldown.py (Modelo Full Costing Septiembre 2026)"
+"%PY%" -X utf8 scripts/merge_fullcost_drilldown.py
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+set "FAILED_STEP=generate_excel_dashboard.py (Excel Seguimiento_Presupuesto_Sep_2026.xlsx)"
+"%PY%" -X utf8 scripts/generate_excel_dashboard.py
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+REM ----------------------------------------------------------------------
+REM FASE 2: VALIDACION ESTRICTA DE CALCULOS Y CONSERVACION DE IMPORTES
+REM ----------------------------------------------------------------------
+echo.
+echo [FASE 2] Ejecutando validacion de calculos, redondeos y coherencia...
+set "FAILED_STEP=validate_fullcost_update.py (Validacion de integridad y cuadre)"
+"%PY%" -X utf8 scripts/validate_fullcost_update.py
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+REM ----------------------------------------------------------------------
+REM FASE 3: ACTIVACION LOCAL CONTROLADA Y AISLAMIENTO DE DATOS PUBLICOS
+REM ----------------------------------------------------------------------
+echo.
+echo [FASE 3] Activando nueva version validada...
+del /q "web_dashboard\treasury_data.*" 2>nul
+del /q "web_dashboard\profitability_data.*" 2>nul
+del /q "web_dashboard\Prevision_Tesoreria_CashFlow_2026*.xlsx" 2>nul
+del /q "web_dashboard\fullcost_data.*" 2>nul
+del /q "web_dashboard\cockpit_inicio_logic.js" 2>nul
+del /q "web_dashboard\profitability_logic.js" 2>nul
+del /q "web_dashboard\bi_intelligence_logic.js" 2>nul
+del /q "web_dashboard\update_validation_status.json" 2>nul
+
+REM ESCUDO DE SEGURIDAD ESTRICTO: Verificar aislamiento absoluto de comerciales
+for %%F in (fullcost_data.json fullcost_data.js cockpit_inicio_logic.js profitability_logic.js bi_intelligence_logic.js treasury_data.json treasury_data.js update_validation_status.json) do (
+    if exist "web_dashboard\%%F" (
+        echo [ERROR CRITICO DE SEGURIDAD] Archivo confidencial detectado en web_dashboard: %%F
+        del /f /q "web_dashboard\%%F"
+    )
+)
+
+echo.
+echo ======================================================================
+echo   [OK] ACTUALIZACION LOCAL VALIDADA Y ACTIVADA CON EXITO
+echo   Fecha de datos disponibles: %LAST_DATA_DATE%
+echo   Salidas actualizadas:
+echo     - web_dashboard_direccion\fullcost_data.json / .js
+echo     - web_dashboard_direccion\marta_tracking_data.json / .js
+echo     - web_dashboard_direccion\dashboard_data.json / .js
+echo     - Seguimiento_Presupuesto_Sep_2026.xlsx
+echo     - Orden_Fabricacion_MRP_Codiagro.xlsx
+echo ======================================================================
+
+REM ----------------------------------------------------------------------
+REM FASE 4: PUBLICACION SEPARADA (NO AUTOMATICA SALVO FLAG --publish)
+REM ----------------------------------------------------------------------
+if /I "%~1"=="--publish" (
+    echo.
+    echo [FASE 4] Publicando unicamente entregables autorizados de web_dashboard...
+    git add web_dashboard/index.html web_dashboard/dashboard_data.json web_dashboard/dashboard_data.js web_dashboard/production_planning_data.json web_dashboard/production_planning_data.js
+    git commit -m "Publicacion controlada web_dashboard: %date% %time%"
+    git subtree push --prefix web_dashboard origin gh-pages
+) else (
+    echo.
+    echo [INFO] Publicacion automatica desactivada por politica de control.
+    echo        Los documentos internos, copias ^(scratch/^) y pruebas quedan fuera de publicacion.
+    echo        Para publicar manualmente tras revisar, ejecute: actualizar_dashboard.bat --publish
+)
+exit /b 0
+
+:ROLLBACK
+echo.
+echo ======================================================================
+echo   [ERROR CRITICO] Fallo detectado en paso: !FAILED_STEP!
+echo   Restaurando automaticamente la ultima version valida desde %BACKUP_DIR%...
+echo ======================================================================
+"%PY%" -X utf8 scripts/clean_rollback.py restore
+echo   [RESTAURADO] Se ha conservado intacta la ultima version valida.
+echo   [FECHA DATOS DISPONIBLES] %LAST_DATA_DATE%
+echo ======================================================================
+exit /b 1

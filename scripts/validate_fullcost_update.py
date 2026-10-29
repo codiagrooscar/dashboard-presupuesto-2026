@@ -67,8 +67,25 @@ def main():
         fc_from_js = json.loads(js_json_str)
         if not fc_from_js or not fc_from_js.get("clientes") or not fc_from_js.get("totales_drilldown"):
             fail("El archivo fullcost_data.js contiene un objeto vacío o carece de clientes/totales requeridos.")
-        if round(fc_from_js.get("totales_drilldown", {}).get("ventas", 0), 2) != round(fc.get("totales_drilldown", {}).get("ventas", 0), 2):
-            fail("Desincronización entre fullcost_data.json y fullcost_data.js en total ventas.")
+        
+        # Comparación exhaustiva de todas las magnitudes clave entre JSON y JavaScript
+        js_tot = fc_from_js.get("totales_drilldown", {})
+        json_tot = fc.get("totales_drilldown", {})
+        for k_tot in ["ventas", "cogs_materiales", "coste_planta", "coste_subactividad", "coste_planta_total",
+                      "margen_industrial_eur", "transporte_real", "margen_contribucion_eur", "uds"]:
+            if k_tot in json_tot or k_tot in js_tot:
+                v_js = round(float(js_tot.get(k_tot, 0.0) or 0.0), 2)
+                v_json = round(float(json_tot.get(k_tot, 0.0) or 0.0), 2)
+                if abs(v_js - v_json) > 0.01:
+                    fail(f"Desincronización entre JSON y JS en totales_drilldown.{k_tot}: {v_json} € vs {v_js} €")
+
+        js_meta = fc_from_js.get("metadata", {})
+        json_meta = fc.get("metadata", {})
+        for k_meta in ["rai_contable_mayor", "rai_analitico_cascada", "desviacion_conciliacion_mayor"]:
+            v_js = round(float(js_meta.get(k_meta, 0.0) or 0.0), 2)
+            v_json = round(float(json_meta.get(k_meta, 0.0) or 0.0), 2)
+            if abs(v_js - v_json) > 0.01:
+                fail(f"Desincronización entre JSON y JS en metadata.{k_meta}: {v_json} € vs {v_js} €")
     except Exception as e:
         fail(f"Fallo al validar correspondencia de fullcost_data.js: {e}")
 
@@ -111,7 +128,9 @@ def main():
         ("Comerciales Margen Contrib vs Total", round(sum(cm["margen_contribucion_eur"] for cm in coms) - tot["margen_contribucion_eur"], 2)),
         ("Clientes Unidades vs Total", round(sum(c["uds"] for c in clis) - tot["uds"], 1)),
         ("Productos Unidades vs Total", round(sum(p["uds"] for p in prods) - tot["uds"], 1)),
-        ("CECOs Planta Suma vs Coste Planta Total", round(sum(meta.get("costes_ceco_eur", {}).values()) - tot["coste_planta"], 2)),
+        ("CECOs Actividad Suma vs Coste Planta Actividad", round(sum(meta.get("costes_ceco_actividad_eur", meta.get("costes_ceco_eur", {})).values()) - tot["coste_planta"], 2)),
+        ("Coste Planta Actividad + Subactividad vs Total Industrial", round(tot["coste_planta"] + tot.get("coste_subactividad", 0.0) - tot.get("coste_planta_total", tot["coste_planta"]), 2)),
+        ("CECOs Total Industrial Suma vs Total Planta", round(sum(meta.get("costes_ceco_eur", {}).values()) - tot.get("coste_planta_total", tot["coste_planta"]), 2)),
     ]
 
     for name, diff in checks:
@@ -150,6 +169,10 @@ def main():
     puente_mat = fc.get("puente_materiales", {})
     if not puente_mat or not puente_mat.get("lineas"):
         fail("El puente de materiales está vacío o no documenta la conciliación contable vs técnica.", last_date)
+    mat_tecnico = round(float(puente_mat.get("coste_tecnico_escandallos_eur", 0.0) or 0.0), 2)
+    mat_drilldown = round(float(tot.get("cogs_materiales", 0.0) or 0.0), 2)
+    if abs(mat_tecnico - mat_drilldown) > 0.01:
+        fail(f"Desincronización en puente de materiales: {mat_tecnico:.2f} € vs detalle ventas {mat_drilldown:.2f} €", last_date)
 
     trazab = fc.get("trazabilidad_parametros", [])
     if not trazab or len(trazab) < 6:
@@ -187,24 +210,42 @@ def main():
         if "Estimación de Ventas | Codiagro" not in html_content or "fullcost" in html_content.lower():
             fail("VIOLACIÓN DE SEGURIDAD: web_dashboard/index.html contiene módulos o títulos de Dirección General en lugar de la versión comercial abierta.")
 
-    diff_concil = round(float(meta.get("diferencia_conciliacion", 0.0) or 0.0), 2)
-    estado_conciliacion = "CONCILIADO (0,00 €)" if abs(diff_concil) <= 0.05 else f"PENDIENTE DE CONCILIACIÓN ({diff_concil:.2f} €)"
+    # Recálculo independiente de la coincidencia del RAI
+    rai_mayor = round(float(meta.get("rai_contable_mayor", 0.0) or 0.0), 2)
+    rai_analitico = round(float(meta.get("rai_analitico_cascada", 0.0) or 0.0), 2)
+    diff_recalc = round(abs(rai_mayor - rai_analitico), 2)
+    diff_meta = round(float(meta.get("diferencia_conciliacion", 0.0) or 0.0), 2)
+    if abs(diff_meta - diff_recalc) > 0.01:
+        fail(f"Incoherencia en metadatos: 'diferencia_conciliacion' declarada ({diff_meta:.2f} €) no coincide con recálculo independiente abs({rai_mayor:.2f} - {rai_analitico:.2f}) = {diff_recalc:.2f} €", last_date)
+
+    coincidencia_rai = "COINCIDENTE (0,00 €)" if diff_recalc <= 0.01 else f"DESVIACIÓN ({diff_recalc:.2f} €)"
+    
+    # Distinción explícita entre coincidencia técnica de RAI y estado del cierre contable (puentes externos)
+    ex_estado = str(puente_ex.get("estado_global", "Pendiente de conciliación"))
+    tr_estado = str(puente_tr.get("estado_global", "Pendiente de conciliación"))
+
+    if ex_estado != "Comprobado" or tr_estado != "Comprobado":
+        estado_cierre_contable = f"PENDIENTE DE CONCILIACIÓN (Existencias: {ex_estado} / Transporte: {tr_estado})"
+    else:
+        estado_cierre_contable = "CONCILIADO"
 
     status_payload = {
         "estado_tecnico": "COMPROBADO",
-        "estado_conciliacion_contable": estado_conciliacion,
+        "coincidencia_rai": coincidencia_rai,
+        "estado_cierre_contable": estado_cierre_contable,
+        "estado_conciliacion_contable": estado_cierre_contable,
         "fecha_validacion": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
         "fecha_datos_fullcost": meta.get("fecha_cierre", "30/09/2026"),
-        "rai_contable_mayor_eur": meta.get("rai_contable_mayor"),
-        "rai_analitico_cascada_eur": meta.get("rai_analitico_cascada"),
-        "diferencia_conciliacion_eur": diff_concil,
+        "rai_contable_mayor_eur": rai_mayor,
+        "rai_analitico_cascada_eur": rai_analitico,
+        "diferencia_conciliacion_eur": diff_recalc,
         "conservacion_importes_drift": 0.0,
         "fuentes_verificadas": sources_info
     }
     with open(os.path.join("web_dashboard_direccion", "update_validation_status.json"), "w", encoding="utf-8") as f:
         json.dump(status_payload, f, ensure_ascii=False, indent=2)
 
-    print(f"2. Validación técnica superada al 100% (drift 0,00 €). Estado contable: {estado_conciliacion}.")
+    print(f"2. Validación técnica superada al 100% (drift 0,00 €). Coincidencia RAI: {coincidencia_rai}. Cierre contable: {estado_cierre_contable}.")
 
 if __name__ == "__main__":
     main()

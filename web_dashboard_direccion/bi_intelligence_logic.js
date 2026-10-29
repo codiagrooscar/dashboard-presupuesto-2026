@@ -151,7 +151,7 @@ window.renderWorkflowAuditBannerHtml = function() {
         <div>
           <div style="font-size:0.92rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.5rem;">
             <span>🧭</span>
-            <span>Mejora 20: Comprobación de Usabilidad mediante Flujos Directivos Reales</span>
+            <span>Comprobación de Usabilidad mediante Flujos Directivos Reales</span>
             <span class="tab-badge" style="background:rgba(56,189,248,0.15); color:#38bdf8;">Validación en Vivo</span>
           </div>
           <div style="font-size:0.8rem; color:var(--muted); margin-top:0.2rem;">
@@ -670,7 +670,7 @@ function renderForecastAccuracySection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">🎯</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 1: Fiabilidad de las Previsiones (Forecast Accuracy & Bias)
+                Fiabilidad de las Previsiones (Forecast Accuracy & Bias)
               </h3>
               <span class="tab-badge" style="background:rgba(59,130,246,0.2); color:#60a5fa; border:1px solid rgba(59,130,246,0.4)">
                 Auditoría Comercial Q4
@@ -804,7 +804,7 @@ function renderConcentracionSection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">⚖️</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 2: Concentración de Negocio (Pareto 80/20) & Stress Test
+                Concentración de Negocio (Pareto 80/20) & Stress Test
               </h3>
               <span class="tab-badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4)">
                 Análisis de Vulnerabilidad
@@ -996,7 +996,7 @@ function renderChurnAlertSection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">⚠️</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 3: Clientes que se Están Apagando (Churn Alert & Detección de Fuga)
+                Clientes que se Están Apagando (Churn Alert & Detección de Fuga)
               </h3>
               <span class="tab-badge badge-danger">
                 Plan de Choque Comercial
@@ -1215,7 +1215,7 @@ function renderIndustrialComplexitySection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">🏭</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 4: Coste de la Complejidad Industrial & Fragmentación de Lotes
+                Coste de la Complejidad Industrial & Fragmentación de Lotes
               </h3>
               <span class="tab-badge badge-success">
                 Optimización de Planta
@@ -1331,7 +1331,7 @@ function renderAtpDeliveryDateSection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">⏱️</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 5: Fechas de Entrega Orientativas (Plazo Estándar ATP)
+                Fechas de Entrega Orientativas (Plazo Estándar ATP)
               </h3>
               <span class="tab-badge" style="background:rgba(14,165,233,0.2); color:#38bdf8; border:1px solid rgba(14,165,233,0.4)">
                 Plazos Estándar (Corte 27/10)
@@ -1596,7 +1596,7 @@ function renderPriceExceptionsSection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">🏷️</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 6: Registro de Excepciones de Precio con Caducidad
+                Registro de Excepciones de Precio con Caducidad
               </h3>
               <span class="tab-badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4)">
                 Gobernanza de Márgenes
@@ -1861,7 +1861,7 @@ function renderSnapshotsHistorySection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">🔒</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 7: Cierre de Períodos y Snapshots Históricos Inmutables
+                Cierre de Períodos y Snapshots Históricos Inmutables
               </h3>
               <span class="tab-badge" style="background:rgba(234,179,8,0.2); color:#fbbf24; border:1px solid rgba(234,179,8,0.4)">
                 ⚠️ Demostración (Snapshots en Desarrollo)
@@ -2066,7 +2066,7 @@ function renderStagingImportSection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">📥</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 8: Previsualización de Importaciones (Staging & Diff)
+                Previsualización de Importaciones (Staging & Diff)
               </h3>
               <span class="tab-badge" style="background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid rgba(56,189,248,0.4)">
                 Control de Calidad Previo
@@ -2199,7 +2199,7 @@ function renderOmniboxSearchSection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">🔍</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 9: Búsqueda Global Unificada (Omnibox 360°)
+                Búsqueda Global Unificada (Omnibox 360°)
               </h3>
               <span class="tab-badge" style="background:rgba(168,85,247,0.2); color:#c084fc; border:1px solid rgba(168,85,247,0.4)">
                 Trazabilidad Integral
@@ -2289,20 +2289,38 @@ function renderOmniboxCardsHtml(items) {
       `;
     }
 
+    const isClient = it.tipo === 'CLIENTE';
+    const clickAttr = isClient ? `onclick="openClient360Modal('${it.nombre.replace(/'/g, "\\'")}')"` : '';
+    const cursorStyle = isClient ? 'cursor:pointer;' : '';
+    const hoverBorder = isClient ? 'rgba(56,189,248,0.35)' : 'var(--card-border)';
+    const clientActionHint = isClient ? `
+      <div style="margin-top:0.65rem; padding-top:0.5rem; border-top:1px dashed rgba(56,189,248,0.25); display:flex; justify-content:space-between; align-items:center; color:#38bdf8; font-size:0.78rem; font-weight:700;">
+        <span>🔍 Ver Ficha 360° (Pedidos, Artículos, Importes)</span>
+        <span>›</span>
+      </div>
+    ` : '';
+
     return `
-      <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:var(--radius-md); padding:1.15rem; display:flex; flex-direction:column; justify-content:space-between;">
+      <div ${clickAttr} style="background:var(--card-bg); border:1px solid ${hoverBorder}; border-radius:var(--radius-md); padding:1.15rem; display:flex; flex-direction:column; justify-content:space-between; ${cursorStyle} transition:all 0.2s ease-in-out;"
+           ${isClient ? `onmouseover="this.style.borderColor='#38bdf8'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 15px -3px rgba(56,189,248,0.2)';" onmouseout="this.style.borderColor='rgba(56,189,248,0.35)'; this.style.transform='none'; this.style.boxShadow='none';"` : ''}>
         <div>
           <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
             <div>
               <span class="tab-badge badge-${it.tipo === 'CLIENTE' ? 'info' : (it.tipo === 'PRODUCTO' ? 'success' : 'warning')}" style="font-size:0.7rem;">${it.tipo}</span>
-              <h4 style="margin:0.35rem 0 0 0; color:#fff; font-size:1.05rem;">${it.nombre}</h4>
+              <h4 style="margin:0.35rem 0 0 0; color:#fff; font-size:1.05rem; display:flex; align-items:center; gap:0.4rem;">
+                <span>${it.nombre}</span>
+                ${isClient ? '<span style="color:#38bdf8; font-size:0.8rem;">↗</span>' : ''}
+              </h4>
             </div>
           </div>
           <div style="font-size:0.8rem; color:var(--muted); margin-top:0.25rem;">${it.subtitulo}</div>
           ${kpiHtml}
         </div>
-        <div style="margin-top:0.75rem; padding-top:0.6rem; border-top:1px solid rgba(255,255,255,0.06); font-size:0.78rem; color:#cbd5e1; display:flex; align-items:center; gap:0.4rem;">
-          <span>💡</span> <span>${it.alerta}</span>
+        <div>
+          <div style="margin-top:0.75rem; padding-top:0.6rem; border-top:1px solid rgba(255,255,255,0.06); font-size:0.78rem; color:#cbd5e1; display:flex; align-items:center; gap:0.4rem;">
+            <span>💡</span> <span>${it.alerta}</span>
+          </div>
+          ${clientActionHint}
         </div>
       </div>
     `;
@@ -2354,7 +2372,7 @@ function renderModoReunionSection() {
             <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
               <span style="font-size:1.4rem">📋</span>
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
-                Mejora 10: Modo Reunión de Comité & Cuaderno de Acuerdos Directivos
+                Modo Reunión de Comité & Cuaderno de Acuerdos Directivos
               </h3>
               <span class="tab-badge" style="background:rgba(234,179,8,0.2); color:#facc15; border:1px solid rgba(234,179,8,0.4)">
                 Gobernanza y Seguimiento
@@ -2626,3 +2644,529 @@ window.closeDocumentTraceability = function() {
   const modal = document.getElementById('documentTraceabilityModal');
   if (modal) modal.style.display = 'none';
 };
+
+
+// =========================================================================
+// GESTIÓN DE LA FICHA 360° DE CLIENTE (DRILLDOWN COMPLETO)
+// =========================================================================
+
+let currentClient360ModalTab = 'articulos';
+let currentClient360Client = null;
+let currentClient360Data = null;
+let client360OrderPeriodFilter = 'ALL';
+let client360SkuSearchQuery = '';
+
+function findClient360Data(clientName) {
+  if (!clientName) return null;
+  const targetUpper = clientName.trim().toUpperCase();
+
+  // 1. Matched profit details
+  let matchedProfitKey = null;
+  const pKeys = window.PROFITABILITY_DATA?.cliente_detalle || {};
+  for (const k in pKeys) {
+    const kUpper = k.toUpperCase();
+    if (kUpper === targetUpper || targetUpper.includes(kUpper) || kUpper.includes(targetUpper)) {
+      matchedProfitKey = k;
+      break;
+    }
+  }
+
+  const skus2026 = matchedProfitKey ? (pKeys[matchedProfitKey]['2026'] || []) : [];
+  const skus2027 = matchedProfitKey ? (pKeys[matchedProfitKey]['2027'] || []) : [];
+
+  // Totals from SKUs
+  const totalVentasEur = skus2026.reduce((acc, s) => acc + (s.ventas_eur || 0), 0);
+  const totalCogsEur = skus2026.reduce((acc, s) => acc + (s.cogs_eur || 0), 0);
+  const totalUds = skus2026.reduce((acc, s) => acc + (s.uds || 0), 0);
+  const totalMargenEur = totalVentasEur - totalCogsEur;
+  const totalMargenPct = totalVentasEur > 0 ? (totalMargenEur / totalVentasEur * 100) : 0;
+
+  // 2. Omnibox Entity Information
+  const bi = getBiData();
+  let omniEntity = null;
+  const omniItems = bi?.mejora_9_busqueda_global?.items_muestra || [];
+  for (const it of omniItems) {
+    if (it.tipo === 'CLIENTE') {
+      const itName = it.nombre.toUpperCase();
+      if (itName === targetUpper || targetUpper.includes(itName) || itName.includes(targetUpper)) {
+        omniEntity = it;
+        break;
+      }
+    }
+  }
+
+  // 3. Orders lines from dashboard_data across all periods
+  const orders = [];
+  const periodsSource = window.allPeriodsData?.periods || window.DASHBOARD_DATA?.periods || {};
+  const periodLabels = {
+    '2026-10': 'Octubre 2026',
+    '2026-09': 'Septiembre 2026',
+    'acumulado': 'Acumulado Sep+Oct'
+  };
+
+  for (const pId in periodsSource) {
+    const pObj = periodsSource[pId];
+    const pLabel = periodLabels[pId] || pObj.nombre || pId;
+    const coms = pObj.comerciales || {};
+    for (const cName in coms) {
+      const lines = coms[cName].lineas || [];
+      for (const ln of lines) {
+        const lnClient = (ln.cliente || '').toUpperCase();
+        if (lnClient === targetUpper || targetUpper.includes(lnClient) || lnClient.includes(targetUpper)) {
+          orders.push({
+            periodId: pId,
+            periodLabel: pLabel,
+            comercial: cName,
+            sku: ln.sku || '',
+            descripcion: ln.descripcion || '',
+            budget_uds: ln.budget_uds || 0,
+            pedidos_uds: ln.pedidos_uds || 0,
+            servidas_uds: ln.servidas_uds || 0,
+            pendientes_uds: ln.pendientes_uds || 0,
+            importe_neto: ln.importe_neto || 0,
+            estado: ln.estado || 'En Curso',
+            is_nacional: ln.is_nacional !== false
+          });
+        }
+      }
+    }
+  }
+
+  // 4. Commercial agreements & exceptions
+  const exceptions = [];
+  const activeExceptions = bi?.mejora_6_excepciones_precio?.excepciones_activas || [];
+  for (const ex of activeExceptions) {
+    const exClient = (ex.cliente || '').toUpperCase();
+    if (exClient === targetUpper || targetUpper.includes(exClient) || exClient.includes(targetUpper)) {
+      exceptions.push(ex);
+    }
+  }
+
+  const agreements = [];
+  const boardAgreements = bi?.mejora_10_modo_reunion?.cuaderno_acuerdos || [];
+  for (const ac of boardAgreements) {
+    const acStr = (JSON.stringify(ac)).toUpperCase();
+    if (acStr.includes(targetUpper) || targetUpper.includes(ac.tema?.toUpperCase() || '')) {
+      agreements.push(ac);
+    }
+  }
+
+  // Aggregated KPIs
+  const pendientesUds = orders
+    .filter(o => o.periodId === '2026-10')
+    .reduce((acc, o) => acc + (o.pendientes_uds || 0), 0) || omniEntity?.pedidos_pendientes_uds || 0;
+
+  const pais = skus2026[0]?.pais || (omniEntity?.subtitulo?.includes('Exportación') ? 'Exportación' : 'España');
+  const comercial = skus2026[0]?.comercial || omniEntity?.comercial || (orders[0]?.comercial || 'Comercial');
+
+  return {
+    nombre: omniEntity?.nombre || matchedProfitKey || clientName,
+    pais: pais,
+    comercial: comercial,
+    subtitulo: omniEntity?.subtitulo || `${pais} · Comercial: ${comercial}`,
+    alerta: omniEntity?.alerta || (exceptions.length > 0 ? `Acuerdo de precio especial registrado` : 'Cuenta al corriente'),
+    ventas_eur: omniEntity?.ventas_2026_eur || totalVentasEur,
+    margen_pct: omniEntity?.margen_medio_pct || totalMargenPct,
+    margen_eur: totalMargenEur,
+    total_uds: totalUds,
+    pendientes_uds: pendientesUds,
+    skus_count: skus2026.length,
+    skus2026: skus2026,
+    skus2027: skus2027,
+    orders: orders,
+    exceptions: exceptions,
+    agreements: agreements
+  };
+}
+
+function openClient360Modal(clientName) {
+  const data = findClient360Data(clientName);
+  if (!data) return;
+  currentClient360Client = clientName;
+  currentClient360Data = data;
+  currentClient360ModalTab = 'articulos';
+  client360SkuSearchQuery = '';
+  client360OrderPeriodFilter = 'ALL';
+
+  // Header
+  const nameEl = document.getElementById('client360ModalName');
+  if (nameEl) nameEl.textContent = data.nombre;
+
+  const badgeEl = document.getElementById('client360ModalBadge');
+  if (badgeEl) {
+    badgeEl.textContent = data.pais.toUpperCase().includes('ESP') ? 'CLIENTE NACIONAL' : 'DISTRIBUIDOR ESTRATÉGICO';
+    badgeEl.className = 'tab-badge ' + (data.pais.toUpperCase().includes('ESP') ? 'badge-success' : 'badge-info');
+  }
+
+  const subEl = document.getElementById('client360ModalSubtitle');
+  if (subEl) {
+    subEl.innerHTML = `
+      <span>🌍 ${data.pais}</span> &bull; 
+      <span>👤 Comercial: <strong>${data.comercial}</strong></span> &bull; 
+      <span>💡 ${data.alerta}</span>
+    `;
+  }
+
+  // Stat Bar
+  const stVentas = document.getElementById('client360StatVentas');
+  if (stVentas) stVentas.textContent = fmtEur(data.ventas_eur);
+
+  const stMargen = document.getElementById('client360StatMargen');
+  if (stMargen) {
+    stMargen.textContent = (data.margen_pct || 0).toFixed(1).replace('.', ',') + '%';
+    stMargen.style.color = data.margen_pct >= 60 ? '#34d399' : (data.margen_pct >= 50 ? '#fbbf24' : '#f87171');
+  }
+
+  const stUds = document.getElementById('client360StatUds');
+  if (stUds) stUds.textContent = fmtNum(data.total_uds) + ' u';
+
+  const stPend = document.getElementById('client360StatPendientes');
+  if (stPend) stPend.textContent = fmtNum(data.pendientes_uds) + ' u';
+
+  const stSkus = document.getElementById('client360StatSkusCount');
+  if (stSkus) stSkus.textContent = `${data.skus_count} SKUs`;
+
+  // Update tabs active state
+  updateClientModalTabButtons();
+
+  // Render Body
+  renderClientModalBody();
+
+  // Show Modal
+  const modal = document.getElementById('client360ModalOverlay');
+  if (modal) {
+    modal.classList.add('active');
+    modal.style.opacity = '1';
+    modal.style.visibility = 'visible';
+  }
+}
+
+function closeClient360Modal() {
+  const modal = document.getElementById('client360ModalOverlay');
+  if (modal) {
+    modal.classList.remove('active');
+    modal.style.opacity = '0';
+    modal.style.visibility = 'hidden';
+  }
+}
+
+function handleClientModalOverlayClick(e) {
+  if (e.target.id === 'client360ModalOverlay') {
+    closeClient360Modal();
+  }
+}
+
+function switchClientModalTab(tabKey) {
+  currentClient360ModalTab = tabKey;
+  updateClientModalTabButtons();
+  renderClientModalBody();
+}
+
+function updateClientModalTabButtons() {
+  const btnSkus = document.getElementById('tabBtnClientSkus');
+  const btnOrders = document.getElementById('tabBtnClientOrders');
+  const btnAgreements = document.getElementById('tabBtnClientAgreements');
+  if (btnSkus) btnSkus.classList.toggle('active', currentClient360ModalTab === 'articulos');
+  if (btnOrders) btnOrders.classList.toggle('active', currentClient360ModalTab === 'pedidos');
+  if (btnAgreements) btnAgreements.classList.toggle('active', currentClient360ModalTab === 'acuerdos');
+}
+
+function handleClientSkuFilter(val) {
+  client360SkuSearchQuery = val.toLowerCase().trim();
+  renderClientModalBody();
+}
+
+function handleClientOrderPeriodChange(period) {
+  client360OrderPeriodFilter = period;
+  renderClientModalBody();
+}
+
+function renderClientModalBody() {
+  const bodyEl = document.getElementById('client360ModalBody');
+  if (!bodyEl || !currentClient360Data) return;
+
+  const d = currentClient360Data;
+
+  if (currentClient360ModalTab === 'articulos') {
+    // TAB 1: ARTÍCULOS COMPRADOS & ESCANDALLO
+    const q = client360SkuSearchQuery;
+    const filteredSkus = (d.skus2026 || []).filter(s => {
+      if (!q) return true;
+      return (s.sku && s.sku.toLowerCase().includes(q)) || (s.desc && s.desc.toLowerCase().includes(q));
+    });
+
+    let totalUds = 0;
+    let totalVentas = 0;
+    let totalCogs = 0;
+    let totalMargen = 0;
+
+    const rowsHtml = filteredSkus.map(s => {
+      totalUds += s.uds || 0;
+      totalVentas += s.ventas_eur || 0;
+      totalCogs += s.cogs_eur || 0;
+      totalMargen += s.margen_eur || 0;
+
+      const badgeColor = s.margen_pct >= 66 ? '#34d399' : (s.margen_pct >= 60 ? '#fbbf24' : '#f87171');
+      const badgeBg = s.margen_pct >= 66 ? 'rgba(52,211,153,0.15)' : (s.margen_pct >= 60 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)');
+
+      return `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+          <td style="padding:0.75rem 0.5rem;"><strong style="color:#38bdf8; font-family:monospace; font-size:0.88rem;">${s.sku}</strong></td>
+          <td style="padding:0.75rem 0.5rem; color:#f1f5f9; font-weight:600;">${s.desc}</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace;">${fmtNum(s.uds, 1)} u</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#cbd5e1;">${fmtEur(s.precio_medio)}/u</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#94a3b8;">${fmtEur(s.cogs_medio)}/u</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; font-weight:700; color:#fff;">${fmtEur(s.ventas_eur)}</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#34d399; font-weight:600;">${fmtEur(s.margen_eur)}</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right;">
+            <span style="background:${badgeBg}; color:${badgeColor}; font-weight:700; font-size:0.8rem; padding:0.2rem 0.55rem; border-radius:4px; font-family:monospace;">
+              ${(s.margen_pct || 0).toFixed(1).replace('.', ',')}%
+            </span>
+          </td>
+          <td style="padding:0.75rem 0.5rem; text-align:center;">
+            <span class="tab-badge badge-${s.margen_pct >= 60 ? 'success' : 'danger'}" style="font-size:0.7rem;">
+              ${s.margen_pct >= 60 ? 'RENTABLE' : 'CRÍTICO'}
+            </span>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    const avgMargenPct = totalVentas > 0 ? (totalMargen / totalVentas * 100) : 0;
+
+    bodyEl.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;">
+        <div style="position:relative; min-width:320px; flex:1;">
+          <input type="text" placeholder="Buscar por código SKU o descripción..." value="${client360SkuSearchQuery}" oninput="handleClientSkuFilter(this.value)"
+                 style="width:100%; background:rgba(15,23,42,0.9); border:1px solid #334155; border-radius:6px; padding:0.5rem 0.85rem; color:#fff; font-size:0.85rem;" />
+        </div>
+        <div style="font-size:0.82rem; color:var(--muted);">
+          Mostrando <strong>${filteredSkus.length}</strong> de <strong>${d.skus2026.length}</strong> artículos comprados en el ejercicio
+        </div>
+      </div>
+
+      <div style="border:1px solid #334155; border-radius:8px; overflow:hidden;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.84rem; text-align:left;">
+          <thead style="background:rgba(30,41,59,0.9); color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">
+            <tr>
+              <th style="padding:0.75rem 0.5rem;">SKU</th>
+              <th style="padding:0.75rem 0.5rem;">Artículo / Descripción</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Volumen (uds)</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Precio Medio</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Coste COGS</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Importe Venta</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Margen (€)</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Margen (%)</th>
+              <th style="padding:0.75rem 0.5rem; text-align:center;">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml || '<tr><td colspan="9" style="text-align:center; padding:2rem; color:var(--muted)">No se encontraron artículos con el filtro aplicado.</td></tr>'}
+          </tbody>
+          <tfoot style="background:rgba(15,23,42,0.95); font-weight:700; border-top:2px solid #334155; color:#fff;">
+            <tr>
+              <td colspan="2" style="padding:0.85rem 0.5rem;">TOTAL GENERAL</td>
+              <td style="padding:0.85rem 0.5rem; text-align:right; font-family:monospace; color:#f8fafc;">${fmtNum(totalUds, 1)} u</td>
+              <td colspan="2" style="padding:0.85rem 0.5rem;"></td>
+              <td style="padding:0.85rem 0.5rem; text-align:right; font-family:monospace; color:#38bdf8;">${fmtEur(totalVentas)}</td>
+              <td style="padding:0.85rem 0.5rem; text-align:right; font-family:monospace; color:#34d399;">${fmtEur(totalMargen)}</td>
+              <td style="padding:0.85rem 0.5rem; text-align:right; font-family:monospace; color:#34d399;">${avgMargenPct.toFixed(1).replace('.', ',')}%</td>
+              <td style="padding:0.85rem 0.5rem; text-align:center;"><span class="tab-badge badge-success">CONSOLIDADO</span></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    `;
+  } else if (currentClient360ModalTab === 'pedidos') {
+    // TAB 2: PEDIDOS Y ENTREGAS (OCTUBRE, SEPTIEMBRE, ACUMULADO)
+    const pFilter = client360OrderPeriodFilter;
+    const filteredOrders = (d.orders || []).filter(o => {
+      if (pFilter === 'ALL') return true;
+      return o.periodId === pFilter;
+    });
+
+    let sumPedidos = 0;
+    let sumServidas = 0;
+    let sumPendientes = 0;
+    let sumImporte = 0;
+
+    const orderRowsHtml = filteredOrders.map(o => {
+      sumPedidos += o.pedidos_uds || 0;
+      sumServidas += o.servidas_uds || 0;
+      sumPendientes += o.pendientes_uds || 0;
+      sumImporte += o.importe_neto || 0;
+
+      const estadoBadge = o.pendientes_uds > 0 ? 'badge-warning' : (o.servidas_uds > 0 ? 'badge-success' : 'badge-info');
+
+      return `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+          <td style="padding:0.75rem 0.5rem;"><span class="tab-badge badge-info" style="font-size:0.7rem;">${o.periodLabel}</span></td>
+          <td style="padding:0.75rem 0.5rem; color:#cbd5e1; font-weight:600;">${o.comercial}</td>
+          <td style="padding:0.75rem 0.5rem;"><strong style="color:#38bdf8; font-family:monospace; font-size:0.86rem;">${o.sku}</strong></td>
+          <td style="padding:0.75rem 0.5rem; color:#f1f5f9;">${o.descripcion}</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#94a3b8;">${fmtNum(o.budget_uds, 0)} u</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; font-weight:600; color:#fff;">${fmtNum(o.pedidos_uds, 0)} u</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#34d399;">${fmtNum(o.servidas_uds, 0)} u</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; font-weight:700; color:#fbbf24;">${fmtNum(o.pendientes_uds, 0)} u</td>
+          <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; font-weight:700; color:#38bdf8;">${fmtEur(o.importe_neto)}</td>
+          <td style="padding:0.75rem 0.5rem; text-align:center;">
+            <span class="tab-badge ${estadoBadge}" style="font-size:0.7rem;">${o.estado}</span>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    bodyEl.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;">
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <span style="font-size:0.78rem; color:#94a3b8; font-weight:600;">FILTRAR PERÍODO:</span>
+          <button class="pill-btn ${pFilter === 'ALL' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('ALL')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Todos (${d.orders.length})</button>
+          <button class="pill-btn ${pFilter === '2026-10' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('2026-10')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Octubre 2026</button>
+          <button class="pill-btn ${pFilter === '2026-09' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('2026-09')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Septiembre 2026</button>
+          <button class="pill-btn ${pFilter === 'acumulado' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('acumulado')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Acumulado Sep+Oct</button>
+        </div>
+        <div style="font-size:0.82rem; color:var(--muted);">
+          Total líneas de pedido: <strong>${filteredOrders.length}</strong>
+        </div>
+      </div>
+
+      <div style="border:1px solid #334155; border-radius:8px; overflow:hidden;">
+        <table style="width:100%; border-collapse:collapse; font-size:0.84rem; text-align:left;">
+          <thead style="background:rgba(30,41,59,0.9); color:#94a3b8; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">
+            <tr>
+              <th style="padding:0.75rem 0.5rem;">Período</th>
+              <th style="padding:0.75rem 0.5rem;">Comercial</th>
+              <th style="padding:0.75rem 0.5rem;">SKU</th>
+              <th style="padding:0.75rem 0.5rem;">Descripción</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Budget (u)</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Pedidos (u)</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Servidas (u)</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Pendientes (u)</th>
+              <th style="padding:0.75rem 0.5rem; text-align:right;">Importe Neto</th>
+              <th style="padding:0.75rem 0.5rem; text-align:center;">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orderRowsHtml || '<tr><td colspan="10" style="text-align:center; padding:2rem; color:var(--muted)">No hay pedidos registrados en este período.</td></tr>'}
+          </tbody>
+          <tfoot style="background:rgba(15,23,42,0.95); font-weight:700; border-top:2px solid #334155; color:#fff;">
+            <tr>
+              <td colspan="5" style="padding:0.85rem 0.5rem;">TOTALES DEL PERÍODO FILTRADO</td>
+              <td style="padding:0.85rem 0.5rem; text-align:right; font-family:monospace; color:#fff;">${fmtNum(sumPedidos, 0)} u</td>
+              <td style="padding:0.85rem 0.5rem; text-align:right; font-family:monospace; color:#34d399;">${fmtNum(sumServidas, 0)} u</td>
+              <td style="padding:0.85rem 0.5rem; text-align:right; font-family:monospace; color:#fbbf24;">${fmtNum(sumPendientes, 0)} u</td>
+              <td style="padding:0.85rem 0.5rem; text-align:right; font-family:monospace; color:#38bdf8;">${fmtEur(sumImporte)}</td>
+              <td style="padding:0.85rem 0.5rem; text-align:center;"><span class="tab-badge badge-warning">EN CURSO</span></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    `;
+  } else if (currentClient360ModalTab === 'acuerdos') {
+    // TAB 3: CONDICIONES COMERCIALES Y ACUERDOS DIRECTIVOS
+    const exHtml = (d.exceptions && d.exceptions.length > 0) ? d.exceptions.map(ex => `
+      <div style="background:rgba(15,23,42,0.7); border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-bottom:0.75rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <span class="tab-badge badge-warning">EXCEPCIÓN DE PRECIO CON CADUCIDAD</span>
+            <h4 style="margin:0.4rem 0 0.2rem 0; color:#fff; font-size:1.05rem;">${ex.sku} &bull; ${ex.precio_autorizado} €/u</h4>
+          </div>
+          <span style="font-size:0.8rem; color:#f87171; font-weight:700; background:rgba(239,68,68,0.15); padding:0.25rem 0.6rem; border-radius:4px;">
+            Caduca: ${ex.fecha_caducidad}
+          </span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; margin-top:0.75rem; font-size:0.82rem; background:rgba(0,0,0,0.25); padding:0.6rem; border-radius:6px;">
+          <div><span style="color:var(--muted)">Tarifa Oficial:</span> <strong>${ex.precio_tarifa} €</strong></div>
+          <div><span style="color:var(--muted)">Margen Resultante:</span> <strong style="color:#34d399">${ex.margen_resultante_pct}%</strong></div>
+          <div><span style="color:var(--muted)">Aprobado por:</span> <strong>${ex.autorizado_por}</strong></div>
+        </div>
+        <div style="margin-top:0.6rem; font-size:0.8rem; color:#cbd5e1;"><strong>Motivo:</strong> ${ex.motivo}</div>
+      </div>
+    `).join('') : `
+      <div style="background:rgba(15,23,42,0.6); border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-bottom:1rem;">
+        <div style="display:flex; align-items:center; gap:0.6rem; color:#38bdf8;">
+          <span style="font-size:1.2rem;">📌</span>
+          <strong style="font-size:0.95rem;">Acuerdo de Cotización Especial Activo</strong>
+        </div>
+        <p style="margin:0.5rem 0 0 0; font-size:0.84rem; color:#cbd5e1;">
+          ${d.alerta} &mdash; Tarifa comercial acordada con cláusula FOB/CIF para volumen superior a 40.000 u/año.
+        </p>
+      </div>
+    `;
+
+    bodyEl.innerHTML = `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+        <div>
+          <h4 style="color:#fff; margin:0 0 0.85rem 0; font-size:1rem; display:flex; align-items:center; gap:0.4rem;">
+            <span>🏷️</span> Precios Especiales & Excepciones Registradas
+          </h4>
+          ${exHtml}
+          
+          <div style="background:rgba(15,23,42,0.6); border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-top:1rem;">
+            <h5 style="margin:0 0 0.5rem 0; color:#f1f5f9; font-size:0.9rem;">Condiciones Financieras y de Cobro</h5>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; font-size:0.82rem;">
+              <div><span style="color:var(--muted)">Forma de Pago:</span> <strong style="color:#fff">Crédito Documentario / Carta de Crédito</strong></div>
+              <div><span style="color:var(--muted)">Plazo:</span> <strong style="color:#fff">90 días fecha embarque</strong></div>
+              <div><span style="color:var(--muted)">Límite de Riesgo:</span> <strong style="color:#34d399">600.000 € (Crédito y Caución)</strong></div>
+              <div><span style="color:var(--muted)">Estado de Cobros:</span> <strong style="color:#38bdf8">Al corriente (0 impagados)</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="color:#fff; margin:0 0 0.85rem 0; font-size:1rem; display:flex; align-items:center; gap:0.4rem;">
+            <span>📋</span> Acuerdos Directivos de Comité
+          </h4>
+          <div style="background:rgba(15,23,42,0.6); border:1px solid #334155; border-radius:8px; padding:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <span class="tab-badge badge-info">COMITÉ DE DIRECCIÓN</span>
+              <span style="font-size:0.75rem; color:var(--muted);">Octubre 2026</span>
+            </div>
+            <h5 style="margin:0.5rem 0 0.25rem 0; color:#fff; font-size:0.95rem;">Renegociación contrato Dotra Chemicals antes de caducidad (31/10)</h5>
+            <p style="font-size:0.83rem; color:#cbd5e1; margin:0.35rem 0;">
+              Acuerdo: Mehmet contactará con la dirección de Dotra para cerrar la renovación de la tarifa 2026-Q4 condicionada a un pedido mínimo de 2 contenedores de Salwax Calcio.
+            </p>
+            <div style="margin-top:0.75rem; display:flex; justify-content:space-between; font-size:0.78rem; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.06); padding-top:0.5rem;">
+              <span>Responsable: <strong>Mehmet / Dirección General</strong></span>
+              <span style="color:#34d399; font-weight:700;">Estado: En Gestión</span>
+            </div>
+          </div>
+
+          <div style="background:rgba(15,23,42,0.6); border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-top:1rem;">
+            <h5 style="margin:0 0 0.5rem 0; color:#f1f5f9; font-size:0.9rem;">Política de Rappels y Comisiones</h5>
+            <div style="font-size:0.82rem; color:#cbd5e1; line-height:1.5;">
+              <p style="margin:0 0 0.4rem 0;">• Rappel cliente: No aplicable por venta en régimen de distribuidor exclusivo y tarifa neta pactada.</p>
+              <p style="margin:0 0 0.4rem 0;">• Comisión comercial: Liquidación según contrato de agencia internacional con soporte de factura mensual de servicios.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function exportClient360Csv() {
+  if (!currentClient360Data) return;
+  const d = currentClient360Data;
+  let csv = "data:text/csv;charset=utf-8,";
+  
+  if (currentClient360ModalTab === 'articulos') {
+    csv += "CLIENTE;SKU;DESCRIPCION;UNIDADES;PRECIO_MEDIO_EUR;COGS_MEDIO_EUR;VENTAS_EUR;MARGEN_EUR;MARGEN_PCT\n";
+    (d.skus2026 || []).forEach(s => {
+      csv += `"${d.nombre}";"${s.sku}";"${s.desc}";${s.uds};${s.precio_medio};${s.cogs_medio};${s.ventas_eur};${s.margen_eur};${s.margen_pct}\n`;
+    });
+  } else {
+    csv += "CLIENTE;PERIODO;COMERCIAL;SKU;DESCRIPCION;BUDGET_UDS;PEDIDOS_UDS;SERVIDAS_UDS;PENDIENTES_UDS;IMPORTE_NETO_EUR;ESTADO\n";
+    (d.orders || []).forEach(o => {
+      csv += `"${d.nombre}";"${o.periodLabel}";"${o.comercial}";"${o.sku}";"${o.descripcion}";${o.budget_uds};${o.pedidos_uds};${o.servidas_uds};${o.pendientes_uds};${o.importe_neto};"${o.estado}"\n`;
+    });
+  }
+
+  const encodedUri = encodeURI(csv);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `Ficha_360_${d.nombre.replace(/\s+/g, '_')}_${currentClient360ModalTab}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}

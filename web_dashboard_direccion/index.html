@@ -1809,21 +1809,21 @@
             <span>🏠</span>
             <span id="navGroupHeaderDg">DIRECCIÓN GENERAL</span>
           </div>
-          <button class="nav-item-btn active" id="navBtnInicio" onclick="switchTab('inicio')">
+          <button class="nav-item-btn" id="navBtnInicio" onclick="switchTab('inicio')" style="display: none;">
             <div class="nav-item-left">
               <span class="nav-item-icon">🧭</span>
               <span id="navBtnInicioText">Cockpit de Dirección</span>
             </div>
             <span class="tab-badge badge-success" id="tabBadgeInicio">4 Vitales</span>
           </button>
-          <button class="nav-item-btn" id="navBtnBiReunion" onclick="switchTab('bi_reunion')" style="margin-top:0.3rem;">
+          <button class="nav-item-btn" id="navBtnBiReunion" onclick="switchTab('bi_reunion')" style="display: none; margin-top:0.3rem;">
             <div class="nav-item-left">
               <span class="nav-item-icon">📌</span>
               <span id="navBtnBiReunionText">Modo Reunión & Acuerdos</span>
             </div>
             <span class="tab-badge" style="background:rgba(234,179,8,0.2);color:#facc15;border:1px solid rgba(234,179,8,0.4);" id="tabBadgeBiReunion">4 Acuerdos</span>
           </button>
-          <button class="nav-item-btn" id="navBtnBiSearch" onclick="switchTab('bi_search')" style="margin-top:0.3rem;">
+          <button class="nav-item-btn active" id="navBtnBiSearch" onclick="switchTab('bi_search')" style="margin-top:0.3rem;">
             <div class="nav-item-left">
               <span class="nav-item-icon">🔍</span>
               <span id="navBtnBiSearchText">Búsqueda Global 360°</span>
@@ -2157,6 +2157,74 @@
     </div>
   </div>
 
+
+  <!-- MODAL FICHA 360° CLIENTE (PEDIDOS, ARTÍCULOS COMPRADOS, IMPORTES, ESCANDALLO) -->
+  <div class="modal-overlay" id="client360ModalOverlay" style="z-index:1070;" onclick="handleClientModalOverlayClick(event)">
+    <div class="modal-container" role="dialog" aria-modal="true" style="max-width:1380px;">
+      <div class="modal-header" style="border-bottom:1px solid #334155; padding:1.25rem 1.75rem;">
+        <div class="modal-titles">
+          <h2 style="display:flex; align-items:center; gap:0.6rem; margin:0; font-size:1.35rem; color:#fff;">
+            <span>🏢</span>
+            <span id="client360ModalName">CLIENTE</span>
+            <span class="tab-badge badge-info" id="client360ModalBadge" style="font-size:0.75rem; text-transform:uppercase;">CLIENTE ESTRATÉGICO</span>
+          </h2>
+          <div class="modal-subtitle" id="client360ModalSubtitle" style="margin-top:0.35rem; color:#94a3b8; font-size:0.85rem;">
+            Ámbito &bull; Comercial &bull; Condiciones
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeClient360Modal()" title="Cerrar ventana (Esc)">&times;</button>
+      </div>
+
+      <!-- KPI STATS BAR -->
+      <div class="modal-stats-bar" style="background:rgba(15,23,42,0.85); padding:1rem 1.75rem; border-bottom:1px solid #334155; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+        <div class="modal-stat-group" style="display:flex; gap:1.75rem; flex-wrap:wrap;">
+          <div class="modal-stat-item">
+            <span class="modal-stat-label" style="font-size:0.72rem; color:#94a3b8; text-transform:uppercase;">Facturación Total</span>
+            <span class="modal-stat-value" id="client360StatVentas" style="color:#38bdf8; font-size:1.25rem; font-weight:700;">0,00 €</span>
+          </div>
+          <div class="modal-stat-item">
+            <span class="modal-stat-label" style="font-size:0.72rem; color:#94a3b8; text-transform:uppercase;">Margen Contribución</span>
+            <span class="modal-stat-value" id="client360StatMargen" style="color:#34d399; font-size:1.25rem; font-weight:700;">0,0%</span>
+          </div>
+          <div class="modal-stat-item">
+            <span class="modal-stat-label" style="font-size:0.72rem; color:#94a3b8; text-transform:uppercase;">Unidades Compradas</span>
+            <span class="modal-stat-value" id="client360StatUds" style="color:#f8fafc; font-size:1.25rem; font-weight:700;">0 u</span>
+          </div>
+          <div class="modal-stat-item">
+            <span class="modal-stat-label" style="font-size:0.72rem; color:#94a3b8; text-transform:uppercase;">Pedidos Pendientes</span>
+            <span class="modal-stat-value" id="client360StatPendientes" style="color:#fbbf24; font-size:1.25rem; font-weight:700;">0 u</span>
+          </div>
+          <div class="modal-stat-item">
+            <span class="modal-stat-label" style="font-size:0.72rem; color:#94a3b8; text-transform:uppercase;">SKUs Comprados</span>
+            <span class="modal-stat-value" id="client360StatSkusCount" style="color:#c084fc; font-size:1.25rem; font-weight:700;">0 SKUs</span>
+          </div>
+        </div>
+        <button class="btn-table-action" onclick="exportClient360Csv()" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.45rem 1rem; font-weight:700; background:#0284c7; color:#fff; border:none; border-radius:6px; cursor:pointer;">
+          <span>📥</span> <span>Exportar Ficha / Excel</span>
+        </button>
+      </div>
+
+      <!-- TABS BAR -->
+      <div style="background:#1e293b; padding:0.6rem 1.75rem; border-bottom:1px solid #334155; display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+        <button class="pill-btn active" id="tabBtnClientSkus" onclick="switchClientModalTab('articulos')" style="font-weight:600; padding:0.4rem 0.9rem; font-size:0.84rem; cursor:pointer;">
+          📦 Artículos Comprados & Escandallo (Rentabilidad por SKU)
+        </button>
+        <button class="pill-btn" id="tabBtnClientOrders" onclick="switchClientModalTab('pedidos')" style="font-weight:600; padding:0.4rem 0.9rem; font-size:0.84rem; cursor:pointer;">
+          📋 Pedidos y Entregas (Octubre, Septiembre y Acumulado)
+        </button>
+        <button class="pill-btn" id="tabBtnClientAgreements" onclick="switchClientModalTab('acuerdos')" style="font-weight:600; padding:0.4rem 0.9rem; font-size:0.84rem; cursor:pointer;">
+          🤝 Condiciones Comerciales & Acuerdos Directivos
+        </button>
+      </div>
+
+      <!-- MODAL BODY -->
+      <div class="modal-body" id="client360ModalBody" style="padding:1.25rem 1.75rem; overflow-y:auto; max-height:calc(90vh - 240px);">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+
   <!-- MODAL EVOLUCIÓN MENSUAL Y AGOTAMIENTO SKU (MRP) -->
   <div class="modal-overlay" id="mrpSkuModal" style="z-index:1050;" onclick="if(event.target===this) closeProdSkuModal()">
     <div class="modal-container" role="dialog" aria-modal="true" style="max-width:1050px;">
@@ -2381,7 +2449,7 @@
     let allPeriodsData = null;
     let currentPeriod = '2026-10'; // Por defecto Octubre 2026
     let appData = null;
-    let currentTab = 'inicio';
+    let currentTab = 'bi_search';
     let currentFilter = 'ALL';
     let currentScope = 'ALL'; // 'ALL' | 'NACIONAL' | 'EXPORTACION'
     let searchQuery = '';
@@ -9891,6 +9959,7 @@ function renderResumenTab(container) {
     // Tecla Escape para cerrar modales
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        if (typeof closeClient360Modal === 'function') closeClient360Modal();
         const diagModal = document.getElementById('productDiagnosticModal');
         if (diagModal && diagModal.classList.contains('active')) {
           closeProductDiagnosticModal();

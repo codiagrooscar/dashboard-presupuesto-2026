@@ -33,12 +33,16 @@
       "mantenimiento_centros": 13546.07,
       "seguridad_social_detalle": {
         "nomina_personal_ett": 33358.66,
+        "base_personal_ett": 33358.66,
+        "cuotas_personal_ett": 33358.66,
         "ajuste_formula_rnt": 1351.06,
         "ajuste_documentado_rnt": 1351.06,
         "total_analitico": 34709.72,
         "mayor_contable": 34709.72,
         "diferencia_pendiente": 0.0,
         "estado": "Estimado (cuadrado con Cta 642; pendiente RLC/RNT nominal)",
+        "tiene_ajuste": true,
+        "texto_explicativo": "Personal_ETT (base): 33,358.66 € + Ajuste RNT: 1,351.06 € = 34,709.72 €",
         "origen": "Cuotas patronales Personal_ETT (G7:G40) resueltas una sola vez: cuotas explícitas + cuotas estimadas 33% (1.351,06 € sin duplicación)."
       }
     },
@@ -3629,12 +3633,16 @@
     "mantenimiento_centros": 13546.07,
     "seguridad_social_detalle": {
       "nomina_personal_ett": 33358.66,
+      "base_personal_ett": 33358.66,
+      "cuotas_personal_ett": 33358.66,
       "ajuste_formula_rnt": 1351.06,
       "ajuste_documentado_rnt": 1351.06,
       "total_analitico": 34709.72,
       "mayor_contable": 34709.72,
       "diferencia_pendiente": 0.0,
       "estado": "Estimado (cuadrado con Cta 642; pendiente RLC/RNT nominal)",
+      "tiene_ajuste": true,
+      "texto_explicativo": "Personal_ETT (base): 33,358.66 € + Ajuste RNT: 1,351.06 € = 34,709.72 €",
       "origen": "Cuotas patronales Personal_ETT (G7:G40) resueltas una sola vez: cuotas explícitas + cuotas estimadas 33% (1.351,06 € sin duplicación)."
     }
   },

@@ -242,3 +242,45 @@ Tras la tercera contrarréplica de auditoría del 29/10/2026, se ejecutaron y ve
 - **Suite Auditoría ChatGPT Ronda 3**: **`5/5 PASS`** ([scratch/test_chatgpt_round3.py](file:///c:/Users/oscar.ocampo/OneDrive%20-%20Agroqu%C3%ADmica%20Codiagro%20S.L/Escritorio/Presupuesto%202026/Calsif%20Comerciales/scratch/test_chatgpt_round3.py)).
 - **Suite de Aceptación Histórica**: **`14/14 PASS`** ([run_acceptance_14.py](file:///c:/Users/oscar.ocampo/OneDrive%20-%20Agroqu%C3%ADmica%20Codiagro%20S.L/Escritorio/Presupuesto%202026/Calsif%20Comerciales/scratch/run_acceptance_14.py) con 0,00 € drift).
 - **Ejecución Integral de Producción**: [actualizar_dashboard.bat](file:///c:/Users/oscar.ocampo/OneDrive%20-%20Agroqu%C3%ADmica%20Codiagro%20S.L/Escritorio/Presupuesto%202026/Calsif%20Comerciales/actualizar_dashboard.bat) finalizada exitosamente con código `0` en sus 3 fases diferenciadas.
+
+
+---
+
+## 11. Resolución de Auditoría de Cierre (Ronda 4 - 29/10/2026)
+
+### 11.1 Cifras Consolidadas de la Versión Activa (Corte Oficial 30/09/2026)
+
+Para disipar cualquier duda sobre la versión de datos en producción y evitar discrepancias entre informes, se identifican las magnitudes oficiales exactas generadas y validadas en el entregable activo:
+
+| Magnitud | Importe Oficial Activo | % s/Ventas Netas | Origen y Significado |
+|---|---:|---:|---|
+| **Ventas Netas (Base Industrial)** | **458.751,21 €** | 100,0% | Ventas netas de producción propia facturada en septiembre |
+| **COGS Materiales (Escandallos)** | **183.480,34 €** | 40,0% | Consumo técnico valorado según fórmulas de SKU |
+| **Coste de Actividad Industrial** | **65.113,51 €** | 14,2% | Horas reales de planta imputadas a pedidos y productos |
+| **Margen de Actividad** | **210.157,36 €** | **45,8%** | Margen bruto industrial de la actividad productiva efectiva |
+| **Coste de Subactividad (Capacidad Ociosa)** | **58.374,73 €** | 12,7% | Horas no absorbidas de reactor y líneas (no penaliza al producto) |
+| **Margen Industrial Completo** | **151.782,63 €** | **33,1%** | Margen neto tras absorber íntegramente la subactividad |
+| **RAI Contable Mayor** | **111.933,69 €** | 18,2% | Resultado antes de impuestos contable (Cta 129 / Balance) |
+| **RAI Analítico Cascada** | **111.933,69 €** | 18,2% | Resultado antes de impuestos analítico reconstruido por inductores |
+| **Desviación de Conciliación** | **0,00 €** | 0,0% | Cuadre exacto (tolerancia 0,00 €); estado: COINCIDENTE |
+
+*Nota sobre el estado de cierre contable*: El cuadre analítico/contable del RAI está al 100% (0,00 € de desviación). La mención a "pendiente de conciliación" en la interfaz corresponde estrictamente al estado de los soportes documentales externos (regularización formal de existencias a cierre de ejercicio y conciliación de albaranes de transporte intercompany).
+
+### 11.2 Correcciones Estructurales Aplicadas
+
+1. **Separación de Staging y Activación Atómica**:
+   - Se corrigió el orden de importaciones en todos los scripts de generación, eliminando el fallo silencioso por `NameError: os`.
+   - Se añadió la regla obligatoria: si `CODIAGRO_STAGING_DIR` está definida y falla la redirección, el proceso aborta inmediatamente con error crítico (`exit 1`).
+   - Se actualizaron los scripts encadenados: `build_marta_tracking_data.py` escribe mediante `get_dest()`; `build_production_data.py` lee `dashboard_data.json` temporal mediante `get_source()`; y `generar_orden_fabricacion_excel.py` consume la versión temporal de la planificación generada en staging.
+   - En `clean_rollback.py`, `prepare_staging()` inicia con una estructura completamente limpia (sin clonar archivos viejos del backup). Se incorporaron las verificaciones formales `verify_untouched` (garantiza que ningún entregable activo se altera durante la generación) y `verify_activated` (garantiza que la activación promovió todos los entregables requeridos a producción).
+2. **Comparación Exhaustiva JSON vs JavaScript**:
+   - `validate_fullcost_update.py` compara registro por registro y campo por campo todos los clientes, todos los productos y todos los comerciales entre JSON y JS, abarcando `margen_contribucion_eur`, `margen_industrial_eur`, `coste_planta_fullcost`, `cogs_materiales`, `ventas` y `uds`.
+   - Asimismo, se calculan y contrastan los sumatorios internos del archivo JS sobre las tres dimensiones (clientes, productos, comerciales) frente a los totales globales de control, bloqueando cualquier alteración no autorizada.
+3. **Explicación Matemática Rigurosa de Seguridad Social**:
+   - Se independizó la clasificación de cuotas patronales de las filas 7 a 36 (base fija de nómina: 33.358,66 €) respecto a las filas 37 y 38 (complemento estimado: 1.351,06 €).
+   - El motor produce resultados idénticos tanto con fórmulas evaluadas en caché como calculadas al vuelo (total: 34.709,72 €).
+   - En la presentación de la interfaz web ([index.html](file:///c:/Users/oscar.ocampo/OneDrive%20-%20Agroqu%C3%ADmica%20Codiagro%20S.L/Escritorio/Presupuesto%202026/Calsif%20Comerciales/web_dashboard_direccion/index.html)), se distingue formalmente `0,00 €` de dato ausente, evitando recuperar complementos históricos cuando el ajuste real es cero y garantizando una explicación limpia:
+     - Con cuotas estimadas: `Personal_ETT: 33.358,66 € + Ajuste RNT: 1.351,06 € = 34.709,72 €`
+     - Con cuotas integradas en nómina: `Personal_ETT: 34.709,72 € (Cuotas integradas en nómina) = 34.709,72 €`
+4. **Verificación Formal de Pruebas de Cierre**:
+   - Se ejecutó la batería automatizada `scratch/test_chatgpt_round4.py` superando con éxito las 5 pruebas de cierre (100% PASS).

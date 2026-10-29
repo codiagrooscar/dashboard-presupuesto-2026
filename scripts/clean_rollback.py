@@ -43,7 +43,8 @@ def take_snapshot():
     try:
         os.makedirs(BACKUP_DIR, exist_ok=True)
         manifest = {
-            "files": []
+            "files": [],
+            "file_stats": {}
         }
         
         # 1. Snapshot de directorios web
@@ -68,7 +69,10 @@ def take_snapshot():
                         src_f = os.path.join(root, f)
                         rel_f = os.path.relpath(src_f, ".")
                         manifest["files"].append(rel_f)
-                        
+                        manifest["file_stats"][rel_f] = {
+                            "size": os.path.getsize(src_f),
+                            "mtime": os.path.getmtime(src_f)
+                        }
                         dest_f = os.path.join(BACKUP_DIR, rel_f)
                         os.makedirs(os.path.dirname(dest_f), exist_ok=True)
                         shutil.copy2(src_f, dest_f)
@@ -77,6 +81,10 @@ def take_snapshot():
         for rf in ROOT_FILES:
             if os.path.exists(rf):
                 manifest["files"].append(rf)
+                manifest["file_stats"][rf] = {
+                    "size": os.path.getsize(rf),
+                    "mtime": os.path.getmtime(rf)
+                }
                 dest_rf = os.path.join(BACKUP_DIR, rf)
                 shutil.copy2(rf, dest_rf)
 
@@ -109,21 +117,9 @@ def prepare_staging():
                         pass
         os.makedirs(STAGING_DIR, exist_ok=True)
 
-        # Copiar estructura base desde BACKUP_DIR hacia STAGING_DIR para servir de plantilla
-        if os.path.exists(MANIFEST_FILE):
-            with open(MANIFEST_FILE, "r", encoding="utf-8") as f:
-                manifest = json.load(f)
-            for rel_f in manifest.get("files", []):
-                src = os.path.join(BACKUP_DIR, rel_f)
-                dst = os.path.join(STAGING_DIR, rel_f)
-                if os.path.exists(src):
-                    parent = os.path.dirname(dst)
-                    if parent:
-                        os.makedirs(parent, exist_ok=True)
-                    shutil.copy2(src, dst)
-        else:
-            for d in TARGET_DIRS:
-                os.makedirs(os.path.join(STAGING_DIR, d), exist_ok=True)
+        # Crear estructura limpia de directorios destino sin arrastrar archivos del backup
+        for d in TARGET_DIRS:
+            os.makedirs(os.path.join(STAGING_DIR, d), exist_ok=True)
 
         print(f"[STAGING] Entorno temporal preparado en {STAGING_DIR}.")
         return 0
@@ -246,12 +242,67 @@ def restore_snapshot():
         print(f"[ERROR CRITICO] Fallo en restore_snapshot: {e}")
         return 1
 
+
+def verify_untouched():
+    try:
+        if not os.path.exists(MANIFEST_FILE):
+            print(f"[ERROR] No existe manifiesto en {MANIFEST_FILE}")
+            return 1
+        with open(MANIFEST_FILE, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+        
+        file_stats = manifest.get("file_stats", {})
+        modified = []
+        for rel_f, expected in file_stats.items():
+            if not os.path.exists(rel_f):
+                modified.append(f"Eliminado: {rel_f}")
+                continue
+            cur_size = os.path.getsize(rel_f)
+            cur_mtime = os.path.getmtime(rel_f)
+            if cur_size != expected["size"] or abs(cur_mtime - expected["mtime"]) > 1e-3:
+                modified.append(f"Modificado: {rel_f} (tam: {expected['size']}->{cur_size})")
+                
+        if modified:
+            print("[ERROR CRITICO] Se detectaron alteraciones en archivos activos durante la fase de generación:")
+            for m in modified[:10]:
+                print(f"  - {m}")
+            return 1
+        print("[VERIFICACIÓN] Todos los entregables activos permanecieron 100% intactos durante la generación.")
+        return 0
+    except Exception as e:
+        print(f"[ERROR CRITICO] Fallo en verify_untouched: {e}")
+        return 1
+
+def verify_activated():
+    try:
+        required = [
+            os.path.join("web_dashboard_direccion", "fullcost_data.json"),
+            os.path.join("web_dashboard_direccion", "fullcost_data.js"),
+            os.path.join("web_dashboard_direccion", "marta_tracking_data.json"),
+            os.path.join("web_dashboard_direccion", "dashboard_data.json"),
+            "Seguimiento_Presupuesto_Sep_2026.xlsx",
+            "Orden_Fabricacion_MRP_Codiagro.xlsx"
+        ]
+        for r in required:
+            if not os.path.exists(r) or os.path.getsize(r) == 0:
+                print(f"[ERROR CRITICO] Entregable requerido ausente o vacío tras activación: {r}")
+                return 1
+        print("[VERIFICACIÓN] Todos los entregables requeridos han sido activados con éxito en producción.")
+        return 0
+    except Exception as e:
+        print(f"[ERROR CRITICO] Fallo en verify_activated: {e}")
+        return 1
+
 if __name__ == "__main__":
     action = sys.argv[1].lower() if len(sys.argv) > 1 else "backup"
     if action == "restore":
         sys.exit(restore_snapshot())
     elif action in ["prepare_staging", "stage_init", "staging"]:
         sys.exit(prepare_staging())
+    elif action in ["verify_untouched", "untouched"]:
+        sys.exit(verify_untouched())
+    elif action in ["verify_activated", "activated"]:
+        sys.exit(verify_activated())
     elif action in ["activate", "promote"]:
         sys.exit(activate())
     else:

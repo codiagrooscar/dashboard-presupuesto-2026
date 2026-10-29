@@ -90,13 +90,23 @@ set "FAILED_STEP=validate_fullcost_update.py (Validacion de integridad y cuadre)
 "%PY%" -X utf8 scripts/validate_fullcost_update.py
 if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
 
+REM Comprobar que ningun entregable activo fue modificado durante la generacion en staging
+set "FAILED_STEP=clean_rollback.py verify_untouched"
+"%PY%" -X utf8 scripts/clean_rollback.py verify_untouched
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
 REM ----------------------------------------------------------------------
 REM FASE 3: ACTIVACION LOCAL CONTROLADA Y AISLAMIENTO DE DATOS PUBLICOS
 REM ----------------------------------------------------------------------
 echo.
 echo [FASE 3] Activando nueva version validada desde staging a carpetas activas...
-set "FAILED_STEP=clean_rollback.py activate (Activacion atomica desde staging)"
+set "FAILED_STEP=clean_rollback.py activate"
 "%PY%" -X utf8 scripts/clean_rollback.py activate
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+REM Comprobar que la activacion conservo y promovio todos los entregables requeridos
+set "FAILED_STEP=clean_rollback.py verify_activated"
+"%PY%" -X utf8 scripts/clean_rollback.py verify_activated
 if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
 
 set "CODIAGRO_STAGING_DIR="

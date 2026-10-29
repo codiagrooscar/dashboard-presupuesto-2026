@@ -1,10 +1,19 @@
-try:
-    import sys
-    sys.path.insert(0, os.path.dirname(__file__))
-    from output_staging import get_dest
-except Exception:
-    def get_dest(p): return p
+import os
+import sys
 
+# Inclusión obligatoria y segura de output_staging
+_scripts_dir = os.path.dirname(os.path.abspath(__file__))
+if _scripts_dir not in sys.path:
+    sys.path.insert(0, _scripts_dir)
+
+try:
+    from output_staging import get_dest, get_source
+except Exception as _e:
+    if os.environ.get("CODIAGRO_STAGING_DIR"):
+        sys.stderr.write(f"[ERROR FATAL] Fallo al importar output_staging con CODIAGRO_STAGING_DIR activa: {_e}\n")
+        sys.exit(1)
+    def get_dest(p): return p
+    def get_source(p): return p
 import json
 import os
 import sys
@@ -107,7 +116,8 @@ def main():
             c_js = js_cli_map.get(c_name)
             if not c_js:
                 fail(f"Cliente '{c_name}' presente en JSON pero ausente en fullcost_data.js")
-            for field in ["ventas", "cogs_materiales", "coste_planta_fullcost", "margen_industrial_eur", "transporte_real", "uds"]:
+            for field in ["ventas", "cogs_materiales", "coste_planta_fullcost", "margen_industrial_eur",
+                          "transporte_real", "margen_contribucion_eur", "uds"]:
                 v_json = round(float(c_json.get(field, 0.0) or 0.0), 2)
                 v_js = round(float(c_js.get(field, 0.0) or 0.0), 2)
                 if abs(v_json - v_js) > 0.01:
@@ -130,14 +140,80 @@ def main():
                 if abs(v_json - v_js) > 0.01:
                     fail(f"Desincronización en producto SKU '{sku}' campo '{field}': JSON={v_json:.2f} € vs JS={v_js:.2f} €")
 
+        js_coms = fc_from_js.get("comerciales", [])
+        json_coms = fc.get("comerciales", [])
+        if len(js_coms) != len(json_coms):
+            fail(f"Desincronización en número de comerciales entre JSON ({len(json_coms)}) y JS ({len(js_coms)})")
+        
+        js_com_map = {str(cm.get("comercial", "")).strip().upper(): cm for cm in js_coms}
+        for cm_json in json_coms:
+            cm_name = str(cm_json.get("comercial", "")).strip().upper()
+            cm_js = js_com_map.get(cm_name)
+            if not cm_js:
+                fail(f"Comercial '{cm_name}' presente en JSON pero ausente en fullcost_data.js")
+            for field in ["ventas", "cogs_materiales", "coste_planta_fullcost", "margen_industrial_eur",
+                          "portes", "margen_contribucion_eur"]:
+                v_json = round(float(cm_json.get(field, 0.0) or 0.0), 2)
+                v_js = round(float(cm_js.get(field, 0.0) or 0.0), 2)
+                if abs(v_json - v_js) > 0.01:
+                    fail(f"Desincronización en comercial '{cm_name}' campo '{field}': JSON={v_json:.2f} € vs JS={v_js:.2f} €")
+
         # Comprobación de sumatorios directos sobre los datos cargados por la web desde fullcost_data.js
-        sum_js_ventas_clis = round(sum(float(c.get("ventas", 0.0) or 0.0) for c in js_clis), 2)
-        sum_js_ventas_prods = round(sum(float(p.get("ventas", 0.0) or 0.0) for p in js_prods), 2)
         tot_js_ventas = round(float(js_tot.get("ventas", 0.0) or 0.0), 2)
-        if abs(sum_js_ventas_clis - tot_js_ventas) > 0.01:
-            fail(f"Desincronización en JS: Suma de ventas de clientes ({sum_js_ventas_clis:.2f} €) != total ({tot_js_ventas:.2f} €)")
-        if abs(sum_js_ventas_prods - tot_js_ventas) > 0.01:
-            fail(f"Desincronización en JS: Suma de ventas de productos ({sum_js_ventas_prods:.2f} €) != total ({tot_js_ventas:.2f} €)")
+        tot_js_cogs = round(float(js_tot.get("cogs_materiales", 0.0) or 0.0), 2)
+        tot_js_planta = round(float(js_tot.get("coste_planta", 0.0) or 0.0), 2)
+        tot_js_m_ind = round(float(js_tot.get("margen_industrial_eur", 0.0) or 0.0), 2)
+        tot_js_m_cont = round(float(js_tot.get("margen_contribucion_eur", 0.0) or 0.0), 2)
+        tot_js_uds = round(float(js_tot.get("uds", 0.0) or 0.0), 2)
+
+        # Ventas
+        sum_js_v_clis = round(sum(float(c.get("ventas", 0.0) or 0.0) for c in js_clis), 2)
+        sum_js_v_prods = round(sum(float(p.get("ventas", 0.0) or 0.0) for p in js_prods), 2)
+        sum_js_v_coms = round(sum(float(cm.get("ventas", 0.0) or 0.0) for cm in js_coms), 2)
+        if abs(sum_js_v_clis - tot_js_ventas) > 0.01:
+            fail(f"Desincronización en JS: Suma ventas clientes ({sum_js_v_clis:.2f} €) != total ({tot_js_ventas:.2f} €)")
+        if abs(sum_js_v_prods - tot_js_ventas) > 0.01:
+            fail(f"Desincronización en JS: Suma ventas productos ({sum_js_v_prods:.2f} €) != total ({tot_js_ventas:.2f} €)")
+        if abs(sum_js_v_coms - tot_js_ventas) > 0.01:
+            fail(f"Desincronización en JS: Suma ventas comerciales ({sum_js_v_coms:.2f} €) != total ({tot_js_ventas:.2f} €)")
+
+        # COGS Materiales
+        sum_js_c_clis = round(sum(float(c.get("cogs_materiales", 0.0) or 0.0) for c in js_clis), 2)
+        sum_js_c_prods = round(sum(float(p.get("cogs_materiales", 0.0) or 0.0) for p in js_prods), 2)
+        sum_js_c_coms = round(sum(float(cm.get("cogs_materiales", 0.0) or 0.0) for cm in js_coms), 2)
+        if abs(sum_js_c_clis - tot_js_cogs) > 0.01:
+            fail(f"Desincronización en JS: Suma cogs clientes ({sum_js_c_clis:.2f} €) != total ({tot_js_cogs:.2f} €)")
+        if abs(sum_js_c_prods - tot_js_cogs) > 0.01:
+            fail(f"Desincronización en JS: Suma cogs productos ({sum_js_c_prods:.2f} €) != total ({tot_js_cogs:.2f} €)")
+        if abs(sum_js_c_coms - tot_js_cogs) > 0.01:
+            fail(f"Desincronización en JS: Suma cogs comerciales ({sum_js_c_coms:.2f} €) != total ({tot_js_cogs:.2f} €)")
+
+        # Margen Industrial
+        sum_js_mi_clis = round(sum(float(c.get("margen_industrial_eur", 0.0) or 0.0) for c in js_clis), 2)
+        sum_js_mi_prods = round(sum(float(p.get("margen_industrial_eur", 0.0) or 0.0) for p in js_prods), 2)
+        sum_js_mi_coms = round(sum(float(cm.get("margen_industrial_eur", 0.0) or 0.0) for cm in js_coms), 2)
+        if abs(sum_js_mi_clis - tot_js_m_ind) > 0.01:
+            fail(f"Desincronización en JS: Suma margen industrial clientes ({sum_js_mi_clis:.2f} €) != total ({tot_js_m_ind:.2f} €)")
+        if abs(sum_js_mi_prods - tot_js_m_ind) > 0.01:
+            fail(f"Desincronización en JS: Suma margen industrial productos ({sum_js_mi_prods:.2f} €) != total ({tot_js_m_ind:.2f} €)")
+        if abs(sum_js_mi_coms - tot_js_m_ind) > 0.01:
+            fail(f"Desincronización en JS: Suma margen industrial comerciales ({sum_js_mi_coms:.2f} €) != total ({tot_js_m_ind:.2f} €)")
+
+        # Margen Contribución
+        sum_js_mc_clis = round(sum(float(c.get("margen_contribucion_eur", 0.0) or 0.0) for c in js_clis), 2)
+        sum_js_mc_coms = round(sum(float(cm.get("margen_contribucion_eur", 0.0) or 0.0) for cm in js_coms), 2)
+        if abs(sum_js_mc_clis - tot_js_m_cont) > 0.01:
+            fail(f"Desincronización en JS: Suma margen contribución clientes ({sum_js_mc_clis:.2f} €) != total ({tot_js_m_cont:.2f} €)")
+        if abs(sum_js_mc_coms - tot_js_m_cont) > 0.01:
+            fail(f"Desincronización en JS: Suma margen contribución comerciales ({sum_js_mc_coms:.2f} €) != total ({tot_js_m_cont:.2f} €)")
+
+        # Unidades
+        sum_js_u_clis = round(sum(float(c.get("uds", 0.0) or 0.0) for c in js_clis), 2)
+        sum_js_u_prods = round(sum(float(p.get("uds", 0.0) or 0.0) for p in js_prods), 2)
+        if abs(sum_js_u_clis - tot_js_uds) > 0.01:
+            fail(f"Desincronización en JS: Suma unidades clientes ({sum_js_u_clis:.2f} u) != total ({tot_js_uds:.2f} u)")
+        if abs(sum_js_u_prods - tot_js_uds) > 0.01:
+            fail(f"Desincronización en JS: Suma unidades productos ({sum_js_u_prods:.2f} u) != total ({tot_js_uds:.2f} u)")
     except Exception as e:
         fail(f"Fallo al validar correspondencia de fullcost_data.js: {e}")
 
@@ -294,7 +370,7 @@ def main():
         "conservacion_importes_drift": 0.0,
         "fuentes_verificadas": sources_info
     }
-    with open(os.path.join("web_dashboard_direccion", "update_validation_status.json"), "w", encoding="utf-8") as f:
+    with open(get_dest(os.path.join("web_dashboard_direccion", "update_validation_status.json")), "w", encoding="utf-8") as f:
         json.dump(status_payload, f, ensure_ascii=False, indent=2)
 
     print(f"2. Validación técnica superada al 100% (drift 0,00 €). Coincidencia RAI: {coincidencia_rai}. Cierre contable: {estado_cierre_contable}.")

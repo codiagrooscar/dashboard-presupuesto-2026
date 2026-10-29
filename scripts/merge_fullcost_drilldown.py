@@ -1,10 +1,19 @@
-try:
-    import sys
-    sys.path.insert(0, os.path.dirname(__file__))
-    from output_staging import get_dest
-except Exception:
-    def get_dest(p): return p
+import os
+import sys
 
+# Inclusión obligatoria y segura de output_staging
+_scripts_dir = os.path.dirname(os.path.abspath(__file__))
+if _scripts_dir not in sys.path:
+    sys.path.insert(0, _scripts_dir)
+
+try:
+    from output_staging import get_dest, get_source
+except Exception as _e:
+    if os.environ.get("CODIAGRO_STAGING_DIR"):
+        sys.stderr.write(f"[ERROR FATAL] Fallo al importar output_staging con CODIAGRO_STAGING_DIR activa: {_e}\n")
+        sys.exit(1)
+    def get_dest(p): return p
+    def get_source(p): return p
 import os
 import re
 import json
@@ -587,12 +596,15 @@ if fc_wb_path:
             if ss_val is not None:
                 try:
                     ss_num = float(ss_val)
-                    calc_ss_explicit += ss_num
                 except Exception:
                     pass
             elif ('*0.33' in ss_f_str or r in [37, 38]) and s_num > 0:
                 ss_num = round(s_num * 0.33, 2)
+
+            if r in [37, 38]:
                 calc_ss_formula_rows += ss_num
+            else:
+                calc_ss_explicit += ss_num
 
             calc_ss_total += ss_num
 
@@ -642,6 +654,12 @@ if fc_wb_path:
                 "mayor_contable": ss_mayor,
                 "diferencia_pendiente": diff_ss,
                 "estado": estado_ss,
+                "tiene_ajuste": (calc_ss_formula_rows > 0),
+                "texto_explicativo": (
+                    f"Personal_ETT (base): {calc_ss_explicit:,.2f} € + Ajuste RNT: {calc_ss_formula_rows:,.2f} € = {total_modelo_ss:,.2f} €"
+                    if calc_ss_formula_rows > 0 else
+                    f"Personal_ETT: {total_modelo_ss:,.2f} € (Cuotas integradas en nómina) = {total_modelo_ss:,.2f} €"
+                ),
                 "origen": "Cuotas patronales Personal_ETT (G7:G40) resueltas una sola vez: cuotas explícitas + cuotas estimadas 33% (1.351,06 € sin duplicación)."
             }
         if calc_ett > 0:
@@ -1550,8 +1568,8 @@ comerciales_fc.sort(key=lambda x: x["ventas"], reverse=True)
 
 
 # 7. Cargar fullcost_data.json actual para actualizar
-json_path = get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.json"))
-with open(json_path, "r", encoding="utf-8") as f:
+json_src = get_source(os.path.join("web_dashboard_direccion", "fullcost_data.json"))
+with open(json_src, "r", encoding="utf-8") as f:
     fc_full = json.load(f)
 
 fc_full["clientes"] = clientes_fc
@@ -1901,7 +1919,8 @@ fc_full["totales_drilldown"] = {
 }
 
 # Guardar json y js en web_dashboard_direccion (y sincronizar si existe web_dashboard)
-with open(json_path, "w", encoding="utf-8") as f:
+json_dest = get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.json"))
+with open(json_dest, "w", encoding="utf-8") as f:
     json.dump(fc_full, f, ensure_ascii=False, indent=2)
 
 js_path = get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.js"))

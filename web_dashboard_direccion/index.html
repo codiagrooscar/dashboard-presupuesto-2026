@@ -7308,12 +7308,17 @@
       const modelo622 = (modAnalitico && typeof modAnalitico.mantenimiento_centros === 'number') ? modAnalitico.mantenimiento_centros : NaN;
 
       const ssDet = (modAnalitico && modAnalitico.seguridad_social_detalle) ? modAnalitico.seguridad_social_detalle : null;
-      const ssBase = ssDet ? (ssDet.nomina_personal_ett || ssDet.base_personal_ett || 33358.66) : 33358.66;
-      const ssAjuste = ssDet ? (ssDet.ajuste_formula_rnt || ssDet.ajuste_documentado_rnt || 1351.06) : 1351.06;
-      const ssTotal = ssDet ? (ssDet.total_analitico || 34709.72) : 34709.72;
-      const ssNota = ssDet
-        ? `Personal_ETT: ${fmtEur(ssBase)} + Ajuste RNT: ${fmtEur(ssAjuste)} = ${fmtEur(ssTotal)}`
-        : 'Estimado: pendiente de RLC/RNT nominal';
+      const ssBase = (ssDet && typeof ssDet.base_personal_ett === 'number') ? ssDet.base_personal_ett : ((ssDet && typeof ssDet.nomina_personal_ett === 'number') ? ssDet.nomina_personal_ett : 33358.66);
+      const ssAjuste = (ssDet && typeof ssDet.ajuste_formula_rnt === 'number') ? ssDet.ajuste_formula_rnt : ((ssDet && typeof ssDet.ajuste_documentado_rnt === 'number') ? ssDet.ajuste_documentado_rnt : 0.0);
+      const ssTotal = (typeof modelo642 === 'number' && !isNaN(modelo642)) ? modelo642 : (ssBase + ssAjuste);
+      let ssNota = 'Estimado: pendiente de RLC/RNT nominal';
+      if (ssDet && ssDet.texto_explicativo) {
+        ssNota = ssDet.texto_explicativo;
+      } else if (ssDet) {
+        ssNota = (ssAjuste > 0)
+          ? Personal_ETT:  + Ajuste RNT:  = 
+          : Personal_ETT:  (Cuotas integradas en nómina) = ;
+      }
 
       const auditItems = [
         { concepto: 'Sueldos y Salarios (Cta 640000000)', mayor: val640_mayor, modelo: modelo640, estadoBase: 'Estimado', nota: 'Personal_ETT filas 7..40 (prorrateo presupuestario pendiente de nómina individual)' },

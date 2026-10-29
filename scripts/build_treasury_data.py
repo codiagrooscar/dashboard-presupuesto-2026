@@ -1,10 +1,19 @@
-try:
-    import sys
-    sys.path.insert(0, os.path.dirname(__file__))
-    from output_staging import get_dest
-except Exception:
-    def get_dest(p): return p
+import os
+import sys
 
+# Inclusión obligatoria y segura de output_staging
+_scripts_dir = os.path.dirname(os.path.abspath(__file__))
+if _scripts_dir not in sys.path:
+    sys.path.insert(0, _scripts_dir)
+
+try:
+    from output_staging import get_dest, get_source
+except Exception as _e:
+    if os.environ.get("CODIAGRO_STAGING_DIR"):
+        sys.stderr.write(f"[ERROR FATAL] Fallo al importar output_staging con CODIAGRO_STAGING_DIR activa: {_e}\n")
+        sys.exit(1)
+    def get_dest(p): return p
+    def get_source(p): return p
 # -*- coding: utf-8 -*-
 import openpyxl
 import json

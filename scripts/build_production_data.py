@@ -1,10 +1,19 @@
-try:
-    import sys
-    sys.path.insert(0, os.path.dirname(__file__))
-    from output_staging import get_dest
-except Exception:
-    def get_dest(p): return p
+import os
+import sys
 
+# Inclusión obligatoria y segura de output_staging
+_scripts_dir = os.path.dirname(os.path.abspath(__file__))
+if _scripts_dir not in sys.path:
+    sys.path.insert(0, _scripts_dir)
+
+try:
+    from output_staging import get_dest, get_source
+except Exception as _e:
+    if os.environ.get("CODIAGRO_STAGING_DIR"):
+        sys.stderr.write(f"[ERROR FATAL] Fallo al importar output_staging con CODIAGRO_STAGING_DIR activa: {_e}\n")
+        sys.exit(1)
+    def get_dest(p): return p
+    def get_source(p): return p
 import openpyxl
 import json
 import re
@@ -97,7 +106,8 @@ for row in ws_stock.iter_rows(min_row=4, values_only=True):
 print(f"Loaded {len(stock_map)} stock items ({len(granel_map)} Graneles = {sum(x['stock'] for x in granel_map.values()):,.0f} L/Kg, {len(envasado_map)} Envasados = {sum(x['stock'] for x in envasado_map.values()):,.0f} Uds).")
 
 # 2. Load Pending Orders from dashboard_data.json (period 2026-09) and latest October orders
-with open('web_dashboard/dashboard_data.json', 'r', encoding='utf-8') as f:
+dash_src = get_source('web_dashboard/dashboard_data.json')
+with open(dash_src, 'r', encoding='utf-8') as f:
     dash_data = json.load(f)
 
 pending_orders = {}

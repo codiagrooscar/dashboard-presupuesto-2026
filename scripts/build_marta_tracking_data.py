@@ -1,10 +1,19 @@
-try:
-    import sys
-    sys.path.insert(0, os.path.dirname(__file__))
-    from output_staging import get_dest
-except Exception:
-    def get_dest(p): return p
+import os
+import sys
 
+# Inclusión obligatoria y segura de output_staging
+_scripts_dir = os.path.dirname(os.path.abspath(__file__))
+if _scripts_dir not in sys.path:
+    sys.path.insert(0, _scripts_dir)
+
+try:
+    from output_staging import get_dest, get_source
+except Exception as _e:
+    if os.environ.get("CODIAGRO_STAGING_DIR"):
+        sys.stderr.write(f"[ERROR FATAL] Fallo al importar output_staging con CODIAGRO_STAGING_DIR activa: {_e}\n")
+        sys.exit(1)
+    def get_dest(p): return p
+    def get_source(p): return p
 import os
 import json
 import subprocess
@@ -435,8 +444,8 @@ def build_data():
     target_dirs = ["web_dashboard_direccion", "web_dashboard"]
     for out_dir in target_dirs:
         os.makedirs(out_dir, exist_ok=True)
-        json_path = os.path.join(out_dir, "marta_tracking_data.json")
-        js_path = os.path.join(out_dir, "marta_tracking_data.js")
+        json_path = get_dest(os.path.join(out_dir, "marta_tracking_data.json"))
+        js_path = get_dest(os.path.join(out_dir, "marta_tracking_data.js"))
 
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(output_combined, f, ensure_ascii=False, indent=2)

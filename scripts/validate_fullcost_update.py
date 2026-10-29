@@ -34,14 +34,15 @@ def main():
         sources_info.append({"nombre": label, "ruta": path, "modificado": mtime})
         print(f"   - [OK] {label}: {path} ({mtime})")
 
-    # 2. Comprobar salidas generadas
+    # 2. Comprobar salidas generadas y correspondencia biunívoca JSON <-> JS
     fc_json_path = os.path.join("web_dashboard_direccion", "fullcost_data.json")
     fc_js_path = os.path.join("web_dashboard_direccion", "fullcost_data.js")
     dash_json_path = os.path.join("web_dashboard_direccion", "dashboard_data.json")
     marta_json_path = os.path.join("web_dashboard_direccion", "marta_tracking_data.json")
     excel_seg_path = "Seguimiento_Presupuesto_Sep_2026.xlsx"
+    excel_mrp_path = "Orden_Fabricacion_MRP_Codiagro.xlsx"
 
-    for p in [fc_json_path, fc_js_path, dash_json_path, marta_json_path, excel_seg_path]:
+    for p in [fc_json_path, fc_js_path, dash_json_path, marta_json_path, excel_seg_path, excel_mrp_path]:
         if not os.path.exists(p) or os.path.getsize(p) == 0:
             fail(f"Archivo de salida ausente o vacío: {p}")
 
@@ -54,6 +55,22 @@ def main():
             marta = json.load(f)
     except Exception as e:
         fail(f"Error de sintaxis JSON en los archivos generados: {e}")
+
+    # Validar correspondencia exacta entre fullcost_data.json y fullcost_data.js (no permitir objeto vacío ni desincronización)
+    try:
+        with open(fc_js_path, "r", encoding="utf-8") as f:
+            js_raw = f.read().strip()
+        prefix = "window.fullCostData =" if js_raw.startswith("window.fullCostData =") else "window.FULLCOST_DATA ="
+        if not js_raw.startswith(prefix) or not js_raw.endswith(";"):
+            fail("El archivo fullcost_data.js no tiene la estructura 'window.fullCostData = {...};'")
+        js_json_str = js_raw[len(prefix):].rstrip(";").strip()
+        fc_from_js = json.loads(js_json_str)
+        if not fc_from_js or not fc_from_js.get("clientes") or not fc_from_js.get("totales_drilldown"):
+            fail("El archivo fullcost_data.js contiene un objeto vacío o carece de clientes/totales requeridos.")
+        if round(fc_from_js.get("totales_drilldown", {}).get("ventas", 0), 2) != round(fc.get("totales_drilldown", {}).get("ventas", 0), 2):
+            fail("Desincronización entre fullcost_data.json y fullcost_data.js en total ventas.")
+    except Exception as e:
+        fail(f"Fallo al validar correspondencia de fullcost_data.js: {e}")
 
     meta = fc.get("metadata", {})
     last_date = f"Cierre Full Costing: {meta.get('fecha_cierre', '30/09/2026')}"
@@ -120,9 +137,23 @@ def main():
             if abs(d_cli) > 0 or abs(d_com) > 0:
                 fail(f"Descuadre en marta_tracking_data ({mode} - {k_f}): cli={d_cli}, com={d_com}", last_date)
 
-    # 6. Validar puentes de existencias, transporte y trazabilidad
-    if "puente_existencias" not in fc or "puente_transporte" not in fc or "trazabilidad_parametros" not in fc:
-        fail("Faltan estructuras de puente_existencias, puente_transporte o trazabilidad_parametros en fullcost_data.json", last_date)
+    # 6. Validar que los puentes (existencias, transporte, materiales) y matriz de trazabilidad NO estén vacíos
+    puente_ex = fc.get("puente_existencias", {})
+    pasos_ex = puente_ex.get("productos_711_712", {}).get("pasos_puente", [])
+    if not puente_ex or not pasos_ex:
+        fail("El puente de existencias está vacío o carece de pasos de conciliación justificativos.", last_date)
+
+    puente_tr = fc.get("puente_transporte", {})
+    if not puente_tr or not puente_tr.get("desglose_por_cuenta") or puente_tr.get("reporte_logistico_imputado_eur", 0) <= 0:
+        fail("El puente de transporte está vacío o carece de desglose por cuenta.", last_date)
+
+    puente_mat = fc.get("puente_materiales", {})
+    if not puente_mat or not puente_mat.get("lineas"):
+        fail("El puente de materiales está vacío o no documenta la conciliación contable vs técnica.", last_date)
+
+    trazab = fc.get("trazabilidad_parametros", [])
+    if not trazab or len(trazab) < 6:
+        fail(f"La matriz de trazabilidad de parámetros está vacía o incompleta ({len(trazab)} parámetros; mínimo 6 requeridos).", last_date)
 
     # 7. Validar Excel de seguimiento
     try:
@@ -156,20 +187,24 @@ def main():
         if "Estimación de Ventas | Codiagro" not in html_content or "fullcost" in html_content.lower():
             fail("VIOLACIÓN DE SEGURIDAD: web_dashboard/index.html contiene módulos o títulos de Dirección General en lugar de la versión comercial abierta.")
 
+    diff_concil = round(float(meta.get("diferencia_conciliacion", 0.0) or 0.0), 2)
+    estado_conciliacion = "CONCILIADO (0,00 €)" if abs(diff_concil) <= 0.05 else f"PENDIENTE DE CONCILIACIÓN ({diff_concil:.2f} €)"
+
     status_payload = {
-        "estado": "VALIDADO",
+        "estado_tecnico": "COMPROBADO",
+        "estado_conciliacion_contable": estado_conciliacion,
         "fecha_validacion": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
         "fecha_datos_fullcost": meta.get("fecha_cierre", "30/09/2026"),
         "rai_contable_mayor_eur": meta.get("rai_contable_mayor"),
         "rai_analitico_cascada_eur": meta.get("rai_analitico_cascada"),
-        "diferencia_conciliacion_eur": meta.get("diferencia_conciliacion"),
+        "diferencia_conciliacion_eur": diff_concil,
         "conservacion_importes_drift": 0.0,
         "fuentes_verificadas": sources_info
     }
     with open(os.path.join("web_dashboard_direccion", "update_validation_status.json"), "w", encoding="utf-8") as f:
         json.dump(status_payload, f, ensure_ascii=False, indent=2)
 
-    print("2. Validación superada al 100%: Cálculos coherentes, conservación exacta de importes (0,00 € drift) y módulos sincronizados.")
+    print(f"2. Validación técnica superada al 100% (drift 0,00 €). Estado contable: {estado_conciliacion}.")
 
 if __name__ == "__main__":
     main()

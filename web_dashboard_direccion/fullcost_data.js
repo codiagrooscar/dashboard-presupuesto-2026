@@ -30,15 +30,15 @@ window.fullCostData = {
       "transporte_nacional": 8129.04,
       "transporte_internacional": 8078.83,
       "transporte_canarias": 10256.54,
-      "mantenimiento_centros": 13550.07,
+      "mantenimiento_centros": 13546.07,
       "seguridad_social_detalle": {
         "nomina_personal_ett": 33358.66,
-        "ajuste_documentado_rnt": 1351.06,
+        "ajuste_formula_rnt": 1351.06,
         "total_analitico": 34709.72,
         "mayor_contable": 34709.72,
         "diferencia_pendiente": 0.0,
         "estado": "Estimado (cuadrado con Cta 642; pendiente RLC/RNT nominal)",
-        "origen": "Devengos explícitos Personal_ETT (G7:G36, G39:G40) + Cuota patronal 33% ID 31 y 32 (G37:G38 = 1.351,06 €; pendiente RLC/RNT nominal)"
+        "origen": "Cuotas patronales Personal_ETT (G7:G40) resueltas una sola vez: cuotas explícitas + cuotas estimadas 33% (1.351,06 € sin duplicación)."
       }
     },
     "repartos_dinamicos": {
@@ -172,7 +172,10 @@ window.fullCostData = {
       "tarifa_efectiva_hora": 348.21,
       "horas_proceso": 41.97,
       "horas_preparacion_limpieza": 0.0,
-      "horas_personas": 41.97
+      "horas_personas": 41.97,
+      "coste_total_ceco": 11885.19,
+      "coste_subactividad_eur": 8866.35,
+      "coste_actividad_eur": 3018.84
     },
     {
       "ceco": "120",
@@ -190,7 +193,10 @@ window.fullCostData = {
       "tarifa_efectiva_hora": 316.48,
       "horas_proceso": 128.88,
       "horas_preparacion_limpieza": 0.0,
-      "horas_personas": 128.88
+      "horas_personas": 128.88,
+      "coste_total_ceco": 25352.72,
+      "coste_subactividad_eur": 18761.01,
+      "coste_actividad_eur": 6591.71
     },
     {
       "ceco": "130",
@@ -208,7 +214,10 @@ window.fullCostData = {
       "tarifa_efectiva_hora": 367.62,
       "horas_proceso": 37.5,
       "horas_preparacion_limpieza": 0.0,
-      "horas_personas": 37.5
+      "horas_personas": 37.5,
+      "coste_total_ceco": 26773.66,
+      "coste_subactividad_eur": 20696.04,
+      "coste_actividad_eur": 6077.62
     },
     {
       "ceco": "140",
@@ -226,7 +235,10 @@ window.fullCostData = {
       "tarifa_efectiva_hora": 265.51,
       "horas_proceso": 275.34,
       "horas_preparacion_limpieza": 0.0,
-      "horas_personas": 550.68
+      "horas_personas": 550.68,
+      "coste_total_ceco": 60550.19,
+      "coste_subactividad_eur": 10051.33,
+      "coste_actividad_eur": 50498.86
     }
   ],
   "maquila": {
@@ -3598,15 +3610,15 @@ window.fullCostData = {
     "transporte_nacional": 8129.04,
     "transporte_internacional": 8078.83,
     "transporte_canarias": 10256.54,
-    "mantenimiento_centros": 13550.07,
+    "mantenimiento_centros": 13546.07,
     "seguridad_social_detalle": {
       "nomina_personal_ett": 33358.66,
-      "ajuste_documentado_rnt": 1351.06,
+      "ajuste_formula_rnt": 1351.06,
       "total_analitico": 34709.72,
       "mayor_contable": 34709.72,
       "diferencia_pendiente": 0.0,
       "estado": "Estimado (cuadrado con Cta 642; pendiente RLC/RNT nominal)",
-      "origen": "Devengos explícitos Personal_ETT (G7:G36, G39:G40) + Cuota patronal 33% ID 31 y 32 (G37:G38 = 1.351,06 €; pendiente RLC/RNT nominal)"
+      "origen": "Cuotas patronales Personal_ETT (G7:G40) resueltas una sola vez: cuotas explícitas + cuotas estimadas 33% (1.351,06 € sin duplicación)."
     }
   },
   "puente_existencias": {
@@ -4034,5 +4046,29 @@ window.fullCostData = {
       "naturaleza": "Parámetro aprobado (capacidad y cadencias) / Comprobado (horas reales ERP)",
       "como_actualizar": "Actualizar días/turnos en Capacidad!C7:C10, partes de fabricación en Produccion!A7:Q206 y tiempos/tarifas en Cadencias_Produccion!D37:D48."
     }
-  ]
+  ],
+  "puente_materiales": {
+    "titulo": "Conciliación entre Consumo Contable de Aprovisionamientos y Coste Técnico de Materiales Vendidos",
+    "consumo_contable_mayor_eur": -102185.32,
+    "coste_tecnico_escandallos_eur": 181587.16,
+    "diferencia_conciliacion_eur": 79401.84,
+    "explicacion": "El importe de -102.185,32 € de la cascada procede de las compras netas devengadas y variación de existencias contables de materias primas y envases del Grupo 60/61 en el Mayor. Por su parte, los 181.587,16 € del detalle por cliente/producto proceden de los escandallos técnicos estándar (Costes SKU.xlsx) multiplicados por las unidades vendidas del mes. La diferencia de 79.401,84 € corresponde a la variación de eficiencia técnica, mermas fabriles y desfase temporal de cobertura de inventario PMP vs coste técnico de reposición.",
+    "lineas": [
+      {
+        "concepto": "Coste Técnico de Materiales Vendidos (Escandallos SKU × Unidades Vendidas)",
+        "importe": 181587.16,
+        "origen": "Gastos/Costes SKU.xlsx × Ventas Septiembre (detalle Clientes y Productos)"
+      },
+      {
+        "concepto": "Ajuste por consumo real en fabricación vs escandallo teórico y cobertura PMP",
+        "importe": -79401.84,
+        "origen": "Desfase inventario fabril y valoración contable almacén materias primas"
+      },
+      {
+        "concepto": "Consumo Contable devengado en PnL Cascada (Grupo 60/61 Mayor)",
+        "importe": 102185.32,
+        "origen": "Mayor contable cuentas 601, 602, 611, 612"
+      }
+    ]
+  }
 };

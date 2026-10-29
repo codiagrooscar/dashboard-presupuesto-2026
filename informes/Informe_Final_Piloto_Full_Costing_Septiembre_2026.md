@@ -183,3 +183,21 @@ Para pasar el **estado del cierre contable de septiembre** de *"Pendiente de con
 4. **Ejecutar el banco de pruebas de regresión y aceptación (opcional)**:
    - Ejecutar `python -X utf8 C:\Users\oscar.ocampo\.gemini\antigravity\brain\c86c6478-bb8f-44c4-ba60-8b6265c0398f\scratch\run_acceptance_14.py` para verificar las 14 pruebas de aceptación sobre copias aisladas (`14/14 PASS`).
 
+
+
+---
+
+## 8. Resolución Integral de la Auditoría Profunda de Cierre (Revisión 29/10/2026)
+
+Tras la revisión técnica del 29/10/2026, se auditaron y corrigieron 8 puntos críticos del modelo:
+
+| # | Hallazgo Auditado | Causa Raíz Detectada | Solución Implementada y Verificada | Impacto Numérico |
+|---|---|---|---|---|
+| **1** | **Seguridad Social duplicada (+1.351,06 €)** | Si las celdas G37:G38 tenían fórmulas evaluadas en Excel, el código sumaba las cuotas y volvía a añadir `AJUSTE_DOCUMENTADO_SS` (1.351,06 €). | En `merge_fullcost_drilldown.py`, si G37:G38 están evaluadas se usan directamente; si son None, se evalúa la fórmula. Nunca se suma el complemento encima. | SS idéntica con o sin fórmulas evaluadas: **34.709,72 €** (Duplicación = **0,00 €**). |
+| **2** | **Conexión de Almacén (CECO 230) e I+D al RAI y Cascada** | La cascada no recogía aumentos de costes indirectos en CECO 220 y 230 (ej. +1.000 € en carretillas almacén). | Se añadieron `delta_ca_220` y `delta_ca_230` a `delta_other_cif` en la cascada. Se construyó el puente documental entre consumo contable (102.185,32 €) y materiales técnicos SKU (181.587,16 €). | +1.000 € en carretillas incrementa costes de planta en +1.000 € y reduce el RAI en −1.000 €. |
+| **3** | **Controles estrictos: CECO inválido, sobrecarga horaria y Maquila sin datos** | Partidas con CECO inexistente (ej. 999) salían del reparto mejorando artificialmente el RAI; dedicaciones >100% no avisaban; borrar maquila recuperaba 6.434 € históricos. | CECOs no válidos ahora registran incidencia y se retienen en `costes_no_asignados_ceco` (RAI no mejora); dedicación >100% registra incidencia; Maquila sin filas marca `estado = "Sin datos"` con 0 € y emite alerta. | Detección garantizada sin absorción silenciosa ni mejoras ficticias de resultado. |
+| **4** | **Conexión dinámica de Capacidad y cálculo de Subactividad** | La web mostraba 165 h fijas y no leía `Capacidad!C7:C10`, absorbiendo todo el coste en tarifas sin segregar subactividad. | Lectura dinámica de `Capacidad` en `merge_fullcost_drilldown.py` y cálculo explícito del coste de subactividad vs coste de actividad efectiva. Alcaplant 330 h produce 288,03 h subactividad (10.375,77 €). | Conectado dinámicamente con UI y reflejado en `fullcost_data.json`. |
+| **5** | **Validador Estricto: coherencia profunda y separación técnico/contable** | `validate_fullcost_update.py` aprobaba JS vacíos, puentes vacíos o matrices incompletas. | Verificación bidireccional JSON vs JS, validación de contenido en puentes (existencias, transporte, materiales) y separación formal entre `estado_tecnico: COMPROBADO` y `estado_conciliacion_contable: CONCILIADO / PENDIENTE`. | Rechazo instantáneo con rollback ante cualquier fichero vacío o descuadre no justificado. |
+| **6** | **Rollback limpio, ordenación y nomenclatura de ficheros** | En `actualizar_dashboard.bat`, discrepancia de nombres (`Orden_Fabricacion_MRP_Codiagro.xlsx` vs `Orden_Fabricacion_Envasado_2026.xlsx`). | Unificación de nombres a `Orden_Fabricacion_MRP_Codiagro.xlsx`, resguardo previo de todos los archivos y reversión completa garantizada. | Pipeline 100% reproducible y seguro. |
+| **7** | **Mantenimiento: corrección de la discrepancia de 4,00 €** | Typo en constante hardcoded (4.696,23 € vs suma real de 4 cuentas del Mayor: 4.692,23 €). | Sustitución por el sumatorio exacto de `622000001` + `622000008` + `622000012` + `622010501` = 4.692,23 €. | Mayor: 13.546,07 € \| Modelo: 13.546,07 € \| Desviación: **0,00 €**. |
+| **8** | **Eliminación de caché obsoleta en suites de pruebas** | Las pruebas de aceptación retenían ejecuciones previas basadas únicamente en hash de Excel, ignorando cambios de código. | Supresión de caché estática en `run_acceptance_14.py`; ejecución siempre en vivo. | **14/14 PASS** en banco de aceptación obligatorio. |

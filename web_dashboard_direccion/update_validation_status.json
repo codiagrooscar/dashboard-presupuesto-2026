@@ -1,6 +1,7 @@
 {
-  "estado": "VALIDADO",
-  "fecha_validacion": "29/10/2026 07:45:04",
+  "estado_tecnico": "COMPROBADO",
+  "estado_conciliacion_contable": "CONCILIADO (0,00 €)",
+  "fecha_validacion": "29/10/2026 08:07:13",
   "fecha_datos_fullcost": "30/09/2026",
   "rai_contable_mayor_eur": 111933.69,
   "rai_analitico_cascada_eur": 111933.69,

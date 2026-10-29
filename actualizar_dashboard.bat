@@ -25,7 +25,7 @@ copy /y "web_dashboard_direccion\*.js" "%BACKUP_DIR%\web_dashboard_direccion\" >
 copy /y "web_dashboard\*.json" "%BACKUP_DIR%\web_dashboard\" >nul 2>&1
 copy /y "web_dashboard\*.js" "%BACKUP_DIR%\web_dashboard\" >nul 2>&1
 if exist "Seguimiento_Presupuesto_Sep_2026.xlsx" copy /y "Seguimiento_Presupuesto_Sep_2026.xlsx" "%BACKUP_DIR%\" >nul 2>&1
-if exist "Orden_Fabricacion_Envasado_2026.xlsx" copy /y "Orden_Fabricacion_Envasado_2026.xlsx" "%BACKUP_DIR%\" >nul 2>&1
+if exist "Orden_Fabricacion_MRP_Codiagro.xlsx" copy /y "Orden_Fabricacion_MRP_Codiagro.xlsx" "%BACKUP_DIR%\" >nul 2>&1
 
 REM ----------------------------------------------------------------------
 REM FASE 1: GENERACION DE TODAS LAS SALIDAS DESDE FUENTES IDENTIFICADAS
@@ -111,7 +111,7 @@ echo     - web_dashboard_direccion\fullcost_data.json / .js
 echo     - web_dashboard_direccion\marta_tracking_data.json / .js
 echo     - web_dashboard_direccion\dashboard_data.json / .js
 echo     - Seguimiento_Presupuesto_Sep_2026.xlsx
-echo     - Orden_Fabricacion_Envasado_2026.xlsx
+echo     - Orden_Fabricacion_MRP_Codiagro.xlsx
 echo ======================================================================
 
 REM ----------------------------------------------------------------------
@@ -142,7 +142,7 @@ copy /y "%BACKUP_DIR%\web_dashboard_direccion\*.js" "web_dashboard_direccion\" >
 copy /y "%BACKUP_DIR%\web_dashboard\*.json" "web_dashboard\" >nul 2>&1
 copy /y "%BACKUP_DIR%\web_dashboard\*.js" "web_dashboard\" >nul 2>&1
 if exist "%BACKUP_DIR%\Seguimiento_Presupuesto_Sep_2026.xlsx" copy /y "%BACKUP_DIR%\Seguimiento_Presupuesto_Sep_2026.xlsx" "." >nul 2>&1
-if exist "%BACKUP_DIR%\Orden_Fabricacion_Envasado_2026.xlsx" copy /y "%BACKUP_DIR%\Orden_Fabricacion_Envasado_2026.xlsx" "." >nul 2>&1
+if exist "%BACKUP_DIR%\Orden_Fabricacion_MRP_Codiagro.xlsx" copy /y "%BACKUP_DIR%\Orden_Fabricacion_MRP_Codiagro.xlsx" "." >nul 2>&1
 echo   [RESTAURADO] Se ha conservado intacta la ultima version valida.
 echo   [FECHA DATOS DISPONIBLES] %LAST_DATA_DATE%
 echo ======================================================================

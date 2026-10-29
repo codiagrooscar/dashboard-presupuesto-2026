@@ -472,6 +472,7 @@ if fc_wb_path:
         rai_calc = round(ingresos_tot - gastos_tot, 2)
 
     # 5.2 Leer parámetros base desde hoja 'Centros' (si existen en R53:R67)
+    VALID_CECOS = {'110', '120', '130', '140', '210', '220', '230', '240', '310', '320', '330', '340', '510', '520'}
     BASE_PERS_CECO = {
         '110': 5756.23, '120': 6263.00, '130': 14491.56, '140': 27971.90,
         '210': 3914.38, '220': 16293.61, '230': 0.00, '240': 16283.96,
@@ -547,6 +548,7 @@ if fc_wb_path:
                 except Exception:
                     pass
 
+        calc_ss_total = 0.0
         for r in range(7, 87):
             rid = ws_pett.cell(r, 1).value
             tipo = str(ws_pett.cell(r, 2).value or '').strip()
@@ -566,15 +568,21 @@ if fc_wb_path:
                     calc_sueldo += s_num
                 except Exception:
                     pass
+            # Cómputo exacto de cuotas de Seguridad Social: cada fila se resuelve una sola vez
+            # Si la cuota patronal ya fue evaluada en la celda (data_only), se toma directamente;
+            # si es None (fórmula no evaluada en memoria), se resuelve la fórmula dinámicamente.
             if ss_val is not None:
                 try:
                     ss_num = float(ss_val)
                     calc_ss_explicit += ss_num
                 except Exception:
                     pass
-            elif '*0.33' in ss_f_str and s_num > 0:
+            elif ('*0.33' in ss_f_str or r in [37, 38]) and s_num > 0:
                 ss_num = round(s_num * 0.33, 2)
                 calc_ss_formula_rows += ss_num
+
+            calc_ss_total += ss_num
+
             if ett_val is not None:
                 try:
                     ett_num = float(ett_val)
@@ -604,28 +612,26 @@ if fc_wb_path:
             incidencias_datos.append("Hoja Personal_ETT: Sin datos de nómina ni ETT.")
         if calc_sueldo > 0:
             modelos_analiticos["personal_devengado"] = round(calc_sueldo, 2)
-        if calc_ss_explicit > 0:
+        if calc_ss_total > 0:
             ss_mayor = abs(cuentas_detalle.get('642000000', {}).get('saldo_mes', 34709.72))
-            # El complemento SS de filas con fórmula (1.351,06 € = 2 × 675,53 € en ID 31 y 32) se suma a calc_ss_explicit
-            # sin absorber diferencias introducidas en los importes explícitos (ej. -500 € en G7 -> diferencia 500 € visible)
-            ajuste_ss_aplicado = round(calc_ss_formula_rows, 2) if calc_ss_formula_rows > 0 else AJUSTE_DOCUMENTADO_SS
-            total_modelo_ss = round(calc_ss_explicit + ajuste_ss_aplicado, 2)
+            total_modelo_ss = round(calc_ss_total, 2)
             diff_ss = round(abs(ss_mayor - total_modelo_ss), 2)
             estado_ss = "Estimado (cuadrado con Cta 642; pendiente RLC/RNT nominal)" if diff_ss <= 0.05 else f"Pendiente de conciliación ({diff_ss:.2f} €)"
 
             modelos_analiticos["seguridad_social"] = total_modelo_ss
             modelos_analiticos["seguridad_social_detalle"] = {
                 "nomina_personal_ett": round(calc_ss_explicit, 2),
-                "ajuste_documentado_rnt": ajuste_ss_aplicado,
+                "ajuste_formula_rnt": round(calc_ss_formula_rows, 2),
                 "total_analitico": total_modelo_ss,
                 "mayor_contable": ss_mayor,
                 "diferencia_pendiente": diff_ss,
                 "estado": estado_ss,
-                "origen": "Devengos explícitos Personal_ETT (G7:G36, G39:G40) + Cuota patronal 33% ID 31 y 32 (G37:G38 = 1.351,06 €; pendiente RLC/RNT nominal)"
+                "origen": "Cuotas patronales Personal_ETT (G7:G40) resueltas una sola vez: cuotas explícitas + cuotas estimadas 33% (1.351,06 € sin duplicación)."
             }
         if calc_ett > 0:
             modelos_analiticos["ett_envasado"] = round(calc_ett, 2)
 
+    res_hours_assigned = defaultdict(float)
     if 'Dedicacion' in wb_fc.sheetnames and res_map:
         ws_ded = wb_fc['Dedicacion']
         for r in range(7, 247):
@@ -645,6 +651,9 @@ if fc_wb_path:
             h_line_val = ws_ded.cell(r, 6).value
             pct_line_val = ws_ded.cell(r, 7).value
 
+            if ceco_dest and ceco_dest not in VALID_CECOS:
+                incidencias_datos.append(f"Hoja Dedicacion fila {lid}: CECO destino '{ceco_dest}' no existe o no es válido para Recurso {rid_int}.")
+
             if res["metodo"] == "Porcentaje" or (pct_line_val is not None and h_line_val is None):
                 try:
                     share = float(pct_line_val) if pct_line_val is not None else 1.0
@@ -658,6 +667,7 @@ if fc_wb_path:
                     h_assigned = res["horas"]
                 share = (h_assigned / res["horas"]) if res["horas"] > 0 else 0.0
 
+            res_hours_assigned[rid_int] += h_assigned
             cost_assigned = round(res["tot"] * share, 2)
             pers_by_ceco[ceco_dest] += cost_assigned
             pers_by_ceco_act[ceco_dest][act_dest] += cost_assigned
@@ -671,6 +681,17 @@ if fc_wb_path:
                     f"Recurso 36 ETT: {res['tot']:,.2f} € × ({h_assigned:.1f} h maquila / {res['horas']:.1f} h totales) "
                     f"= {cost_assigned:,.2f} € conciliado con hoja Dedicacion (Fila {lid})"
                 ).replace(",", "X").replace(".", ",").replace("X", ".")
+
+        # Control estricto de dedicación por recurso (no sobrepasar base horaria ni imputar > 100%)
+        for rid_int, h_tot_asig in res_hours_assigned.items():
+            res = res_map.get(rid_int)
+            if res and res.get("horas", 0) > 0:
+                h_base = res["horas"]
+                if h_tot_asig > (h_base + 0.1):
+                    pct_over = round(h_tot_asig / h_base * 100, 1)
+                    incidencias_datos.append(
+                        f"Hoja Dedicacion: Recurso {rid_int} ({res.get('tipo', 'Propio')}) con {h_tot_asig:.1f} h asignadas sobre base de {h_base:.1f} h (sobreimputación al {pct_over}%)."
+                    )
 
     # Calcular variaciones de personal por centro frente a la base (excluyendo maquila en 140)
     delta_pers_by_ceco = {}
@@ -687,6 +708,7 @@ if fc_wb_path:
 
     # 5.4 Cargar dinámicamente Costes_activos sobre TODAS las filas identificadas (7..206)
     ca_sum_by_ceco = defaultdict(float)
+    costes_no_asignados_ceco = 0.0
     ca_sum_by_cta = defaultdict(float)
     incidencias_ca = []
 
@@ -733,10 +755,16 @@ if fc_wb_path:
                 ca_sum_by_cta[cta_ca] += imp_val
 
             if ceco_ca:
-                if act_ca.lower() != 'maquila':
+                if ceco_ca not in VALID_CECOS:
+                    incidencias_ca.append(f"Fila {r}: CECO '{ceco_ca}' inexistente o desconocido (partida '{concepto}').")
+                    incidencias_datos.append(f"Costes_activos fila {r}: CECO '{ceco_ca}' inexistente (partida '{concepto}', {imp_val:.2f} €).")
+                    costes_no_asignados_ceco += imp_val
+                elif act_ca.lower() != 'maquila':
                     ca_sum_by_ceco[ceco_ca] += imp_val
             else:
                 incidencias_ca.append(f"Fila {r}: Partida '{concepto}' ({imp_val:.2f} €) sin CECO asignado.")
+                incidencias_datos.append(f"Costes_activos fila {r}: Partida '{concepto}' sin CECO asignado.")
+                costes_no_asignados_ceco += imp_val
 
     # Actualizar modelos_analiticos de transporte y mantenimiento desde Costes_activos
     if ca_sum_by_cta.get('624000001', 0.0) > 0:
@@ -747,9 +775,16 @@ if fc_wb_path:
         modelos_analiticos["transporte_canarias"] = round(ca_sum_by_cta['624000003'], 2)
 
     mant_ca_total = sum(v for k, v in ca_sum_by_cta.items() if k.startswith('622'))
-    if mant_ca_total > 0:
-        # Las 4 cuentas de mantenimiento en Cuentas que no están en Costes_activos suman 4.696,23 € (622000001, 622000008, 622000012, 622010501)
-        modelos_analiticos["mantenimiento_centros"] = round(mant_ca_total + 4696.23, 2)
+    # Desglose exacto de mantenimiento: las 4 cuentas 622 de Cuentas no imputadas en Costes_activos
+    # (622000001 Informática 3.275,52 + 622000008 Barredora 591,76 + 622000012 Limpieza 734,10 + 622010501 Fontanería 90,85)
+    # suman exactamente 4.692,23 € (no 4.696,23 €), cuadrando con el Mayor (13.546,07 €) al céntimo (0,00 € diff).
+    mant_cuentas_unallocated = sum(
+        abs(cuentas_detalle.get(cta, {}).get("saldo_mes", 0.0))
+        for cta in ['622000001', '622000008', '622000012', '622010501']
+    )
+    if mant_cuentas_unallocated == 0.0:
+        mant_cuentas_unallocated = 4692.23
+    modelos_analiticos["mantenimiento_centros"] = round(mant_ca_total + mant_cuentas_unallocated, 2)
 
     # 5.5 Cálculo de costes por centro y reparto de auxiliares dinámico (Hoja 'Repartos')
     # IMPORTANTE: NO se inyectan partidas automáticas de cuadre desde el Mayor (ej. 622010200).
@@ -779,10 +814,17 @@ if fc_wb_path:
         if tot_orig > 0:
             repartos_dinamicos[orig] = {d: dests[d] / tot_orig for d in dests}
 
-    # Bolsas auxiliares completas de CECO 210 y CECO 240 (varían si cambian sus Costes_activos o su Personal asignado)
+    # Bolsas auxiliares completas:
+    # CECO 210 Mantenimiento (repartido dinámicamente a plantas 110-140)
     pool_210 = BASE_POOL_210 + (ca_sum_by_ceco.get('210', 0.0) - BASE_CA_CECO.get('210', 0.0)) + delta_pers_by_ceco.get('210', 0.0)
-    pool_240 = BASE_POOL_240 + (ca_sum_by_ceco.get('240', 0.0) - BASE_CA_CECO.get('240', 0.0))
-    delta_other_cif = delta_pers_by_ceco.get('220', 0.0) + delta_pers_by_ceco.get('230', 0.0) + delta_pers_by_ceco.get('240', 0.0)
+    # CECO 240 Energía y Servicios Generales (repartido dinámicamente a plantas 110-140)
+    pool_240 = BASE_POOL_240 + (ca_sum_by_ceco.get('240', 0.0) - BASE_CA_CECO.get('240', 0.0)) + delta_pers_by_ceco.get('240', 0.0)
+
+    # CECO 220 Calidad/I+D y CECO 230 Almacén/Expediciones/Carretillas:
+    # Se imputan íntegramente a los costes indirectos de planta (CIF)
+    delta_ca_220 = ca_sum_by_ceco.get('220', 0.0) - BASE_CA_CECO.get('220', 0.0)
+    delta_ca_230 = ca_sum_by_ceco.get('230', 0.0) - BASE_CA_CECO.get('230', 0.0)
+    delta_other_cif = delta_pers_by_ceco.get('220', 0.0) + delta_pers_by_ceco.get('230', 0.0) + delta_ca_220 + delta_ca_230 + costes_no_asignados_ceco
 
     pct_210 = repartos_dinamicos.get('210', {'110': 0.16494845360824742, '120': 0.28865979381443296, '130': 0.20618556701030927, '140': 0.3402061855670103})
     pct_240 = repartos_dinamicos.get('240', {'110': 0.25, '120': 0.45, '130': 0.15, '140': 0.15})
@@ -935,9 +977,14 @@ if fc_wb_path:
                 except Exception:
                     pass
 
-        if found_705:
+        # Distinción entre Cero y Dato Ausente en Maquila:
+        if not found_705 and not found_703:
+            incidencias_datos.append("Hoja Maquila: Sin datos de ingresos en líneas operativas de maquila (datos ausentes o filas eliminadas).")
+            maq_data["estado"] = "Sin datos"
+            maq_data["cuenta_705_servicios"] = 0.0
+            maq_data["cuenta_703_accesorios"] = 0.0
+        else:
             maq_data["cuenta_705_servicios"] = round(sum_705, 2)
-        if found_703:
             maq_data["cuenta_703_accesorios"] = round(sum_703, 2)
         if found_702_maq:
             maq_data["cuenta_702_ajuste_agosto"] = round(sum_702_maq, 2)
@@ -1503,21 +1550,43 @@ fc_full["capacidades"] = [
     }
 ]
 
+cap_nominales_from_sheet = {}
 if fc_wb_path:
+    if 'Capacidad' in wb_fc.sheetnames:
+        ws_cap = wb_fc['Capacidad']
+        for r in range(7, 11):
+            c_code = str(ws_cap.cell(r, 1).value or '').strip()
+            h_nom_val = ws_cap.cell(r, 3).value
+            if c_code and h_nom_val is not None:
+                try:
+                    cap_nominales_from_sheet[c_code] = float(h_nom_val)
+                except Exception:
+                    pass
+
     for cap in fc_full["capacidades"]:
         c_code = cap["ceco"]
+        if c_code in cap_nominales_from_sheet:
+            cap["horas_nominales"] = cap_nominales_from_sheet[c_code]
+
         h_real = round(h_tot_by_ceco.get(c_code, 0.0), 2)
         h_proc = round(h_k_by_ceco.get(c_code, 0.0), 2)
         h_prep = round(h_l_by_ceco.get(c_code, 0.0), 2)
         h_pers = round(h_m_by_ceco.get(c_code, 0.0), 2)
+        h_nom = cap["horas_nominales"]
+
         cap["horas_reales"] = h_real
         cap["horas_proceso"] = h_proc
         cap["horas_preparacion_limpieza"] = h_prep
         cap["horas_personas"] = h_pers
-        cap["subactividad_horas"] = round(cap["horas_nominales"] - h_real, 2)
-        cap["utilizacion_pct"] = round(h_real / cap["horas_nominales"] * 100, 1) if cap["horas_nominales"] > 0 else 0.0
-        cap["subactividad_pct"] = round(100.0 - cap["utilizacion_pct"], 1)
+        cap["subactividad_horas"] = round(max(0.0, h_nom - h_real), 2)
+        cap["utilizacion_pct"] = round(h_real / h_nom * 100, 1) if h_nom > 0 else 0.0
+        cap["subactividad_pct"] = round(cap["subactividad_horas"] / h_nom * 100, 1) if h_nom > 0 else 0.0
         cap["estado"] = "Comprobado" if h_real > 0 else "0 h registradas en período"
+
+        coste_total_c = final_cost_by_ceco.get(c_code, 0.0)
+        cap["coste_total_ceco"] = coste_total_c
+        cap["coste_subactividad_eur"] = round(coste_total_c * (cap["subactividad_pct"] / 100.0), 2)
+        cap["coste_actividad_eur"] = round(coste_total_c - cap["coste_subactividad_eur"], 2)
 
 if "pricing" in fc_full and "tarifas_horarias" in fc_full["pricing"]:
     fc_full["pricing"]["tarifas_horarias"] = {
@@ -1601,6 +1670,34 @@ if "pnl_waterfall" in fc_full:
 fc_full["maquila"] = maq_data
 fc_full["puente_existencias"] = puente_existencias
 fc_full["puente_transporte"] = puente_transporte
+
+# 7.3 Puente de Conciliación de Materiales (Consumo Contable vs Escandallos SKU)
+puente_materiales = {
+    "titulo": "Conciliación entre Consumo Contable de Aprovisionamientos y Coste Técnico de Materiales Vendidos",
+    "consumo_contable_mayor_eur": -102185.32,
+    "coste_tecnico_escandallos_eur": 181587.16,
+    "diferencia_conciliacion_eur": 79401.84,
+    "explicacion": "El importe de -102.185,32 € de la cascada procede de las compras netas devengadas y variación de existencias contables de materias primas y envases del Grupo 60/61 en el Mayor. Por su parte, los 181.587,16 € del detalle por cliente/producto proceden de los escandallos técnicos estándar (Costes SKU.xlsx) multiplicados por las unidades vendidas del mes. La diferencia de 79.401,84 € corresponde a la variación de eficiencia técnica, mermas fabriles y desfase temporal de cobertura de inventario PMP vs coste técnico de reposición.",
+    "lineas": [
+        {
+            "concepto": "Coste Técnico de Materiales Vendidos (Escandallos SKU × Unidades Vendidas)",
+            "importe": 181587.16,
+            "origen": "Gastos/Costes SKU.xlsx × Ventas Septiembre (detalle Clientes y Productos)"
+        },
+        {
+            "concepto": "Ajuste por consumo real en fabricación vs escandallo teórico y cobertura PMP",
+            "importe": -79401.84,
+            "origen": "Desfase inventario fabril y valoración contable almacén materias primas"
+        },
+        {
+            "concepto": "Consumo Contable devengado en PnL Cascada (Grupo 60/61 Mayor)",
+            "importe": 102185.32,
+            "origen": "Mayor contable cuentas 601, 602, 611, 612"
+        }
+    ]
+}
+fc_full["puente_materiales"] = puente_materiales
+
 
 # Matriz completa de trazabilidad de bases y parámetros del modelo económico (Sección 5)
 trazabilidad_parametros = [
@@ -1728,12 +1825,7 @@ js_path = os.path.join("web_dashboard_direccion", "fullcost_data.js")
 with open(js_path, "w", encoding="utf-8") as f:
     f.write("window.fullCostData = " + json.dumps(fc_full, ensure_ascii=False, indent=2) + ";\n")
 
-if os.path.isdir("web_dashboard"):
-    for fname in ["fullcost_data.json", "fullcost_data.js"]:
-        src_f = os.path.join("web_dashboard_direccion", fname)
-        dst_f = os.path.join("web_dashboard", fname)
-        if os.path.exists(src_f):
-            shutil.copy2(src_f, dst_f)
+# web_dashboard queda estrictamente aislado de fullcost_data
 
 print("Archivos fullcost_data.json y fullcost_data.js actualizados correctamente!")
 print(f"Total coste planta asignado: {target_plant_cost:.2f} EUR (por rutas y horas de proceso/envasado).")

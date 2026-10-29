@@ -127,10 +127,51 @@ def prepare_staging():
         print(f"[ERROR CRITICO] Fallo en prepare_staging: {e}")
         return 1
 
+REQUIRED_STAGING_DELIVERABLES = [
+    os.path.join("web_dashboard_direccion", "fullcost_data.json"),
+    os.path.join("web_dashboard_direccion", "fullcost_data.js"),
+    os.path.join("web_dashboard_direccion", "dashboard_data.json"),
+    os.path.join("web_dashboard_direccion", "dashboard_data.js"),
+    os.path.join("web_dashboard_direccion", "profitability_data.json"),
+    os.path.join("web_dashboard_direccion", "profitability_data.js"),
+    os.path.join("web_dashboard_direccion", "bi_intelligence_data.json"),
+    os.path.join("web_dashboard_direccion", "bi_intelligence_data.js"),
+    os.path.join("web_dashboard_direccion", "treasury_data.json"),
+    os.path.join("web_dashboard_direccion", "treasury_data.js"),
+    os.path.join("web_dashboard_direccion", "production_planning_data.json"),
+    os.path.join("web_dashboard_direccion", "production_planning_data.js"),
+    os.path.join("web_dashboard_direccion", "marta_tracking_data.json"),
+    os.path.join("web_dashboard_direccion", "marta_tracking_data.js"),
+    os.path.join("web_dashboard_direccion", "update_validation_status.json"),
+    os.path.join("web_dashboard", "dashboard_data.json"),
+    os.path.join("web_dashboard", "dashboard_data.js"),
+    os.path.join("web_dashboard", "production_planning_data.json"),
+    os.path.join("web_dashboard", "production_planning_data.js"),
+    os.path.join("web_dashboard", "marta_tracking_data.json"),
+    os.path.join("web_dashboard", "marta_tracking_data.js"),
+    "Seguimiento_Presupuesto_Sep_2026.xlsx",
+    "Orden_Fabricacion_MRP_Codiagro.xlsx"
+]
+
 def activate():
     try:
         if not os.path.exists(STAGING_DIR):
             print(f"[ERROR] No existe el directorio de staging {STAGING_DIR} para activar.")
+            return 1
+
+        # Control de activación indivisible y completa (Punto 8 Auditoría):
+        # Verificar que la carpeta de staging contiene el conjunto COMPLETO de entregables esperados.
+        missing_deliverables = []
+        for req_f in REQUIRED_STAGING_DELIVERABLES:
+            stage_path = os.path.join(STAGING_DIR, req_f)
+            if not os.path.exists(stage_path) or os.path.getsize(stage_path) == 0:
+                missing_deliverables.append(req_f)
+
+        if missing_deliverables:
+            print(f"[ERROR CRITICO] Staging incompleto: Faltan {len(missing_deliverables)} entregables requeridos en la misma actualización:")
+            for m in missing_deliverables[:10]:
+                print(f"  - Ausente o vacío: {m}")
+            print("[ABORTE] No se permite la activación parcial de un único archivo o conjunto incompleto.")
             return 1
 
         activated_count = 0
@@ -164,8 +205,9 @@ def activate():
                 except Exception:
                     pass
 
-        if activated_count == 0:
-            print("[ERROR CRITICO] Staging no contiene ningún archivo para activar (activated_count == 0). Abortando activación.")
+        if activated_count < len(REQUIRED_STAGING_DELIVERABLES):
+            print(f"[ERROR CRITICO] Activación incompleta ({activated_count} < {len(REQUIRED_STAGING_DELIVERABLES)}). Abortando.")
+            restore_snapshot()
             return 1
 
         # Limpiar directorio de staging tras activación exitosa

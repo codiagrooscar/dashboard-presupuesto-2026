@@ -27,10 +27,37 @@ import tempfile
 def safe_load_workbook(file_path, read_only=True, data_only=True):
     try:
         return openpyxl.load_workbook(file_path, read_only=read_only, data_only=data_only)
-    except PermissionError:
+    except (PermissionError, IOError):
+        try:
+            import ctypes
+            from ctypes import wintypes
+            kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+            handle = kernel32.CreateFileW(
+                str(os.path.abspath(file_path)),
+                0x80000000,
+                1 | 2 | 4,
+                None,
+                3,
+                0x80,
+                None
+            )
+            if handle != -1:
+                size = kernel32.GetFileSize(handle, None)
+                buf = ctypes.create_string_buffer(size)
+                read_bytes = wintypes.DWORD()
+                kernel32.ReadFile(handle, buf, size, ctypes.byref(read_bytes), None)
+                kernel32.CloseHandle(handle)
+                import io
+                bio = io.BytesIO(buf.raw[:read_bytes.value])
+                return openpyxl.load_workbook(bio, read_only=read_only, data_only=data_only)
+        except Exception:
+            pass
         tmp_copy = os.path.join(tempfile.gettempdir(), f"copy_{os.path.basename(file_path)}")
-        shutil.copy2(file_path, tmp_copy)
-        return openpyxl.load_workbook(tmp_copy, read_only=read_only, data_only=data_only)
+        try:
+            shutil.copy2(file_path, tmp_copy)
+            return openpyxl.load_workbook(tmp_copy, read_only=read_only, data_only=data_only)
+        except Exception:
+            raise
 
 
 def round_conserving_sum(items, field, target_total, decimals=2):
@@ -880,14 +907,24 @@ if fc_wb_path:
     # CECO 240 Energía y Servicios Generales (repartido dinámicamente a plantas 110-140)
     pool_240 = BASE_POOL_240 + (ca_sum_by_ceco.get('240', 0.0) - BASE_CA_CECO.get('240', 0.0)) + delta_pers_by_ceco.get('240', 0.0)
 
+    # Control estricto de inductores a cero (Punto 7 Auditoría):
+    # Si existe una bolsa de coste que repartir y los inductores suman cero, se bloquea el reparto sin recuperar porcentajes silenciosamente.
+    tot_ind_210 = sum(repartos_por_origen.get('210', {}).values())
+    if pool_210 > 0 and tot_ind_210 <= 0:
+        incidencias_datos.append(f"Repartos CECO 210: La suma de inductores de reparto hacia plantas es cero con una bolsa auxiliar de {pool_210:.2f} € pendiente de distribuir.")
+
+    tot_ind_240 = sum(repartos_por_origen.get('240', {}).values())
+    if pool_240 > 0 and tot_ind_240 <= 0:
+        incidencias_datos.append(f"Repartos CECO 240: La suma de inductores de reparto hacia plantas es cero con una bolsa auxiliar de {pool_240:.2f} € pendiente de distribuir.")
+
     # CECO 220 Calidad/I+D y CECO 230 Almacén/Expediciones/Carretillas:
     # Se imputan íntegramente a los costes indirectos de planta (CIF)
     delta_ca_220 = ca_sum_by_ceco.get('220', 0.0) - BASE_CA_CECO.get('220', 0.0)
     delta_ca_230 = ca_sum_by_ceco.get('230', 0.0) - BASE_CA_CECO.get('230', 0.0)
     delta_other_cif = delta_pers_by_ceco.get('220', 0.0) + delta_pers_by_ceco.get('230', 0.0) + delta_ca_220 + delta_ca_230 + costes_no_asignados_ceco
 
-    pct_210 = repartos_dinamicos.get('210', {'110': 0.16494845360824742, '120': 0.28865979381443296, '130': 0.20618556701030927, '140': 0.3402061855670103})
-    pct_240 = repartos_dinamicos.get('240', {'110': 0.25, '120': 0.45, '130': 0.15, '140': 0.15})
+    pct_210 = repartos_dinamicos.get('210', {'110': 0.16494845360824742, '120': 0.28865979381443296, '130': 0.20618556701030927, '140': 0.3402061855670103} if '210' not in repartos_por_origen else {})
+    pct_240 = repartos_dinamicos.get('240', {'110': 0.25, '120': 0.45, '130': 0.15, '140': 0.15} if '240' not in repartos_por_origen else {})
 
     target_plant_cost = round(
         sum(BASE_DIRECT_COST_CECO.values())
@@ -967,11 +1004,13 @@ if fc_wb_path:
     target_plant_cost_subactividad = round(sum(coste_subactividad_by_ceco.values()), 2)
     target_plant_cost_total = round(target_plant_cost_actividad + target_plant_cost_subactividad, 2)
 
-    # Tarifas efectivas aplicadas a productos (imputan únicamente el coste de actividad)
+    # Tarifas efectivas de actividad por centro según NIC 2 (IAS 2 §§ 12-13)
+    # Se calculan sobre horas de PRODUCCIÓN REAL del centro (h_tot_by_ceco) y capacidad normal,
+    # siendo independientes del volumen vendido. Si las ventas varían, la tarifa unitaria permanece constante.
     rate_by_ceco = {}
     for c in ['110', '120', '130', '140']:
-        h_c = std_hours_by_ceco.get(c, 0.0)
-        rate_by_ceco[c] = coste_actividad_by_ceco[c] / h_c if h_c > 0 else 0.0
+        h_prod = h_tot_by_ceco.get(c, 0.0)
+        rate_by_ceco[c] = round(coste_actividad_by_ceco[c] / h_prod, 4) if h_prod > 0 else 0.0
 
     delta_plant_cost = round(target_plant_cost_total - 124561.76, 2)
     delta_mod = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['110', '120', '130', '140']), 2)
@@ -1089,6 +1128,8 @@ if fc_wb_path:
         else:
             maq_data["cuenta_705_servicios"] = round(sum_705, 2)
             maq_data["cuenta_703_accesorios"] = round(sum_703, 2)
+            maq_data["ingreso_servicios_705"] = round(sum_705, 2)
+            maq_data["ingreso_accesorios_703"] = round(sum_703, 2)
         if found_702_maq:
             maq_data["cuenta_702_ajuste_agosto"] = round(sum_702_maq, 2)
 
@@ -1379,7 +1420,7 @@ else:
     target_plant_cost_actividad = round(sum(coste_actividad_by_ceco.values()), 2)
     target_plant_cost_subactividad = round(sum(coste_subactividad_by_ceco.values()), 2)
     target_plant_cost_total = round(target_plant_cost_actividad + target_plant_cost_subactividad, 2)
-    rate_by_ceco = {c: coste_actividad_by_ceco[c] / std_hours_by_ceco[c] if std_hours_by_ceco[c] > 0 else 0.0 for c in BASE_COST_CECO}
+    rate_by_ceco = {c: round(coste_actividad_by_ceco[c] / h_tot_by_ceco.get(c, 1.0), 4) if h_tot_by_ceco.get(c, 0.0) > 0 else 0.0 for c in BASE_COST_CECO}
     personal_no_distribuido = 0.0
     delta_plant_cost = 0.0
     modelos_analiticos = {}
@@ -1513,6 +1554,11 @@ for norm_t, t_val in transporte_cliente.items():
 # Aplicar política de redondeo por Mayor Resto en Clientes para conservar totales exactos
 round_conserving_sum(clientes_fc, "ventas", tot_v_sep_round, 2)
 round_conserving_sum(clientes_fc, "cogs_materiales", tot_cogs_sep_round, 2)
+raw_cp_clis = sum(c["coste_planta_fullcost"] for c in clientes_fc)
+if raw_cp_clis > 0:
+    ratio_clis = target_plant_cost_actividad / raw_cp_clis
+    for c in clientes_fc:
+        c["coste_planta_fullcost"] *= ratio_clis
 round_conserving_sum(clientes_fc, "coste_planta_fullcost", target_plant_cost_actividad, 2)
 round_conserving_sum(clientes_fc, "uds", tot_uds_sep_round, 1)
 
@@ -1553,6 +1599,11 @@ for sku, d in ventas_prod.items():
 
 round_conserving_sum(productos_fc, "ventas", tot_v_sep_round, 2)
 round_conserving_sum(productos_fc, "cogs_materiales", tot_cogs_sep_round, 2)
+raw_cp_prods = sum(p["coste_planta_fullcost"] for p in productos_fc)
+if raw_cp_prods > 0:
+    ratio_prods = target_plant_cost_actividad / raw_cp_prods
+    for p in productos_fc:
+        p["coste_planta_fullcost"] *= ratio_prods
 round_conserving_sum(productos_fc, "coste_planta_fullcost", target_plant_cost_actividad, 2)
 round_conserving_sum(productos_fc, "uds", tot_uds_sep_round, 1)
 
@@ -1590,6 +1641,11 @@ for com, d in ventas_com.items():
 
 round_conserving_sum(comerciales_fc, "ventas", tot_v_sep_round, 2)
 round_conserving_sum(comerciales_fc, "cogs_materiales", tot_cogs_sep_round, 2)
+raw_cp_coms = sum(cm["coste_planta_fullcost"] for cm in comerciales_fc)
+if raw_cp_coms > 0:
+    ratio_coms = target_plant_cost_actividad / raw_cp_coms
+    for cm in comerciales_fc:
+        cm["coste_planta_fullcost"] *= ratio_coms
 round_conserving_sum(comerciales_fc, "coste_planta_fullcost", target_plant_cost_actividad, 2)
 
 for cm in comerciales_fc:
@@ -1711,6 +1767,7 @@ if fc_wb_path:
         cap["coste_actividad_eur"] = coste_actividad_by_ceco.get(c_code, 0.0)
         cap["tarifa_efectiva_hora"] = round(rate_by_ceco.get(c_code, 0.0), 2)
         cap["tarifa_eur_h"] = round(rate_by_ceco.get(c_code, 0.0), 2)
+        cap["coste_hora"] = round(rate_by_ceco.get(c_code, 0.0), 2)
 
 if "pricing" in fc_full and "tarifas_horarias" in fc_full["pricing"]:
     fc_full["pricing"]["tarifas_horarias"] = {
@@ -1734,12 +1791,22 @@ BASE_G60_61_NO607 = -72644.66
 current_g60_61 = sum(info.get('saldo_mes', 0.0) for cta, info in cuentas_detalle.items() if (cta.startswith('60') or cta.startswith('61')) and not cta.startswith('607'))
 delta_mat_cuentas = round(current_g60_61 - BASE_G60_61_NO607, 2)
 
-BASE_G70_71 = 505002.29
-current_g70_71 = sum(info.get('saldo_mes', 0.0) for cta, info in cuentas_detalle.items() if cta.startswith('70') or cta.startswith('71'))
-delta_sales_cuentas = round(current_g70_71 - BASE_G70_71, 2)
+# Desacoplamiento de ventas propias y maquila para evitar duplicación (Punto 1 Auditoría):
+# Las cuentas 705 (servicios), 703 (accesorios) y 702 (abono maquila) pertenecen a la unidad de maquila SAS.
+MAQ_CTAS = {'705000000', '703000000', '702000000'}
+BASE_G70_71_NO_MAQ = 515061.09
+current_g70_71_no_maq = sum(info.get('saldo_mes', 0.0) for cta, info in cuentas_detalle.items() if (cta.startswith('70') or cta.startswith('71')) and cta not in MAQ_CTAS)
+delta_sales_own = round(current_g70_71_no_maq - BASE_G70_71_NO_MAQ, 2)
+
+# Control de coincidencia entre hoja operativa Maquila y cuentas contables (705/703/702)
+current_maq_cuentas = sum(cuentas_detalle.get(c, {}).get('saldo_mes', 0.0) for c in MAQ_CTAS)
+delta_maq_cuentas = round(current_maq_cuentas - (-10058.80), 2)
+if abs(delta_maq_net - delta_maq_cuentas) > 0.01:
+    incidencias_datos.append(f"Descuadre en Maquila: La variación en la hoja operativa ({delta_maq_net:.2f} €) no coincide con la variación en las cuentas contables 705/703/702 ({delta_maq_cuentas:.2f} €).")
 
 n1_base = 505002.49
-n1_val = round(n1_base + delta_sales_cuentas + delta_maq_net + delta_ajustes_ventas_own, 2)
+# Se suma delta_sales_own (ventas propias sin maquila) + delta_maq_net (maquila operativa única)
+n1_val = round(n1_base + delta_sales_own + delta_maq_net + delta_ajustes_ventas_own, 2)
 consumo_contable_cascada = round(102185.32 - delta_mat_cuentas, 2)
 n2_val = -consumo_contable_cascada
 sub1_val = round(n1_val + n2_val, 2)

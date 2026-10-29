@@ -60,7 +60,7 @@ function renderCockpitInicioSection() {
   // RAI contable oficial del Libro Mayor (Cierre)
   const raiContableMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number')
     ? fc.cuentas_resumen.rai_neto
-    : ((meta && typeof meta.rai_contable_mayor === 'number') ? meta.rai_contable_mayor : 111933.69);
+    : ((meta && typeof meta.rai_contable_mayor === 'number') ? meta.rai_contable_mayor : null);
 
   // RAI analítico calculado en la cascada PnL Full Costing
   let raiAnalitico = raiContableMayor;

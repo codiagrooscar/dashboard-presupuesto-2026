@@ -342,3 +342,26 @@ En respuesta a la auditoría técnica profunda realizada por GPT Astra, se han i
 | **10** | **Validación registro a registro (finitud, identidades y paridad)** | [validate_fullcost_update.py](file:///c:/Users/oscar.ocampo/OneDrive%20-%20Agroqu%C3%ADmica%20Codiagro%20S.L/Escritorio/Presupuesto%202026/Calsif%20Comerciales/scripts/validate_fullcost_update.py) verifica cliente a cliente, producto a producto y comercial a comercial que no existan valores `NaN` o `Inf` (`math.isfinite`), que se cumpla la identidad aritmética `margen_industrial = ventas - cogs - coste_planta`, y que exista paridad completa entre JSON y JS en el puente de transportes. | 100% de registros analíticos comprobados aritméticamente sin tolerancias de redondeo acumuladas. |
 | **11** | **Verificación de activación no vacía en clean_rollback** | En `scripts/clean_rollback.py`, la función `activate()` comprueba expresamente `if activated_count == 0:` y detiene la activación con error crítico si el staging estuviese vacío, protegiendo los entregables activos contra borrados involuntarios. | Comprobado en prueba unitaria: activación de staging vacío retorna código de error `1`. |
 | **12** | **Conciliación explícita de perímetros de facturación** | Se documentan formally en el cuadro analítico los 3 perímetros de facturación de septiembre de 2026:<br>1. **Facturación bruta contable Cta 700**: 632.880,07 €.<br>2. **Ventas netas del Grupo 7 del Mayor**: 614.368,98 € (deducidos rappels contables de Marta).<br>3. **Ventas del informe de Reporting**: 638.684,54 € (incluye portes facturados en Cta 700001624 de 9.613,00 € y ajustes comerciales).<br>4. **Ventas netas industriales analizadas**: 457.931,55 € (pedidos firmes entregados y producidos en planta en septiembre, aislada la maquila SAS de 6.434,00 € y tras deducción de abonos comerciales). | Todos los perímetros reconciliados y soportados en la tabla de conciliación técnica. |
+
+### 13.1 Tabla Estructurada de Conciliación de Perímetros de Facturación (Septiembre 2026)
+
+Para eliminar cualquier ambigüedad entre las cifras mostradas en la contabilidad general, el reporting comercial y el escandallo analítico industrial, se formaliza la siguiente conciliación paso a paso de los perímetros de facturación:
+
+| Paso | Concepto Contable / Operativo | Cuenta / Fuente | Importe (€) | Acumulado (€) | Explicación Técnica y Perímetro |
+|:---:|:---|:---|---:|---:|:---|
+| **1** | **Facturación Bruta Contable Mercaderías** | **Cta 700 (Mayor)** | **+632.880,07 €** | **632.880,07 €** | Total bruto facturado según Balance de Sumas y Saldos a 30/09/2026. |
+| **2** | (-) Rappels y Devoluciones Comerciales | Ctas 708 / 709 (Mayor) | -18.511,09 € | 614.368,98 € | Rappels y rectificaciones comerciales devengadas en el mes. |
+| **3** | **(=) Cifra Neta de Negocios Grupo 7 (Mayor)** | **Grupo 7 Cuentas** | **614.368,98 €** | **614.368,98 €** | Base neta oficial de ingresos de la contabilidad de Codiagro. |
+| **4** | (+) Portes Repercutidos Facturados en Ventas | Cta 700001624 | +9.613,00 € | 623.981,98 € | Portes repercutidos directamente al cliente en factura. |
+| **5** | (+) Regularizaciones Comerciales de Reporting | Ajustes de Reporting | +14.702,56 € | **638.684,54 €** | **Cifra Total de Reporting Comercial Marta / Dirección.** |
+| **6** | (-) Aislamiento Operación Maquila SAS | Ctas 705 / 703 | -6.434,00 € | 632.250,54 € | Facturación por servicios y accesorios intragrupo aislada en sección independiente. |
+| **7** | (-) Salida Stock Almacén Producto Terminado | Ctas 711 / 712 | -109.366,49 € | 522.884,05 € | Variación de existencias fabricadas en períodos anteriores y expedidas en septiembre. |
+| **8** | (-) Abonos de Facturación y Regularizaciones | Hoja Ajustes_ventas | -17.881,56 € | 505.002,49 € | Anulaciones y refacturaciones documentadas (Fitoxent / Fitosanitarios Carcaixent). |
+| **9** | **(=) Ingresos de Explotación Cascada P&L (N1)** | **P&L Waterfall N1** | **505.002,49 €** | **505.002,49 €** | Base de partida de la Cascada Contable oficial del Dashboard. |
+| **10** | (-) Pedidos Fuera de Perímetro Fabril Analizado | Conciliación Fabril | -47.070,94 € | **457.931,55 €** | Diferencia entre producción imputable fabril y pedidos individuales con escandallo. |
+| **11** | **(=) Ventas Netas Industriales en Detalle** | **Tabla Clientes/SKUs** | **457.931,55 €** | **457.931,55 €** | **Total base del escandallo industrial unitario en Clientes, Productos y Comerciales.** |
+
+> [!NOTE]
+> **Conciliación Aritmética Completa (0,00 € Desviación):**  
+> El Puente de Margen de la portada concilia al céntimo el Margen de Planta Completo de Cascada (**278.255,41 €**) con el Margen Industrial en Detalle (**210.114,50 €**):  
+> $$278.255,41 € - 47.070,94 € 	ext{ (Perímetro)} - 79.401,84 € 	ext{ (Materiales)} + 58.331,87 € 	ext{ (Subactividad NIC 2)} = 210.114,50 €$$

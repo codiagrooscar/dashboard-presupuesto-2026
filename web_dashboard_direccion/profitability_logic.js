@@ -2054,7 +2054,7 @@ function renderProfitFullCostView() {
   const isFcValid = !!(fc && hasFcModels && !hasFcIncidents);
   const raiMayor = (fc && fc.cuentas_resumen && typeof fc.cuentas_resumen.rai_neto === 'number')
     ? fc.cuentas_resumen.rai_neto
-    : ((meta && typeof meta.rai_contable_mayor === 'number') ? meta.rai_contable_mayor : 111933.69);
+    : ((meta && typeof meta.rai_contable_mayor === 'number') ? meta.rai_contable_mayor : null);
   let raiCalculado = raiMayor;
   if (meta && typeof meta.rai_analitico_cascada === 'number' && Math.abs(meta.rai_analitico_cascada - raiMayor) > 0.005) {
     raiCalculado = meta.rai_analitico_cascada;
@@ -2098,9 +2098,11 @@ function renderProfitFullCostView() {
   // Formato seleccionado para el simulador
   const fmtObj = (pricing.formatos_estandar || []).find(f => f.id === simFormat) || (pricing.formatos_estandar ? pricing.formatos_estandar[1] : { coste_envase: 1.15, mano_obra_h_por_1000: 1.54, cadencia_h: 650 });
   const horasEnvasado = (simVolume / 1000) * (fmtObj.mano_obra_h_por_1000 || 1.54);
-  const envasadoRate = (pricing && pricing.tarifas_horarias && typeof pricing.tarifas_horarias.ceco_140_envasado === 'number') ? pricing.tarifas_horarias.ceco_140_envasado : 36.40;
-  const costeModLote = horasEnvasado * envasadoRate;
-  const costeCifLote = horasEnvasado * 28.50; // Indirectos de planta
+  // Tarifa horaria completa de envasado (MOD + CIF) sincronizada desde el modelo de actividad:
+  const envasadoRate = (pricing && pricing.tarifas_horarias && typeof pricing.tarifas_horarias.ceco_140_envasado === 'number') ? pricing.tarifas_horarias.ceco_140_envasado : 105.14;
+  const costePlantaLote = horasEnvasado * envasadoRate;
+  const costeModLote = costePlantaLote * 0.60; // 60% Mano de obra directa y ETT
+  const costeCifLote = costePlantaLote * 0.40; // 40% Costes indirectos de planta absorbibles
   const costeEnvaseLote = simVolume * (fmtObj.coste_envase || 1.15);
   const factorLitros = simFormat === '1L' ? 1 : (simFormat === '5L' ? 5 : (simFormat === '20L' ? 20 : (simFormat === '1000L' ? 1000 : 5)));
   const costeMpLote = simVolume * factorLitros * simMpCost;
@@ -2687,17 +2689,29 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
             </div>
             ${(() => {
               if (!fc || !fc.totales_drilldown || typeof fc.totales_drilldown.margen_industrial_eur !== 'number') {
-                return '<span class="tab-badge badge-warning" style="font-size:0.8rem; font-weight:800; background:rgba(234,179,8,0.2); color:#fde047; border:1px solid #eab308;">Sin detalle disponible para conciliación</span>';
+                return '<span class="tab-badge badge-warning" style="font-size:0.8rem; font-weight:800; background:rgba(234,179,8,0.2); color:#fde047; border:1px solid #eab308;">Sin datos disponibles</span>';
               }
               const sub3Item = (fc && fc.pnl_waterfall) ? fc.pnl_waterfall.find(x => x.nivel === 'SUB3') : null;
-              const sub3Val = sub3Item ? sub3Item.importe : 278255.41;
+              if (!sub3Item || typeof sub3Item.importe !== 'number') {
+                return '<span class="tab-badge badge-warning" style="font-size:0.8rem; font-weight:800">Sin cascada contable</span>';
+              }
+              const sub3Val = sub3Item.importe;
+              const n1Item = fc.pnl_waterfall.find(x => x.nivel === 1 || x.nivel === '1');
+              const ventasCascada = n1Item ? n1Item.importe : 505002.49;
+              const ventasDetalle = fc.totales_drilldown.ventas || 0.0;
+              const difPerimetro = Math.round((ventasCascada - ventasDetalle) * 100) / 100;
+              
+              const matMayor = fc.puente_materiales ? Math.abs(fc.puente_materiales.consumo_contable_mayor_eur || 0) : 102185.32;
+              const matDetalle = fc.totales_drilldown.cogs_materiales || 0.0;
+              const difMateriales = Math.round((matDetalle - matMayor) * 100) / 100;
+              
+              const subactivityVal = (fc.totales_drilldown && typeof fc.totales_drilldown.coste_subactividad === 'number') ? fc.totales_drilldown.coste_subactividad : 0.0;
               const bridgeDetalle = fc.totales_drilldown.margen_industrial_eur;
-              const subactivityVal = (fc.totales_drilldown && typeof fc.totales_drilldown.coste_subactividad === 'number') ? fc.totales_drilldown.coste_subactividad : 58331.87;
-              const totalAjustesPuente = 126472.78; // 47070.94 (Perímetro Ventas) + 79401.84 (Criterio Materiales)
-              const margenEsperado = sub3Val - totalAjustesPuente + subactivityVal;
+              
+              const margenEsperado = Math.round((sub3Val - difPerimetro - difMateriales + subactivityVal) * 100) / 100;
               const bridgeDiff = Math.abs(bridgeDetalle - margenEsperado);
-              if (bridgeDiff <= 0.5) {
-                return '<span class="tab-badge badge-success" style="font-size:0.8rem; font-weight:800; background:rgba(16,185,129,0.2); color:#34d399; border:1px solid #10b981;">Puente Analítico Conciliado (0,00 € Desviación)</span>';
+              if (bridgeDiff <= 0.05) {
+                return '<span class="tab-badge badge-success" style="font-size:0.8rem; font-weight:800; background:rgba(16,185,129,0.2); color:#34d399; border:1px solid #10b981;">Cuadre aritmético del puente (0,00 € Desviación)</span>';
               } else {
                 return `<span class="tab-badge badge-danger" style="font-size:0.8rem; font-weight:800; background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #ef4444;">Descuadre en Conciliación (${fmtEur(bridgeDiff)} Diferencia)</span>`;
               }
@@ -2715,36 +2729,57 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
                 </tr>
               </thead>
               <tbody>
-                <tr style="background:rgba(30,41,59,0.7); font-weight:700;">
-                  <td style="color:#fff">Margen Planta Completo (Reportado en Cascada / Portada)</td>
-                  <td style="text-align:right; color:#38bdf8; font-weight:800">${fmtEur((fc && fc.pnl_waterfall && fc.pnl_waterfall.find(x => x.nivel === 'SUB3')) ? fc.pnl_waterfall.find(x => x.nivel === 'SUB3').importe : 278255.41)}</td>
-                  <td style="text-align:right; color:#38bdf8">55,1%</td>
-                  <td style="color:#cbd5e1">Margen global contable de septiembre (505.002 € producción fabril - 102.185 € materiales - 124.562 € planta).</td>
-                </tr>
-                <tr>
-                  <td style="color:#f87171">(-) Diferencia de Perímetro Comercial en Ingresos de Venta</td>
-                  <td style="text-align:right; color:#f87171; font-weight:700">-47.070,94 €</td>
-                  <td style="text-align:right; color:#f87171">-9,3%</td>
-                  <td style="color:#94a3b8">Producción imputable fabril (505.002,49 € tras -109,4k € stock PT) vs pedidos de clientes analizados (457.931,55 €). Ventas reales Cta 700: 632.880,07 € (Neto G7: 614.368,98 €).</td>
-                </tr>
-                <tr>
-                  <td style="color:#f87171">(-) Diferencia de Criterio de Valoración en Materiales y Envases</td>
-                  <td style="text-align:right; color:#f87171; font-weight:700">-79.401,84 €</td>
-                  <td style="text-align:right; color:#f87171">-15,7%</td>
-                  <td style="color:#94a3b8">Consumo contable neto global (102.185,32 €) vs valoración estándar por escandallo técnico unitario (181.587,16 €).</td>
-                </tr>
-                <tr>
-                  <td style="color:#38bdf8">(+) Subactividad Aislada del Coste de Productos (NIC 2 / IAS 2)</td>
-                  <td style="text-align:right; color:#38bdf8; font-weight:700">+${fmtEur((fc && fc.totales_drilldown && typeof fc.totales_drilldown.coste_subactividad === 'number') ? fc.totales_drilldown.coste_subactividad : 58331.87)}</td>
-                  <td style="text-align:right; color:#38bdf8">+11,5%</td>
-                  <td style="color:#cbd5e1">Capacidad ociosa no imputada a productos terminados (58.331,87 €) que pasa a pérdida directa del período según NIC 2, reduciendo el coste asignado a ventas de 124.561,76 € a 66.229,89 €.</td>
-                </tr>
-                <tr style="background:rgba(16,185,129,0.15); border-top:2px solid var(--accent); font-weight:800;">
-                  <td style="color:#34d399">(=) MARGEN INDUSTRIAL ASIGNADO EN DETALLE (Clientes y SKUs)</td>
-                  <td style="text-align:right; color:#34d399; font-size:0.95rem">${(fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_eur === 'number') ? fmtEur(fc.totales_drilldown.margen_industrial_eur) : 'N/D'}</td>
-                  <td style="text-align:right; color:#34d399">45,9%</td>
-                  <td style="color:#34d399">Total exacto que cuadra con el sumatorio de las tablas de Clientes y Productos tras absorber 66.229,89 € de actividad industrial.</td>
-                </tr>
+                ${(() => {
+                  const sub3Obj = (fc && fc.pnl_waterfall) ? fc.pnl_waterfall.find(x => x.nivel === 'SUB3') : null;
+                  const s3 = sub3Obj ? sub3Obj.importe : 0;
+                  const n1Obj = (fc && fc.pnl_waterfall) ? fc.pnl_waterfall.find(x => x.nivel === 1 || x.nivel === '1') : null;
+                  const vCasc = n1Obj ? n1Obj.importe : 505002.49;
+                  const vDet = (fc && fc.totales_drilldown) ? fc.totales_drilldown.ventas : 0;
+                  const dPer = Math.round((vCasc - vDet) * 100) / 100;
+                  const cMatMayor = fc && fc.puente_materiales ? Math.abs(fc.puente_materiales.consumo_contable_mayor_eur || 0) : 102185.32;
+                  const cMatDet = (fc && fc.totales_drilldown) ? fc.totales_drilldown.cogs_materiales : 0;
+                  const dMat = Math.round((cMatDet - cMatMayor) * 100) / 100;
+                  const subAct = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.coste_subactividad === 'number') ? fc.totales_drilldown.coste_subactividad : 0;
+                  const mDet = (fc && fc.totales_drilldown) ? fc.totales_drilldown.margen_industrial_eur : 0;
+                  const pctS3 = vCasc > 0 ? (s3 / vCasc * 100).toFixed(1).replace('.', ',') + '%' : 'N/D';
+                  const pctPer = vCasc > 0 ? (-dPer / vCasc * 100).toFixed(1).replace('.', ',') + '%' : 'N/D';
+                  const pctMat = vCasc > 0 ? (-dMat / vCasc * 100).toFixed(1).replace('.', ',') + '%' : 'N/D';
+                  const pctSub = vCasc > 0 ? (subAct / vCasc * 100).toFixed(1).replace('.', ',') + '%' : 'N/D';
+                  const pctMDet = vDet > 0 ? (mDet / vDet * 100).toFixed(1).replace('.', ',') + '%' : 'N/D';
+
+                  return `
+                    <tr style="background:rgba(30,41,59,0.7); font-weight:700;">
+                      <td style="color:#fff">Margen Planta Completo (Reportado en Cascada / Portada)</td>
+                      <td style="text-align:right; color:#38bdf8; font-weight:800">${sub3Obj ? fmtEur(s3) : 'Sin datos'}</td>
+                      <td style="text-align:right; color:#38bdf8">${pctS3}</td>
+                      <td style="color:#cbd5e1">Margen global contable de septiembre (${fmtEur(vCasc)} producción fabril - ${fmtEur(cMatMayor)} materiales - ${fmtEur((fc && fc.totales_drilldown) ? fc.totales_drilldown.coste_planta_total : 124561.76)} planta).</td>
+                    </tr>
+                    <tr>
+                      <td style="color:#f87171">(-) Diferencia de Perímetro Comercial en Ingresos de Venta</td>
+                      <td style="text-align:right; color:#f87171; font-weight:700">-${fmtEur(dPer)}</td>
+                      <td style="text-align:right; color:#f87171">${pctPer}</td>
+                      <td style="color:#94a3b8">Producción imputable fabril (${fmtEur(vCasc)}) vs pedidos de clientes analizados (${fmtEur(vDet)}).</td>
+                    </tr>
+                    <tr>
+                      <td style="color:#f87171">(-) Diferencia de Criterio de Valoración en Materiales y Envases</td>
+                      <td style="text-align:right; color:#f87171; font-weight:700">-${fmtEur(dMat)}</td>
+                      <td style="text-align:right; color:#f87171">${pctMat}</td>
+                      <td style="color:#94a3b8">Consumo contable neto global (${fmtEur(cMatMayor)}) vs valoración estándar por escandallo técnico unitario (${fmtEur(cMatDet)}).</td>
+                    </tr>
+                    <tr>
+                      <td style="color:#38bdf8">(+) Subactividad Aislada del Coste de Productos (NIC 2 / IAS 2)</td>
+                      <td style="text-align:right; color:#38bdf8; font-weight:700">+${fmtEur(subAct)}</td>
+                      <td style="text-align:right; color:#38bdf8">${pctSub}</td>
+                      <td style="color:#cbd5e1">Capacidad ociosa no imputada a productos terminados (${fmtEur(subAct)}) reconocida directamente en resultados según NIC 2.</td>
+                    </tr>
+                    <tr style="background:rgba(16,185,129,0.15); border-top:2px solid var(--accent); font-weight:800;">
+                      <td style="color:#34d399">(=) MARGEN INDUSTRIAL ASIGNADO EN DETALLE (Clientes y SKUs)</td>
+                      <td style="text-align:right; color:#34d399; font-size:0.95rem">${(fc && fc.totales_drilldown && typeof mDet === 'number') ? fmtEur(mDet) : 'N/D'}</td>
+                      <td style="text-align:right; color:#34d399">${pctMDet}</td>
+                      <td style="color:#34d399">Cuadre exacto con las tablas de Clientes y Productos tras absorber ${fmtEur((fc && fc.totales_drilldown) ? fc.totales_drilldown.coste_planta : 66229.89)} de actividad industrial.</td>
+                    </tr>
+                  `;
+                })()}
               </tbody>
             </table>
           </div>
@@ -2811,8 +2846,8 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
                     <strong style="display:block; color:#fbbf24">${cp.subactividad_horas} h (${cp.subactividad_pct}%)</strong>
                   </div>
                   <div>
-                    <span style="color:var(--muted)">Coste Horario:</span>
-                    <strong style="display:block; color:#fff">${fmtEur(cp.coste_hora)}/h</strong>
+                    <span style="color:var(--muted)">Tarifa Actividad:</span>
+                    <strong style="display:block; color:#38bdf8">${fmtEur(cp.tarifa_eur_h || cp.tarifa_efectiva_hora || cp.coste_hora)}/h</strong>
                   </div>
                 </div>
               </div>
@@ -2853,7 +2888,7 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
             <div style="background:rgba(15,23,42,0.7); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
               <span style="font-size:0.75rem; color:var(--muted)">Ingresos Sep (Ctas 705 + 703)</span>
               <strong style="display:block; color:#34d399; font-size:1.1rem">${typeof maq.ingreso_ordinario_total === 'number' ? fmtEur(maq.ingreso_ordinario_total) : 'N/D'}</strong>
-              <span style="font-size:0.72rem; color:#94a3b8">705: ${typeof maq.ingreso_servicios_705 === 'number' ? fmtEur(maq.ingreso_servicios_705) : '0,00 €'} | 703: ${typeof maq.ingreso_accesorios_703 === 'number' ? fmtEur(maq.ingreso_accesorios_703) : '0,00 €'}</span>
+              <span style="font-size:0.72rem; color:#94a3b8">705: ${fmtEur(typeof maq.cuenta_705_servicios === 'number' ? maq.cuenta_705_servicios : (maq.ingreso_servicios_705 || 0))} | 703: ${fmtEur(typeof maq.cuenta_703_accesorios === 'number' ? maq.cuenta_703_accesorios : (maq.ingreso_accesorios_703 || 0))}</span>
             </div>
             <div style="background:rgba(15,23,42,0.7); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
               <span style="font-size:0.75rem; color:var(--muted)">Margen Ordinario Maquila</span>

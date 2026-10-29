@@ -53,16 +53,38 @@ def main():
         print(f"   - [OK] {label}: {path} ({mtime})")
 
     # 2. Comprobar salidas generadas y correspondencia biunívoca JSON <-> JS
+    required_all_outputs = [
+        get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.json")),
+        get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "dashboard_data.json")),
+        get_dest(os.path.join("web_dashboard_direccion", "dashboard_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "profitability_data.json")),
+        get_dest(os.path.join("web_dashboard_direccion", "profitability_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.json")),
+        get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "treasury_data.json")),
+        get_dest(os.path.join("web_dashboard_direccion", "treasury_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "production_planning_data.json")),
+        get_dest(os.path.join("web_dashboard_direccion", "production_planning_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "marta_tracking_data.json")),
+        get_dest(os.path.join("web_dashboard_direccion", "marta_tracking_data.js")),
+        get_dest(os.path.join("web_dashboard", "dashboard_data.json")),
+        get_dest(os.path.join("web_dashboard", "dashboard_data.js")),
+        get_dest(os.path.join("web_dashboard", "production_planning_data.json")),
+        get_dest(os.path.join("web_dashboard", "production_planning_data.js")),
+        get_dest(os.path.join("web_dashboard", "marta_tracking_data.json")),
+        get_dest(os.path.join("web_dashboard", "marta_tracking_data.js")),
+        get_dest("Seguimiento_Presupuesto_Sep_2026.xlsx"),
+        get_dest("Orden_Fabricacion_MRP_Codiagro.xlsx")
+    ]
     fc_json_path = get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.json"))
     fc_js_path = get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.js"))
     dash_json_path = get_dest(os.path.join("web_dashboard_direccion", "dashboard_data.json"))
     marta_json_path = get_dest(os.path.join("web_dashboard_direccion", "marta_tracking_data.json"))
-    bi_json_path = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.json"))
-    bi_js_path = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.js"))
     excel_seg_path = get_dest("Seguimiento_Presupuesto_Sep_2026.xlsx")
     excel_mrp_path = get_dest("Orden_Fabricacion_MRP_Codiagro.xlsx")
 
-    for p in [fc_json_path, fc_js_path, dash_json_path, marta_json_path, bi_json_path, bi_js_path, excel_seg_path, excel_mrp_path]:
+    for p in required_all_outputs:
         if not os.path.exists(p) or os.path.getsize(p) == 0:
             fail(f"Archivo de salida ausente o vacío: {p}")
 
@@ -199,11 +221,34 @@ def main():
             if abs(cm_calc_m - float(cm.get("margen_industrial_eur", 0.0))) > 0.02:
                 fail(f"Identidad de margen industrial violada en comercial {cm.get('comercial')}: {cm.get('margen_industrial_eur')} != {cm_calc_m}")
 
-        # Paridad JS vs JSON en puente_transporte
+        # Comprobación de identidad registro a registro: Margen Contribución = Margen Industrial - Transporte
+        for c in js_clis:
+            c_calc_mc = round(float(c.get("margen_industrial_eur", 0.0)) - float(c.get("transporte_real", 0.0)), 2)
+            if abs(c_calc_mc - float(c.get("margen_contribucion_eur", 0.0))) > 0.02:
+                fail(f"Identidad de margen de contribución violada en cliente {c.get('cliente')}: {c.get('margen_contribucion_eur')} != {c_calc_mc}")
+
+        for cm in js_coms:
+            cm_calc_mc = round(float(cm.get("margen_industrial_eur", 0.0)) - float(cm.get("portes", 0.0)), 2)
+            if abs(cm_calc_mc - float(cm.get("margen_contribucion_eur", 0.0))) > 0.02:
+                fail(f"Identidad de margen de contribución violada en comercial {cm.get('comercial')}: {cm.get('margen_contribucion_eur')} != {cm_calc_mc}")
+
+        # Paridad exhaustiva cuenta a cuenta JS vs JSON en puente_transporte (Punto 6 Auditoría)
         js_ptr = fc_from_js.get("puente_transporte", {})
         json_ptr = fc.get("puente_transporte", {})
         if abs(float(js_ptr.get("reporte_logistico_imputado_eur", 0.0)) - float(json_ptr.get("reporte_logistico_imputado_eur", 0.0))) > 0.01:
             fail("Desincronización JS vs JSON en puente_transporte.reporte_logistico_imputado_eur")
+
+        js_desglose = {d.get("cuenta"): d for d in js_ptr.get("desglose_por_cuenta", [])}
+        json_desglose = {d.get("cuenta"): d for d in json_ptr.get("desglose_por_cuenta", [])}
+        if set(js_desglose.keys()) != set(json_desglose.keys()):
+            fail("Desincronización en cuentas de transporte entre JSON y JS")
+        for cta_k, json_item in json_desglose.items():
+            js_item = js_desglose[cta_k]
+            for f_tte in ["reporte_logistico_eur", "mayor_contable_eur", "diferencia_eur", "expediciones_valoradas"]:
+                v_js = js_item.get(f_tte, 0)
+                v_json = json_item.get(f_tte, 0)
+                if abs(float(v_js) - float(v_json)) > 0.01:
+                    fail(f"Desincronización JS vs JSON en transporte cuenta {cta_k} campo {f_tte}: {v_json} vs {v_js}")
 
         # Ventas
         sum_js_v_clis = round(sum(float(c.get("ventas", 0.0) or 0.0) for c in js_clis), 2)
@@ -389,7 +434,10 @@ def main():
         get_dest(os.path.join("web_dashboard_direccion", "production_planning_data.js")),
         get_dest(os.path.join("web_dashboard", "dashboard_data.js")),
         get_dest(os.path.join("web_dashboard", "marta_tracking_data.js")),
-        get_dest(os.path.join("web_dashboard", "production_planning_data.js"))
+        get_dest(os.path.join("web_dashboard", "production_planning_data.js")),
+        os.path.join("web_dashboard_direccion", "profitability_logic.js"),
+        os.path.join("web_dashboard_direccion", "cockpit_inicio_logic.js"),
+        os.path.join("web_dashboard_direccion", "bi_intelligence_logic.js")
     ]
     for js_path in js_files_to_check:
         if os.path.exists(js_path):

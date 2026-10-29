@@ -4,6 +4,21 @@
 // =========================================================================
 
 window.CODIAGRO_I18N_DICT = {
+    "Antigüedad de Deuda y Situación de Cobros": "Debt Aging & Collection Status",
+    "Deuda Total Gestionada": "Total Managed Debt",
+    "0 - 30 días": "0 - 30 days",
+    "31 - 60 días": "31 - 60 days",
+    "61 - 90 días": "61 - 90 days",
+    "91 - 120 días": "91 - 120 days",
+    "+121 días": "+121 days",
+    "Situación de Cobro y Observaciones Directivas": "Collection Status & Management Notes",
+    "Plan Oct-Feb / Contado": "Oct-Feb Plan / Cash",
+    "Abono Pendiente": "Pending Credit Note",
+    "Cobro Activo 8.000 €/sem": "Active Collection €8,000/wk",
+    "Concordato Turquía": "Turkey Bankruptcy Stay",
+    "Importes Reclamados": "Claimed Overdue",
+    "Discrepancia Flete": "Freight Dispute",
+    "CODIAGRO (TOTAL CARTERA DEUDORA)": "CODIAGRO (TOTAL DEBTOR PORTFOLIO)",
   "DIRECCIÓN GENERAL": "EXECUTIVE MANAGEMENT",
   "COMERCIAL": "COMMERCIAL & SALES",
   "OPERACIONES": "OPERATIONS & PLANT",

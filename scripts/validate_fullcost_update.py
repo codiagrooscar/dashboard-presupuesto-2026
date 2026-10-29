@@ -340,8 +340,9 @@ def main():
         ("Comerciales Margen Contrib vs Total", round(sum(cm["margen_contribucion_eur"] for cm in coms) - tot["margen_contribucion_eur"], 2)),
         ("Clientes Unidades vs Total", round(sum(c["uds"] for c in clis) - tot["uds"], 1)),
         ("Productos Unidades vs Total", round(sum(p["uds"] for p in prods) - tot["uds"], 1)),
-        ("CECOs Actividad Suma vs Coste Planta Actividad", round(sum(meta.get("costes_ceco_actividad_eur", meta.get("costes_ceco_eur", {})).values()) - tot["coste_planta"], 2)),
-        ("Coste Planta Actividad + Subactividad vs Total Industrial", round(tot["coste_planta"] + tot.get("coste_subactividad", 0.0) - tot.get("coste_planta_total", tot["coste_planta"]), 2)),
+        ("CECOs Actividad Suma vs Coste Actividad Fabril Total", round(sum(meta.get("costes_ceco_actividad_eur", meta.get("costes_ceco_eur", {})).values()) - (tot.get("coste_actividad_planta_total") or tot["coste_planta"]), 2)),
+        ("Coste Planta Actividad + Subactividad vs Total Industrial", round((tot.get("coste_actividad_planta_total") or tot["coste_planta"]) + tot.get("coste_subactividad", 0.0) - tot.get("coste_planta_total", tot["coste_planta"]), 2)),
+        ("Coste Planta Ventas + Stock No Vendido vs Actividad Total", round(tot["coste_planta"] + tot.get("coste_stock_pt_no_vendido", 0.0) - (tot.get("coste_actividad_planta_total") or tot["coste_planta"]), 2)),
         ("CECOs Total Industrial Suma vs Total Planta", round(sum(meta.get("costes_ceco_eur", {}).values()) - tot.get("coste_planta_total", tot["coste_planta"]), 2)),
     ]
 

@@ -1554,12 +1554,8 @@ for norm_t, t_val in transporte_cliente.items():
 # Aplicar política de redondeo por Mayor Resto en Clientes para conservar totales exactos
 round_conserving_sum(clientes_fc, "ventas", tot_v_sep_round, 2)
 round_conserving_sum(clientes_fc, "cogs_materiales", tot_cogs_sep_round, 2)
-raw_cp_clis = sum(c["coste_planta_fullcost"] for c in clientes_fc)
-if raw_cp_clis > 0:
-    ratio_clis = target_plant_cost_actividad / raw_cp_clis
-    for c in clientes_fc:
-        c["coste_planta_fullcost"] *= ratio_clis
-round_conserving_sum(clientes_fc, "coste_planta_fullcost", target_plant_cost_actividad, 2)
+tot_coste_planta_ventas = round(sum(d["coste_planta"] for d in ventas_cli.values()), 2)
+round_conserving_sum(clientes_fc, "coste_planta_fullcost", tot_coste_planta_ventas, 2)
 round_conserving_sum(clientes_fc, "uds", tot_uds_sep_round, 1)
 
 for c in clientes_fc:
@@ -1599,12 +1595,7 @@ for sku, d in ventas_prod.items():
 
 round_conserving_sum(productos_fc, "ventas", tot_v_sep_round, 2)
 round_conserving_sum(productos_fc, "cogs_materiales", tot_cogs_sep_round, 2)
-raw_cp_prods = sum(p["coste_planta_fullcost"] for p in productos_fc)
-if raw_cp_prods > 0:
-    ratio_prods = target_plant_cost_actividad / raw_cp_prods
-    for p in productos_fc:
-        p["coste_planta_fullcost"] *= ratio_prods
-round_conserving_sum(productos_fc, "coste_planta_fullcost", target_plant_cost_actividad, 2)
+round_conserving_sum(productos_fc, "coste_planta_fullcost", tot_coste_planta_ventas, 2)
 round_conserving_sum(productos_fc, "uds", tot_uds_sep_round, 1)
 
 for p in productos_fc:
@@ -1641,12 +1632,7 @@ for com, d in ventas_com.items():
 
 round_conserving_sum(comerciales_fc, "ventas", tot_v_sep_round, 2)
 round_conserving_sum(comerciales_fc, "cogs_materiales", tot_cogs_sep_round, 2)
-raw_cp_coms = sum(cm["coste_planta_fullcost"] for cm in comerciales_fc)
-if raw_cp_coms > 0:
-    ratio_coms = target_plant_cost_actividad / raw_cp_coms
-    for cm in comerciales_fc:
-        cm["coste_planta_fullcost"] *= ratio_coms
-round_conserving_sum(comerciales_fc, "coste_planta_fullcost", target_plant_cost_actividad, 2)
+round_conserving_sum(comerciales_fc, "coste_planta_fullcost", tot_coste_planta_ventas, 2)
 
 for cm in comerciales_fc:
     cm["margen_industrial_eur"] = round(cm["ventas"] - cm["cogs_materiales"] - cm["coste_planta_fullcost"], 2)
@@ -1791,12 +1777,23 @@ BASE_G60_61_NO607 = -72644.66
 current_g60_61 = sum(info.get('saldo_mes', 0.0) for cta, info in cuentas_detalle.items() if (cta.startswith('60') or cta.startswith('61')) and not cta.startswith('607'))
 delta_mat_cuentas = round(current_g60_61 - BASE_G60_61_NO607, 2)
 
-# Desacoplamiento de ventas propias y maquila para evitar duplicación (Punto 1 Auditoría):
-# Las cuentas 705 (servicios), 703 (accesorios) y 702 (abono maquila) pertenecen a la unidad de maquila SAS.
+# Desacoplamiento de ventas base, maquila y ajustes comerciales para evitar duplicación:
+# 1. Cuentas de Maquila SAS (705, 703, 702) se gestionan desde hoja Maquila
+# 2. Cuentas de Descuentos/Ajustes comerciales (706000001, 709000001) se gestionan desde hoja Ajustes_ventas
 MAQ_CTAS = {'705000000', '703000000', '702000000'}
+AJ_OWN_CTAS = {'706000001', '709000001'}
 BASE_G70_71_NO_MAQ = 515061.09
-current_g70_71_no_maq = sum(info.get('saldo_mes', 0.0) for cta, info in cuentas_detalle.items() if (cta.startswith('70') or cta.startswith('71')) and cta not in MAQ_CTAS)
-delta_sales_own = round(current_g70_71_no_maq - BASE_G70_71_NO_MAQ, 2)
+BASE_AJ_CUENTAS = -20674.85
+BASE_SALES_BASE = round(BASE_G70_71_NO_MAQ - BASE_AJ_CUENTAS, 2) # 535735.94
+
+current_sales_base = sum(info.get('saldo_mes', 0.0) for cta, info in cuentas_detalle.items() if (cta.startswith('70') or cta.startswith('71')) and cta not in MAQ_CTAS and cta not in AJ_OWN_CTAS)
+delta_sales_base = round(current_sales_base - BASE_SALES_BASE, 2)
+
+current_aj_cuentas = sum(cuentas_detalle.get(c, {}).get('saldo_mes', 0.0) for c in AJ_OWN_CTAS)
+delta_aj_cuentas = round(current_aj_cuentas - BASE_AJ_CUENTAS, 2)
+
+if abs(delta_ajustes_ventas_own - delta_aj_cuentas) > 0.01:
+    incidencias_datos.append(f"Descuadre en Ajustes de Ventas: La variación en la hoja operativa ({delta_ajustes_ventas_own:.2f} €) no coincide con la variación en las cuentas contables 706/709 ({delta_aj_cuentas:.2f} €).")
 
 # Control de coincidencia entre hoja operativa Maquila y cuentas contables (705/703/702)
 current_maq_cuentas = sum(cuentas_detalle.get(c, {}).get('saldo_mes', 0.0) for c in MAQ_CTAS)
@@ -1805,8 +1802,8 @@ if abs(delta_maq_net - delta_maq_cuentas) > 0.01:
     incidencias_datos.append(f"Descuadre en Maquila: La variación en la hoja operativa ({delta_maq_net:.2f} €) no coincide con la variación en las cuentas contables 705/703/702 ({delta_maq_cuentas:.2f} €).")
 
 n1_base = 505002.49
-# Se suma delta_sales_own (ventas propias sin maquila) + delta_maq_net (maquila operativa única)
-n1_val = round(n1_base + delta_sales_own + delta_maq_net + delta_ajustes_ventas_own, 2)
+# Se suma delta_sales_base (ventas base sin maquila ni ajustes 706/709) + delta_maq_net (maquila operativa única) + delta_ajustes_ventas_own (ajustes operativos únicos)
+n1_val = round(n1_base + delta_sales_base + delta_maq_net + delta_ajustes_ventas_own, 2)
 consumo_contable_cascada = round(102185.32 - delta_mat_cuentas, 2)
 n2_val = -consumo_contable_cascada
 sub1_val = round(n1_val + n2_val, 2)
@@ -2001,9 +1998,10 @@ fc_full["metadata"]["produccion_neta_planta"] = n1_val
 fc_full["modelos_analiticos"] = modelos_analiticos
 
 tot_transporte_imputado = round(sum(c["transporte_real"] for c in clientes_fc), 2)
-tot_margen_ind = round(tot_v_sep_round - tot_cogs_sep_round - target_plant_cost_actividad, 2)
+tot_margen_ind = round(tot_v_sep_round - tot_cogs_sep_round - tot_coste_planta_ventas, 2)
 tot_margen_ind_neto = round(tot_v_sep_round - tot_cogs_sep_round - target_plant_cost_total, 2)
 tot_margen_contrib = round(tot_margen_ind - tot_transporte_imputado, 2)
+tot_coste_stock_pt = round(target_plant_cost_actividad - tot_coste_planta_ventas, 2)
 
 fc_full["totales_drilldown"] = {
     "ventas": tot_v_sep_round,
@@ -2012,9 +2010,11 @@ fc_full["totales_drilldown"] = {
     "variacion_existencias_pt": -109366.49,
     "produccion_neta_planta": n1_val,
     "cogs_materiales": tot_cogs_sep_round,
-    "coste_planta": target_plant_cost_actividad,
+    "coste_planta": tot_coste_planta_ventas,
+    "coste_actividad_planta_total": target_plant_cost_actividad,
     "coste_subactividad": target_plant_cost_subactividad,
     "coste_planta_total": target_plant_cost_total,
+    "coste_stock_pt_no_vendido": tot_coste_stock_pt,
     "margen_industrial_eur": tot_margen_ind,
     "margen_industrial_neto_planta_eur": tot_margen_ind_neto,
     "margen_industrial_pct": round(tot_margen_ind / tot_v_sep_round * 100, 1) if tot_v_sep_round > 0 else 0.0,

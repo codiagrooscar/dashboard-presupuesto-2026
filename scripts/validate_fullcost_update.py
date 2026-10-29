@@ -1,3 +1,10 @@
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    from output_staging import get_dest
+except Exception:
+    def get_dest(p): return p
+
 import json
 import os
 import sys
@@ -35,12 +42,12 @@ def main():
         print(f"   - [OK] {label}: {path} ({mtime})")
 
     # 2. Comprobar salidas generadas y correspondencia biunívoca JSON <-> JS
-    fc_json_path = os.path.join("web_dashboard_direccion", "fullcost_data.json")
-    fc_js_path = os.path.join("web_dashboard_direccion", "fullcost_data.js")
-    dash_json_path = os.path.join("web_dashboard_direccion", "dashboard_data.json")
-    marta_json_path = os.path.join("web_dashboard_direccion", "marta_tracking_data.json")
-    excel_seg_path = "Seguimiento_Presupuesto_Sep_2026.xlsx"
-    excel_mrp_path = "Orden_Fabricacion_MRP_Codiagro.xlsx"
+    fc_json_path = get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.json"))
+    fc_js_path = get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.js"))
+    dash_json_path = get_dest(os.path.join("web_dashboard_direccion", "dashboard_data.json"))
+    marta_json_path = get_dest(os.path.join("web_dashboard_direccion", "marta_tracking_data.json"))
+    excel_seg_path = get_dest("Seguimiento_Presupuesto_Sep_2026.xlsx")
+    excel_mrp_path = get_dest("Orden_Fabricacion_MRP_Codiagro.xlsx")
 
     for p in [fc_json_path, fc_js_path, dash_json_path, marta_json_path, excel_seg_path, excel_mrp_path]:
         if not os.path.exists(p) or os.path.getsize(p) == 0:
@@ -63,7 +70,8 @@ def main():
         prefix = "window.fullCostData =" if js_raw.startswith("window.fullCostData =") else "window.FULLCOST_DATA ="
         if not js_raw.startswith(prefix) or not js_raw.endswith(";"):
             fail("El archivo fullcost_data.js no tiene la estructura 'window.fullCostData = {...};'")
-        js_json_str = js_raw[len(prefix):].rstrip(";").strip()
+        js_json_str = js_raw[len(prefix):].strip()
+        if js_json_str.endswith(";"): js_json_str = js_json_str[:-1].strip()
         fc_from_js = json.loads(js_json_str)
         if not fc_from_js or not fc_from_js.get("clientes") or not fc_from_js.get("totales_drilldown"):
             fail("El archivo fullcost_data.js contiene un objeto vacío o carece de clientes/totales requeridos.")
@@ -86,6 +94,50 @@ def main():
             v_json = round(float(json_meta.get(k_meta, 0.0) or 0.0), 2)
             if abs(v_js - v_json) > 0.01:
                 fail(f"Desincronización entre JSON y JS en metadata.{k_meta}: {v_json} € vs {v_js} €")
+
+        # Comparación exhaustiva del detalle entre JSON y JavaScript (clientes, productos, comerciales)
+        js_clis = fc_from_js.get("clientes", [])
+        json_clis = fc.get("clientes", [])
+        if len(js_clis) != len(json_clis):
+            fail(f"Desincronización en número de clientes entre JSON ({len(json_clis)}) y JS ({len(js_clis)})")
+        
+        js_cli_map = {str(c.get("cliente", "")).strip().upper(): c for c in js_clis}
+        for c_json in json_clis:
+            c_name = str(c_json.get("cliente", "")).strip().upper()
+            c_js = js_cli_map.get(c_name)
+            if not c_js:
+                fail(f"Cliente '{c_name}' presente en JSON pero ausente en fullcost_data.js")
+            for field in ["ventas", "cogs_materiales", "coste_planta_fullcost", "margen_industrial_eur", "transporte_real", "uds"]:
+                v_json = round(float(c_json.get(field, 0.0) or 0.0), 2)
+                v_js = round(float(c_js.get(field, 0.0) or 0.0), 2)
+                if abs(v_json - v_js) > 0.01:
+                    fail(f"Desincronización en cliente '{c_name}' campo '{field}': JSON={v_json:.2f} € vs JS={v_js:.2f} €")
+
+        js_prods = fc_from_js.get("productos", [])
+        json_prods = fc.get("productos", [])
+        if len(js_prods) != len(json_prods):
+            fail(f"Desincronización en número de productos entre JSON ({len(json_prods)}) y JS ({len(js_prods)})")
+        
+        js_prod_map = {str(p.get("sku", "")).strip().upper(): p for p in js_prods}
+        for p_json in json_prods:
+            sku = str(p_json.get("sku", "")).strip().upper()
+            p_js = js_prod_map.get(sku)
+            if not p_js:
+                fail(f"Producto SKU '{sku}' presente en JSON pero ausente en fullcost_data.js")
+            for field in ["ventas", "cogs_materiales", "coste_planta_fullcost", "margen_industrial_eur", "uds"]:
+                v_json = round(float(p_json.get(field, 0.0) or 0.0), 2)
+                v_js = round(float(p_js.get(field, 0.0) or 0.0), 2)
+                if abs(v_json - v_js) > 0.01:
+                    fail(f"Desincronización en producto SKU '{sku}' campo '{field}': JSON={v_json:.2f} € vs JS={v_js:.2f} €")
+
+        # Comprobación de sumatorios directos sobre los datos cargados por la web desde fullcost_data.js
+        sum_js_ventas_clis = round(sum(float(c.get("ventas", 0.0) or 0.0) for c in js_clis), 2)
+        sum_js_ventas_prods = round(sum(float(p.get("ventas", 0.0) or 0.0) for p in js_prods), 2)
+        tot_js_ventas = round(float(js_tot.get("ventas", 0.0) or 0.0), 2)
+        if abs(sum_js_ventas_clis - tot_js_ventas) > 0.01:
+            fail(f"Desincronización en JS: Suma de ventas de clientes ({sum_js_ventas_clis:.2f} €) != total ({tot_js_ventas:.2f} €)")
+        if abs(sum_js_ventas_prods - tot_js_ventas) > 0.01:
+            fail(f"Desincronización en JS: Suma de ventas de productos ({sum_js_ventas_prods:.2f} €) != total ({tot_js_ventas:.2f} €)")
     except Exception as e:
         fail(f"Fallo al validar correspondencia de fullcost_data.js: {e}")
 
@@ -203,7 +255,7 @@ def main():
         if os.path.exists(p):
             fail(f"VIOLACIÓN DE SEGURIDAD: Archivo confidencial de Dirección General encontrado en web_dashboard ({fn}).")
 
-    commercial_index = os.path.join("web_dashboard", "index.html")
+    commercial_index = get_dest(os.path.join("web_dashboard", "index.html"))
     if os.path.exists(commercial_index):
         with open(commercial_index, "r", encoding="utf-8") as f:
             html_content = f.read()

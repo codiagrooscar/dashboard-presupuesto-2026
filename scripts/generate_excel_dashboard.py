@@ -1,3 +1,10 @@
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    from output_staging import get_dest
+except Exception:
+    def get_dest(p): return p
+
 import sys
 import os
 import shutil
@@ -530,11 +537,11 @@ for c in comerciales:
         ws.column_dimensions[col_l].width = w
     ws.column_dimensions['A'].width = 3
 
-output_excel = "Seguimiento_Presupuesto_Sep_2026.xlsx"
+output_excel = get_dest("Seguimiento_Presupuesto_Sep_2026.xlsx")
 try:
     wb.save(output_excel)
     print(f"¡Archivo Excel regenerado (sólo unidades): {output_excel}!")
 except PermissionError:
-    output_fallback = "Seguimiento_Presupuesto_Sep_2026_Unidades.xlsx"
+    output_fallback = get_dest("Seguimiento_Presupuesto_Sep_2026_Unidades.xlsx")
     wb.save(output_fallback)
     print(f"Nota: {output_excel} estaba abierto. Guardado como: {output_fallback}")

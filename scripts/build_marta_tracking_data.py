@@ -1,3 +1,10 @@
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    from output_staging import get_dest
+except Exception:
+    def get_dest(p): return p
+
 import os
 import json
 import subprocess

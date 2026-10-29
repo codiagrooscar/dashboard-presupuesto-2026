@@ -1,3 +1,10 @@
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    from output_staging import get_dest
+except Exception:
+    def get_dest(p): return p
+
 """
 Generador Profesional de Orden de Fabricación, Planificación MRP y Rotación (Slow/NoMovers) en Excel (XLSX).
 Produce un archivo corporativo Codiagro con 4 Hojas Maestras:
@@ -1287,14 +1294,14 @@ def generar_excel_orden_fabricacion(
     ws_rot.auto_filter.ref = f"A8:O{tot_rot_row - 1}"
 
     # Guardar Excel en web_dashboard, web_dashboard_direccion y en ruta destino con control de bloqueo
-    dashboard_excel_path = os.path.join("web_dashboard", os.path.basename(output_path))
+    dashboard_excel_path = get_dest(os.path.join("web_dashboard", os.path.basename(output_path)))
     try:
         wb.save(dashboard_excel_path)
         print(f"Archivo guardado exitosamente en: {dashboard_excel_path}")
     except Exception as e:
         print(f"Aviso guardando en dashboard: {e}")
 
-    dir_dashboard_excel_path = os.path.join("web_dashboard_direccion", os.path.basename(output_path))
+    dir_dashboard_excel_path = get_dest(os.path.join("web_dashboard_direccion", os.path.basename(output_path)))
     try:
         if os.path.exists("web_dashboard_direccion"):
             wb.save(dir_dashboard_excel_path)
@@ -1302,6 +1309,7 @@ def generar_excel_orden_fabricacion(
     except Exception as e:
         print(f"Aviso guardando en dashboard direccion: {e}")
 
+    output_path = get_dest(output_path)
     saved_path = output_path
     try:
         wb.save(output_path)

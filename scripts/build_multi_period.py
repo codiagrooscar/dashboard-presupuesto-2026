@@ -1,3 +1,10 @@
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    from output_staging import get_dest
+except Exception:
+    def get_dest(p): return p
+
 import json
 import os
 import shutil
@@ -700,10 +707,10 @@ def build_all():
     }
 
     # Guardar en json y js
-    with open('web_dashboard/dashboard_data.json', 'w', encoding='utf-8') as f:
+    with open(get_dest('web_dashboard/dashboard_data.json'), 'w', encoding='utf-8') as f:
         json.dump(periods_data, f, ensure_ascii=False, indent=2)
 
-    with open('web_dashboard/dashboard_data.js', 'w', encoding='utf-8') as f:
+    with open(get_dest('web_dashboard/dashboard_data.js'), 'w', encoding='utf-8') as f:
         f.write("window.DASHBOARD_PERIODS_DATA = " + json.dumps(periods_data, ensure_ascii=False) + ";\n")
         # Mantener window.DASHBOARD_DATA apuntando por defecto a Octubre (período en curso)
         f.write("window.DASHBOARD_DATA = window.DASHBOARD_PERIODS_DATA.periods['2026-10'];\n")
@@ -720,8 +727,8 @@ def build_all():
 
     # Sincronizar web_dashboard_direccion
     if os.path.exists('web_dashboard_direccion'):
-        safe_copy('web_dashboard/dashboard_data.json', 'web_dashboard_direccion/dashboard_data.json')
-        safe_copy('web_dashboard/dashboard_data.js', 'web_dashboard_direccion/dashboard_data.js')
+        safe_copy(get_dest('web_dashboard/dashboard_data.json'), get_dest('web_dashboard_direccion/dashboard_data.json'))
+        safe_copy(get_dest('web_dashboard/dashboard_data.js'), get_dest('web_dashboard_direccion/dashboard_data.js'))
 
     # Actualizar también módulo de planificación de producción (MRP)
     try:

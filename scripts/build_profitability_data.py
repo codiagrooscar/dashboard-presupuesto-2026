@@ -1,3 +1,10 @@
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    from output_staging import get_dest
+except Exception:
+    def get_dest(p): return p
+
 """
 Motor de Cálculo y Generación de Datos de Rentabilidad y Márgenes (COGS)
 ========================================================================
@@ -715,7 +722,7 @@ def build_profitability_data():
     }
 
     # Guardar en web_dashboard_direccion
-    out_dir = "web_dashboard_direccion"
+    out_dir = get_dest("web_dashboard_direccion")
     os.makedirs(out_dir, exist_ok=True)
     out_json = os.path.join(out_dir, "profitability_data.json")
     out_js = os.path.join(out_dir, "profitability_data.js")

@@ -1,3 +1,10 @@
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    from output_staging import get_dest
+except Exception:
+    def get_dest(p): return p
+
 import os
 import re
 import json
@@ -627,6 +634,8 @@ if fc_wb_path:
             modelos_analiticos["seguridad_social"] = total_modelo_ss
             modelos_analiticos["seguridad_social_detalle"] = {
                 "nomina_personal_ett": round(calc_ss_explicit, 2),
+                "base_personal_ett": round(calc_ss_explicit, 2),
+                "cuotas_personal_ett": round(calc_ss_explicit, 2),
                 "ajuste_formula_rnt": round(calc_ss_formula_rows, 2),
                 "ajuste_documentado_rnt": round(calc_ss_formula_rows, 2),
                 "total_analitico": total_modelo_ss,
@@ -691,8 +700,8 @@ if fc_wb_path:
 
         # Control estricto de dedicación por recurso (no sobrepasar base horaria ni dejar horas sin imputar)
         personal_no_distribuido = 0.0
-        for rid_int, h_tot_asig in res_hours_assigned.items():
-            res = res_map.get(rid_int)
+        for rid_int, res in res_map.items():
+            h_tot_asig = res_hours_assigned.get(rid_int, 0.0)
             if res and res.get("horas", 0) > 0:
                 h_base = res["horas"]
                 if h_tot_asig > (h_base + 0.1):
@@ -1541,7 +1550,7 @@ comerciales_fc.sort(key=lambda x: x["ventas"], reverse=True)
 
 
 # 7. Cargar fullcost_data.json actual para actualizar
-json_path = os.path.join("web_dashboard_direccion", "fullcost_data.json")
+json_path = get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.json"))
 with open(json_path, "r", encoding="utf-8") as f:
     fc_full = json.load(f)
 
@@ -1895,7 +1904,7 @@ fc_full["totales_drilldown"] = {
 with open(json_path, "w", encoding="utf-8") as f:
     json.dump(fc_full, f, ensure_ascii=False, indent=2)
 
-js_path = os.path.join("web_dashboard_direccion", "fullcost_data.js")
+js_path = get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.js"))
 with open(js_path, "w", encoding="utf-8") as f:
     f.write("window.fullCostData = " + json.dumps(fc_full, ensure_ascii=False, indent=2) + ";\n")
 

@@ -36,13 +36,21 @@ function renderCockpitInicioSection() {
     : ((currentPeriodData && typeof currentPeriodData.servidas_uds === 'number') ? currentPeriodData.servidas_uds : 69919);
   const fechaCorte = (currentPeriodData && currentPeriodData.fecha_corte) ? currentPeriodData.fecha_corte : '28/10/2026';
 
-  // Margen industrial Full Costing dinámico (Hallazgo H20: 278.255,41 € tras absorber MOD y planta)
+  // Margen industrial Full Costing dinámico y coste de subactividad segregado
   const margenFullCostEur = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_eur === 'number')
     ? fc.totales_drilldown.margen_industrial_eur
-    : 278255.41;
+    : 210157.36;
   const margenFullCostPct = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_pct === 'number')
     ? fc.totales_drilldown.margen_industrial_pct
-    : 55.1;
+    : 45.9;
+  const costeSubactividad = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.coste_subactividad === 'number')
+    ? fc.totales_drilldown.coste_subactividad
+    : 0.0;
+  // Margen industrial completo tras coste de subactividad (Revisión 29/10 ChatGPT)
+  const margenNetoIndustrialEur = Math.round((margenFullCostEur - costeSubactividad) * 100) / 100;
+  const margenNetoIndustrialPct = (fc && fc.totales_drilldown && fc.totales_drilldown.ventas > 0)
+    ? Math.round((margenNetoIndustrialEur / fc.totales_drilldown.ventas * 100) * 10) / 10
+    : margenFullCostPct;
 
   const meta = (fc && fc.metadata) ? fc.metadata : {};
   const hasFcIncidents = !!(meta && Array.isArray(meta.incidencias_datos) && meta.incidencias_datos.length > 0);
@@ -152,18 +160,18 @@ function renderCockpitInicioSection() {
           <!-- 2. MARGEN INDUSTRIAL FULL COSTING -->
           <div class="kpi-card accent-green" onclick="switchTab('rentabilidad_fullcost')" style="cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
             <div class="kpi-header">
-              <span class="kpi-title">2. Margen Industrial Planta</span>
+              <span class="kpi-title">2. Margen Industrial Completo</span>
               <span class="kpi-icon">🏭</span>
             </div>
-            <div class="kpi-value" style="color:#34d399">${fmtEur(margenFullCostEur)}</div>
+            <div class="kpi-value" style="color:#34d399">${fmtEur(margenNetoIndustrialEur)}</div>
             <div class="kpi-subtitle">
-              <span style="color:#34d399; font-weight:700">${margenFullCostPct.toFixed(1)}%</span> tras absorber MOD y planta
+              <span style="color:#34d399; font-weight:700">${margenNetoIndustrialPct.toFixed(1)}%</span> tras subactividad: <span style="color:#f87171">-${fmtEur(costeSubactividad)}</span>
             </div>
             <div style="font-size:0.73rem; color:#94a3b8; margin-top:0.25rem;">
-              Último cierre disponible: <strong>Septiembre 2026</strong> ${scope !== 'ALL' ? '· <span style=\"color:#f59e0b\">Total Empresa</span>' : ''}
+              Margen actividad: <strong>${fmtEur(margenFullCostEur)}</strong> (${margenFullCostPct.toFixed(1)}%) · Cierre Sep-26 ${scope !== 'ALL' ? '· <span style=\"color:#f59e0b\">Total Empresa</span>' : ''}
             </div>
             <div class="progress-bar-container" style="margin-top:0.4rem;">
-              <div class="progress-bar-fill" style="width:${Math.min(100, margenFullCostPct)}%; background:var(--accent-gradient)"></div>
+              <div class="progress-bar-fill" style="width:${Math.min(100, Math.max(0, margenNetoIndustrialPct))}%; background:var(--accent-gradient)"></div>
             </div>
           </div>
 

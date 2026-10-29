@@ -1,3 +1,10 @@
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(__file__))
+    from output_staging import get_dest
+except Exception:
+    def get_dest(p): return p
+
 import openpyxl
 import json
 import re
@@ -575,11 +582,11 @@ output_data = {
     "detailed_skus": list(detailed_skus.values())
 }
 
-out_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'web_dashboard', 'production_planning_data.json')
+out_file = get_dest(os.path.join('web_dashboard', 'production_planning_data.json'))
 with open(out_file, 'w', encoding='utf-8') as f:
     json.dump(output_data, f, ensure_ascii=False, indent=2)
 
-out_js_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'web_dashboard', 'production_planning_data.js')
+out_js_file = get_dest(os.path.join('web_dashboard', 'production_planning_data.js'))
 with open(out_js_file, 'w', encoding='utf-8') as f:
     f.write("window.PRODUCTION_PLANNING_DATA = " + json.dumps(output_data, ensure_ascii=False) + ";\n")
 
@@ -596,7 +603,7 @@ def safe_copy(src, dst):
 # Keep web_dashboard_direccion in sync
 dir_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'web_dashboard_direccion')
 if os.path.exists(dir_dir):
-    safe_copy(out_file, os.path.join(dir_dir, 'production_planning_data.json'))
-    safe_copy(out_js_file, os.path.join(dir_dir, 'production_planning_data.js'))
+    safe_copy(out_file, get_dest(os.path.join('web_dashboard_direccion', 'production_planning_data.json')))
+    safe_copy(out_js_file, get_dest(os.path.join('web_dashboard_direccion', 'production_planning_data.js')))
 
 print(f"Successfully generated {out_file} and {out_js_file} ({len(output_data['base_skus'])} base SKUs, {len(output_data['detailed_skus'])} detailed SKUs)")

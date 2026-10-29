@@ -57,10 +57,12 @@ def main():
     fc_js_path = get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.js"))
     dash_json_path = get_dest(os.path.join("web_dashboard_direccion", "dashboard_data.json"))
     marta_json_path = get_dest(os.path.join("web_dashboard_direccion", "marta_tracking_data.json"))
+    bi_json_path = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.json"))
+    bi_js_path = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.js"))
     excel_seg_path = get_dest("Seguimiento_Presupuesto_Sep_2026.xlsx")
     excel_mrp_path = get_dest("Orden_Fabricacion_MRP_Codiagro.xlsx")
 
-    for p in [fc_json_path, fc_js_path, dash_json_path, marta_json_path, excel_seg_path, excel_mrp_path]:
+    for p in [fc_json_path, fc_js_path, dash_json_path, marta_json_path, bi_json_path, bi_js_path, excel_seg_path, excel_mrp_path]:
         if not os.path.exists(p) or os.path.getsize(p) == 0:
             fail(f"Archivo de salida ausente o vacío: {p}")
 
@@ -167,6 +169,41 @@ def main():
         tot_js_m_ind = round(float(js_tot.get("margen_industrial_eur", 0.0) or 0.0), 2)
         tot_js_m_cont = round(float(js_tot.get("margen_contribucion_eur", 0.0) or 0.0), 2)
         tot_js_uds = round(float(js_tot.get("uds", 0.0) or 0.0), 2)
+
+        import math
+        # Validación registro a registro de finitud (sin NaN ni Inf) e identidades de cálculo
+        for c in js_clis:
+            for f_num in ["ventas", "cogs_materiales", "coste_planta_fullcost", "margen_industrial_eur", "transporte_real", "margen_contribucion_eur", "uds"]:
+                v_f = float(c.get(f_num, 0.0) or 0.0)
+                if not math.isfinite(v_f):
+                    fail(f"Número no finito ({v_f}) en cliente {c.get('cliente')} campo {f_num}")
+            c_calc_m = round(float(c.get("ventas", 0.0)) - float(c.get("cogs_materiales", 0.0)) - float(c.get("coste_planta_fullcost", 0.0)), 2)
+            if abs(c_calc_m - float(c.get("margen_industrial_eur", 0.0))) > 0.02:
+                fail(f"Identidad de margen industrial violada en cliente {c.get('cliente')}: {c.get('margen_industrial_eur')} != {c_calc_m}")
+
+        for p in js_prods:
+            for f_num in ["ventas", "cogs_materiales", "coste_planta_fullcost", "margen_industrial_eur", "uds"]:
+                v_f = float(p.get(f_num, 0.0) or 0.0)
+                if not math.isfinite(v_f):
+                    fail(f"Número no finito ({v_f}) en producto SKU {p.get('sku')} campo {f_num}")
+            p_calc_m = round(float(p.get("ventas", 0.0)) - float(p.get("cogs_materiales", 0.0)) - float(p.get("coste_planta_fullcost", 0.0)), 2)
+            if abs(p_calc_m - float(p.get("margen_industrial_eur", 0.0))) > 0.02:
+                fail(f"Identidad de margen industrial violada en producto SKU {p.get('sku')}: {p.get('margen_industrial_eur')} != {p_calc_m}")
+
+        for cm in js_coms:
+            for f_num in ["ventas", "cogs_materiales", "coste_planta_fullcost", "margen_industrial_eur", "portes", "margen_contribucion_eur"]:
+                v_f = float(cm.get(f_num, 0.0) or 0.0)
+                if not math.isfinite(v_f):
+                    fail(f"Número no finito ({v_f}) en comercial {cm.get('comercial')} campo {f_num}")
+            cm_calc_m = round(float(cm.get("ventas", 0.0)) - float(cm.get("cogs_materiales", 0.0)) - float(cm.get("coste_planta_fullcost", 0.0)), 2)
+            if abs(cm_calc_m - float(cm.get("margen_industrial_eur", 0.0))) > 0.02:
+                fail(f"Identidad de margen industrial violada en comercial {cm.get('comercial')}: {cm.get('margen_industrial_eur')} != {cm_calc_m}")
+
+        # Paridad JS vs JSON en puente_transporte
+        js_ptr = fc_from_js.get("puente_transporte", {})
+        json_ptr = fc.get("puente_transporte", {})
+        if abs(float(js_ptr.get("reporte_logistico_imputado_eur", 0.0)) - float(json_ptr.get("reporte_logistico_imputado_eur", 0.0))) > 0.01:
+            fail("Desincronización JS vs JSON en puente_transporte.reporte_logistico_imputado_eur")
 
         # Ventas
         sum_js_v_clis = round(sum(float(c.get("ventas", 0.0) or 0.0) for c in js_clis), 2)
@@ -347,6 +384,7 @@ def main():
         get_dest(os.path.join("web_dashboard_direccion", "marta_tracking_data.js")),
         get_dest(os.path.join("web_dashboard_direccion", "dashboard_data.js")),
         get_dest(os.path.join("web_dashboard_direccion", "profitability_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.js")),
         get_dest(os.path.join("web_dashboard_direccion", "treasury_data.js")),
         get_dest(os.path.join("web_dashboard_direccion", "production_planning_data.js")),
         get_dest(os.path.join("web_dashboard", "dashboard_data.js")),

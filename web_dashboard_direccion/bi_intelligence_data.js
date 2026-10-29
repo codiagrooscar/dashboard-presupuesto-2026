@@ -1,15 +1,15 @@
 window.BI_INTELLIGENCE_DATA = {
   "mejora_1_forecast_accuracy": {
     "tot_budget_uds": 284389.92000000004,
-    "tot_pedidos_uds": 264355.0,
-    "tot_bias_uds": -20034.920000000042,
-    "tot_error_abs_sku_uds": 367315.86,
-    "tot_importe_neto_eur": 926645.7,
-    "tot_consecucion_pct": 93.0,
-    "tot_consecucion_volumen_pct": 93.0,
+    "tot_pedidos_uds": 283787.0,
+    "tot_bias_uds": -602.9200000000419,
+    "tot_error_abs_sku_uds": 440747.86,
+    "tot_importe_neto_eur": 1003052.7000000001,
+    "tot_consecucion_pct": 99.8,
+    "tot_consecucion_volumen_pct": 99.8,
     "tot_forecast_accuracy_pct": 0.0,
     "tot_forecast_accuracy_sku_wmape_pct": 0.0,
-    "tot_wmape_error_pct": 138.9,
+    "tot_wmape_error_pct": 155.3,
     "comerciales": [
       {
         "comercial": "Alfonso",
@@ -28,14 +28,14 @@ window.BI_INTELLIGENCE_DATA = {
         "comercial": "García",
         "clientes_activos": 6,
         "budget_uds": 76833.96,
-        "pedidos_uds": 81476.0,
-        "desv_uds": 4642.039999999994,
-        "error_abs_sku_uds": 114890.7,
-        "pct_consec": 106.04165137394975,
+        "pedidos_uds": 102276.0,
+        "desv_uds": 25442.039999999994,
+        "error_abs_sku_uds": 136890.7,
+        "pct_consec": 133.11301408908247,
         "forecast_accuracy_pct": 0.0,
-        "wmape_error_pct": 141.0,
+        "wmape_error_pct": 133.8,
         "bias_tipo": "Subestimó (Ventas > Presupuesto)",
-        "importe_neto_eur": 374330.6
+        "importe_neto_eur": 455600.6
       },
       {
         "comercial": "Irene",
@@ -93,17 +93,17 @@ window.BI_INTELLIGENCE_DATA = {
         "comercial": "Ricardo",
         "clientes_activos": 4,
         "budget_uds": 108827.54000000001,
-        "pedidos_uds": 109376.0,
-        "desv_uds": 548.4599999999919,
-        "error_abs_sku_uds": 165403.54,
-        "pct_consec": 100.50397169687011,
+        "pedidos_uds": 108008.0,
+        "desv_uds": -819.5400000000081,
+        "error_abs_sku_uds": 216835.54,
+        "pct_consec": 99.2469369426158,
         "forecast_accuracy_pct": 0.0,
-        "wmape_error_pct": 151.2,
-        "bias_tipo": "Subestimó (Ventas > Presupuesto)",
-        "importe_neto_eur": 304383.19999999995
+        "wmape_error_pct": 200.8,
+        "bias_tipo": "Sobreestimó (Ventas < Presupuesto)",
+        "importe_neto_eur": 299520.20000000007
       }
     ],
-    "nota_metodologia": "La consecución de volumen total (93.0%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU WMAPE (0.0%) mide precisión ponderada por volumen."
+    "nota_metodologia": "La consecución de volumen total (99.8%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU WMAPE (0.0%) mide precisión ponderada por volumen."
   },
   "mejora_2_concentracion_stress_test": {
     "total_ventas_2026": 15179999.94,

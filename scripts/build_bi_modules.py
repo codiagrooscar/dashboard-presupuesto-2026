@@ -1,17 +1,32 @@
 import json
 import os
+import sys
 import openpyxl
 from collections import defaultdict
+
+# Inclusión obligatoria y segura de output_staging
+_scripts_dir = os.path.dirname(os.path.abspath(__file__))
+if _scripts_dir not in sys.path:
+    sys.path.insert(0, _scripts_dir)
+
+try:
+    from output_staging import get_dest, get_source
+except Exception as _e:
+    if os.environ.get("CODIAGRO_STAGING_DIR"):
+        sys.stderr.write(f"[ERROR FATAL] Fallo al importar output_staging con CODIAGRO_STAGING_DIR activa: {_e}\n")
+        sys.exit(1)
+    def get_dest(p): return p
+    def get_source(p): return p
 
 print("=== Generando Datos para Mejoras 1 y 2 (Forecast Accuracy & Concentración/Stress Test) ===")
 
 # 1. Cargar datos de rentabilidad
-profit_path = os.path.join("web_dashboard_direccion", "profitability_data.json")
+profit_path = get_source(os.path.join("web_dashboard_direccion", "profitability_data.json"))
 with open(profit_path, "r", encoding="utf-8") as f:
     profit_data = json.load(f)
 
 # 2. Cargar datos de dashboard
-dash_path = os.path.join("web_dashboard_direccion", "dashboard_data.json")
+dash_path = get_source(os.path.join("web_dashboard_direccion", "dashboard_data.json"))
 with open(dash_path, "r", encoding="utf-8") as f:
     dash_data = json.load(f)
 
@@ -192,10 +207,11 @@ concentracion_resumen = {
 }
 
 # Cargar datos existentes para no sobrescribir ni borrar los demás módulos (H22)
-out_json = os.path.join("web_dashboard_direccion", "bi_intelligence_data.json")
+out_json = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.json"))
+src_bi_json = get_source(os.path.join("web_dashboard_direccion", "bi_intelligence_data.json"))
 output_bi = {}
-if os.path.exists(out_json):
-    with open(out_json, "r", encoding="utf-8") as f:
+if os.path.exists(src_bi_json):
+    with open(src_bi_json, "r", encoding="utf-8") as f:
         output_bi = json.load(f)
 
 # Unificación de definición de fiabilidad (H21):
@@ -208,10 +224,11 @@ forecast_resumen["nota_metodologia"] = f"La consecución de volumen total ({cons
 output_bi["mejora_1_forecast_accuracy"] = forecast_resumen
 output_bi["mejora_2_concentracion_stress_test"] = concentracion_resumen
 
+os.makedirs(os.path.dirname(out_json), exist_ok=True)
 with open(out_json, "w", encoding="utf-8") as f:
     json.dump(output_bi, f, ensure_ascii=False, indent=2)
 
-out_js = os.path.join("web_dashboard_direccion", "bi_intelligence_data.js")
+out_js = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.js"))
 with open(out_js, "w", encoding="utf-8") as f:
     f.write("window.BI_INTELLIGENCE_DATA = " + json.dumps(output_bi, ensure_ascii=False, indent=2) + ";\n")
 

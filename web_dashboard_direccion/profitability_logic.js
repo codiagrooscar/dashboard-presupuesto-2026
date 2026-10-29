@@ -2098,7 +2098,8 @@ function renderProfitFullCostView() {
   // Formato seleccionado para el simulador
   const fmtObj = (pricing.formatos_estandar || []).find(f => f.id === simFormat) || (pricing.formatos_estandar ? pricing.formatos_estandar[1] : { coste_envase: 1.15, mano_obra_h_por_1000: 1.54, cadencia_h: 650 });
   const horasEnvasado = (simVolume / 1000) * (fmtObj.mano_obra_h_por_1000 || 1.54);
-  const costeModLote = horasEnvasado * 36.40; // 36.40 €/h
+  const envasadoRate = (pricing && pricing.tarifas_horarias && typeof pricing.tarifas_horarias.ceco_140_envasado === 'number') ? pricing.tarifas_horarias.ceco_140_envasado : 36.40;
+  const costeModLote = horasEnvasado * envasadoRate;
   const costeCifLote = horasEnvasado * 28.50; // Indirectos de planta
   const costeEnvaseLote = simVolume * (fmtObj.coste_envase || 1.15);
   const factorLitros = simFormat === '1L' ? 1 : (simFormat === '5L' ? 5 : (simFormat === '20L' ? 20 : (simFormat === '1000L' ? 1000 : 5)));
@@ -2513,10 +2514,10 @@ function renderFullcostProductosSection() {
                   <td style="text-align:right; font-weight:700">${fmtEur(p.ventas)}</td>
                   <td style="text-align:right; color:var(--muted)">${fmtEur(p.cogs_materiales)}</td>
                   <td style="text-align:right; color:var(--muted)">${fmtEur(p.coste_planta_fullcost)}</td>
-                  <td style="text-align:right; font-weight:700; color:${p.semaforo === 'VERDE' ? '#34d399' : (p.semaforo === 'AMARILLO' ? '#fbbf24' : '#f87171')}">${fmtEur(p.margen_industrial_eur)}</td>
-                  <td style="text-align:right; font-weight:800; color:${p.semaforo === 'VERDE' ? '#34d399' : (p.semaforo === 'AMARILLO' ? '#fbbf24' : '#f87171')}">${p.margen_industrial_pct}%</td>
+                  <td style="text-align:right; font-weight:700; color:${(p.semaforo === 'SIN COSTE' || p.semaforo === 'ALERTA') ? '#94a3b8' : (p.semaforo === 'VERDE' ? '#34d399' : (p.semaforo === 'AMARILLO' ? '#fbbf24' : '#f87171'))}">${fmtEur(p.margen_industrial_eur)}</td>
+                  <td style="text-align:right; font-weight:800; color:${(p.semaforo === 'SIN COSTE' || p.semaforo === 'ALERTA') ? '#94a3b8' : (p.semaforo === 'VERDE' ? '#34d399' : (p.semaforo === 'AMARILLO' ? '#fbbf24' : '#f87171'))}">${p.margen_industrial_pct}%</td>
                   <td style="text-align:center">
-                    <span class="tab-badge badge-${p.semaforo === 'VERDE' ? 'success' : (p.semaforo === 'AMARILLO' ? 'warning' : 'danger')}">${p.semaforo}</span>
+                    <span class="tab-badge ${(p.semaforo === 'SIN COSTE' || p.semaforo === 'ALERTA') ? 'badge-warning' : (p.semaforo === 'VERDE' ? 'badge-success' : (p.semaforo === 'AMARILLO' ? 'badge-warning' : 'badge-danger'))}" style="${(p.semaforo === 'SIN COSTE' || p.semaforo === 'ALERTA') ? 'background:rgba(148,163,184,0.2); color:#cbd5e1; border:1px solid #94a3b8;' : ''}">${(p.semaforo === 'SIN COSTE' || p.semaforo === 'ALERTA') ? 'Sin coste validado' : p.semaforo}</span>
                   </td>
                 </tr>
               `).join('')}
@@ -2691,11 +2692,12 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
               const sub3Item = (fc && fc.pnl_waterfall) ? fc.pnl_waterfall.find(x => x.nivel === 'SUB3') : null;
               const sub3Val = sub3Item ? sub3Item.importe : 278255.41;
               const bridgeDetalle = fc.totales_drilldown.margen_industrial_eur;
+              const subactivityVal = (fc.totales_drilldown && typeof fc.totales_drilldown.coste_subactividad === 'number') ? fc.totales_drilldown.coste_subactividad : 58331.87;
               const totalAjustesPuente = 126472.78; // 47070.94 (Perímetro Ventas) + 79401.84 (Criterio Materiales)
-              const margenEsperado = sub3Val - totalAjustesPuente;
+              const margenEsperado = sub3Val - totalAjustesPuente + subactivityVal;
               const bridgeDiff = Math.abs(bridgeDetalle - margenEsperado);
               if (bridgeDiff <= 0.5) {
-                return '<span class="tab-badge badge-warning" style="font-size:0.8rem; font-weight:800; background:rgba(234,179,8,0.2); color:#fde047; border:1px solid #eab308;">Puente Analítico: Perímetro y Materiales (0,00 € Desviación)</span>';
+                return '<span class="tab-badge badge-success" style="font-size:0.8rem; font-weight:800; background:rgba(16,185,129,0.2); color:#34d399; border:1px solid #10b981;">Puente Analítico Conciliado (0,00 € Desviación)</span>';
               } else {
                 return `<span class="tab-badge badge-danger" style="font-size:0.8rem; font-weight:800; background:rgba(239,68,68,0.2); color:#fca5a5; border:1px solid #ef4444;">Descuadre en Conciliación (${fmtEur(bridgeDiff)} Diferencia)</span>`;
               }
@@ -2731,11 +2733,17 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
                   <td style="text-align:right; color:#f87171">-15,7%</td>
                   <td style="color:#94a3b8">Consumo contable neto global (102.185,32 €) vs valoración estándar por escandallo técnico unitario (181.587,16 €).</td>
                 </tr>
+                <tr>
+                  <td style="color:#38bdf8">(+) Subactividad Aislada del Coste de Productos (NIC 2 / IAS 2)</td>
+                  <td style="text-align:right; color:#38bdf8; font-weight:700">+${fmtEur((fc && fc.totales_drilldown && typeof fc.totales_drilldown.coste_subactividad === 'number') ? fc.totales_drilldown.coste_subactividad : 58331.87)}</td>
+                  <td style="text-align:right; color:#38bdf8">+11,5%</td>
+                  <td style="color:#cbd5e1">Capacidad ociosa no imputada a productos terminados (58.331,87 €) que pasa a pérdida directa del período según NIC 2, reduciendo el coste asignado a ventas de 124.561,76 € a 66.229,89 €.</td>
+                </tr>
                 <tr style="background:rgba(16,185,129,0.15); border-top:2px solid var(--accent); font-weight:800;">
                   <td style="color:#34d399">(=) MARGEN INDUSTRIAL ASIGNADO EN DETALLE (Clientes y SKUs)</td>
                   <td style="text-align:right; color:#34d399; font-size:0.95rem">${(fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_eur === 'number') ? fmtEur(fc.totales_drilldown.margen_industrial_eur) : 'N/D'}</td>
-                  <td style="text-align:right; color:#34d399">33,1%</td>
-                  <td style="color:#34d399">Total exacto que cuadra con el sumatorio de las tablas de Clientes y Productos tras absorber 124.561,76 € de planta.</td>
+                  <td style="text-align:right; color:#34d399">45,9%</td>
+                  <td style="color:#34d399">Total exacto que cuadra con el sumatorio de las tablas de Clientes y Productos tras absorber 66.229,89 € de actividad industrial.</td>
                 </tr>
               </tbody>
             </table>
@@ -2827,29 +2835,29 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
             </div>
             <div style="text-align:right">
               <span style="font-size:0.75rem; color:var(--muted); text-transform:uppercase">Facturación Ordinaria</span>
-              <div style="font-size:1.1rem; font-weight:700; color:#38bdf8">${fmtEur(maq.ingreso_ordinario_total || 6434.00)}</div>
+              <div style="font-size:1.1rem; font-weight:700; color:#38bdf8">${typeof maq.ingreso_ordinario_total === 'number' ? fmtEur(maq.ingreso_ordinario_total) : 'N/D'}</div>
             </div>
           </div>
 
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.25rem">
             <div style="background:rgba(15,23,42,0.7); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
               <span style="font-size:0.75rem; color:var(--muted)">Servicio Prestado</span>
-              <strong style="display:block; color:#fff; font-size:0.95rem">${maq.servicio}</strong>
-              <span style="font-size:0.72rem; color:#94a3b8">${maq.factura_705 || 'FAC-MAQ-2026-09-793'}</span>
+              <strong style="display:block; color:#fff; font-size:0.95rem">${maq.servicio || 'Sin servicio registrado'}</strong>
+              <span style="font-size:0.72rem; color:#94a3b8">${maq.factura_705 || 'Sin factura'}</span>
             </div>
             <div style="background:rgba(15,23,42,0.7); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
               <span style="font-size:0.75rem; color:var(--muted)">Volumen Fabricado</span>
-              <strong style="display:block; color:#fff; font-size:1.1rem">${Number(maq.volumen_kg||11880).toLocaleString('es-ES')} kg</strong>
-              <span style="font-size:0.72rem; color:#94a3b8">Lote: ${maq.lote || '26G05480901'}</span>
+              <strong style="display:block; color:#fff; font-size:1.1rem">${typeof maq.volumen_kg === 'number' ? Number(maq.volumen_kg).toLocaleString('es-ES') + ' kg' : 'N/D'}</strong>
+              <span style="font-size:0.72rem; color:#94a3b8">Lote: ${maq.lote || 'N/D'}</span>
             </div>
             <div style="background:rgba(15,23,42,0.7); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
               <span style="font-size:0.75rem; color:var(--muted)">Ingresos Sep (Ctas 705 + 703)</span>
-              <strong style="display:block; color:#34d399; font-size:1.1rem">${fmtEur(maq.ingreso_ordinario_total || 6434.00)}</strong>
-              <span style="font-size:0.72rem; color:#94a3b8">705: ${fmtEur(maq.ingreso_servicios_705||3682.80)} | 703: ${fmtEur(maq.ingreso_accesorios_703||2751.20)}</span>
+              <strong style="display:block; color:#34d399; font-size:1.1rem">${typeof maq.ingreso_ordinario_total === 'number' ? fmtEur(maq.ingreso_ordinario_total) : 'N/D'}</strong>
+              <span style="font-size:0.72rem; color:#94a3b8">705: ${typeof maq.ingreso_servicios_705 === 'number' ? fmtEur(maq.ingreso_servicios_705) : '0,00 €'} | 703: ${typeof maq.ingreso_accesorios_703 === 'number' ? fmtEur(maq.ingreso_accesorios_703) : '0,00 €'}</span>
             </div>
             <div style="background:rgba(15,23,42,0.7); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--card-border)">
               <span style="font-size:0.75rem; color:var(--muted)">Margen Ordinario Maquila</span>
-              <strong style="display:block; color:#34d399; font-size:1.1rem">${fmtEur(maq.margen_ordinario_eur || 3525.33)} (${maq.margen_ordinario_pct || 54.8}%)</strong>
+              <strong style="display:block; color:#34d399; font-size:1.1rem">${typeof maq.margen_ordinario_eur === 'number' ? fmtEur(maq.margen_ordinario_eur) : 'N/D'} (${typeof maq.margen_ordinario_pct === 'number' ? maq.margen_ordinario_pct.toFixed(1).replace('.', ',') + '%' : 'N/D'})</strong>
               <span style="font-size:0.72rem; color:#f87171">Abono Ago (702): -16.492,80 € (Aislado)</span>
             </div>
           </div>

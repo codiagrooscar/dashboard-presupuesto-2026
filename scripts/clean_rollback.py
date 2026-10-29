@@ -164,6 +164,10 @@ def activate():
                 except Exception:
                     pass
 
+        if activated_count == 0:
+            print("[ERROR CRITICO] Staging no contiene ningún archivo para activar (activated_count == 0). Abortando activación.")
+            return 1
+
         # Limpiar directorio de staging tras activación exitosa
         shutil.rmtree(STAGING_DIR, ignore_errors=True)
 

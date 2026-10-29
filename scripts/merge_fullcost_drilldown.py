@@ -237,22 +237,25 @@ log_cutoff_mes8_sep = {"624000001": 0.0, "624000003": 0.0}
 for r_idx, row in enumerate(ws_log.iter_rows(values_only=True), start=1):
     if header_log is None:
         header_log = list(row)
-        idx_yr = header_log.index('Ejercicio')
-        idx_mes = header_log.index('Mes')
-        idx_alb = header_log.index('NumeroAlbaran') if 'NumeroAlbaran' in header_log else 3
-        idx_cli = header_log.index('RazonSocial')
-        idx_pr = header_log.index('Precio')
-        idx_prv = header_log.index('Provincia') if 'Provincia' in header_log else 6
-        idx_fc = header_log.index('Fecha Carga') if 'Fecha Carga' in header_log else 11
-        idx_fe = header_log.index('Fecha Entrega') if 'Fecha Entrega' in header_log else 12
+        idx_yr = header_log.index('Ejercicio') if 'Ejercicio' in header_log else 0
+        idx_mes = header_log.index('Mes') if 'Mes' in header_log else 1
+        idx_serie = header_log.index('Serie Albaran') if 'Serie Albaran' in header_log else (header_log.index('Serie') if 'Serie' in header_log else 2)
+        idx_alb = header_log.index('Numero Albaran') if 'Numero Albaran' in header_log else (header_log.index('NumeroAlbaran') if 'NumeroAlbaran' in header_log else 3)
+        idx_cli = header_log.index('RazonSocial') if 'RazonSocial' in header_log else 4
+        idx_pr = header_log.index('Precio') if 'Precio' in header_log else 14
+        idx_reg = header_log.index('REGION') if 'REGION' in header_log else (header_log.index('Region') if 'Region' in header_log else -1)
+        idx_fc = header_log.index('Fecha Carga') if 'Fecha Carga' in header_log else 9
+        idx_fe = header_log.index('Fecha Entrega') if 'Fecha Entrega' in header_log else 10
         continue
     if row[idx_yr] is None:
         break
     yr_val = row[idx_yr]
     mes_val = row[idx_mes]
+    serie_val = str(row[idx_serie] or '').strip().upper() if idx_serie != -1 else ''
     alb_val = str(row[idx_alb] or '').strip()
+    full_alb = f"{serie_val}-{alb_val}" if (serie_val and not alb_val.startswith(serie_val)) else alb_val
     cli_raw = str(row[idx_cli]).strip().upper() if row[idx_cli] else ''
-    prv_raw = str(row[idx_prv] or '').strip().upper()
+    reg_raw = str(row[idx_reg] or '').strip().upper() if idx_reg != -1 else ''
     pr_raw = row[idx_pr]
     pr_val = float(pr_raw or 0.0)
 
@@ -264,14 +267,14 @@ for r_idx, row in enumerate(ws_log.iter_rows(values_only=True), start=1):
             if isinstance(d_v, (datetime.datetime, datetime.date)) and d_v.year == 2026 and d_v.month == 9:
                 in_sep = True
         if in_sep and pr_val > 0:
-            if prv_raw == 'SANTA CRUZ DE TENERIFE' or 'CANARIAS' in prv_raw:
+            if 'CANARIA' in reg_raw or 'TENERIFE' in reg_raw or 'PALMA' in reg_raw:
                 log_cutoff_mes8_sep["624000003"] += pr_val
             else:
                 log_cutoff_mes8_sep["624000001"] += pr_val
 
     if yr_val == 2026 and mes_val == 9:
         # Clave única de expedición para evitar doble imputación
-        ship_key = (yr_val, mes_val, alb_val, cli_raw, round(pr_val, 2), r_idx if not alb_val else alb_val)
+        ship_key = (yr_val, mes_val, serie_val, alb_val, cli_raw, round(pr_val, 2), r_idx if not alb_val else alb_val)
         if ship_key in seen_shipments:
             continue
         seen_shipments.add(ship_key)
@@ -283,14 +286,14 @@ for r_idx, row in enumerate(ws_log.iter_rows(values_only=True), start=1):
         if norm_cli not in transporte_nombre_orig:
             transporte_nombre_orig[norm_cli] = cli_raw
 
-        if alb_val.upper().startswith('EX') or prv_raw in ['ITALIA', 'GRECIA', 'PANAMA', 'ECUADOR', 'MARRUECOS', 'JORDANIA', 'TURQUIA']:
-            log_scope_totals["624000002"] += pr_val
-            if pr_val > 0:
-                log_scope_counts["624000002"] += 1
-        elif 'TENERIFE' in prv_raw or 'PALMAS' in prv_raw or 'CANARIAS' in prv_raw:
+        if 'CANARIA' in reg_raw or 'TENERIFE' in reg_raw or 'PALMA' in reg_raw:
             log_scope_totals["624000003"] += pr_val
             if pr_val > 0:
                 log_scope_counts["624000003"] += 1
+        elif 'EXPORT' in reg_raw or full_alb.startswith('EX') or serie_val == 'EX':
+            log_scope_totals["624000002"] += pr_val
+            if pr_val > 0:
+                log_scope_counts["624000002"] += 1
         else:
             log_scope_totals["624000001"] += pr_val
             if pr_val > 0:
@@ -298,9 +301,9 @@ for r_idx, row in enumerate(ws_log.iter_rows(values_only=True), start=1):
 
         if pr_raw is None or pr_val == 0.0:
             log_unpriced_rows.append({
-                "albaran": alb_val,
+                "albaran": full_alb,
                 "cliente": cli_raw,
-                "provincia": prv_raw
+                "region": reg_raw
             })
 wb_log.close()
 
@@ -844,11 +847,26 @@ if fc_wb_path:
             orig_ceco = str(ws_rep.cell(r, 2).value or '').strip()
             dest_ceco = str(ws_rep.cell(r, 5).value or '').strip()
             cant = ws_rep.cell(r, 9).value
-            if orig_ceco and dest_ceco in ['110', '120', '130', '140'] and cant is not None:
-                try:
-                    repartos_por_origen[orig_ceco][dest_ceco] += float(cant)
-                except Exception:
-                    pass
+            if not orig_ceco and not dest_ceco and cant is None:
+                continue
+            if orig_ceco:
+                if orig_ceco not in VALID_CECOS:
+                    incidencias_datos.append(f"Repartos fila {r}: CECO origen desconocido o no válido '{orig_ceco}'.")
+                if dest_ceco not in VALID_CECOS:
+                    incidencias_datos.append(f"Repartos fila {r}: CECO destino desconocido o no válido '{dest_ceco}'.")
+                elif dest_ceco not in ['110', '120', '130', '140']:
+                    pass # Centro auxiliar u operativo no fabril
+                if cant is None or str(cant).strip() == '':
+                    incidencias_datos.append(f"Repartos fila {r}: Inductor o cantidad de reparto vacía entre CECO {orig_ceco} y {dest_ceco}.")
+                else:
+                    try:
+                        cant_val = float(cant)
+                        if cant_val < 0:
+                            incidencias_datos.append(f"Repartos fila {r}: Cantidad negativa ({cant_val}) no permitida en inductor de reparto.")
+                        elif dest_ceco in ['110', '120', '130', '140']:
+                            repartos_por_origen[orig_ceco][dest_ceco] += cant_val
+                    except (ValueError, TypeError):
+                        incidencias_datos.append(f"Repartos fila {r}: Cantidad no numérica '{cant}' en reparto.")
 
     repartos_dinamicos = {}
     for orig, dests in repartos_por_origen.items():
@@ -900,6 +918,9 @@ if fc_wb_path:
             if not is_sep_2026(f_val):
                 continue
             ceco_val = str(ws_prod.cell(r, 6).value or '').strip()
+            if not ceco_val or ceco_val not in ['110', '120', '130', '140']:
+                incidencias_datos.append(f"Produccion fila {r}: CECO de fabricación desconocido o no válido '{ceco_val}'.")
+                continue
             k_val = float(ws_prod.cell(r, 11).value or 0)
             l_val = float(ws_prod.cell(r, 12).value or 0)
             m_val = float(ws_prod.cell(r, 13).value or 0)
@@ -915,11 +936,18 @@ if fc_wb_path:
         for r_cap in range(5, 15):
             c_code = str(ws_cap.cell(r_cap, 1).value or '').strip()
             h_nom_val = ws_cap.cell(r_cap, 3).value
-            if c_code in cap_nominales_from_sheet and h_nom_val is not None:
-                try:
-                    cap_nominales_from_sheet[c_code] = float(h_nom_val)
-                except Exception:
-                    pass
+            if c_code in cap_nominales_from_sheet:
+                if h_nom_val is None or str(h_nom_val).strip() == '':
+                    incidencias_datos.append(f"Capacidad CECO {c_code}: Capacidad nominal vacía o sin informar.")
+                else:
+                    try:
+                        nom_val = float(h_nom_val)
+                        if nom_val <= 0:
+                            incidencias_datos.append(f"Capacidad CECO {c_code}: Capacidad nominal menor o igual a cero ({nom_val} h) con horas de producción registradas.")
+                        else:
+                            cap_nominales_from_sheet[c_code] = nom_val
+                    except (ValueError, TypeError):
+                        incidencias_datos.append(f"Capacidad CECO {c_code}: Capacidad nominal no numérica '{h_nom_val}'.")
 
     coste_subactividad_by_ceco = {}
     coste_actividad_by_ceco = {}
@@ -929,7 +957,8 @@ if fc_wb_path:
         h_real = round(h_tot_by_ceco.get(c, 0.0), 2)
         sub_h = max(0.0, h_nom - h_real)
         sub_pct = round(sub_h / h_nom * 100.0, 1) if h_nom > 0 else 0.0
-        c_sub = round(c_cost * (sub_pct / 100.0), 2)
+        # Cociente exacto de horas para eliminar desviación por redondeo de porcentaje (Punto 7 Auditoría)
+        c_sub = round(c_cost * (sub_h / h_nom), 2) if h_nom > 0 else 0.0
         c_act = round(c_cost - c_sub, 2)
         coste_subactividad_by_ceco[c] = c_sub
         coste_actividad_by_ceco[c] = c_act
@@ -1266,7 +1295,7 @@ if fc_wb_path:
                 "expediciones_valoradas": log_scope_counts["624000001"],
                 "corte_mes8_en_sep_eur": round(log_cutoff_mes8_sep["624000001"], 2),
                 "estado": "Pendiente de conciliación",
-                "explicacion": "45 envíos nacionales valorados en Mes=9 (5.943,90 €). Se identifican 1.044,80 € en el propio archivo con Mes=8 pero cargados/entregados en septiembre (Alb 840-842 Campoejido 613,00 € cargados 07/09 y Alb 796/820/822/832/833 431,80 € entregados 01-02/09), compensados parcialmente por envíos de fin de septiembre entregados en octubre (Alb 920-926). Falta desglose de facturas de transportistas por albarán."
+                "explicacion": "47 envíos nacionales peninsulares valorados en Mes=9 por columna REGION (6.999,63 €). Se identifican 1.044,80 € en el propio archivo con Mes=8 pero cargados/entregados en septiembre, compensados parcialmente por envíos de fin de septiembre entregados en octubre (Alb 920-926)."
             },
             {
                 "cuenta": "624000002",
@@ -1277,7 +1306,7 @@ if fc_wb_path:
                 "expediciones_valoradas": log_scope_counts["624000002"],
                 "corte_mes8_en_sep_eur": 0.0,
                 "estado": "Pendiente de conciliación",
-                "explicacion": "3 envíos internacionales valorados (EX-241 Aifar 487,00 €, EX-242 Eurofertil 3.850,00 €, EX-245 El Llano 3.728,00 € = 8.065,00 €) más 1 envío marítimo 20 pies (EX-243 Ecuaquímica) sin precio en el reporte ('envio inic'). Diferencia neta con Mayor: 13,83 €."
+                "explicacion": "3 envíos internacionales valorados por columna REGION (EX-241 Aifar 487,00 €, EX-242 Eurofertil 3.850,00 €, EX-245 El Llano 3.728,00 € = 8.065,00 €) más 4 envíos sin precio en el reporte ('envio inic'). Diferencia neta con Mayor: 13,83 €."
             },
             {
                 "cuenta": "624000003",
@@ -1288,7 +1317,7 @@ if fc_wb_path:
                 "expediciones_valoradas": log_scope_counts["624000003"],
                 "corte_mes8_en_sep_eur": round(log_cutoff_mes8_sep["624000003"], 2),
                 "estado": "Pendiente de conciliación",
-                "explicacion": "5 envíos marítimos en Mes=9 (7.276,76 €). El albarán 834 (Cabrera Morales Francisco, 2.657,25 €) figura con Mes=8 pero fue cargado el 03/09/2026 y entregado el 11/09/2026, explicando 2.657,25 € de los 2.979,78 € de diferencia (resto 322,53 € pendiente de factura naviera Sealine)."
+                "explicacion": "4 envíos marítimos en Mes=9 por columna REGION (6.221,03 €). El albarán 834 figura con Mes=8 pero fue cargado en septiembre explicando parte del corte de facturación con navieras."
             },
             {
                 "cuenta": "624000005",
@@ -1341,8 +1370,9 @@ else:
         c_cost = final_cost_by_ceco[c]
         h_nom = cap_nominales_from_sheet[c]
         h_real = h_tot_by_ceco[c]
+        sub_h = max(0.0, h_nom - h_real)
         sub_pct = ((h_nom - h_real) / h_nom * 100.0) if h_nom > 0 else 0.0
-        c_sub = round(c_cost * (sub_pct / 100.0), 2)
+        c_sub = round(c_cost * (sub_h / h_nom), 2) if h_nom > 0 else 0.0
         c_act = round(c_cost - c_sub, 2)
         coste_subactividad_by_ceco[c] = c_sub
         coste_actividad_by_ceco[c] = c_act
@@ -1529,7 +1559,10 @@ round_conserving_sum(productos_fc, "uds", tot_uds_sep_round, 1)
 for p in productos_fc:
     p["margen_industrial_eur"] = round(p["ventas"] - p["cogs_materiales"] - p["coste_planta_fullcost"], 2)
     p["margen_industrial_pct"] = round(p["margen_industrial_eur"] / p["ventas"] * 100, 1) if p["ventas"] > 0 else 0.0
-    if p["margen_industrial_pct"] >= 40.0:
+    if p["cogs_materiales"] == 0.0 and p["ventas"] > 0:
+        p["semaforo"] = "SIN COSTE"
+        incidencias_datos.append(f"SKU {p['sku']} ({p['desc']}): Ventas registradas ({p['ventas']:.2f} €) pero coste de materiales es 0,00 € (escandallo ausente).")
+    elif p["margen_industrial_pct"] >= 40.0:
         p["semaforo"] = "VERDE"
     elif p["margen_industrial_pct"] >= 25.0:
         p["semaforo"] = "AMARILLO"
@@ -1677,13 +1710,14 @@ if fc_wb_path:
         cap["coste_subactividad_eur"] = coste_subactividad_by_ceco.get(c_code, 0.0)
         cap["coste_actividad_eur"] = coste_actividad_by_ceco.get(c_code, 0.0)
         cap["tarifa_efectiva_hora"] = round(rate_by_ceco.get(c_code, 0.0), 2)
+        cap["tarifa_eur_h"] = round(rate_by_ceco.get(c_code, 0.0), 2)
 
 if "pricing" in fc_full and "tarifas_horarias" in fc_full["pricing"]:
     fc_full["pricing"]["tarifas_horarias"] = {
-        "ceco_110_alcaplant": cad_params["tarifa_sim_110"],
-        "ceco_120_liquidos": cad_params["tarifa_sim_120"],
-        "ceco_130_solidos": cad_params["tarifa_sim_130"],
-        "ceco_140_envasado": cad_params["tarifa_sim_140"]
+        "ceco_110_alcaplant": round(rate_by_ceco.get('110', cad_params["tarifa_sim_110"]), 2),
+        "ceco_120_liquidos": round(rate_by_ceco.get('120', cad_params["tarifa_sim_120"]), 2),
+        "ceco_130_solidos": round(rate_by_ceco.get('130', cad_params["tarifa_sim_130"]), 2),
+        "ceco_140_envasado": round(rate_by_ceco.get('140', cad_params["tarifa_sim_140"]), 2)
     }
 
 # Sincronización viva de cuentas del mayor y RAI
@@ -1696,9 +1730,18 @@ if cuentas_detalle:
         fc_full["cuentas_resumen"]["total_cuentas"] = len(cuentas_detalle)
 
 # 8. Cascada PnL (pnl_waterfall): cálculo bottom-up independiente del Mayor
+BASE_G60_61_NO607 = -72644.66
+current_g60_61 = sum(info.get('saldo_mes', 0.0) for cta, info in cuentas_detalle.items() if (cta.startswith('60') or cta.startswith('61')) and not cta.startswith('607'))
+delta_mat_cuentas = round(current_g60_61 - BASE_G60_61_NO607, 2)
+
+BASE_G70_71 = 505002.29
+current_g70_71 = sum(info.get('saldo_mes', 0.0) for cta, info in cuentas_detalle.items() if cta.startswith('70') or cta.startswith('71'))
+delta_sales_cuentas = round(current_g70_71 - BASE_G70_71, 2)
+
 n1_base = 505002.49
-n1_val = round(n1_base + delta_maq_net + delta_ajustes_ventas_own, 2)
-n2_val = -102185.32
+n1_val = round(n1_base + delta_sales_cuentas + delta_maq_net + delta_ajustes_ventas_own, 2)
+consumo_contable_cascada = round(102185.32 - delta_mat_cuentas, 2)
+n2_val = -consumo_contable_cascada
 sub1_val = round(n1_val + n2_val, 2)
 
 n3_base = -68341.20
@@ -1765,7 +1808,6 @@ fc_full["puente_existencias"] = puente_existencias
 fc_full["puente_transporte"] = puente_transporte
 
 # 7.3 Puente de Conciliación de Materiales (Consumo Contable vs Escandallos SKU)
-consumo_contable_cascada = 102185.32
 diff_materiales_dinamica = round(tot_cogs_sep_round - consumo_contable_cascada, 2)
 puente_materiales = {
     "titulo": "Conciliación entre Consumo Contable de Aprovisionamientos y Coste Técnico de Materiales Vendidos",

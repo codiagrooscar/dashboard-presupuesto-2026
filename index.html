@@ -14,6 +14,7 @@
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
+  <script src="dashboard_i18n.js?v=20261029_1500"></script>
   <script src="dashboard_data.js?v=20261027_0745"></script>
   <script src="production_planning_data.js?v=20261027_0745"></script>
   <link rel="stylesheet" href="marta_tracking.css?v=20261027_1435">
@@ -2505,6 +2506,7 @@
       updateHeaderInfo();
       updateNavBadges();
       renderCurrentTab();
+      if (typeof applyGlobalDomTranslations === 'function') applyGlobalDomTranslations();
 
       const modalOverlay = document.getElementById('kpiModalOverlay');
       if (modalOverlay && modalOverlay.classList.contains('active')) {
@@ -5982,6 +5984,9 @@
         renderProduccionTab(container);
       } else {
         renderComercialTab(container, currentTab);
+      }
+      if (typeof applyGlobalDomTranslations === 'function') {
+        applyGlobalDomTranslations();
       }
     }
 

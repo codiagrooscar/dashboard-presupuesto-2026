@@ -140,22 +140,50 @@ def main():
         if abs(js_m_net - round(js_m_tras - js_c_stk, 2)) > 0.02:
             fail(f"Identidad violada en fullcost_data.js: margen neto planta ({js_m_net:.2f} €) != {js_m_tras:.2f} € - {js_c_stk:.2f} €")
 
-        # Paridad JS vs JSON en puente_facturacion (Punto 4 Auditoría)
+        # Paridad JS vs JSON en puente_facturacion con comprobación estricta de cuentas duplicadas y líneas (Punto 2 Auditoría)
         js_pf = fc_from_js.get("puente_facturacion", {})
         json_pf = fc.get("puente_facturacion", {})
+        if not js_pf or not json_pf:
+            fail("El bloque puente_facturacion falta en JSON o JS")
         for k_pf in ["valor_produccion_n1", "ventas_detalle_analitico_sep", "diferencia_produccion_vs_ventas_sep"]:
             v_js = round(float(js_pf.get(k_pf, 0.0) or 0.0), 2)
             v_json = round(float(json_pf.get(k_pf, 0.0) or 0.0), 2)
             if abs(v_js - v_json) > 0.01:
                 fail(f"Desincronización entre JSON y JS en puente_facturacion.{k_pf}: {v_json} € vs {v_js} €")
-        js_pf_lines = {l.get("cuenta"): round(float(l.get("importe_eur", 0.0)), 2) for l in js_pf.get("lineas_conciliacion", [])}
-        json_pf_lines = {l.get("cuenta"): round(float(l.get("importe_eur", 0.0)), 2) for l in json_pf.get("lineas_conciliacion", [])}
-        if set(js_pf_lines.keys()) != set(json_pf_lines.keys()):
-            fail("Desincronización en cuentas del puente de facturación entre JSON y JS")
-        for cta_k, val_json in json_pf_lines.items():
-            val_js = js_pf_lines[cta_k]
+
+        js_raw_lines = js_pf.get("lineas_conciliacion", [])
+        json_raw_lines = json_pf.get("lineas_conciliacion", [])
+        if len(js_raw_lines) != len(json_raw_lines):
+            fail(f"Desincronización en número de líneas de puente_facturacion: JSON ({len(json_raw_lines)}) vs JS ({len(js_raw_lines)})")
+
+        # Comprobar duplicados directamente en la lista cruda de JS antes de mapear
+        seen_js_accounts = []
+        for l in js_raw_lines:
+            cta = l.get("cuenta")
+            if cta in seen_js_accounts:
+                fail(f"Cuenta contable duplicada en puente_facturacion de fullcost_data.js: {cta}")
+            seen_js_accounts.append(cta)
+
+        for idx, (l_json, l_js) in enumerate(zip(json_raw_lines, js_raw_lines)):
+            if l_json.get("cuenta") != l_js.get("cuenta"):
+                fail(f"Desincronización en línea #{idx+1} de puente_facturacion: cuenta JSON={l_json.get('cuenta')} vs JS={l_js.get('cuenta')}")
+            val_json = round(float(l_json.get("importe_eur", 0.0) or 0.0), 2)
+            val_js = round(float(l_js.get("importe_eur", 0.0) or 0.0), 2)
             if abs(val_json - val_js) > 0.01:
-                fail(f"Desincronización en línea puente facturación cuenta {cta_k}: JSON={val_json:.2f} € vs JS={val_js:.2f} €")
+                fail(f"Desincronización en línea #{idx+1} ({l_json.get('cuenta')}) de puente_facturacion: JSON={val_json:.2f} € vs JS={val_js:.2f} €")
+
+        # Comprobar sumas e identidades del puente directamente sobre fullcost_data.js
+        js_acc_sum = round(sum(float(l.get("importe_eur", 0.0) or 0.0) for l in js_raw_lines if str(l.get("cuenta", "")).isdigit()), 2)
+        js_n1 = round(float(js_pf.get("valor_produccion_n1", 0.0) or 0.0), 2)
+        if abs(js_acc_sum - js_n1) > 0.01:
+            fail(f"Incoherencia en fullcost_data.js: suma de cuentas del puente ({js_acc_sum:.2f} €) != valor_produccion_n1 ({js_n1:.2f} €)")
+        js_perim_lines = [l for l in js_raw_lines if l.get("cuenta") == "Ajuste Perímetro"]
+        if not js_perim_lines:
+            fail("Falta la línea obligatoria 'Ajuste Perímetro' en puente_facturacion de fullcost_data.js")
+        js_perim = round(float(js_perim_lines[0].get("importe_eur", 0.0) or 0.0), 2)
+        js_detail = round(float(js_pf.get("ventas_detalle_analitico_sep", 0.0) or js_tot.get("ventas", 0.0) or 0.0), 2)
+        if abs(round(js_n1 + js_perim, 2) - js_detail) > 0.01:
+            fail(f"Incoherencia en fullcost_data.js: cuadre de producción + deducción perímetro ({js_n1 + js_perim:.2f} €) != detalle SKU ({js_detail:.2f} €)")
 
         js_meta = fc_from_js.get("metadata", {})
         json_meta = fc.get("metadata", {})
@@ -511,7 +539,7 @@ def main():
     if abs(m_neto_planta - round(v_netas - cogs_mat - c_planta_tot, 2)) > 0.02:
         fail(f"Identidad global de margen neto planta violada: {m_neto_planta:.2f} € != {v_netas:.2f} € - {cogs_mat:.2f} € - {c_planta_tot:.2f} €", last_date)
 
-    # 6.4 Validar obligatoriedad, coherencia y cuadre estricto de antigüedad de deuda (Puntos 1 y 2 Auditoría 30/10)
+    # 6.4 Validar obligatoriedad, coherencia y cuadre estricto de antigüedad de deuda (Auditoría 30/10)
     bi_path = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.json"))
     bi_js_path = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.js"))
     if not os.path.exists(bi_path):
@@ -527,10 +555,22 @@ def main():
     if not deuda or not isinstance(deuda, dict):
         fail("El bloque obligatorio 'antiguedad_deuda' no existe o está vacío en bi_intelligence_data.json", last_date)
 
-    # Campos obligatorios unificados
+    # Exigir la presencia obligatoria de ambas estructuras 'clientes' y 'detalle_clientes'
+    if "clientes" not in deuda or not isinstance(deuda["clientes"], list) or len(deuda["clientes"]) == 0:
+        fail("Falta la lista obligatoria 'clientes' en antiguedad_deuda requerida por la interfaz web", last_date)
+    if "detalle_clientes" not in deuda or not isinstance(deuda["detalle_clientes"], list) or len(deuda["detalle_clientes"]) == 0:
+        fail("Falta la lista obligatoria 'detalle_clientes' en antiguedad_deuda", last_date)
+    if len(deuda["clientes"]) != len(deuda["detalle_clientes"]):
+        fail(f"Desincronización en número de elementos entre 'clientes' ({len(deuda['clientes'])}) y 'detalle_clientes' ({len(deuda['detalle_clientes'])})", last_date)
+
     tot_deuda = round(float(deuda.get("total_deuda_eur", 0.0) or deuda.get("total_deuda_gestionada_eur", 0.0)), 2)
     if tot_deuda <= 0.0:
         fail(f"Total de deuda no válido o nulo: {tot_deuda} €", last_date)
+
+    # Comprobar igualdad estricta entre total_deuda_eur y total_deuda_gestionada_eur si ambos existen
+    if "total_deuda_eur" in deuda and "total_deuda_gestionada_eur" in deuda:
+        if abs(float(deuda["total_deuda_eur"]) - float(deuda["total_deuda_gestionada_eur"])) > 0.01:
+            fail(f"Divergencia entre total_deuda_eur ({deuda['total_deuda_eur']}) y total_deuda_gestionada_eur ({deuda['total_deuda_gestionada_eur']})", last_date)
 
     tramos = deuda.get("total_por_tramo_eur") or deuda.get("totales_tramos")
     if not tramos or not isinstance(tramos, dict):
@@ -550,64 +590,117 @@ def main():
     if abs(tot_deuda - sum_tramos) > 0.05:
         fail(f"Descuadre en panel de deuda: total deuda ({tot_deuda:.2f} €) != suma tramos ({sum_tramos:.2f} €)", last_date)
 
-    clientes_deuda = deuda.get("detalle_clientes") or deuda.get("clientes")
-    if not clientes_deuda or not isinstance(clientes_deuda, list) or len(clientes_deuda) == 0:
-        fail("La lista de clientes de deuda 'detalle_clientes' está vacía o ausente", last_date)
+    # Auditar cada cliente y comprobar correspondencia exacta entre campos de pantalla y campos validados
+    clientes_deuda = deuda["detalle_clientes"]
+    clientes_pantalla = deuda["clientes"]
 
-    sum_sal_clis = 0.0
-    sum_tramos_clis = {k: 0.0 for k in ["0_30", "31_60", "61_90", "91_120", "121_plus"]}
+    for idx, (cli_val, cli_ui) in enumerate(zip(clientes_deuda, clientes_pantalla)):
+        c_name = cli_val.get("cliente", f"Cliente #{idx+1}")
+        if cli_val.get("cliente") != cli_ui.get("cliente"):
+            fail(f"Desincronización en orden/nombre de cliente #{idx+1}: detalle_clientes={cli_val.get('cliente')} vs clientes={cli_ui.get('cliente')}", last_date)
 
-    for cli in clientes_deuda:
-        c_name = cli.get("cliente", "Desconocido")
-        c_saldo = round(float(cli.get("saldo_eur", 0.0) or cli.get("total_vencido", 0.0)), 2)
-        if c_saldo <= 0.0:
-            fail(f"Saldo de cliente {c_name} en deuda es nulo o negativo: {c_saldo} €", last_date)
-        sum_sal_clis += c_saldo
+        # Comprobar igualdad estricta entre campos de la lista clientes y de detalle_clientes
+        for k_t, k_n in [("t0_30", "0_30"), ("t31_60", "31_60"), ("t61_90", "61_90"), ("t91_120", "91_120"), ("t121_plus", "121_plus")]:
+            v_ui = round(float(cli_ui.get(k_t, 0.0) or 0.0), 2)
+            v_val_flat = round(float(cli_val.get(k_t, 0.0) or 0.0), 2)
+            v_val_nested = round(float(cli_val.get("tramos_eur", {}).get(k_n, 0.0) or 0.0), 2)
+            if abs(v_ui - v_val_nested) > 0.01:
+                fail(f"Divergencia en cliente {c_name}: campo de pantalla clientes.{k_t} ({v_ui:.2f} €) != detalle_clientes.tramos_eur.{k_n} ({v_val_nested:.2f} €)", last_date)
+            if abs(v_val_flat - v_val_nested) > 0.01:
+                fail(f"Divergencia interna en cliente {c_name}: {k_t} ({v_val_flat:.2f} €) != {k_n} ({v_val_nested:.2f} €)", last_date)
 
-        c_tramos = cli.get("tramos_eur", {})
-        if not c_tramos:
-            c_tramos = {
-                "0_30": cli.get("t0_30", 0.0),
-                "31_60": cli.get("t31_60", 0.0),
-                "61_90": cli.get("t61_90", 0.0),
-                "91_120": cli.get("t91_120", 0.0),
-                "121_plus": cli.get("t121_plus", 0.0)
-            }
-        c_sum_tramos = round(sum(float(v) for v in c_tramos.values()), 2)
-        if abs(c_saldo - c_sum_tramos) > 0.05:
-            fail(f"Descuadre en deuda de cliente {c_name}: saldo ({c_saldo:.2f} €) != suma tramos ({c_sum_tramos:.2f} €)", last_date)
+        tot_ui = round(float(cli_ui.get("total_vencido", 0.0) or cli_ui.get("saldo_eur", 0.0) or 0.0), 2)
+        tot_val = round(float(cli_val.get("saldo_eur", 0.0) or cli_val.get("total_vencido", 0.0) or 0.0), 2)
+        if abs(tot_ui - tot_val) > 0.01:
+            fail(f"Divergencia en total de cliente {c_name}: clientes ({tot_ui:.2f} €) != detalle_clientes ({tot_val:.2f} €)", last_date)
 
-        for tk, tv in c_tramos.items():
-            norm_k = norm_t(tk)
-            if norm_k in sum_tramos_clis:
-                sum_tramos_clis[norm_k] += round(float(tv), 2)
+        sum_c_tramos = round(sum(float(cli_val.get("tramos_eur", {}).get(tk, 0.0) or 0.0) for tk in ["0_30", "31_60", "61_90", "91_120", "121_plus"]), 2)
+        if abs(tot_val - sum_c_tramos) > 0.05:
+            fail(f"Descuadre en cliente {c_name}: saldo ({tot_val:.2f} €) != suma tramos ({sum_c_tramos:.2f} €)", last_date)
 
-    sum_sal_clis = round(sum_sal_clis, 2)
+    sum_sal_clis = round(sum(float(c.get("saldo_eur", 0.0) or 0.0) for c in clientes_deuda), 2)
     if abs(sum_sal_clis - tot_deuda) > 0.05:
         fail(f"Descuadre total clientes de deuda ({sum_sal_clis:.2f} €) != total gestionado ({tot_deuda:.2f} €)", last_date)
 
     for tk in ["0_30", "31_60", "61_90", "91_120", "121_plus"]:
         val_tramo_g = tramos_clean.get(tk, 0.0)
-        tot_exp_r = round(sum_tramos_clis.get(tk, 0.0), 2)
+        tot_exp_r = round(sum(float(cli.get("tramos_eur", {}).get(tk, 0.0) or 0.0) for cli in clientes_deuda), 2)
         if abs(val_tramo_g - tot_exp_r) > 0.05:
             fail(f"Descuadre en tramo {tk}: suma clientes ({tot_exp_r:.2f} €) != total tramo ({val_tramo_g:.2f} €)", last_date)
 
-    # Paridad biunívoca de deuda entre bi_intelligence_data.json y bi_intelligence_data.js
-    if os.path.exists(bi_js_path):
-        try:
-            with open(bi_js_path, "r", encoding="utf-8") as f_bjs:
-                raw_bjs = f_bjs.read().strip()
-            prefix_bjs = "window.BI_INTELLIGENCE_DATA ="
-            if raw_bjs.startswith(prefix_bjs):
-                raw_bjs_clean = raw_bjs[len(prefix_bjs):].strip()
-                if raw_bjs_clean.endswith(";"): raw_bjs_clean = raw_bjs_clean[:-1].strip()
-                bi_from_js = json.loads(raw_bjs_clean)
-                deuda_js = bi_from_js.get("antiguedad_deuda", {})
-                tot_deuda_js = round(float(deuda_js.get("total_deuda_eur", 0.0) or deuda_js.get("total_deuda_gestionada_eur", 0.0)), 2)
-                if abs(tot_deuda - tot_deuda_js) > 0.01:
-                    fail(f"Desincronización en deuda entre JSON ({tot_deuda:.2f} €) y JS ({tot_deuda_js:.2f} €)", last_date)
-        except Exception as e:
-            fail(f"Error al validar paridad de deuda en bi_intelligence_data.js: {e}", last_date)
+    # Paridad exhaustiva cliente por cliente y tramo por tramo entre bi_intelligence_data.json y bi_intelligence_data.js
+    if not os.path.exists(bi_js_path):
+        fail("El archivo obligatorio bi_intelligence_data.js no existe", last_date)
+
+    try:
+        with open(bi_js_path, "r", encoding="utf-8") as f_bjs:
+            raw_bjs = f_bjs.read().strip()
+        prefix_bjs = "window.BI_INTELLIGENCE_DATA ="
+        if not raw_bjs.startswith(prefix_bjs):
+            fail("El archivo bi_intelligence_data.js no contiene la cabecera 'window.BI_INTELLIGENCE_DATA ='", last_date)
+        raw_bjs_clean = raw_bjs[len(prefix_bjs):].strip()
+        if raw_bjs_clean.endswith(";"): raw_bjs_clean = raw_bjs_clean[:-1].strip()
+        bi_from_js = json.loads(raw_bjs_clean)
+        deuda_js = bi_from_js.get("antiguedad_deuda")
+        if not deuda_js or not isinstance(deuda_js, dict):
+            fail("El bloque 'antiguedad_deuda' falta o está vacío en bi_intelligence_data.js", last_date)
+
+        tot_deuda_js = round(float(deuda_js.get("total_deuda_eur", 0.0) or deuda_js.get("total_deuda_gestionada_eur", 0.0)), 2)
+        if abs(tot_deuda - tot_deuda_js) > 0.01:
+            fail(f"Desincronización en deuda total entre JSON ({tot_deuda:.2f} €) y JS ({tot_deuda_js:.2f} €)", last_date)
+
+        js_tramos_raw = deuda_js.get("total_por_tramo_eur") or deuda_js.get("totales_tramos") or {}
+        js_tramos_clean = {norm_t(k): round(float(v), 2) for k, v in js_tramos_raw.items() if k != "total"}
+        for tk in ["0_30", "31_60", "61_90", "91_120", "121_plus"]:
+            v_json_tr = tramos_clean.get(tk, 0.0)
+            v_js_tr = js_tramos_clean.get(tk, 0.0)
+            if abs(v_json_tr - v_js_tr) > 0.01:
+                fail(f"Desincronización en tramo {tk} de deuda entre JSON ({v_json_tr:.2f} €) y JS ({v_js_tr:.2f} €)", last_date)
+
+        # Comprobar exhaustivamente ambas listas (clientes y detalle_clientes) y todos los tramos en JS
+        for list_name in ["clientes", "detalle_clientes"]:
+            js_list = deuda_js.get(list_name)
+            if not js_list or not isinstance(js_list, list):
+                fail(f"Falta la lista obligatoria '{list_name}' en bi_intelligence_data.js", last_date)
+            if len(js_list) != len(clientes_pantalla):
+                fail(f"Desincronización en número de clientes en lista '{list_name}' de JS: JSON ({len(clientes_pantalla)}) vs JS ({len(js_list)})", last_date)
+
+            js_cli_map = {str(c.get("cliente", "")).strip().upper(): c for c in js_list}
+            for cli_json in clientes_pantalla:
+                c_name_norm = str(cli_json.get("cliente", "")).strip().upper()
+                c_js = js_cli_map.get(c_name_norm)
+                if not c_js:
+                    fail(f"Cliente de deuda '{cli_json.get('cliente')}' presente en JSON pero ausente en lista '{list_name}' de JS", last_date)
+                for fld in ["saldo_eur", "total_vencido", "t0_30", "t31_60", "t61_90", "t91_120", "t121_plus"]:
+                    v_j = round(float(cli_json.get(fld, 0.0) or 0.0), 2)
+                    v_s = round(float(c_js.get(fld, 0.0) or 0.0), 2)
+                    if abs(v_j - v_s) > 0.01:
+                        fail(f"Desincronización en cliente de deuda '{cli_json.get('cliente')}' campo '{fld}' en '{list_name}' de JS: JSON={v_j:.2f} € vs JS={v_s:.2f} €", last_date)
+                for tk in ["0_30", "31_60", "61_90", "91_120", "121_plus"]:
+                    v_j_tr = round(float(cli_json.get("tramos_eur", {}).get(tk, 0.0) or 0.0), 2)
+                    v_s_tr = round(float(c_js.get("tramos_eur", {}).get(tk, 0.0) or 0.0), 2)
+                    if abs(v_j_tr - v_s_tr) > 0.01:
+                        fail(f"Desincronización en cliente de deuda '{cli_json.get('cliente')}' tramos_eur.{tk} en '{list_name}' de JS: JSON={v_j_tr:.2f} € vs JS={v_s_tr:.2f} €", last_date)
+
+        # Comprobar igualdad estricta entre clientes y detalle_clientes dentro de JS
+        js_ui_clis = deuda_js.get("clientes", [])
+        js_det_clis = deuda_js.get("detalle_clientes", [])
+        for idx, (c_ui, c_det) in enumerate(zip(js_ui_clis, js_det_clis)):
+            c_name = c_ui.get("cliente", f"Cliente #{idx+1}")
+            for k_t, k_n in [("t0_30", "0_30"), ("t31_60", "31_60"), ("t61_90", "61_90"), ("t91_120", "91_120"), ("t121_plus", "121_plus")]:
+                v_ui = round(float(c_ui.get(k_t, 0.0) or 0.0), 2)
+                v_det = round(float(c_det.get("tramos_eur", {}).get(k_n, 0.0) or 0.0), 2)
+                if abs(v_ui - v_det) > 0.01:
+                    fail(f"Divergencia dentro de bi_intelligence_data.js en cliente {c_name}: clientes.{k_t} ({v_ui:.2f} €) != detalle_clientes.{k_n} ({v_det:.2f} €)", last_date)
+                v_det_flat = round(float(c_det.get(k_t, 0.0) or 0.0), 2)
+                if abs(v_ui - v_det_flat) > 0.01:
+                    fail(f"Divergencia dentro de bi_intelligence_data.js en cliente {c_name}: clientes.{k_t} ({v_ui:.2f} €) != detalle_clientes.{k_t} ({v_det_flat:.2f} €)", last_date)
+            tot_ui = round(float(c_ui.get("total_vencido", 0.0) or 0.0), 2)
+            tot_det = round(float(c_det.get("total_vencido", 0.0) or c_det.get("saldo_eur", 0.0) or 0.0), 2)
+            if abs(tot_ui - tot_det) > 0.01:
+                fail(f"Divergencia dentro de bi_intelligence_data.js en cliente {c_name}: total_vencido={tot_ui:.2f} € vs {tot_det:.2f} €", last_date)
+    except Exception as e:
+        fail(f"Error al validar paridad exhaustiva de deuda en bi_intelligence_data.js: {e}", last_date)
 
     # 7. Validar Excel de seguimiento
     try:

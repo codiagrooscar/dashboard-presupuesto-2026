@@ -1059,13 +1059,14 @@ function renderChurnAlertSection() {
       ${(() => {
         const biData = getBiData();
         const debtObj = biData?.antiguedad_deuda;
-        if (!debtObj || !Array.isArray(debtObj.clientes)) return '';
-        const dList = debtObj.clientes;
-        const tot0_30 = dList.reduce((acc, c) => acc + (c.t0_30 || 0), 0);
-        const tot31_60 = dList.reduce((acc, c) => acc + (c.t31_60 || 0), 0);
-        const tot61_90 = dList.reduce((acc, c) => acc + (c.t61_90 || 0), 0);
-        const tot91_120 = dList.reduce((acc, c) => acc + (c.t91_120 || 0), 0);
-        const tot121 = dList.reduce((acc, c) => acc + (c.t121_plus || 0), 0);
+        const dList = debtObj?.detalle_clientes || debtObj?.clientes;
+        if (!debtObj || !Array.isArray(dList) || dList.length === 0) return '';
+        const getT = (c, kFlat, kNested) => (typeof c[kFlat] === 'number') ? c[kFlat] : (c.tramos_eur?.[kNested] || 0);
+        const tot0_30 = dList.reduce((acc, c) => acc + getT(c, 't0_30', '0_30'), 0);
+        const tot31_60 = dList.reduce((acc, c) => acc + getT(c, 't31_60', '31_60'), 0);
+        const tot61_90 = dList.reduce((acc, c) => acc + getT(c, 't61_90', '61_90'), 0);
+        const tot91_120 = dList.reduce((acc, c) => acc + getT(c, 't91_120', '91_120'), 0);
+        const tot121 = dList.reduce((acc, c) => acc + getT(c, 't121_plus', '121_plus'), 0);
         const grandTotal = tot0_30 + tot31_60 + tot61_90 + tot91_120 + tot121;
         
         return `
@@ -1143,11 +1144,11 @@ function renderChurnAlertSection() {
                   <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
                     <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">${c.cliente}</strong></td>
                     <td style="padding:0.65rem 0.5rem; color:#94a3b8;">${c.pais}</td>
-                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${c.t0_30 > 0 ? '#38bdf8' : 'var(--muted)'};">${fmtEur(c.t0_30)}</td>
-                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${c.t31_60 > 0 ? '#cbd5e1' : 'var(--muted)'};">${fmtEur(c.t31_60)}</td>
-                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${c.t61_90 > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtEur(c.t61_90)}</td>
-                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${c.t91_120 > 0 ? '#f97316' : 'var(--muted)'};">${fmtEur(c.t91_120)}</td>
-                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${c.t121_plus > 0 ? '#ef4444; font-weight:700' : 'var(--muted)'};">${fmtEur(c.t121_plus)}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${getT(c, 't0_30', '0_30') > 0 ? '#38bdf8' : 'var(--muted)'};">${fmtEur(getT(c, 't0_30', '0_30'))}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${getT(c, 't31_60', '31_60') > 0 ? '#cbd5e1' : 'var(--muted)'};">${fmtEur(getT(c, 't31_60', '31_60'))}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${getT(c, 't61_90', '61_90') > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtEur(getT(c, 't61_90', '61_90'))}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${getT(c, 't91_120', '91_120') > 0 ? '#f97316' : 'var(--muted)'};">${fmtEur(getT(c, 't91_120', '91_120'))}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${getT(c, 't121_plus', '121_plus') > 0 ? '#ef4444; font-weight:700' : 'var(--muted)'};">${fmtEur(getT(c, 't121_plus', '121_plus'))}</td>
                     <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">${fmtEur(rowSum)}</td>
                     <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700; color:#fbbf24;">${pct}%</td>
                     <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">

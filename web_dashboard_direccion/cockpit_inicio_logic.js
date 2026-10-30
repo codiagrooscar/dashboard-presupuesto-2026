@@ -188,7 +188,7 @@ function renderCockpitInicioSection() {
             <div style="font-size:0.72rem; color:#94a3b8; margin-top:0.35rem; line-height:1.35;">
               <div>${isEn ? 'Activity margin:' : 'Margen actividad:'} <strong>${fmtEur(margenFullCostEur)}</strong> (${margenFullCostPct.toFixed(1)}%) · ${isEn ? 'Total plant absorption:' : 'Absorción total planta:'} <strong style="color:#38bdf8">${fmtEur(margenNetoPlantaTotalEur)}</strong></div>
               <div style="color:#fbbf24; font-size:0.70rem; margin-top:0.15rem;">
-                ${isEn ? 'Prod. vs sales variance (pending stock conciliation):' : 'Dif. prod. vs ventas (pendiente conciliación stock):'} <strong>-${fmtEur(costeStockNoVendido)}</strong>
+                ${isEn ? 'Technical variance prod. vs sales (pending documentary verification):' : 'Diferencia técnica entre producción y ventas, pendiente de comprobación documental:'} <strong>-${fmtEur(costeStockNoVendido)}</strong>
               </div>
             </div>
             <div class="progress-bar-container" style="margin-top:0.4rem;">

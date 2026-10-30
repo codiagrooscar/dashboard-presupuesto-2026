@@ -1876,6 +1876,87 @@ cta_700_dyn = round(cuentas_detalle.get('700000000', {}).get('saldo_mes', 632880
 ventas_netas_g7_dyn = round(sum(v.get('saldo_mes', 0.0) for c, v in cuentas_detalle.items() if c.startswith('70')), 2)
 var_exist_pt_dyn = round(sum(v.get('saldo_mes', 0.0) for c, v in cuentas_detalle.items() if c.startswith('71')), 2)
 
+# Construcción dinámica cuenta por cuenta de todas las cuentas del Grupo 7, 71 y 778 presentes en el Mayor
+g7_accounts = [c for c in sorted(cuentas_detalle.keys()) if (c.startswith('70') or c.startswith('71') or c.startswith('778'))]
+
+lineas_conciliacion = []
+orden = 1
+for c in g7_accounts:
+    saldo = round(cuentas_detalle[c].get('saldo_mes', 0.0), 2)
+    desc = cuentas_detalle[c].get('descripcion', '')
+    if c == '700000000':
+        tipo = 'ventas_mercaderias'
+        explicacion = 'Facturación bruta de productos estándar sin descuentos comerciales.'
+        estado = 'Comprobado'
+    elif c in ['700000624', '700001624']:
+        tipo = 'transporte_repercutido'
+        explicacion = 'Portes cobrados a clientes en factura de venta (integrados en Cifra de Negocio).'
+        estado = 'Comprobado'
+    elif c.startswith('704') or c == '705000001':
+        tipo = 'envases_gestion'
+        explicacion = 'Facturación accesoria de envases e ingresos por gestión de envases.'
+        estado = 'Comprobado'
+    elif c.startswith('706'):
+        tipo = 'descuento_comercial'
+        explicacion = 'Abonos y descuentos concedidos a clientes en facturas de venta.'
+        estado = 'Comprobado'
+    elif c.startswith('709'):
+        tipo = 'rappel_comercial'
+        explicacion = 'Provisión devengada por volumen y acuerdos de rappel según política comercial.'
+        estado = 'Comprobado'
+    elif c in ['702000000', '703000000', '705000000']:
+        tipo = 'maquila'
+        explicacion = 'Ingresos por formulación SAS / subproductos menos abono de semiterminados (Maquila).'
+        estado = 'Comprobado'
+    elif c.startswith('71'):
+        tipo = 'variacion_stock'
+        explicacion = 'Variación contable neta de existencias de productos semiterminados y terminados (pendiente de conciliación física).'
+        estado = 'Pendiente de conciliación'
+    elif c.startswith('778'):
+        tipo = 'excepcional'
+        explicacion = 'Ajuste de redondeo contable / liquidaciones en libro mayor oficial.'
+        estado = 'Comprobado'
+    else:
+        tipo = 'otros_ingresos'
+        explicacion = 'Otros ingresos de explotación registrados en Libro Mayor.'
+        estado = 'Comprobado'
+
+    lineas_conciliacion.append({
+        "orden": orden,
+        "cuenta": c,
+        "concepto": f"{desc} (Cta {c})",
+        "importe_eur": saldo,
+        "origen": f"Mayor oficial PYG SEP.xlsx / Cta {c}",
+        "tipo": tipo,
+        "estado": estado,
+        "explicacion": explicacion
+    })
+    orden += 1
+
+diff_perimetro = round(n1_val - tot_v_sep_round, 2)
+lineas_conciliacion.append({
+    "orden": orden,
+    "cuenta": "Ajuste Perímetro",
+    "concepto": "(-) Deducción por diferencia de perímetro producción P&L vs pedidos analizados SKU",
+    "importe_eur": -diff_perimetro,
+    "origen": "Comparativa Cascada P&L Nivel 1 vs Detalle SKU facturado con escandallo",
+    "tipo": "perimetro",
+    "estado": "Pendiente de conciliación",
+    "explicacion": "Diferencia técnica por pedidos, expediciones y regularizaciones pendientes de conciliación documental con inventario físico valorado."
+})
+orden += 1
+
+lineas_conciliacion.append({
+    "orden": orden,
+    "cuenta": "Ventas Netas Detalle SKU",
+    "concepto": "(=) Ventas Netas Industriales en Detalle (Base Escandallo SKU)",
+    "importe_eur": tot_v_sep_round,
+    "origen": "Presupuesto_Ventas_2027_Definitivo.xlsx Detalle Líneas con escandallo",
+    "tipo": "total_detalle",
+    "estado": "Comprobado",
+    "explicacion": "Total base del escandallo industrial unitario en Clientes, Productos y Comerciales."
+})
+
 puente_facturacion = {
     "titulo": "Puente de Conciliación de Facturación y Cifra de Producción (Mayor Grupo 7 vs Detalle Analítico)",
     "estado_global": "Pendiente de conciliación",
@@ -1883,99 +1964,8 @@ puente_facturacion = {
     "ventas_netas_grupo_7": ventas_netas_g7_dyn,
     "valor_produccion_n1": n1_val,
     "ventas_detalle_analitico_sep": tot_v_sep_round,
-    "diferencia_produccion_vs_ventas_sep": round(n1_val - tot_v_sep_round, 2),
-    "lineas_conciliacion": [
-        {
-            "orden": 1,
-            "cuenta": "700000000",
-            "concepto": "Ventas brutas de mercaderías Codiagro (Mayor oficial)",
-            "importe_eur": cta_700_dyn,
-            "origen": "Mayor oficial PYG SEP.xlsx / Hoja Cuentas",
-            "tipo": "ingreso",
-            "estado": "Comprobado",
-            "explicacion": "Facturación bruta de productos estándar sin descuentos comerciales."
-        },
-        {
-            "orden": 2,
-            "cuenta": "700001624",
-            "concepto": "Venta por transporte repercutido a clientes",
-            "importe_eur": round(cuentas_detalle.get('700001624', {}).get('saldo_mes', 9613.00), 2),
-            "origen": "Mayor Cta 700001624",
-            "tipo": "ingreso",
-            "estado": "Comprobado",
-            "explicacion": "Portes cobrados a clientes en factura de venta (integrados en Cifra de Negocio)."
-        },
-        {
-            "orden": 3,
-            "cuenta": "704000000 / 705000001",
-            "concepto": "Ventas de envases e ingresos por gestión de envases",
-            "importe_eur": round(cuentas_detalle.get('704000000', {}).get('saldo_mes', 1203.47) + cuentas_detalle.get('705000001', {}).get('saldo_mes', 1405.89), 2),
-            "origen": "Mayor Ctas 704000000 y 705000001",
-            "tipo": "ingreso",
-            "estado": "Comprobado",
-            "explicacion": "Facturación accesoria de envases (1.203,47 €) y gestión de envases (1.405,89 €)."
-        },
-        {
-            "orden": 4,
-            "cuenta": "706000001",
-            "concepto": "Descuentos comerciales y pronto pago definitivo s/ventas",
-            "importe_eur": round(cuentas_detalle.get('706000001', {}).get('saldo_mes', -8347.10), 2),
-            "origen": "Hoja Ajustes_ventas (24 facturas AJ-001 a AJ-024) y Mayor Cta 706000001",
-            "tipo": "reduccion_ingreso",
-            "estado": "Comprobado",
-            "explicacion": "Abonos y descuentos concedidos a clientes en facturas de venta de septiembre."
-        },
-        {
-            "orden": 5,
-            "cuenta": "709000001",
-            "concepto": "Provisión de rappels comerciales acumulada septiembre",
-            "importe_eur": round(cuentas_detalle.get('709000001', {}).get('saldo_mes', -12327.75), 2),
-            "origen": "Hoja Ajustes_ventas (PROV-RAPEL-09) y Mayor Cta 709000001",
-            "tipo": "reduccion_ingreso",
-            "estado": "Comprobado",
-            "explicacion": "Provisión devengada por volumen y acuerdos de rappel según política comercial."
-        },
-        {
-            "orden": 6,
-            "cuenta": "702 / 703 / 705",
-            "concepto": "Aislamiento de actividad Maquila SAS fuera del catálogo comercial propio",
-            "importe_eur": round(current_maq_cuentas if 'current_maq_cuentas' in locals() else -10058.80, 2),
-            "origen": "Hoja Maquila y Mayor Ctas 705000000 (+3.682,80 €), 703000000 (+2.751,20 €), 702000000 (-16.492,80 €)",
-            "tipo": "maquila",
-            "estado": "Comprobado",
-            "explicacion": "Ingresos por formulación SAS menos abono de semiterminados; segregado para análisis propio."
-        },
-        {
-            "orden": 7,
-            "cuenta": "711 / 712",
-            "concepto": "Variación de existencias de productos semiterminados y terminados",
-            "importe_eur": var_exist_pt_dyn,
-            "origen": "Mayor Ctas 711000000 (-30.979,93 €) y 712000000 (-78.386,56 €)",
-            "tipo": "ajuste_stock",
-            "estado": "Pendiente de conciliación",
-            "explicacion": "Salida neta de almacén de productos terminados y semiterminados durante septiembre."
-        },
-        {
-            "orden": 8,
-            "cuenta": "778000000",
-            "concepto": "Ingresos excepcionales",
-            "importe_eur": round(cuentas_detalle.get('778000000', {}).get('saldo_mes', 0.20), 2),
-            "origen": "Mayor Cta 778000000",
-            "tipo": "ingreso",
-            "estado": "Comprobado",
-            "explicacion": "Ajuste de redondeo contable en libro mayor."
-        },
-        {
-            "orden": 9,
-            "cuenta": "Ajuste Perímetro",
-            "concepto": "Diferencia neta entre Cifra de Producción Grupo 7 (505.002,49 €) y Detalle SKU Ventas (457.931,55 €)",
-            "importe_eur": round(n1_val - tot_v_sep_round, 2),
-            "origen": "Comparativa Cascada P&L Nivel 1 vs Presupuesto_Ventas_2027_Definitivo.xlsx Detalle Líneas",
-            "tipo": "perimetro",
-            "estado": "Pendiente de conciliación",
-            "explicacion": "Diferencia por regularizaciones de facturación de períodos anteriores y entregas no coincidentes con devengo contable."
-        }
-    ]
+    "diferencia_produccion_vs_ventas_sep": diff_perimetro,
+    "lineas_conciliacion": lineas_conciliacion
 }
 fc_full["puente_facturacion"] = puente_facturacion
 

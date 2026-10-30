@@ -4119,92 +4119,192 @@ window.fullCostData = {
       {
         "orden": 1,
         "cuenta": "700000000",
-        "concepto": "Ventas brutas de mercaderías Codiagro (Mayor oficial)",
+        "concepto": "Ventas de mercaderías (Cta 700000000)",
         "importe_eur": 632880.07,
-        "origen": "Mayor oficial PYG SEP.xlsx / Hoja Cuentas",
-        "tipo": "ingreso",
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 700000000",
+        "tipo": "ventas_mercaderias",
         "estado": "Comprobado",
         "explicacion": "Facturación bruta de productos estándar sin descuentos comerciales."
       },
       {
         "orden": 2,
-        "cuenta": "700001624",
-        "concepto": "Venta por transporte repercutido a clientes",
-        "importe_eur": 9613.0,
-        "origen": "Mayor Cta 700001624",
-        "tipo": "ingreso",
+        "cuenta": "700000624",
+        "concepto": "VENTA POR TRANSP. REP. AL CLIE (Cta 700000624)",
+        "importe_eur": 0.0,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 700000624",
+        "tipo": "transporte_repercutido",
         "estado": "Comprobado",
         "explicacion": "Portes cobrados a clientes en factura de venta (integrados en Cifra de Negocio)."
       },
       {
         "orden": 3,
-        "cuenta": "704000000 / 705000001",
-        "concepto": "Ventas de envases e ingresos por gestión de envases",
-        "importe_eur": 2609.36,
-        "origen": "Mayor Ctas 704000000 y 705000001",
-        "tipo": "ingreso",
+        "cuenta": "700000769",
+        "concepto": "INGRESOS POR RETRASOS DE COBRO (Cta 700000769)",
+        "importe_eur": 0.0,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 700000769",
+        "tipo": "otros_ingresos",
         "estado": "Comprobado",
-        "explicacion": "Facturación accesoria de envases (1.203,47 €) y gestión de envases (1.405,89 €)."
+        "explicacion": "Otros ingresos de explotación registrados en Libro Mayor."
       },
       {
         "orden": 4,
-        "cuenta": "706000001",
-        "concepto": "Descuentos comerciales y pronto pago definitivo s/ventas",
-        "importe_eur": -8347.1,
-        "origen": "Hoja Ajustes_ventas (24 facturas AJ-001 a AJ-024) y Mayor Cta 706000001",
-        "tipo": "reduccion_ingreso",
+        "cuenta": "700001624",
+        "concepto": "VENTA POR TRANSPORTE REP. AL C (Cta 700001624)",
+        "importe_eur": 9613.0,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 700001624",
+        "tipo": "transporte_repercutido",
         "estado": "Comprobado",
-        "explicacion": "Abonos y descuentos concedidos a clientes en facturas de venta de septiembre."
+        "explicacion": "Portes cobrados a clientes en factura de venta (integrados en Cifra de Negocio)."
       },
       {
         "orden": 5,
-        "cuenta": "709000001",
-        "concepto": "Provisión de rappels comerciales acumulada septiembre",
-        "importe_eur": -12327.75,
-        "origen": "Hoja Ajustes_ventas (PROV-RAPEL-09) y Mayor Cta 709000001",
-        "tipo": "reduccion_ingreso",
+        "cuenta": "702000000",
+        "concepto": "Ventas de productos semitermin (Cta 702000000)",
+        "importe_eur": -16492.8,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 702000000",
+        "tipo": "maquila",
+        "estado": "Comprobado",
+        "explicacion": "Ingresos por formulación SAS / subproductos menos abono de semiterminados (Maquila)."
+      },
+      {
+        "orden": 6,
+        "cuenta": "703000000",
+        "concepto": "Ventas de subproductos y resid (Cta 703000000)",
+        "importe_eur": 2751.2,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 703000000",
+        "tipo": "maquila",
+        "estado": "Comprobado",
+        "explicacion": "Ingresos por formulación SAS / subproductos menos abono de semiterminados (Maquila)."
+      },
+      {
+        "orden": 7,
+        "cuenta": "704000000",
+        "concepto": "Ventas de envases y embalajes (Cta 704000000)",
+        "importe_eur": 1203.47,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 704000000",
+        "tipo": "envases_gestion",
+        "estado": "Comprobado",
+        "explicacion": "Facturación accesoria de envases e ingresos por gestión de envases."
+      },
+      {
+        "orden": 8,
+        "cuenta": "705000000",
+        "concepto": "Prestaciones de servicios (Cta 705000000)",
+        "importe_eur": 3682.8,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 705000000",
+        "tipo": "maquila",
+        "estado": "Comprobado",
+        "explicacion": "Ingresos por formulación SAS / subproductos menos abono de semiterminados (Maquila)."
+      },
+      {
+        "orden": 9,
+        "cuenta": "705000001",
+        "concepto": "INGRESO POR GESTIÓN DE ENVASES (Cta 705000001)",
+        "importe_eur": 1405.89,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 705000001",
+        "tipo": "envases_gestion",
+        "estado": "Comprobado",
+        "explicacion": "Facturación accesoria de envases e ingresos por gestión de envases."
+      },
+      {
+        "orden": 10,
+        "cuenta": "706000000",
+        "concepto": "Dtos. ventas por pronto pago m (Cta 706000000)",
+        "importe_eur": 0.0,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 706000000",
+        "tipo": "descuento_comercial",
+        "estado": "Comprobado",
+        "explicacion": "Abonos y descuentos concedidos a clientes en facturas de venta."
+      },
+      {
+        "orden": 11,
+        "cuenta": "706000001",
+        "concepto": "DESCUENTO POR PRONTO PAGO DEFI (Cta 706000001)",
+        "importe_eur": -8347.1,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 706000001",
+        "tipo": "descuento_comercial",
+        "estado": "Comprobado",
+        "explicacion": "Abonos y descuentos concedidos a clientes en facturas de venta."
+      },
+      {
+        "orden": 12,
+        "cuenta": "709000000",
+        "concepto": "«Rappels» ventas de mercadería (Cta 709000000)",
+        "importe_eur": 0.0,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 709000000",
+        "tipo": "rappel_comercial",
         "estado": "Comprobado",
         "explicacion": "Provisión devengada por volumen y acuerdos de rappel según política comercial."
       },
       {
-        "orden": 6,
-        "cuenta": "702 / 703 / 705",
-        "concepto": "Aislamiento de actividad Maquila SAS fuera del catálogo comercial propio",
-        "importe_eur": -10058.8,
-        "origen": "Hoja Maquila y Mayor Ctas 705000000 (+3.682,80 €), 703000000 (+2.751,20 €), 702000000 (-16.492,80 €)",
-        "tipo": "maquila",
+        "orden": 13,
+        "cuenta": "709000001",
+        "concepto": "PROVISION RAPPELS (Cta 709000001)",
+        "importe_eur": -12327.75,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 709000001",
+        "tipo": "rappel_comercial",
         "estado": "Comprobado",
-        "explicacion": "Ingresos por formulación SAS menos abono de semiterminados; segregado para análisis propio."
+        "explicacion": "Provisión devengada por volumen y acuerdos de rappel según política comercial."
       },
       {
-        "orden": 7,
-        "cuenta": "711 / 712",
-        "concepto": "Variación de existencias de productos semiterminados y terminados",
-        "importe_eur": -109366.49,
-        "origen": "Mayor Ctas 711000000 (-30.979,93 €) y 712000000 (-78.386,56 €)",
-        "tipo": "ajuste_stock",
+        "orden": 14,
+        "cuenta": "709001500",
+        "concepto": "RAPPEL BONIFICACIONES POR PMK (Cta 709001500)",
+        "importe_eur": 0.0,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 709001500",
+        "tipo": "rappel_comercial",
+        "estado": "Comprobado",
+        "explicacion": "Provisión devengada por volumen y acuerdos de rappel según política comercial."
+      },
+      {
+        "orden": 15,
+        "cuenta": "711000000",
+        "concepto": "Variación existencias de prod. (Cta 711000000)",
+        "importe_eur": -30979.93,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 711000000",
+        "tipo": "variacion_stock",
         "estado": "Pendiente de conciliación",
-        "explicacion": "Salida neta de almacén de productos terminados y semiterminados durante septiembre."
+        "explicacion": "Variación contable neta de existencias de productos semiterminados y terminados (pendiente de conciliación física)."
       },
       {
-        "orden": 8,
+        "orden": 16,
+        "cuenta": "712000000",
+        "concepto": "Variación existencias de prod. (Cta 712000000)",
+        "importe_eur": -78386.56,
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 712000000",
+        "tipo": "variacion_stock",
+        "estado": "Pendiente de conciliación",
+        "explicacion": "Variación contable neta de existencias de productos semiterminados y terminados (pendiente de conciliación física)."
+      },
+      {
+        "orden": 17,
         "cuenta": "778000000",
-        "concepto": "Ingresos excepcionales",
+        "concepto": "Ingresos excepcionales (Cta 778000000)",
         "importe_eur": 0.2,
-        "origen": "Mayor Cta 778000000",
-        "tipo": "ingreso",
+        "origen": "Mayor oficial PYG SEP.xlsx / Cta 778000000",
+        "tipo": "excepcional",
         "estado": "Comprobado",
-        "explicacion": "Ajuste de redondeo contable en libro mayor."
+        "explicacion": "Ajuste de redondeo contable / liquidaciones en libro mayor oficial."
       },
       {
-        "orden": 9,
+        "orden": 18,
         "cuenta": "Ajuste Perímetro",
-        "concepto": "Diferencia neta entre Cifra de Producción Grupo 7 (505.002,49 €) y Detalle SKU Ventas (457.931,55 €)",
-        "importe_eur": 47070.94,
-        "origen": "Comparativa Cascada P&L Nivel 1 vs Presupuesto_Ventas_2027_Definitivo.xlsx Detalle Líneas",
+        "concepto": "(-) Deducción por diferencia de perímetro producción P&L vs pedidos analizados SKU",
+        "importe_eur": -47070.94,
+        "origen": "Comparativa Cascada P&L Nivel 1 vs Detalle SKU facturado con escandallo",
         "tipo": "perimetro",
         "estado": "Pendiente de conciliación",
-        "explicacion": "Diferencia por regularizaciones de facturación de períodos anteriores y entregas no coincidentes con devengo contable."
+        "explicacion": "Diferencia técnica por pedidos, expediciones y regularizaciones pendientes de conciliación documental con inventario físico valorado."
+      },
+      {
+        "orden": 19,
+        "cuenta": "Ventas Netas Detalle SKU",
+        "concepto": "(=) Ventas Netas Industriales en Detalle (Base Escandallo SKU)",
+        "importe_eur": 457931.55,
+        "origen": "Presupuesto_Ventas_2027_Definitivo.xlsx Detalle Líneas con escandallo",
+        "tipo": "total_detalle",
+        "estado": "Comprobado",
+        "explicacion": "Total base del escandallo industrial unitario en Clientes, Productos y Comerciales."
       }
     ]
   }

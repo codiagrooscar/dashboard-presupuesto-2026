@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 import sys
@@ -224,120 +225,121 @@ forecast_resumen["nota_metodologia"] = f"La consecución de volumen total ({cons
 output_bi["mejora_1_forecast_accuracy"] = forecast_resumen
 output_bi["mejora_2_concentracion_stress_test"] = concentracion_resumen
 
-# Panel de Antigüedad de Deuda y Situación de Cobros (Ageing Codiagro Sep.xlsx)
-output_bi["antiguedad_deuda"] = {
-  "fecha_corte": "30/09/2026",
-  "fuente": "Ageing Codiagro Sep.xlsx (Hoja SALDOS VENCIDOS)",
-  "total_deuda_gestionada_eur": 718769.55,
-  "totales_tramos": {
-    "t0_30": 214321.29,
-    "t31_60": 140363.27,
-    "t61_90": 83501.43,
-    "t91_120": 37387.11,
-    "t121_plus": 243196.45,
-    "total": 718769.55
-  },
-  "clientes": [
-    {
-      "cliente": "CODIMED EXPORT, S.L.",
-      "pais": "España",
-      "t0_30": 86922.03,
-      "t31_60": 70138.04,
-      "t61_90": 41670.28,
-      "t91_120": 37387.11,
-      "t121_plus": 151890.82,
-      "total_vencido": 388008.28,
-      "pct_total": 53.98,
-      "badge": "Plan Oct-Feb / Contado",
-      "badge_cls": "success",
-      "observaciones": "Está pagando al contado los pedidos que hace, nos ha enviado un calendario de pago, desde octubre hasta febrero para ponerse al día."
-    },
-    {
-      "cliente": "CAMPOEJIDO S.C.A.",
-      "pais": "España",
-      "t0_30": 122073.44,
-      "t31_60": 0.0,
-      "t61_90": 0.0,
-      "t91_120": 0.0,
-      "t121_plus": 0.0,
-      "total_vencido": 122073.44,
-      "pct_total": 16.98,
-      "badge": "Abono Pendiente",
-      "badge_cls": "warning",
-      "observaciones": "Discrepancias en un abono, nada más esté claro nos hará el pago de inmediato. (Deuda 100% en tramo corriente 0-30d)."
-    },
-    {
-      "cliente": "EUROFERTIL, S.A.",
-      "pais": "Costa Rica",
-      "t0_30": 0.0,
-      "t31_60": 63959.63,
-      "t61_90": 41831.15,
-      "t91_120": 0.0,
-      "t121_plus": 0.0,
-      "total_vencido": 105790.78,
-      "pct_total": 14.72,
-      "badge": "Cobro Activo 8.000 €/sem",
-      "badge_cls": "info",
-      "observaciones": "Seguimos cobrando a razón de 8.000 euros semanales, aunque en el mes de agosto sólo han podido enviar 2 transferencias."
-    },
-    {
-      "cliente": "DOGA TARIM TIC.SAN.VE TUR. LTD. STI",
-      "pais": "Turquía",
-      "t0_30": 0.0,
-      "t31_60": 0.0,
-      "t61_90": 0.0,
-      "t91_120": 0.0,
-      "t121_plus": 89504.67,
-      "total_vencido": 89504.67,
-      "pct_total": 12.45,
-      "badge": "Concordato Turquía",
-      "badge_cls": "danger",
-      "observaciones": "Está negociando su salida del Concordato (suspensión de pagos) para poder negociar un plan de pagos. Neutralizada de caída comercial."
-    },
-    {
-      "cliente": "T.J AGRICULTURA SL",
-      "pais": "España",
-      "t0_30": 3382.83,
-      "t31_60": 6265.6,
-      "t61_90": 0.0,
-      "t91_120": 0.0,
-      "t121_plus": 0.0,
-      "total_vencido": 9648.43,
-      "pct_total": 1.34,
-      "badge": "Importes Reclamados",
-      "badge_cls": "warning",
-      "observaciones": "Importes reclamados. En breve pagará."
-    },
-    {
-      "cliente": "DAVID BARAHONA HERNAEZ",
-      "pais": "España",
-      "t0_30": 1942.99,
-      "t31_60": 0.0,
-      "t61_90": 0.0,
-      "t91_120": 0.0,
-      "t121_plus": 0.0,
-      "total_vencido": 1942.99,
-      "pct_total": 0.27,
-      "badge": "Importes Reclamados",
-      "badge_cls": "warning",
-      "observaciones": "Importes reclamados. En breve pagará."
-    },
-    {
-      "cliente": "EURL BOUAZZA FILAHA",
-      "pais": "Argelia",
-      "t0_30": 0.0,
-      "t31_60": 0.0,
-      "t61_90": 0.0,
-      "t91_120": 0.0,
-      "t121_plus": 1800.96,
-      "total_vencido": 1800.96,
-      "pct_total": 0.25,
-      "badge": "Discrepancia Flete",
-      "badge_cls": "info",
-      "observaciones": "Cliente Argelia. Discrepancias en el último pedido (flete y análisis). Se arreglará en el próximo."
+# Panel de Antigüedad de Deuda y Situación de Cobros (Lectura Dinámica Real desde Ageing Codiagro Sep.xlsx)
+def load_antiguedad_deuda():
+    candidate_paths = [
+        get_source(os.path.join("outputs", "fullcost_septiembre_2026", "Ageing Codiagro Sep.xlsx")),
+        os.path.join("outputs", "fullcost_septiembre_2026", "Ageing Codiagro Sep.xlsx"),
+        r"c:\Users\oscar.ocampo\OneDrive - Agroquímica Codiagro S.L\Escritorio\REPORTING SIMPLIFICADO\SEPTIEMBRE\Cobros\Ageing Codiagro Sep.xlsx",
+        "Ageing Codiagro Sep.xlsx",
+        os.path.join("Cobros", "Ageing Codiagro Sep.xlsx")
+    ]
+    ageing_path = None
+    for p in candidate_paths:
+        if p and os.path.exists(p):
+            ageing_path = p
+            break
+
+    if not ageing_path:
+        raise FileNotFoundError("Archivo oficial de deuda 'Ageing Codiagro Sep.xlsx' no encontrado en rutas candidatas.")
+
+    mtime = os.path.getmtime(ageing_path)
+    dt_mtime = datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M:%S")
+
+    wb = openpyxl.load_workbook(ageing_path, data_only=True)
+    if "SALDOS VENCIDOS" not in wb.sheetnames:
+        raise ValueError(f"La hoja 'SALDOS VENCIDOS' no existe en {ageing_path}")
+    ws = wb["SALDOS VENCIDOS"]
+
+    meta_info = {
+        "CODIMED EXPORT, S.L.": {"pais": "España", "badge": "Plan Oct-Feb / Contado", "badge_cls": "success"},
+        "CAMPOEJIDO S.C.A.": {"pais": "España", "badge": "Abono Pendiente", "badge_cls": "warning"},
+        "EUROFERTIL, S.A.": {"pais": "Costa Rica", "badge": "Cobro Activo 8.000 €/sem", "badge_cls": "info"},
+        "DOGA TARIM TIC.SAN.VE TUR. LTD. STI": {"pais": "Turquía", "badge": "Concordato Turquía", "badge_cls": "danger"},
+        "T.J AGRICULTURA SL": {"pais": "España", "badge": "Importes Reclamados", "badge_cls": "warning"},
+        "DAVID BARAHONA HERNAEZ": {"pais": "España", "badge": "Importes Reclamados", "badge_cls": "warning"},
+        "EURL BOUAZZA FILAHA": {"pais": "Argelia", "badge": "Discrepancia Flete", "badge_cls": "info"}
     }
-  ]
-}
+
+    clientes_list = []
+    for r in range(13, 20):
+        cli_name = str(ws.cell(r, 2).value or "").strip()
+        if not cli_name:
+            continue
+        t0 = round(float(ws.cell(r, 4).value or 0.0), 2)
+        t1 = round(float(ws.cell(r, 5).value or 0.0), 2)
+        t2 = round(float(ws.cell(r, 6).value or 0.0), 2)
+        t3 = round(float(ws.cell(r, 7).value or 0.0), 2)
+        t4 = round(float(ws.cell(r, 8).value or 0.0), 2)
+        tot = round(float(ws.cell(r, 9).value or (t0 + t1 + t2 + t3 + t4)), 2)
+        pct = round(float(ws.cell(r, 10).value or 0.0) * 100, 2)
+        com = str(ws.cell(r, 11).value or "").strip()
+
+        info = meta_info.get(cli_name, {"pais": "España", "badge": "Gestionado", "badge_cls": "info"})
+
+        client_entry = {
+            "cliente": cli_name,
+            "pais": info["pais"],
+            "saldo_eur": tot,
+            "total_vencido": tot,
+            "pct_total": pct,
+            "t0_30": t0,
+            "t31_60": t1,
+            "t61_90": t2,
+            "t91_120": t3,
+            "t121_plus": t4,
+            "tramos_eur": {
+                "0_30": t0,
+                "31_60": t1,
+                "61_90": t2,
+                "91_120": t3,
+                "121_plus": t4
+            },
+            "badge": info["badge"],
+            "badge_cls": info["badge_cls"],
+            "observaciones": com,
+            "comentarios": com
+        }
+        clientes_list.append(client_entry)
+
+    # Totales oficiales CODIAGRO (fila 20)
+    g_t0 = round(float(ws.cell(20, 4).value or sum(c["t0_30"] for c in clientes_list)), 2)
+    g_t1 = round(float(ws.cell(20, 5).value or sum(c["t31_60"] for c in clientes_list)), 2)
+    g_t2 = round(float(ws.cell(20, 6).value or sum(c["t61_90"] for c in clientes_list)), 2)
+    g_t3 = round(float(ws.cell(20, 7).value or sum(c["t91_120"] for c in clientes_list)), 2)
+    g_t4 = round(float(ws.cell(20, 8).value or sum(c["t121_plus"] for c in clientes_list)), 2)
+    g_tot = round(float(ws.cell(20, 9).value or sum(c["total_vencido"] for c in clientes_list)), 2)
+
+    wb.close()
+
+    return {
+        "fecha_corte": "30/09/2026",
+        "fuente": f"{os.path.basename(ageing_path)} (Hoja SALDOS VENCIDOS)",
+        "archivo_origen": os.path.basename(ageing_path),
+        "ruta_archivo": ageing_path,
+        "fecha_modificacion_archivo": dt_mtime,
+        "total_deuda_eur": g_tot,
+        "total_deuda_gestionada_eur": g_tot,
+        "total_por_tramo_eur": {
+            "0_30": g_t0,
+            "31_60": g_t1,
+            "61_90": g_t2,
+            "91_120": g_t3,
+            "121_plus": g_t4
+        },
+        "totales_tramos": {
+            "t0_30": g_t0,
+            "t31_60": g_t1,
+            "t61_90": g_t2,
+            "t91_120": g_t3,
+            "t121_plus": g_t4,
+            "total": g_tot
+        },
+        "detalle_clientes": clientes_list,
+        "clientes": clientes_list
+    }
+
+output_bi["antiguedad_deuda"] = load_antiguedad_deuda()
 
 os.makedirs(os.path.dirname(out_json), exist_ok=True)
 with open(out_json, "w", encoding="utf-8") as f:

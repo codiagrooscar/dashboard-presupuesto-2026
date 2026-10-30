@@ -7670,7 +7670,7 @@
                 </div>
               </div>
               <span class="tab-badge badge-${pFact.estado_global === 'Comprobado' ? 'success' : 'warning'}">
-                ${pFact.estado_global}: Diferencia Producción vs Detalle SKU: ${fmtEur(pFact.diferencia_produccion_vs_ventas_sep)}
+                ${pFact.estado_global}: (-) Deducción Perímetro Producción vs Detalle SKU: -${fmtEur(pFact.diferencia_produccion_vs_ventas_sep)}
               </span>
             </div>
             <div class="table-container">
@@ -7686,16 +7686,23 @@
                   </tr>
                 </thead>
                 <tbody>
-                  ${pFact.lineas_conciliacion.map(l => `
-                    <tr>
-                      <td style="font-weight:700; color:#38bdf8; font-family:monospace">${l.orden}. Cta ${l.cuenta}</td>
+                  ${pFact.lineas_conciliacion.map(l => {
+                    const isTotal = l.cuenta === 'Ventas Netas Detalle SKU';
+                    const isPerim = l.cuenta === 'Ajuste Perímetro';
+                    const rowBg = isTotal ? 'background:rgba(16,185,129,0.15); font-weight:800;' : (isPerim ? 'background:rgba(251,191,36,0.12); font-weight:700;' : '');
+                    const cColor = isTotal ? '#34d399' : (isPerim ? '#fbbf24' : '#38bdf8');
+                    const vColor = isTotal ? '#34d399' : (l.importe_eur < 0 ? '#f87171' : '#38bdf8');
+                    return `
+                    <tr style="${rowBg}">
+                      <td style="font-weight:700; color:${cColor}; font-family:monospace">${l.orden}. ${l.cuenta.startsWith('7') ? 'Cta ' : ''}${l.cuenta}</td>
                       <td style="font-weight:600; color:#fff">${l.concepto}</td>
-                      <td style="text-align:right; font-family:monospace; font-weight:700; color:${l.importe_eur < 0 ? '#f87171' : '#34d399'}">${fmtEur(l.importe_eur)}</td>
+                      <td style="text-align:right; font-family:monospace; font-weight:700; color:${vColor}">${fmtEur(l.importe_eur)}</td>
                       <td style="font-size:0.8rem; color:#cbd5e1">${l.origen}</td>
                       <td style="font-size:0.8rem; color:#94a3b8">${l.explicacion}</td>
                       <td style="text-align:center"><span class="tab-badge badge-${l.estado === 'Comprobado' ? 'success' : 'warning'}">${l.estado}</span></td>
                     </tr>
-                  `).join('')}
+                    `;
+                  }).join('')}
                 </tbody>
               </table>
             </div>

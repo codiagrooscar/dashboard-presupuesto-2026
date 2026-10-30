@@ -2780,10 +2780,10 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
                       <td style="color:#cbd5e1">Capacidad ociosa no imputada a productos terminados (${fmtEur(subAct)}) reconocida directamente en resultados según NIC 2.</td>
                     </tr>
                     <tr>
-                      <td style="color:#38bdf8">(+) Coste de Actividad Absorbido en Variación de Existencias PT / Stock no vendido</td>
+                      <td style="color:#38bdf8">(+) Diferencia técnica entre producción y ventas (Pendiente de comprobación documental)</td>
                       <td style="text-align:right; color:#38bdf8; font-weight:700">+${fmtEur(dStock)}</td>
                       <td style="text-align:right; color:#38bdf8">${pctStock}</td>
-                      <td style="color:#cbd5e1">Coste industrial de horas estándar producido (${fmtEur(actTot)}) no expedido en septiembre y activado en existencias de producto terminado según NIC 2.</td>
+                      <td style="color:#cbd5e1">Diferencia técnica entre producción fabril (${fmtEur(actTot)}) y costes imputados a ventas expedidas (${fmtEur(fc && fc.totales_drilldown ? fc.totales_drilldown.coste_planta : 60223.89)}), pendiente de comprobación documental de inventario valorado.</td>
                     </tr>
                     <tr style="background:rgba(16,185,129,0.15); border-top:2px solid var(--accent); font-weight:800;">
                       <td style="color:#34d399">(=) MARGEN INDUSTRIAL ASIGNADO EN DETALLE (Clientes y SKUs)</td>

@@ -111,16 +111,51 @@ def main():
         if not fc_from_js or not fc_from_js.get("clientes") or not fc_from_js.get("totales_drilldown"):
             fail("El archivo fullcost_data.js contiene un objeto vacío o carece de clientes/totales requeridos.")
         
-        # Comparación exhaustiva de todas las magnitudes clave entre JSON y JavaScript
+        # Comparación exhaustiva de todas las magnitudes clave entre JSON y JavaScript (Punto 3 Auditoría 30/10)
         js_tot = fc_from_js.get("totales_drilldown", {})
         json_tot = fc.get("totales_drilldown", {})
-        for k_tot in ["ventas", "cogs_materiales", "coste_planta", "coste_subactividad", "coste_planta_total",
-                      "margen_industrial_eur", "transporte_real", "margen_contribucion_eur", "uds"]:
+        all_tot_keys = [
+            "ventas", "ventas_reales_cta_700", "ventas_netas_grupo_7", "variacion_existencias_pt",
+            "cogs_materiales", "coste_planta", "coste_subactividad", "coste_planta_total",
+            "coste_stock_pt_no_vendido", "margen_industrial_eur", "margen_industrial_pct",
+            "margen_industrial_tras_subactividad_eur", "margen_industrial_tras_subactividad_pct",
+            "margen_industrial_neto_planta_eur", "margen_industrial_neto_planta_pct",
+            "transporte_real", "margen_contribucion_eur", "margen_contribucion_pct", "uds"
+        ]
+        for k_tot in all_tot_keys:
             if k_tot in json_tot or k_tot in js_tot:
                 v_js = round(float(js_tot.get(k_tot, 0.0) or 0.0), 2)
                 v_json = round(float(json_tot.get(k_tot, 0.0) or 0.0), 2)
                 if abs(v_js - v_json) > 0.01:
                     fail(f"Desincronización entre JSON y JS en totales_drilldown.{k_tot}: {v_json} € vs {v_js} €")
+
+        # Comprobar identidades del margen directamente sobre los datos de JS que cargará la web
+        js_m_ind = round(float(js_tot.get("margen_industrial_eur", 0.0)), 2)
+        js_c_sub = round(float(js_tot.get("coste_subactividad", 0.0)), 2)
+        js_c_stk = round(float(js_tot.get("coste_stock_pt_no_vendido", 0.0)), 2)
+        js_m_tras = round(float(js_tot.get("margen_industrial_tras_subactividad_eur", js_m_ind - js_c_sub)), 2)
+        js_m_net = round(float(js_tot.get("margen_industrial_neto_planta_eur", 0.0)), 2)
+        if abs(js_m_tras - round(js_m_ind - js_c_sub, 2)) > 0.02:
+            fail(f"Identidad violada en fullcost_data.js: margen tras subactividad ({js_m_tras:.2f} €) != {js_m_ind:.2f} € - {js_c_sub:.2f} €")
+        if abs(js_m_net - round(js_m_tras - js_c_stk, 2)) > 0.02:
+            fail(f"Identidad violada en fullcost_data.js: margen neto planta ({js_m_net:.2f} €) != {js_m_tras:.2f} € - {js_c_stk:.2f} €")
+
+        # Paridad JS vs JSON en puente_facturacion (Punto 4 Auditoría)
+        js_pf = fc_from_js.get("puente_facturacion", {})
+        json_pf = fc.get("puente_facturacion", {})
+        for k_pf in ["valor_produccion_n1", "ventas_detalle_analitico_sep", "diferencia_produccion_vs_ventas_sep"]:
+            v_js = round(float(js_pf.get(k_pf, 0.0) or 0.0), 2)
+            v_json = round(float(json_pf.get(k_pf, 0.0) or 0.0), 2)
+            if abs(v_js - v_json) > 0.01:
+                fail(f"Desincronización entre JSON y JS en puente_facturacion.{k_pf}: {v_json} € vs {v_js} €")
+        js_pf_lines = {l.get("cuenta"): round(float(l.get("importe_eur", 0.0)), 2) for l in js_pf.get("lineas_conciliacion", [])}
+        json_pf_lines = {l.get("cuenta"): round(float(l.get("importe_eur", 0.0)), 2) for l in json_pf.get("lineas_conciliacion", [])}
+        if set(js_pf_lines.keys()) != set(json_pf_lines.keys()):
+            fail("Desincronización en cuentas del puente de facturación entre JSON y JS")
+        for cta_k, val_json in json_pf_lines.items():
+            val_js = js_pf_lines[cta_k]
+            if abs(val_json - val_js) > 0.01:
+                fail(f"Desincronización en línea puente facturación cuenta {cta_k}: JSON={val_json:.2f} € vs JS={val_js:.2f} €")
 
         js_meta = fc_from_js.get("metadata", {})
         json_meta = fc.get("metadata", {})
@@ -391,13 +426,56 @@ def main():
     if not trazab or len(trazab) < 6:
         fail(f"La matriz de trazabilidad de parámetros está vacía o incompleta ({len(trazab)} parámetros; mínimo 6 requeridos).", last_date)
 
-    # 6.1 Validar Puente de Facturación y cuentas contables dinámicas (Punto 6 y 7 Auditoría 30/10)
+    # 6.1 Validar Puente de Facturación y cuentas contables dinámicas (Puntos 4, 6 y 7 Auditoría 30/10)
     puente_fac = fc.get("puente_facturacion", {})
     if not puente_fac or not puente_fac.get("lineas_conciliacion"):
         fail("El puente de conciliación de facturación está vacío o carece de líneas de cuentas justificativas.", last_date)
 
-    # Validación de identidades contables dinámicas (no estáticas)
+    pf_lines = puente_fac.get("lineas_conciliacion", [])
     cd = fc.get("cuentas_detalle", {})
+
+    # Comprobar cobertura exhaustiva: toda cuenta del Mayor Grupo 7, 71 y 778 debe estar representada exactamente una vez
+    g7_expected_accounts = [c for c in sorted(cd.keys()) if (c.startswith('70') or c.startswith('71') or c.startswith('778'))]
+    seen_accounts = set()
+    account_lines_sum = 0.0
+
+    for l in pf_lines:
+        cta = l.get("cuenta")
+        if cta and cta.isdigit():
+            if cta in seen_accounts:
+                fail(f"Cuenta contable duplicada en puente_facturacion: {cta}", last_date)
+            seen_accounts.add(cta)
+            if cta not in cd:
+                fail(f"Cuenta {cta} presente en puente_facturacion pero ausente en cuentas_detalle", last_date)
+            exp_val = round(float(cd[cta].get("saldo_mes", 0.0) or 0.0), 2)
+            act_val = round(float(l.get("importe_eur", 0.0) or 0.0), 2)
+            if abs(exp_val - act_val) > 0.01:
+                fail(f"Línea de puente_facturacion desincronizada para cuenta {cta}: en Mayor={exp_val:.2f} € vs puente={act_val:.2f} €", last_date)
+            account_lines_sum += act_val
+
+    missing_ctas = set(g7_expected_accounts) - seen_accounts
+    if missing_ctas:
+        fail(f"Cuentas del Mayor no cubiertas en puente_facturacion ({len(missing_ctas)} cuentas): {sorted(missing_ctas)}", last_date)
+
+    account_lines_sum = round(account_lines_sum, 2)
+    valor_n1 = round(float(puente_fac.get("valor_produccion_n1", 0.0)), 2)
+    if abs(account_lines_sum - valor_n1) > 0.01:
+        fail(f"La suma de cuentas del puente_facturacion ({account_lines_sum:.2f} €) no coincide con valor_produccion_n1 ({valor_n1:.2f} €)", last_date)
+
+    # Validar línea de deducción de perímetro y cuadre exacto con detalle analítico SKU
+    perim_lines = [l for l in pf_lines if l.get("cuenta") == "Ajuste Perímetro"]
+    if not perim_lines:
+        fail("Falta la línea obligatoria de 'Ajuste Perímetro' en puente_facturacion", last_date)
+    perim_val = round(float(perim_lines[0].get("importe_eur", 0.0)), 2)
+    diff_perim_declared = round(float(puente_fac.get("diferencia_produccion_vs_ventas_sep", 0.0)), 2)
+    if abs(perim_val - (-diff_perim_declared)) > 0.01:
+        fail(f"La línea 'Ajuste Perímetro' debe aplicarse como deducción negativa (-{diff_perim_declared:.2f} €), valor encontrado: {perim_val:.2f} €", last_date)
+
+    tot_detail = round(float(puente_fac.get("ventas_detalle_analitico_sep", 0.0)), 2)
+    if abs(round(valor_n1 + perim_val, 2) - tot_detail) > 0.01:
+        fail(f"Cuadre aritmético fallido en puente_facturacion: {valor_n1:.2f} € + ({perim_val:.2f} €) != {tot_detail:.2f} €", last_date)
+
+    # 6.2 Validar identidades contables dinámicas (no estáticas)
     if cd:
         cta_700_exp = round(cd.get("700000000", {}).get("saldo_mes", 0.0), 2)
         cta_700_pub = round(float(tot.get("ventas_reales_cta_700", 0.0)), 2)
@@ -414,7 +492,7 @@ def main():
         if abs(var_pt_exp - var_pt_pub) > 0.01:
             fail(f"Cifra contable variación existencias PT desincronizada: cuentas={var_pt_exp:.2f} € vs totales={var_pt_pub:.2f} €", last_date)
 
-    # 6.2 Validar identidades de los dos márgenes industriales y ajuste de existencias (Puntos 4 y 5 Auditoría)
+    # 6.3 Validar identidades de los dos márgenes industriales y ajuste de existencias (Puntos 4 y 5 Auditoría)
     m_ind_base = round(float(tot.get("margen_industrial_eur", 0.0)), 2)
     c_subact = round(float(tot.get("coste_subactividad", 0.0)), 2)
     c_stock_nv = round(float(tot.get("coste_stock_pt_no_vendido", 0.0)), 2)
@@ -433,27 +511,103 @@ def main():
     if abs(m_neto_planta - round(v_netas - cogs_mat - c_planta_tot, 2)) > 0.02:
         fail(f"Identidad global de margen neto planta violada: {m_neto_planta:.2f} € != {v_netas:.2f} € - {cogs_mat:.2f} € - {c_planta_tot:.2f} €", last_date)
 
-    # 6.3 Validar coherencia y cuadre de antigüedad de deuda (Punto 8 Auditoría)
+    # 6.4 Validar obligatoriedad, coherencia y cuadre estricto de antigüedad de deuda (Puntos 1 y 2 Auditoría 30/10)
     bi_path = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.json"))
-    if os.path.exists(bi_path):
-        try:
-            with open(bi_path, "r", encoding="utf-8") as f_bi:
-                bi_data = json.load(f_bi)
-            deuda = bi_data.get("antiguedad_deuda", {})
-            if deuda:
-                tot_deuda = round(float(deuda.get("total_deuda_eur", 0.0)), 2)
-                tramos = deuda.get("total_por_tramo_eur", {})
-                sum_tramos = round(sum(float(v) for v in tramos.values()), 2)
-                if abs(tot_deuda - sum_tramos) > 0.05:
-                    fail(f"Descuadre en panel de deuda: total deuda ({tot_deuda:.2f} €) != suma tramos ({sum_tramos:.2f} €)", last_date)
+    bi_js_path = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.js"))
+    if not os.path.exists(bi_path):
+        fail("El archivo obligatorio bi_intelligence_data.json no existe", last_date)
 
-                for cli in deuda.get("detalle_clientes", []):
-                    c_saldo = round(float(cli.get("saldo_eur", 0.0)), 2)
-                    c_sum_tramos = round(sum(float(v) for v in cli.get("tramos_eur", {}).values()), 2)
-                    if abs(c_saldo - c_sum_tramos) > 0.05:
-                        fail(f"Descuadre en deuda de cliente {cli.get('cliente')}: saldo ({c_saldo:.2f} €) != suma tramos ({c_sum_tramos:.2f} €)", last_date)
+    try:
+        with open(bi_path, "r", encoding="utf-8") as f_bi:
+            bi_data = json.load(f_bi)
+    except Exception as e:
+        fail(f"Error al parsear bi_intelligence_data.json: {e}", last_date)
+
+    deuda = bi_data.get("antiguedad_deuda")
+    if not deuda or not isinstance(deuda, dict):
+        fail("El bloque obligatorio 'antiguedad_deuda' no existe o está vacío en bi_intelligence_data.json", last_date)
+
+    # Campos obligatorios unificados
+    tot_deuda = round(float(deuda.get("total_deuda_eur", 0.0) or deuda.get("total_deuda_gestionada_eur", 0.0)), 2)
+    if tot_deuda <= 0.0:
+        fail(f"Total de deuda no válido o nulo: {tot_deuda} €", last_date)
+
+    tramos = deuda.get("total_por_tramo_eur") or deuda.get("totales_tramos")
+    if not tramos or not isinstance(tramos, dict):
+        fail("El desglose de tramos de deuda 'total_por_tramo_eur' no existe en bi_intelligence_data.json", last_date)
+
+    def norm_t(k):
+        k = k.lower().replace("t", "").strip()
+        if "plus" in k or ">" in k or "121" in k: return "121_plus"
+        if ("90" in k and "120" in k) or "91" in k: return "91_120"
+        if ("60" in k and "90" in k) or "61" in k: return "61_90"
+        if ("30" in k and "60" in k) or "31" in k: return "31_60"
+        if "<" in k or "0_30" in k or "0-30" in k or k == "0": return "0_30"
+        return k
+
+    tramos_clean = {norm_t(k): round(float(v), 2) for k, v in tramos.items() if k != "total"}
+    sum_tramos = round(sum(tramos_clean.values()), 2)
+    if abs(tot_deuda - sum_tramos) > 0.05:
+        fail(f"Descuadre en panel de deuda: total deuda ({tot_deuda:.2f} €) != suma tramos ({sum_tramos:.2f} €)", last_date)
+
+    clientes_deuda = deuda.get("detalle_clientes") or deuda.get("clientes")
+    if not clientes_deuda or not isinstance(clientes_deuda, list) or len(clientes_deuda) == 0:
+        fail("La lista de clientes de deuda 'detalle_clientes' está vacía o ausente", last_date)
+
+    sum_sal_clis = 0.0
+    sum_tramos_clis = {k: 0.0 for k in ["0_30", "31_60", "61_90", "91_120", "121_plus"]}
+
+    for cli in clientes_deuda:
+        c_name = cli.get("cliente", "Desconocido")
+        c_saldo = round(float(cli.get("saldo_eur", 0.0) or cli.get("total_vencido", 0.0)), 2)
+        if c_saldo <= 0.0:
+            fail(f"Saldo de cliente {c_name} en deuda es nulo o negativo: {c_saldo} €", last_date)
+        sum_sal_clis += c_saldo
+
+        c_tramos = cli.get("tramos_eur", {})
+        if not c_tramos:
+            c_tramos = {
+                "0_30": cli.get("t0_30", 0.0),
+                "31_60": cli.get("t31_60", 0.0),
+                "61_90": cli.get("t61_90", 0.0),
+                "91_120": cli.get("t91_120", 0.0),
+                "121_plus": cli.get("t121_plus", 0.0)
+            }
+        c_sum_tramos = round(sum(float(v) for v in c_tramos.values()), 2)
+        if abs(c_saldo - c_sum_tramos) > 0.05:
+            fail(f"Descuadre en deuda de cliente {c_name}: saldo ({c_saldo:.2f} €) != suma tramos ({c_sum_tramos:.2f} €)", last_date)
+
+        for tk, tv in c_tramos.items():
+            norm_k = norm_t(tk)
+            if norm_k in sum_tramos_clis:
+                sum_tramos_clis[norm_k] += round(float(tv), 2)
+
+    sum_sal_clis = round(sum_sal_clis, 2)
+    if abs(sum_sal_clis - tot_deuda) > 0.05:
+        fail(f"Descuadre total clientes de deuda ({sum_sal_clis:.2f} €) != total gestionado ({tot_deuda:.2f} €)", last_date)
+
+    for tk in ["0_30", "31_60", "61_90", "91_120", "121_plus"]:
+        val_tramo_g = tramos_clean.get(tk, 0.0)
+        tot_exp_r = round(sum_tramos_clis.get(tk, 0.0), 2)
+        if abs(val_tramo_g - tot_exp_r) > 0.05:
+            fail(f"Descuadre en tramo {tk}: suma clientes ({tot_exp_r:.2f} €) != total tramo ({val_tramo_g:.2f} €)", last_date)
+
+    # Paridad biunívoca de deuda entre bi_intelligence_data.json y bi_intelligence_data.js
+    if os.path.exists(bi_js_path):
+        try:
+            with open(bi_js_path, "r", encoding="utf-8") as f_bjs:
+                raw_bjs = f_bjs.read().strip()
+            prefix_bjs = "window.BI_INTELLIGENCE_DATA ="
+            if raw_bjs.startswith(prefix_bjs):
+                raw_bjs_clean = raw_bjs[len(prefix_bjs):].strip()
+                if raw_bjs_clean.endswith(";"): raw_bjs_clean = raw_bjs_clean[:-1].strip()
+                bi_from_js = json.loads(raw_bjs_clean)
+                deuda_js = bi_from_js.get("antiguedad_deuda", {})
+                tot_deuda_js = round(float(deuda_js.get("total_deuda_eur", 0.0) or deuda_js.get("total_deuda_gestionada_eur", 0.0)), 2)
+                if abs(tot_deuda - tot_deuda_js) > 0.01:
+                    fail(f"Desincronización en deuda entre JSON ({tot_deuda:.2f} €) y JS ({tot_deuda_js:.2f} €)", last_date)
         except Exception as e:
-            fail(f"Error al verificar consistencia de panel de deuda: {e}", last_date)
+            fail(f"Error al validar paridad de deuda en bi_intelligence_data.js: {e}", last_date)
 
     # 7. Validar Excel de seguimiento
     try:

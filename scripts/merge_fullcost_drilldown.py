@@ -1013,8 +1013,10 @@ if fc_wb_path:
         rate_by_ceco[c] = round(coste_actividad_by_ceco[c] / h_prod, 4) if h_prod > 0 else 0.0
 
     delta_plant_cost = round(target_plant_cost_total - 124561.76, 2)
-    delta_mod = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['110', '120', '130', '140']), 2)
-    delta_cif = round(delta_plant_cost - delta_mod, 2)
+    base_maq_ett = 1926.91
+    delta_maq_ett = round(float(maq_data.get("costes_absorbidos", {}).get("mod_envasado_ett", 1926.91) or 1926.91) - base_maq_ett, 2)
+    delta_mod = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['110', '120', '130', '140']) + delta_maq_ett, 2)
+    delta_cif = round(delta_plant_cost - sum(delta_pers_by_ceco.get(c, 0.0) for c in ['110', '120', '130', '140']), 2)
     delta_comercial_pers = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['310', '320', '330', '340']), 2)
     delta_admin_pers = round(sum(delta_pers_by_ceco.get(c, 0.0) for c in ['510', '520']), 2)
 

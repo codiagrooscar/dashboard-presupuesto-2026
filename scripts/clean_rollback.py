@@ -1,392 +1,392 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-clean_rollback.py
-Gestor transaccional de copias de seguridad, staging temporal, activación y reversión limpia.
-Garantiza:
-  1. Aborto inmediato si falla la copia de seguridad.
-  2. Generación en carpeta temporal de staging (scratch/staging) separada de carpetas activas.
-  3. Activación controlada de salidas con respaldo y recuperación rápida ante errores.
-  4. Reversión limpia con purga de huérfanos y verificación estricta de restauración.
-"""
-
-import sys
-import os
-import shutil
-import json
-
-BACKUP_DIR = os.path.join("scratch", "last_valid_backup")
-STAGING_DIR = os.path.join("scratch", "staging")
-MANIFEST_FILE = os.path.join(BACKUP_DIR, "manifest.json")
-
-TARGET_DIRS = [
-    "web_dashboard",
-    "web_dashboard_direccion"
-]
-ROOT_FILES = [
-    "Seguimiento_Presupuesto_Sep_2026.xlsx",
-    "Orden_Fabricacion_MRP_Codiagro.xlsx"
-]
-
-ALLOWED_COMMERCIAL_FILES = {
-    "chart.umd.min.js",
-    "codiagro_logo.png",
-    "dashboard_data.js",
-    "dashboard_data.json",
-    "dashboard_data_BACKUP_PRE_REVISION_Q4.js",
-    "dashboard_data_BACKUP_PRE_REVISION_Q4.json",
-    "dashboard_i18n.js",
-    "exceljs.min.js",
-    "index.html",
-    "marta_tracking.css",
-    "marta_tracking_data.js",
-    "marta_tracking_data.json",
-    "marta_tracking_logic.js",
-    "Orden_Fabricacion_MRP_Codiagro.xlsx",
-    "production_planning_data.js",
-    "production_planning_data.json",
-    "server.py"
-}
-
-FORBIDDEN_COMMERCIAL_FILES = [
-    "fullcost_data.json",
-    "fullcost_data.js",
-    "cockpit_inicio_logic.js",
-    "profitability_logic.js",
-    "bi_intelligence_logic.js",
-    "treasury_data.json",
-    "treasury_data.js",
-    "update_validation_status.json"
-]
-
-def take_snapshot():
-    try:
-        os.makedirs(BACKUP_DIR, exist_ok=True)
-        manifest = {
-            "files": [],
-            "file_stats": {}
-        }
-        
-        # 1. Snapshot de directorios web
-        for d in TARGET_DIRS:
-            dest_d = os.path.join(BACKUP_DIR, d)
-            os.makedirs(dest_d, exist_ok=True)
-            for root, dirs, files in os.walk(dest_d, topdown=False):
-                for f in files:
-                    try:
-                        os.remove(os.path.join(root, f))
-                    except Exception:
-                        pass
-                for dir_name in dirs:
-                    try:
-                        os.rmdir(os.path.join(root, dir_name))
-                    except Exception:
-                        pass
-            
-            if os.path.exists(d):
-                for root, _, files in os.walk(d):
-                    for f in files:
-                        src_f = os.path.join(root, f)
-                        rel_f = os.path.relpath(src_f, ".")
-                        manifest["files"].append(rel_f)
-                        manifest["file_stats"][rel_f] = {
-                            "size": os.path.getsize(src_f),
-                            "mtime": os.path.getmtime(src_f)
-                        }
-                        dest_f = os.path.join(BACKUP_DIR, rel_f)
-                        os.makedirs(os.path.dirname(dest_f), exist_ok=True)
-                        shutil.copy2(src_f, dest_f)
-
-        # 2. Snapshot de archivos raíz
-        for rf in ROOT_FILES:
-            if os.path.exists(rf):
-                manifest["files"].append(rf)
-                manifest["file_stats"][rf] = {
-                    "size": os.path.getsize(rf),
-                    "mtime": os.path.getmtime(rf)
-                }
-                dest_rf = os.path.join(BACKUP_DIR, rf)
-                shutil.copy2(rf, dest_rf)
-
-        with open(MANIFEST_FILE, "w", encoding="utf-8") as f:
-            json.dump(manifest, f, ensure_ascii=False, indent=2)
-
-        if not os.path.exists(MANIFEST_FILE) or os.path.getsize(MANIFEST_FILE) == 0:
-            print("[ERROR] El manifiesto de respaldo no se pudo escribir correctamente.")
-            return 1
-
-        print(f"[SNAPSHOT] Copia de seguridad guardada ({len(manifest['files'])} archivos en {BACKUP_DIR}).")
-        return 0
-    except Exception as e:
-        print(f"[ERROR CRITICO] Fallo en take_snapshot: {e}")
-        return 1
-
-def prepare_staging():
-    try:
-        if os.path.exists(STAGING_DIR):
-            for root, dirs, files in os.walk(STAGING_DIR, topdown=False):
-                for f in files:
-                    try:
-                        os.remove(os.path.join(root, f))
-                    except Exception:
-                        pass
-                for dir_name in dirs:
-                    try:
-                        os.rmdir(os.path.join(root, dir_name))
-                    except Exception:
-                        pass
-        os.makedirs(STAGING_DIR, exist_ok=True)
-
-        # Crear estructura limpia de directorios destino sin arrastrar archivos del backup
-        for d in TARGET_DIRS:
-            os.makedirs(os.path.join(STAGING_DIR, d), exist_ok=True)
-
-        print(f"[STAGING] Entorno temporal preparado en {STAGING_DIR}.")
-        return 0
-    except Exception as e:
-        print(f"[ERROR CRITICO] Fallo en prepare_staging: {e}")
-        return 1
-
-REQUIRED_STAGING_DELIVERABLES = [
-    os.path.join("web_dashboard_direccion", "fullcost_data.json"),
-    os.path.join("web_dashboard_direccion", "fullcost_data.js"),
-    os.path.join("web_dashboard_direccion", "dashboard_data.json"),
-    os.path.join("web_dashboard_direccion", "dashboard_data.js"),
-    os.path.join("web_dashboard_direccion", "profitability_data.json"),
-    os.path.join("web_dashboard_direccion", "profitability_data.js"),
-    os.path.join("web_dashboard_direccion", "bi_intelligence_data.json"),
-    os.path.join("web_dashboard_direccion", "bi_intelligence_data.js"),
-    os.path.join("web_dashboard_direccion", "treasury_data.json"),
-    os.path.join("web_dashboard_direccion", "treasury_data.js"),
-    os.path.join("web_dashboard_direccion", "production_planning_data.json"),
-    os.path.join("web_dashboard_direccion", "production_planning_data.js"),
-    os.path.join("web_dashboard_direccion", "marta_tracking_data.json"),
-    os.path.join("web_dashboard_direccion", "marta_tracking_data.js"),
-    os.path.join("web_dashboard_direccion", "update_validation_status.json"),
-    os.path.join("web_dashboard", "dashboard_data.json"),
-    os.path.join("web_dashboard", "dashboard_data.js"),
-    os.path.join("web_dashboard", "production_planning_data.json"),
-    os.path.join("web_dashboard", "production_planning_data.js"),
-    os.path.join("web_dashboard", "marta_tracking_data.json"),
-    os.path.join("web_dashboard", "marta_tracking_data.js"),
-    "Seguimiento_Presupuesto_Sep_2026.xlsx",
-    "Orden_Fabricacion_MRP_Codiagro.xlsx"
-]
-
-def activate():
-    try:
-        if not os.path.exists(STAGING_DIR):
-            print(f"[ERROR] No existe el directorio de staging {STAGING_DIR} para activar.")
-            return 1
-
-        # Control de activación indivisible y completa (Punto 8 Auditoría):
-        # Verificar que la carpeta de staging contiene el conjunto COMPLETO de entregables esperados.
-        missing_deliverables = []
-        for req_f in REQUIRED_STAGING_DELIVERABLES:
-            stage_path = os.path.join(STAGING_DIR, req_f)
-            if not os.path.exists(stage_path) or os.path.getsize(stage_path) == 0:
-                missing_deliverables.append(req_f)
-
-        if missing_deliverables:
-            print(f"[ERROR CRITICO] Staging incompleto: Faltan {len(missing_deliverables)} entregables requeridos en la misma actualización:")
-            for m in missing_deliverables[:10]:
-                print(f"  - Ausente o vacío: {m}")
-            print("[ABORTE] No se permite la activación parcial de un único archivo o conjunto incompleto.")
-            return 1
-
-        activated_count = 0
-        # Copiar directorios web desde staging hacia carpetas activas
-        for d in TARGET_DIRS:
-            staging_d = os.path.join(STAGING_DIR, d)
-            if os.path.exists(staging_d):
-                os.makedirs(d, exist_ok=True)
-                for root, _, files in os.walk(staging_d):
-                    for f in files:
-                        src_f = os.path.join(root, f)
-                        rel_path = os.path.relpath(src_f, staging_d)
-                        dst_f = os.path.join(d, rel_path)
-                        os.makedirs(os.path.dirname(dst_f), exist_ok=True)
-                        shutil.copy2(src_f, dst_f)
-                        activated_count += 1
-
-        # Copiar archivos raíz desde staging hacia raíz
-        for rf in ROOT_FILES:
-            staging_rf = os.path.join(STAGING_DIR, rf)
-            if os.path.exists(staging_rf):
-                shutil.copy2(staging_rf, rf)
-                activated_count += 1
-
-        # Escudo de seguridad estricto: Lista explícita autorizada (allowlist)
-        # 1. Verificar staging de web_dashboard antes de activar
-        staging_comm = os.path.join(STAGING_DIR, "web_dashboard")
-        if os.path.exists(staging_comm):
-            unauth_stage = [f for f in os.listdir(staging_comm) if f not in ALLOWED_COMMERCIAL_FILES]
-            if unauth_stage:
-                print(f"[ERROR CRITICO DE SEGURIDAD] Archivos no autorizados en staging de web_dashboard: {unauth_stage}")
-                restore_snapshot()
-                return 1
-
-        # 2. Verificar web_dashboard tras copia
-        if os.path.exists("web_dashboard"):
-            unauth_prod = [f for f in os.listdir("web_dashboard") if f not in ALLOWED_COMMERCIAL_FILES]
-            if unauth_prod:
-                print(f"[ERROR CRITICO DE SEGURIDAD] Archivos no autorizados detectados en web_dashboard tras activación: {unauth_prod}")
-                restore_snapshot()
-                return 1
-
-        if activated_count < len(REQUIRED_STAGING_DELIVERABLES):
-            print(f"[ERROR CRITICO] Activación incompleta ({activated_count} < {len(REQUIRED_STAGING_DELIVERABLES)}). Abortando.")
-            restore_snapshot()
-            return 1
-
-        # Limpiar directorio de staging tras activación exitosa
-        shutil.rmtree(STAGING_DIR, ignore_errors=True)
-
-        print(f"[ACTIVACIÓN] {activated_count} archivos activados con éxito desde staging a producción.")
-        return 0
-    except Exception as e:
-        print(f"[ERROR CRITICO] Fallo en activate: {e}")
-        return 1
-
-def restore_snapshot():
-    try:
-        # 0. Limpiar staging si existe
-        if os.path.exists(STAGING_DIR):
-            shutil.rmtree(STAGING_DIR, ignore_errors=True)
-
-        if not os.path.exists(MANIFEST_FILE):
-            print(f"[ERROR] No se encontró manifiesto en {MANIFEST_FILE}. Imposible restaurar.")
-            return 1
-
-        with open(MANIFEST_FILE, "r", encoding="utf-8") as f:
-            manifest = json.load(f)
-
-        files_list = manifest.get("files", [])
-        if not files_list:
-            print("[ERROR] El manifiesto de respaldo está vacío. Imposible restaurar.")
-            return 1
-
-        valid_files_set = set(os.path.normpath(p) for p in files_list)
-
-        # 1. Purgar cualquier archivo nuevo que no estuviese en el snapshot
-        purged_count = 0
-        for d in TARGET_DIRS:
-            if os.path.exists(d):
-                for root, _, files in os.walk(d):
-                    for f in files:
-                        current_path = os.path.normpath(os.path.join(root, f))
-                        if current_path not in valid_files_set:
-                            try:
-                                os.remove(current_path)
-                                purged_count += 1
-                            except Exception as e:
-                                print(f"[AVISO] No se pudo eliminar archivo huérfano {current_path}: {e}")
-
-        for rf in ROOT_FILES:
-            current_rf = os.path.normpath(rf)
-            if os.path.exists(rf) and current_rf not in valid_files_set:
-                try:
-                    os.remove(rf)
-                    purged_count += 1
-                except Exception as e:
-                    print(f"[AVISO] No se pudo eliminar archivo raíz nuevo {rf}: {e}")
-
-        # 2. Restaurar todos los archivos válidos desde el backup
-        restored_count = 0
-        for rel_f in files_list:
-            backup_src = os.path.join(BACKUP_DIR, rel_f)
-            if os.path.exists(backup_src):
-                parent_dir = os.path.dirname(rel_f)
-                if parent_dir:
-                    os.makedirs(parent_dir, exist_ok=True)
-                shutil.copy2(backup_src, rel_f)
-                restored_count += 1
-            else:
-                print(f"[ERROR] Archivo en manifiesto no existe en backup: {backup_src}")
-                return 1
-
-        # 3. Verificar que los archivos restaurados existen
-        for rel_f in files_list:
-            if not os.path.exists(rel_f):
-                print(f"[ERROR] Falló la verificación de restauración del archivo: {rel_f}")
-                return 1
-
-        print(f"[RESTAURACIÓN LIMPIA] {restored_count} archivos restaurados correctamente; {purged_count} archivos huérfanos purgados.")
-        return 0
-    except Exception as e:
-        print(f"[ERROR CRITICO] Fallo en restore_snapshot: {e}")
-        return 1
-
-
-def verify_untouched():
-    try:
-        if not os.path.exists(MANIFEST_FILE):
-            print(f"[ERROR] No existe manifiesto en {MANIFEST_FILE}")
-            return 1
-        with open(MANIFEST_FILE, "r", encoding="utf-8") as f:
-            manifest = json.load(f)
-        
-        file_stats = manifest.get("file_stats", {})
-        modified = []
-        for rel_f, expected in file_stats.items():
-            if not os.path.exists(rel_f):
-                modified.append(f"Eliminado: {rel_f}")
-                continue
-            cur_size = os.path.getsize(rel_f)
-            cur_mtime = os.path.getmtime(rel_f)
-            if cur_size != expected["size"] or abs(cur_mtime - expected["mtime"]) > 1e-3:
-                modified.append(f"Modificado: {rel_f} (tam: {expected['size']}->{cur_size})")
-                
-        if modified:
-            print("[ERROR CRITICO] Se detectaron alteraciones en archivos activos durante la fase de generación:")
-            for m in modified[:10]:
-                print(f"  - {m}")
-            return 1
-        print("[VERIFICACIÓN] Todos los entregables activos permanecieron 100% intactos durante la generación.")
-        return 0
-    except Exception as e:
-        print(f"[ERROR CRITICO] Fallo en verify_untouched: {e}")
-        return 1
-
-def verify_activated():
-    try:
-        required = [
-            os.path.join("web_dashboard_direccion", "fullcost_data.json"),
-            os.path.join("web_dashboard_direccion", "fullcost_data.js"),
-            os.path.join("web_dashboard_direccion", "marta_tracking_data.json"),
-            os.path.join("web_dashboard_direccion", "dashboard_data.json"),
-            "Seguimiento_Presupuesto_Sep_2026.xlsx",
-            "Orden_Fabricacion_MRP_Codiagro.xlsx"
-        ]
-        for r in required:
-            if not os.path.exists(r) or os.path.getsize(r) == 0:
-                print(f"[ERROR CRITICO] Entregable requerido ausente o vacío tras activación: {r}")
-                return 1
-
-        # Comprobar lista de archivos autorizados en web_dashboard
-        if os.path.exists("web_dashboard"):
-            unauth = [f for f in os.listdir("web_dashboard") if f not in ALLOWED_COMMERCIAL_FILES]
-            if unauth:
-                print(f"[ERROR CRITICO DE SEGURIDAD] Archivos no autorizados en web_dashboard tras activación: {unauth}")
-                return 1
-
-        print("[VERIFICACIÓN] Todos los entregables requeridos han sido activados con éxito en producción (aislamiento comercial verificado).")
-        return 0
-    except Exception as e:
-        print(f"[ERROR CRITICO] Fallo en verify_activated: {e}")
-        return 1
-
-if __name__ == "__main__":
-    action = sys.argv[1].lower() if len(sys.argv) > 1 else "backup"
-    if action == "restore":
-        sys.exit(restore_snapshot())
-    elif action in ["prepare_staging", "stage_init", "staging"]:
-        sys.exit(prepare_staging())
-    elif action in ["verify_untouched", "untouched"]:
-        sys.exit(verify_untouched())
-    elif action in ["verify_activated", "activated"]:
-        sys.exit(verify_activated())
-    elif action in ["activate", "promote"]:
-        sys.exit(activate())
-    else:
-        sys.exit(take_snapshot())
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+clean_rollback.py
+Gestor transaccional de copias de seguridad, staging temporal, activación y reversión limpia.
+Garantiza:
+  1. Aborto inmediato si falla la copia de seguridad.
+  2. Generación en carpeta temporal de staging (scratch/staging) separada de carpetas activas.
+  3. Activación controlada de salidas con respaldo y recuperación rápida ante errores.
+  4. Reversión limpia con purga de huérfanos y verificación estricta de restauración.
+"""
+
+import sys
+import os
+import shutil
+import json
+
+BACKUP_DIR = os.path.join("scratch", "last_valid_backup")
+STAGING_DIR = os.path.join("scratch", "staging")
+MANIFEST_FILE = os.path.join(BACKUP_DIR, "manifest.json")
+
+TARGET_DIRS = [
+    "web_dashboard",
+    "web_dashboard_direccion"
+]
+ROOT_FILES = [
+    "Seguimiento_Presupuesto_Sep_2026.xlsx",
+    "Orden_Fabricacion_MRP_Codiagro.xlsx"
+]
+
+ALLOWED_COMMERCIAL_FILES = {
+    "chart.umd.min.js",
+    "codiagro_logo.png",
+    "dashboard_data.js",
+    "dashboard_data.json",
+    "dashboard_data_BACKUP_PRE_REVISION_Q4.js",
+    "dashboard_data_BACKUP_PRE_REVISION_Q4.json",
+    "dashboard_i18n.js",
+    "exceljs.min.js",
+    "index.html",
+    "marta_tracking.css",
+    "marta_tracking_data.js",
+    "marta_tracking_data.json",
+    "marta_tracking_logic.js",
+    "Orden_Fabricacion_MRP_Codiagro.xlsx",
+    "production_planning_data.js",
+    "production_planning_data.json",
+    "server.py"
+}
+
+FORBIDDEN_COMMERCIAL_FILES = [
+    "fullcost_data.json",
+    "fullcost_data.js",
+    "cockpit_inicio_logic.js",
+    "profitability_logic.js",
+    "bi_intelligence_logic.js",
+    "treasury_data.json",
+    "treasury_data.js",
+    "update_validation_status.json"
+]
+
+def take_snapshot():
+    try:
+        os.makedirs(BACKUP_DIR, exist_ok=True)
+        manifest = {
+            "files": [],
+            "file_stats": {}
+        }
+        
+        # 1. Snapshot de directorios web
+        for d in TARGET_DIRS:
+            dest_d = os.path.join(BACKUP_DIR, d)
+            os.makedirs(dest_d, exist_ok=True)
+            for root, dirs, files in os.walk(dest_d, topdown=False):
+                for f in files:
+                    try:
+                        os.remove(os.path.join(root, f))
+                    except Exception:
+                        pass
+                for dir_name in dirs:
+                    try:
+                        os.rmdir(os.path.join(root, dir_name))
+                    except Exception:
+                        pass
+            
+            if os.path.exists(d):
+                for root, _, files in os.walk(d):
+                    for f in files:
+                        src_f = os.path.join(root, f)
+                        rel_f = os.path.relpath(src_f, ".")
+                        manifest["files"].append(rel_f)
+                        manifest["file_stats"][rel_f] = {
+                            "size": os.path.getsize(src_f),
+                            "mtime": os.path.getmtime(src_f)
+                        }
+                        dest_f = os.path.join(BACKUP_DIR, rel_f)
+                        os.makedirs(os.path.dirname(dest_f), exist_ok=True)
+                        shutil.copy2(src_f, dest_f)
+
+        # 2. Snapshot de archivos raíz
+        for rf in ROOT_FILES:
+            if os.path.exists(rf):
+                manifest["files"].append(rf)
+                manifest["file_stats"][rf] = {
+                    "size": os.path.getsize(rf),
+                    "mtime": os.path.getmtime(rf)
+                }
+                dest_rf = os.path.join(BACKUP_DIR, rf)
+                shutil.copy2(rf, dest_rf)
+
+        with open(MANIFEST_FILE, "w", encoding="utf-8") as f:
+            json.dump(manifest, f, ensure_ascii=False, indent=2)
+
+        if not os.path.exists(MANIFEST_FILE) or os.path.getsize(MANIFEST_FILE) == 0:
+            print("[ERROR] El manifiesto de respaldo no se pudo escribir correctamente.")
+            return 1
+
+        print(f"[SNAPSHOT] Copia de seguridad guardada ({len(manifest['files'])} archivos en {BACKUP_DIR}).")
+        return 0
+    except Exception as e:
+        print(f"[ERROR CRITICO] Fallo en take_snapshot: {e}")
+        return 1
+
+def prepare_staging():
+    try:
+        if os.path.exists(STAGING_DIR):
+            for root, dirs, files in os.walk(STAGING_DIR, topdown=False):
+                for f in files:
+                    try:
+                        os.remove(os.path.join(root, f))
+                    except Exception:
+                        pass
+                for dir_name in dirs:
+                    try:
+                        os.rmdir(os.path.join(root, dir_name))
+                    except Exception:
+                        pass
+        os.makedirs(STAGING_DIR, exist_ok=True)
+
+        # Crear estructura limpia de directorios destino sin arrastrar archivos del backup
+        for d in TARGET_DIRS:
+            os.makedirs(os.path.join(STAGING_DIR, d), exist_ok=True)
+
+        print(f"[STAGING] Entorno temporal preparado en {STAGING_DIR}.")
+        return 0
+    except Exception as e:
+        print(f"[ERROR CRITICO] Fallo en prepare_staging: {e}")
+        return 1
+
+REQUIRED_STAGING_DELIVERABLES = [
+    os.path.join("web_dashboard_direccion", "fullcost_data.json"),
+    os.path.join("web_dashboard_direccion", "fullcost_data.js"),
+    os.path.join("web_dashboard_direccion", "dashboard_data.json"),
+    os.path.join("web_dashboard_direccion", "dashboard_data.js"),
+    os.path.join("web_dashboard_direccion", "profitability_data.json"),
+    os.path.join("web_dashboard_direccion", "profitability_data.js"),
+    os.path.join("web_dashboard_direccion", "bi_intelligence_data.json"),
+    os.path.join("web_dashboard_direccion", "bi_intelligence_data.js"),
+    os.path.join("web_dashboard_direccion", "treasury_data.json"),
+    os.path.join("web_dashboard_direccion", "treasury_data.js"),
+    os.path.join("web_dashboard_direccion", "production_planning_data.json"),
+    os.path.join("web_dashboard_direccion", "production_planning_data.js"),
+    os.path.join("web_dashboard_direccion", "marta_tracking_data.json"),
+    os.path.join("web_dashboard_direccion", "marta_tracking_data.js"),
+    os.path.join("web_dashboard_direccion", "update_validation_status.json"),
+    os.path.join("web_dashboard", "dashboard_data.json"),
+    os.path.join("web_dashboard", "dashboard_data.js"),
+    os.path.join("web_dashboard", "production_planning_data.json"),
+    os.path.join("web_dashboard", "production_planning_data.js"),
+    os.path.join("web_dashboard", "marta_tracking_data.json"),
+    os.path.join("web_dashboard", "marta_tracking_data.js"),
+    "Seguimiento_Presupuesto_Sep_2026.xlsx",
+    "Orden_Fabricacion_MRP_Codiagro.xlsx"
+]
+
+def activate():
+    try:
+        if not os.path.exists(STAGING_DIR):
+            print(f"[ERROR] No existe el directorio de staging {STAGING_DIR} para activar.")
+            return 1
+
+        # Control de activación indivisible y completa (Punto 8 Auditoría):
+        # Verificar que la carpeta de staging contiene el conjunto COMPLETO de entregables esperados.
+        missing_deliverables = []
+        for req_f in REQUIRED_STAGING_DELIVERABLES:
+            stage_path = os.path.join(STAGING_DIR, req_f)
+            if not os.path.exists(stage_path) or os.path.getsize(stage_path) == 0:
+                missing_deliverables.append(req_f)
+
+        if missing_deliverables:
+            print(f"[ERROR CRITICO] Staging incompleto: Faltan {len(missing_deliverables)} entregables requeridos en la misma actualización:")
+            for m in missing_deliverables[:10]:
+                print(f"  - Ausente o vacío: {m}")
+            print("[ABORTE] No se permite la activación parcial de un único archivo o conjunto incompleto.")
+            return 1
+
+        # Escudo de seguridad estricto PREVIO: Verificar staging de web_dashboard ANTES de copiar nada a producción
+        staging_comm = os.path.join(STAGING_DIR, "web_dashboard")
+        if os.path.exists(staging_comm):
+            unauth_stage = [f for f in os.listdir(staging_comm) if f not in ALLOWED_COMMERCIAL_FILES]
+            if unauth_stage:
+                print(f"[ERROR CRITICO DE SEGURIDAD] Archivos no autorizados en staging de web_dashboard: {unauth_stage}")
+                print("[ABORTE PREVENTIVO] Cancelando activación antes de transferir ningún archivo a producción.")
+                restore_snapshot()
+                return 1
+
+        activated_count = 0
+        # Copiar directorios web desde staging hacia carpetas activas
+        for d in TARGET_DIRS:
+            staging_d = os.path.join(STAGING_DIR, d)
+            if os.path.exists(staging_d):
+                os.makedirs(d, exist_ok=True)
+                for root, _, files in os.walk(staging_d):
+                    for f in files:
+                        src_f = os.path.join(root, f)
+                        rel_path = os.path.relpath(src_f, staging_d)
+                        dst_f = os.path.join(d, rel_path)
+                        os.makedirs(os.path.dirname(dst_f), exist_ok=True)
+                        shutil.copy2(src_f, dst_f)
+                        activated_count += 1
+
+        # Copiar archivos raíz desde staging hacia raíz
+        for rf in ROOT_FILES:
+            staging_rf = os.path.join(STAGING_DIR, rf)
+            if os.path.exists(staging_rf):
+                shutil.copy2(staging_rf, rf)
+                activated_count += 1
+
+        # 2. Verificar web_dashboard tras copia
+        if os.path.exists("web_dashboard"):
+            unauth_prod = [f for f in os.listdir("web_dashboard") if f not in ALLOWED_COMMERCIAL_FILES]
+            if unauth_prod:
+                print(f"[ERROR CRITICO DE SEGURIDAD] Archivos no autorizados detectados en web_dashboard tras activación: {unauth_prod}")
+                restore_snapshot()
+                return 1
+
+        if activated_count < len(REQUIRED_STAGING_DELIVERABLES):
+            print(f"[ERROR CRITICO] Activación incompleta ({activated_count} < {len(REQUIRED_STAGING_DELIVERABLES)}). Abortando.")
+            restore_snapshot()
+            return 1
+
+        # Limpiar directorio de staging tras activación exitosa
+        shutil.rmtree(STAGING_DIR, ignore_errors=True)
+
+        print(f"[ACTIVACIÓN] {activated_count} archivos activados con éxito desde staging a producción.")
+        return 0
+    except Exception as e:
+        print(f"[ERROR CRITICO] Fallo en activate: {e}")
+        return 1
+
+def restore_snapshot():
+    try:
+        # 0. Limpiar staging si existe
+        if os.path.exists(STAGING_DIR):
+            shutil.rmtree(STAGING_DIR, ignore_errors=True)
+
+        if not os.path.exists(MANIFEST_FILE):
+            print(f"[ERROR] No se encontró manifiesto en {MANIFEST_FILE}. Imposible restaurar.")
+            return 1
+
+        with open(MANIFEST_FILE, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+
+        files_list = manifest.get("files", [])
+        if not files_list:
+            print("[ERROR] El manifiesto de respaldo está vacío. Imposible restaurar.")
+            return 1
+
+        valid_files_set = set(os.path.normpath(p) for p in files_list)
+
+        # 1. Purgar cualquier archivo nuevo que no estuviese en el snapshot
+        purged_count = 0
+        for d in TARGET_DIRS:
+            if os.path.exists(d):
+                for root, _, files in os.walk(d):
+                    for f in files:
+                        current_path = os.path.normpath(os.path.join(root, f))
+                        if current_path not in valid_files_set:
+                            try:
+                                os.remove(current_path)
+                                purged_count += 1
+                            except Exception as e:
+                                print(f"[AVISO] No se pudo eliminar archivo huérfano {current_path}: {e}")
+
+        for rf in ROOT_FILES:
+            current_rf = os.path.normpath(rf)
+            if os.path.exists(rf) and current_rf not in valid_files_set:
+                try:
+                    os.remove(rf)
+                    purged_count += 1
+                except Exception as e:
+                    print(f"[AVISO] No se pudo eliminar archivo raíz nuevo {rf}: {e}")
+
+        # 2. Restaurar todos los archivos válidos desde el backup
+        restored_count = 0
+        for rel_f in files_list:
+            backup_src = os.path.join(BACKUP_DIR, rel_f)
+            if os.path.exists(backup_src):
+                parent_dir = os.path.dirname(rel_f)
+                if parent_dir:
+                    os.makedirs(parent_dir, exist_ok=True)
+                shutil.copy2(backup_src, rel_f)
+                restored_count += 1
+            else:
+                print(f"[ERROR] Archivo en manifiesto no existe en backup: {backup_src}")
+                return 1
+
+        # 3. Verificar que los archivos restaurados existen
+        for rel_f in files_list:
+            if not os.path.exists(rel_f):
+                print(f"[ERROR] Falló la verificación de restauración del archivo: {rel_f}")
+                return 1
+
+        print(f"[RESTAURACIÓN LIMPIA] {restored_count} archivos restaurados correctamente; {purged_count} archivos huérfanos purgados.")
+        return 0
+    except Exception as e:
+        print(f"[ERROR CRITICO] Fallo en restore_snapshot: {e}")
+        return 1
+
+
+def verify_untouched():
+    try:
+        if not os.path.exists(MANIFEST_FILE):
+            print(f"[ERROR] No existe manifiesto en {MANIFEST_FILE}")
+            return 1
+        with open(MANIFEST_FILE, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+        
+        file_stats = manifest.get("file_stats", {})
+        modified = []
+        for rel_f, expected in file_stats.items():
+            if not os.path.exists(rel_f):
+                modified.append(f"Eliminado: {rel_f}")
+                continue
+            cur_size = os.path.getsize(rel_f)
+            cur_mtime = os.path.getmtime(rel_f)
+            if cur_size != expected["size"] or abs(cur_mtime - expected["mtime"]) > 1e-3:
+                modified.append(f"Modificado: {rel_f} (tam: {expected['size']}->{cur_size})")
+                
+        if modified:
+            print("[ERROR CRITICO] Se detectaron alteraciones en archivos activos durante la fase de generación:")
+            for m in modified[:10]:
+                print(f"  - {m}")
+            return 1
+        print("[VERIFICACIÓN] Todos los entregables activos permanecieron 100% intactos durante la generación.")
+        return 0
+    except Exception as e:
+        print(f"[ERROR CRITICO] Fallo en verify_untouched: {e}")
+        return 1
+
+def verify_activated():
+    try:
+        required = [
+            os.path.join("web_dashboard_direccion", "fullcost_data.json"),
+            os.path.join("web_dashboard_direccion", "fullcost_data.js"),
+            os.path.join("web_dashboard_direccion", "marta_tracking_data.json"),
+            os.path.join("web_dashboard_direccion", "dashboard_data.json"),
+            "Seguimiento_Presupuesto_Sep_2026.xlsx",
+            "Orden_Fabricacion_MRP_Codiagro.xlsx"
+        ]
+        for r in required:
+            if not os.path.exists(r) or os.path.getsize(r) == 0:
+                print(f"[ERROR CRITICO] Entregable requerido ausente o vacío tras activación: {r}")
+                return 1
+
+        # Comprobar lista de archivos autorizados en web_dashboard
+        if os.path.exists("web_dashboard"):
+            unauth = [f for f in os.listdir("web_dashboard") if f not in ALLOWED_COMMERCIAL_FILES]
+            if unauth:
+                print(f"[ERROR CRITICO DE SEGURIDAD] Archivos no autorizados en web_dashboard tras activación: {unauth}")
+                return 1
+
+        print("[VERIFICACIÓN] Todos los entregables requeridos han sido activados con éxito en producción (aislamiento comercial verificado).")
+        return 0
+    except Exception as e:
+        print(f"[ERROR CRITICO] Fallo en verify_activated: {e}")
+        return 1
+
+if __name__ == "__main__":
+    action = sys.argv[1].lower() if len(sys.argv) > 1 else "backup"
+    if action == "restore":
+        sys.exit(restore_snapshot())
+    elif action in ["prepare_staging", "stage_init", "staging"]:
+        sys.exit(prepare_staging())
+    elif action in ["verify_untouched", "untouched"]:
+        sys.exit(verify_untouched())
+    elif action in ["verify_activated", "activated"]:
+        sys.exit(verify_activated())
+    elif action in ["activate", "promote"]:
+        sys.exit(activate())
+    else:
+        sys.exit(take_snapshot())

@@ -7577,6 +7577,7 @@
 
       const pe = (fc && fc.puente_existencias) ? fc.puente_existencias : null;
       const pt = (fc && fc.puente_transporte) ? fc.puente_transporte : null;
+      const pFact = (fc && fc.puente_facturacion) ? fc.puente_facturacion : null;
       const tp = (fc && Array.isArray(fc.trazabilidad_parametros)) ? fc.trazabilidad_parametros : [];
       const incList = (meta && Array.isArray(meta.incidencias_datos)) ? meta.incidencias_datos : [];
 
@@ -7657,12 +7658,56 @@
             </div>
           </div>
 
+          ${pFact && Array.isArray(pFact.lineas_conciliacion) ? `
+          <div class="table-card">
+            <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+              <div>
+                <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
+                  2. Puente de Facturación y Ventas: Libro Mayor Grupo 7 (${fmtEur(pFact.ventas_netas_grupo_7)}) vs Cascada P&L (${fmtEur(pFact.valor_produccion_n1)}) vs Detalle SKU (${fmtEur(pFact.ventas_detalle_analitico_sep)})
+                </h4>
+                <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">
+                  Conciliación analítica completa de ingresos, descuentos, portes y deducciones por cuenta contable verificada
+                </div>
+              </div>
+              <span class="tab-badge badge-${pFact.estado_global === 'Comprobado' ? 'success' : 'warning'}">
+                ${pFact.estado_global}: Diferencia Producción vs Detalle SKU: ${fmtEur(pFact.diferencia_produccion_vs_ventas_sep)}
+              </span>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Paso / Cuenta Contable</th>
+                    <th>Concepto de Ingreso / Ajuste</th>
+                    <th style="text-align:right">Importe (€)</th>
+                    <th>Origen en Mayor / Documento</th>
+                    <th>Explicación Trazable</th>
+                    <th style="text-align:center">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${pFact.lineas_conciliacion.map(l => `
+                    <tr>
+                      <td style="font-weight:700; color:#38bdf8; font-family:monospace">${l.orden}. Cta ${l.cuenta}</td>
+                      <td style="font-weight:600; color:#fff">${l.concepto}</td>
+                      <td style="text-align:right; font-family:monospace; font-weight:700; color:${l.importe_eur < 0 ? '#f87171' : '#34d399'}">${fmtEur(l.importe_eur)}</td>
+                      <td style="font-size:0.8rem; color:#cbd5e1">${l.origen}</td>
+                      <td style="font-size:0.8rem; color:#94a3b8">${l.explicacion}</td>
+                      <td style="text-align:center"><span class="tab-badge badge-${l.estado === 'Comprobado' ? 'success' : 'warning'}">${l.estado}</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          ` : ''}
+
           ${pe && pe.productos_711_712 ? `
           <div class="table-card">
             <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
               <div>
                 <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
-                  2. Puente de Existencias: Plantilla Inventarios (−24.062,80 €) vs Cuentas 711/712 (−109.366,49 €)
+                  3. Puente de Existencias: Plantilla Inventarios (−24.062,80 €) vs Cuentas 711/712 (−109.366,49 €)
                 </h4>
                 <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">${pe.convencion_signos}</div>
               </div>
@@ -7704,7 +7749,7 @@
             <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
               <div>
                 <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
-                  3. Puente de Transporte: Reporte Logístico (${fmtEur(pt.reporte_logistico_imputado_eur)}) vs Subgrupo 624 (${fmtEur(pt.mayor_tres_cuentas_principales_eur)} / ${fmtEur(pt.mayor_total_subgrupo_624_eur)})
+                  4. Puente de Transporte: Reporte Logístico (${fmtEur(pt.reporte_logistico_imputado_eur)}) vs Subgrupo 624 (${fmtEur(pt.mayor_tres_cuentas_principales_eur)} / ${fmtEur(pt.mayor_total_subgrupo_624_eur)})
                 </h4>
                 <div style="font-size:0.78rem; color:var(--muted); margin-top:0.2rem;">
                   Conservación exacta: Clientes = Comerciales = Total (${fmtEur(pt.reporte_logistico_imputado_eur)}). Cliente sin venta neta en el mes visible: <strong>FITOXENT S.C.L.V. (350,90 €)</strong>.
@@ -7747,7 +7792,7 @@
           <div class="table-card">
             <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center;">
               <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
-                4. Trazabilidad de Bases y Parámetros del Modelo Económico (Septiembre 2026)
+                5. Trazabilidad de Bases y Parámetros del Modelo Económico (Septiembre 2026)
               </h4>
               <span style="font-size:0.8rem; color:var(--muted)">Fuente controlable en plantilla Excel</span>
             </div>

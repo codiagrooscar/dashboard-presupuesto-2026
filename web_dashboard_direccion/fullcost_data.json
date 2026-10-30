@@ -62,7 +62,7 @@
       }
     },
     "ventas_reales_cta_700": 632880.07,
-    "ventas_netas_grupo_7": 614368.98,
+    "ventas_netas_grupo_7": 614368.78,
     "variacion_existencias_pt": -109366.49,
     "produccion_neta_planta": 505002.49,
     "estado_aplicacion": "Comprobado",
@@ -2439,7 +2439,7 @@
   "totales_drilldown": {
     "ventas": 457931.55,
     "ventas_reales_cta_700": 632880.07,
-    "ventas_netas_grupo_7": 614368.98,
+    "ventas_netas_grupo_7": 614368.78,
     "variacion_existencias_pt": -109366.49,
     "produccion_neta_planta": 505002.49,
     "cogs_materiales": 181587.16,
@@ -2449,8 +2449,11 @@
     "coste_planta_total": 124561.76,
     "coste_stock_pt_no_vendido": 6006.0,
     "margen_industrial_eur": 216120.5,
+    "margen_industrial_tras_subactividad_eur": 157788.63,
     "margen_industrial_neto_planta_eur": 151782.63,
     "margen_industrial_pct": 47.2,
+    "margen_industrial_tras_subactividad_pct": 34.5,
+    "margen_industrial_neto_planta_pct": 33.1,
     "transporte_real": 21285.66,
     "margen_contribucion_eur": 194834.84,
     "margen_contribucion_pct": 42.5,
@@ -4101,6 +4104,107 @@
         "concepto": "Consumo Contable devengado en PnL Cascada (Grupo 60/61 Mayor)",
         "importe": 102185.32,
         "origen": "Mayor contable cuentas 601, 602, 611, 612"
+      }
+    ]
+  },
+  "puente_facturacion": {
+    "titulo": "Puente de Conciliación de Facturación y Cifra de Producción (Mayor Grupo 7 vs Detalle Analítico)",
+    "estado_global": "Pendiente de conciliación",
+    "ventas_mayor_cta_700": 632880.07,
+    "ventas_netas_grupo_7": 614368.78,
+    "valor_produccion_n1": 505002.49,
+    "ventas_detalle_analitico_sep": 457931.55,
+    "diferencia_produccion_vs_ventas_sep": 47070.94,
+    "lineas_conciliacion": [
+      {
+        "orden": 1,
+        "cuenta": "700000000",
+        "concepto": "Ventas brutas de mercaderías Codiagro (Mayor oficial)",
+        "importe_eur": 632880.07,
+        "origen": "Mayor oficial PYG SEP.xlsx / Hoja Cuentas",
+        "tipo": "ingreso",
+        "estado": "Comprobado",
+        "explicacion": "Facturación bruta de productos estándar sin descuentos comerciales."
+      },
+      {
+        "orden": 2,
+        "cuenta": "700001624",
+        "concepto": "Venta por transporte repercutido a clientes",
+        "importe_eur": 9613.0,
+        "origen": "Mayor Cta 700001624",
+        "tipo": "ingreso",
+        "estado": "Comprobado",
+        "explicacion": "Portes cobrados a clientes en factura de venta (integrados en Cifra de Negocio)."
+      },
+      {
+        "orden": 3,
+        "cuenta": "704000000 / 705000001",
+        "concepto": "Ventas de envases e ingresos por gestión de envases",
+        "importe_eur": 2609.36,
+        "origen": "Mayor Ctas 704000000 y 705000001",
+        "tipo": "ingreso",
+        "estado": "Comprobado",
+        "explicacion": "Facturación accesoria de envases (1.203,47 €) y gestión de envases (1.405,89 €)."
+      },
+      {
+        "orden": 4,
+        "cuenta": "706000001",
+        "concepto": "Descuentos comerciales y pronto pago definitivo s/ventas",
+        "importe_eur": -8347.1,
+        "origen": "Hoja Ajustes_ventas (24 facturas AJ-001 a AJ-024) y Mayor Cta 706000001",
+        "tipo": "reduccion_ingreso",
+        "estado": "Comprobado",
+        "explicacion": "Abonos y descuentos concedidos a clientes en facturas de venta de septiembre."
+      },
+      {
+        "orden": 5,
+        "cuenta": "709000001",
+        "concepto": "Provisión de rappels comerciales acumulada septiembre",
+        "importe_eur": -12327.75,
+        "origen": "Hoja Ajustes_ventas (PROV-RAPEL-09) y Mayor Cta 709000001",
+        "tipo": "reduccion_ingreso",
+        "estado": "Comprobado",
+        "explicacion": "Provisión devengada por volumen y acuerdos de rappel según política comercial."
+      },
+      {
+        "orden": 6,
+        "cuenta": "702 / 703 / 705",
+        "concepto": "Aislamiento de actividad Maquila SAS fuera del catálogo comercial propio",
+        "importe_eur": -10058.8,
+        "origen": "Hoja Maquila y Mayor Ctas 705000000 (+3.682,80 €), 703000000 (+2.751,20 €), 702000000 (-16.492,80 €)",
+        "tipo": "maquila",
+        "estado": "Comprobado",
+        "explicacion": "Ingresos por formulación SAS menos abono de semiterminados; segregado para análisis propio."
+      },
+      {
+        "orden": 7,
+        "cuenta": "711 / 712",
+        "concepto": "Variación de existencias de productos semiterminados y terminados",
+        "importe_eur": -109366.49,
+        "origen": "Mayor Ctas 711000000 (-30.979,93 €) y 712000000 (-78.386,56 €)",
+        "tipo": "ajuste_stock",
+        "estado": "Pendiente de conciliación",
+        "explicacion": "Salida neta de almacén de productos terminados y semiterminados durante septiembre."
+      },
+      {
+        "orden": 8,
+        "cuenta": "778000000",
+        "concepto": "Ingresos excepcionales",
+        "importe_eur": 0.2,
+        "origen": "Mayor Cta 778000000",
+        "tipo": "ingreso",
+        "estado": "Comprobado",
+        "explicacion": "Ajuste de redondeo contable en libro mayor."
+      },
+      {
+        "orden": 9,
+        "cuenta": "Ajuste Perímetro",
+        "concepto": "Diferencia neta entre Cifra de Producción Grupo 7 (505.002,49 €) y Detalle SKU Ventas (457.931,55 €)",
+        "importe_eur": 47070.94,
+        "origen": "Comparativa Cascada P&L Nivel 1 vs Presupuesto_Ventas_2027_Definitivo.xlsx Detalle Líneas",
+        "tipo": "perimetro",
+        "estado": "Pendiente de conciliación",
+        "explicacion": "Diferencia por regularizaciones de facturación de períodos anteriores y entregas no coincidentes con devengo contable."
       }
     ]
   }

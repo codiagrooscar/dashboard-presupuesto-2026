@@ -391,6 +391,70 @@ def main():
     if not trazab or len(trazab) < 6:
         fail(f"La matriz de trazabilidad de parámetros está vacía o incompleta ({len(trazab)} parámetros; mínimo 6 requeridos).", last_date)
 
+    # 6.1 Validar Puente de Facturación y cuentas contables dinámicas (Punto 6 y 7 Auditoría 30/10)
+    puente_fac = fc.get("puente_facturacion", {})
+    if not puente_fac or not puente_fac.get("lineas_conciliacion"):
+        fail("El puente de conciliación de facturación está vacío o carece de líneas de cuentas justificativas.", last_date)
+
+    # Validación de identidades contables dinámicas (no estáticas)
+    cd = fc.get("cuentas_detalle", {})
+    if cd:
+        cta_700_exp = round(cd.get("700000000", {}).get("saldo_mes", 0.0), 2)
+        cta_700_pub = round(float(tot.get("ventas_reales_cta_700", 0.0)), 2)
+        if abs(cta_700_exp - cta_700_pub) > 0.01:
+            fail(f"Cifra contable Cta 700 desincronizada: en cuentas_detalle={cta_700_exp:.2f} € vs totales_drilldown={cta_700_pub:.2f} €", last_date)
+
+        g7_exp = round(sum(v.get("saldo_mes", 0.0) for c, v in cd.items() if c.startswith("70")), 2)
+        g7_pub = round(float(tot.get("ventas_netas_grupo_7", 0.0)), 2)
+        if abs(g7_exp - g7_pub) > 0.01:
+            fail(f"Cifra contable ventas netas Grupo 7 desincronizada: cuentas={g7_exp:.2f} € vs totales={g7_pub:.2f} €", last_date)
+
+        var_pt_exp = round(sum(v.get("saldo_mes", 0.0) for c, v in cd.items() if c.startswith("71")), 2)
+        var_pt_pub = round(float(tot.get("variacion_existencias_pt", 0.0)), 2)
+        if abs(var_pt_exp - var_pt_pub) > 0.01:
+            fail(f"Cifra contable variación existencias PT desincronizada: cuentas={var_pt_exp:.2f} € vs totales={var_pt_pub:.2f} €", last_date)
+
+    # 6.2 Validar identidades de los dos márgenes industriales y ajuste de existencias (Puntos 4 y 5 Auditoría)
+    m_ind_base = round(float(tot.get("margen_industrial_eur", 0.0)), 2)
+    c_subact = round(float(tot.get("coste_subactividad", 0.0)), 2)
+    c_stock_nv = round(float(tot.get("coste_stock_pt_no_vendido", 0.0)), 2)
+    m_tras_subact = round(float(tot.get("margen_industrial_tras_subactividad_eur", m_ind_base - c_subact)), 2)
+    m_neto_planta = round(float(tot.get("margen_industrial_neto_planta_eur", 0.0)), 2)
+
+    if abs(m_tras_subact - round(m_ind_base - c_subact, 2)) > 0.02:
+        fail(f"Incoherencia en margen industrial tras subactividad: {m_tras_subact:.2f} € != {m_ind_base:.2f} € - {c_subact:.2f} €", last_date)
+
+    if abs(m_neto_planta - round(m_tras_subact - c_stock_nv, 2)) > 0.02:
+        fail(f"Incoherencia en margen industrial neto planta: {m_neto_planta:.2f} € != {m_tras_subact:.2f} € - {c_stock_nv:.2f} €", last_date)
+
+    c_planta_tot = round(float(tot.get("coste_planta_total", 0.0)), 2)
+    v_netas = round(float(tot.get("ventas", 0.0)), 2)
+    cogs_mat = round(float(tot.get("cogs_materiales", 0.0)), 2)
+    if abs(m_neto_planta - round(v_netas - cogs_mat - c_planta_tot, 2)) > 0.02:
+        fail(f"Identidad global de margen neto planta violada: {m_neto_planta:.2f} € != {v_netas:.2f} € - {cogs_mat:.2f} € - {c_planta_tot:.2f} €", last_date)
+
+    # 6.3 Validar coherencia y cuadre de antigüedad de deuda (Punto 8 Auditoría)
+    bi_path = get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.json"))
+    if os.path.exists(bi_path):
+        try:
+            with open(bi_path, "r", encoding="utf-8") as f_bi:
+                bi_data = json.load(f_bi)
+            deuda = bi_data.get("antiguedad_deuda", {})
+            if deuda:
+                tot_deuda = round(float(deuda.get("total_deuda_eur", 0.0)), 2)
+                tramos = deuda.get("total_por_tramo_eur", {})
+                sum_tramos = round(sum(float(v) for v in tramos.values()), 2)
+                if abs(tot_deuda - sum_tramos) > 0.05:
+                    fail(f"Descuadre en panel de deuda: total deuda ({tot_deuda:.2f} €) != suma tramos ({sum_tramos:.2f} €)", last_date)
+
+                for cli in deuda.get("detalle_clientes", []):
+                    c_saldo = round(float(cli.get("saldo_eur", 0.0)), 2)
+                    c_sum_tramos = round(sum(float(v) for v in cli.get("tramos_eur", {}).values()), 2)
+                    if abs(c_saldo - c_sum_tramos) > 0.05:
+                        fail(f"Descuadre en deuda de cliente {cli.get('cliente')}: saldo ({c_saldo:.2f} €) != suma tramos ({c_sum_tramos:.2f} €)", last_date)
+        except Exception as e:
+            fail(f"Error al verificar consistencia de panel de deuda: {e}", last_date)
+
     # 7. Validar Excel de seguimiento
     try:
         wb_seg = openpyxl.load_workbook(excel_seg_path, data_only=True)
@@ -424,7 +488,8 @@ def main():
             fail("VIOLACIÓN DE SEGURIDAD: web_dashboard/index.html contiene módulos o títulos de Dirección General en lugar de la versión comercial abierta.")
 
 
-    # 9. Validación estricta de sintaxis JavaScript en archivos generados y bloques HTML
+    # 9. Validación estricta de sintaxis JavaScript en archivos generados y bloques HTML (Punto 9 Auditoría)
+    # Incluye exhaustivamente todos los scripts JS generados y existentes (como dashboard_i18n.js)
     js_files_to_check = [
         get_dest(os.path.join("web_dashboard_direccion", "fullcost_data.js")),
         get_dest(os.path.join("web_dashboard_direccion", "marta_tracking_data.js")),
@@ -433,13 +498,26 @@ def main():
         get_dest(os.path.join("web_dashboard_direccion", "bi_intelligence_data.js")),
         get_dest(os.path.join("web_dashboard_direccion", "treasury_data.js")),
         get_dest(os.path.join("web_dashboard_direccion", "production_planning_data.js")),
+        get_dest(os.path.join("web_dashboard_direccion", "dashboard_i18n.js")),
         get_dest(os.path.join("web_dashboard", "dashboard_data.js")),
         get_dest(os.path.join("web_dashboard", "marta_tracking_data.js")),
         get_dest(os.path.join("web_dashboard", "production_planning_data.js")),
+        get_dest(os.path.join("web_dashboard", "dashboard_i18n.js")),
         os.path.join("web_dashboard_direccion", "profitability_logic.js"),
         os.path.join("web_dashboard_direccion", "cockpit_inicio_logic.js"),
-        os.path.join("web_dashboard_direccion", "bi_intelligence_logic.js")
+        os.path.join("web_dashboard_direccion", "bi_intelligence_logic.js"),
+        os.path.join("web_dashboard_direccion", "dashboard_i18n.js"),
+        os.path.join("web_dashboard", "dashboard_i18n.js")
     ]
+    # Búsqueda dinámica de cualquier otro .js en las carpetas web
+    for d_web in ["web_dashboard_direccion", "web_dashboard"]:
+        w_dir = get_dest(d_web)
+        if os.path.exists(w_dir):
+            for f_name in os.listdir(w_dir):
+                if f_name.endswith(".js") and not f_name.endswith(".min.js"):
+                    full_p = os.path.join(w_dir, f_name)
+                    if full_p not in js_files_to_check:
+                        js_files_to_check.append(full_p)
     for js_path in js_files_to_check:
         if os.path.exists(js_path):
             try:

@@ -43,18 +43,26 @@ function renderCockpitInicioSection() {
   // Margen industrial Full Costing dinámico y coste de subactividad segregado
   const margenFullCostEur = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_eur === 'number')
     ? fc.totales_drilldown.margen_industrial_eur
-    : 210157.36;
+    : 216120.50;
   const margenFullCostPct = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_pct === 'number')
     ? fc.totales_drilldown.margen_industrial_pct
-    : 45.9;
+    : 47.2;
   const costeSubactividad = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.coste_subactividad === 'number')
     ? fc.totales_drilldown.coste_subactividad
     : 0.0;
-  // Margen industrial completo tras coste de subactividad (Revisión 29/10 ChatGPT)
-  const margenNetoIndustrialEur = Math.round((margenFullCostEur - costeSubactividad) * 100) / 100;
+  // Margen industrial de ventas tras coste de subactividad fabril (157.788,63 €)
+  const margenNetoIndustrialEur = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_tras_subactividad_eur === 'number')
+    ? fc.totales_drilldown.margen_industrial_tras_subactividad_eur
+    : Math.round((margenFullCostEur - costeSubactividad) * 100) / 100;
   const margenNetoIndustrialPct = (fc && fc.totales_drilldown && fc.totales_drilldown.ventas > 0)
     ? Math.round((margenNetoIndustrialEur / fc.totales_drilldown.ventas * 100) * 10) / 10
     : margenFullCostPct;
+  const costeStockNoVendido = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.coste_stock_pt_no_vendido === 'number')
+    ? fc.totales_drilldown.coste_stock_pt_no_vendido
+    : 6006.00;
+  const margenNetoPlantaTotalEur = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_neto_planta_eur === 'number')
+    ? fc.totales_drilldown.margen_industrial_neto_planta_eur
+    : (margenNetoIndustrialEur - costeStockNoVendido);
 
   const meta = (fc && fc.metadata) ? fc.metadata : {};
   const hasFcIncidents = !!(meta && Array.isArray(meta.incidencias_datos) && meta.incidencias_datos.length > 0);
@@ -167,18 +175,21 @@ function renderCockpitInicioSection() {
             </div>
           </div>
 
-          <!-- 2. MARGEN INDUSTRIAL FULL COSTING -->
+          <!-- 2. MARGEN INDUSTRIAL FULL COSTING (DESGLOSE DUAL SEGÚN AUDITORÍA) -->
           <div class="kpi-card accent-green" onclick="switchTab('rentabilidad_fullcost')" style="cursor:pointer; transition:transform 0.2s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='none'">
             <div class="kpi-header">
-              <span class="kpi-title">${isEn ? '2. Full Industrial Margin' : '2. Margen Industrial Completo'}</span>
+              <span class="kpi-title">${isEn ? '2. Full Industrial Margin (Sales)' : '2. Margen Industrial Completo (Ventas)'}</span>
               <span class="kpi-icon">🏭</span>
             </div>
             <div class="kpi-value" style="color:#34d399">${fmtEur(margenNetoIndustrialEur)}</div>
             <div class="kpi-subtitle">
-              <span style="color:#34d399; font-weight:700">${margenNetoIndustrialPct.toFixed(1)}%</span> ${isEn ? 'after idle capacity:' : 'tras subactividad:'} <span style="color:#f87171">-${fmtEur(costeSubactividad)}</span>
+              <span style="color:#34d399; font-weight:700">${margenNetoIndustrialPct.toFixed(1)}%</span> ${isEn ? 'after factory idle capacity:' : 'tras subactividad fabril:'} <span style="color:#f87171">-${fmtEur(costeSubactividad)}</span>
             </div>
-            <div style="font-size:0.73rem; color:#94a3b8; margin-top:0.25rem;">
-              ${isEn ? 'Activity margin:' : 'Margen actividad:'} <strong>${fmtEur(margenFullCostEur)}</strong> (${margenFullCostPct.toFixed(1)}%) · ${isEn ? 'Sep-26 Close' : 'Cierre Sep-26'} ${scope !== 'ALL' ? (isEn ? '· <span style=\"color:#f59e0b\">Total Company</span>' : '· <span style=\"color:#f59e0b\">Total Empresa</span>') : ''}
+            <div style="font-size:0.72rem; color:#94a3b8; margin-top:0.35rem; line-height:1.35;">
+              <div>${isEn ? 'Activity margin:' : 'Margen actividad:'} <strong>${fmtEur(margenFullCostEur)}</strong> (${margenFullCostPct.toFixed(1)}%) · ${isEn ? 'Total plant absorption:' : 'Absorción total planta:'} <strong style="color:#38bdf8">${fmtEur(margenNetoPlantaTotalEur)}</strong></div>
+              <div style="color:#fbbf24; font-size:0.70rem; margin-top:0.15rem;">
+                ${isEn ? 'Prod. vs sales variance (pending stock conciliation):' : 'Dif. prod. vs ventas (pendiente conciliación stock):'} <strong>-${fmtEur(costeStockNoVendido)}</strong>
+              </div>
             </div>
             <div class="progress-bar-container" style="margin-top:0.4rem;">
               <div class="progress-bar-fill" style="width:${Math.min(100, Math.max(0, margenNetoIndustrialPct))}%; background:var(--accent-gradient)"></div>

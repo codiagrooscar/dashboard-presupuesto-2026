@@ -345,21 +345,21 @@ En respuesta a la auditoría técnica profunda realizada por GPT Astra, se han i
 
 ### 13.1 Tabla Estructurada de Conciliación de Perímetros de Facturación (Septiembre 2026)
 
-Para eliminar cualquier ambigüedad entre las cifras mostradas en la contabilidad general, el reporting comercial y el escandallo analítico industrial, se formaliza la siguiente conciliación paso a paso de los perímetros de facturación:
+Para eliminar cualquier ambigüedad entre las cifras de la contabilidad general, el reporting comercial y el escandallo analítico industrial, se formaliza la siguiente conciliación paso a paso de los perímetros de facturación basada íntegramente en cuentas verificadas del Libro Mayor oficial (PYG SEP.xlsx):
 
-| Paso | Concepto Contable / Operativo | Cuenta / Fuente | Importe (€) | Acumulado (€) | Explicación Técnica y Perímetro |
+| Paso | Cuenta / Código | Concepto Contable / Operativo | Importe (€) | Acumulado (€) | Explicación Técnica y Soporte Documental |
 |:---:|:---|:---|---:|---:|:---|
-| **1** | **Facturación Bruta Contable Mercaderías** | **Cta 700 (Mayor)** | **+632.880,07 €** | **632.880,07 €** | Total bruto facturado según Balance de Sumas y Saldos a 30/09/2026. |
-| **2** | (-) Rappels y Devoluciones Comerciales | Ctas 708 / 709 (Mayor) | -18.511,09 € | 614.368,98 € | Rappels y rectificaciones comerciales devengadas en el mes. |
-| **3** | **(=) Cifra Neta de Negocios Grupo 7 (Mayor)** | **Grupo 7 Cuentas** | **614.368,98 €** | **614.368,98 €** | Base neta oficial de ingresos de la contabilidad de Codiagro. |
-| **4** | (+) Portes Repercutidos Facturados en Ventas | Cta 700001624 | +9.613,00 € | 623.981,98 € | Portes repercutidos directamente al cliente en factura. |
-| **5** | (+) Regularizaciones Comerciales de Reporting | Ajustes de Reporting | +14.702,56 € | **638.684,54 €** | **Cifra Total de Reporting Comercial Marta / Dirección.** |
-| **6** | (-) Aislamiento Operación Maquila SAS | Ctas 705 / 703 | -6.434,00 € | 632.250,54 € | Facturación por servicios y accesorios intragrupo aislada en sección independiente. |
-| **7** | (-) Salida Stock Almacén Producto Terminado | Ctas 711 / 712 | -109.366,49 € | 522.884,05 € | Variación de existencias fabricadas en períodos anteriores y expedidas en septiembre. |
-| **8** | (-) Abonos de Facturación y Regularizaciones | Hoja Ajustes_ventas | -17.881,56 € | 505.002,49 € | Anulaciones y refacturaciones documentadas (Fitoxent / Fitosanitarios Carcaixent). |
-| **9** | **(=) Ingresos de Explotación Cascada P&L (N1)** | **P&L Waterfall N1** | **505.002,49 €** | **505.002,49 €** | Base de partida de la Cascada Contable oficial del Dashboard. |
-| **10** | (-) Pedidos Fuera de Perímetro Fabril Analizado | Conciliación Fabril | -47.070,94 € | **457.931,55 €** | Diferencia entre producción imputable fabril y pedidos individuales con escandallo. |
-| **11** | **(=) Ventas Netas Industriales en Detalle** | **Tabla Clientes/SKUs** | **457.931,55 €** | **457.931,55 €** | **Total base del escandallo industrial unitario en Clientes, Productos y Comerciales.** |
+| **1** | **Cta 700000000** | **Ventas brutas de mercaderías Codiagro** | **+632.880,07 €** | **632.880,07 €** | Total bruto facturado según Balance de Sumas y Saldos a 30/09/2026. |
+| **2** | **Cta 700001624** | (+) Transporte repercutido a clientes | +9.613,00 € | 642.493,07 € | Portes facturados en ventas comerciales e integrados en Cifra de Negocio. |
+| **3** | **Ctas 704 / 705000001** | (+) Envases y gestión accesoria de envases | +2.609,36 € | 645.102,43 € | Venta envases Cta 704 (+1.203,47 €) y gestión envases Cta 705000001 (+1.405,89 €). |
+| **4** | **Cta 706000001** | (-) Descuentos comerciales y pronto pago | -8.347,10 € | 636.755,33 € | 24 facturas de descuento y pronto pago (AJ-001 a AJ-024) en Hoja Ajustes_ventas. |
+| **5** | **Cta 709000001** | (-) Provisión devengo de rappels comerciales | -12.327,75 € | 624.427,58 € | Provisión mensual devengada en Cta 709000001 (Hoja Ajustes_ventas PROV-RAPEL-09). |
+| **6** | **Ctas 702 / 703 / 705** | (-) Segregación operativa Maquila SAS | -10.058,80 € | 614.368,78 € | Prestación servicios Cta 705 (+3.682,80 €), subproductos Cta 703 (+2.751,20 €) y abono semiterminados Cta 702 (-16.492,80 €). |
+| **7** | **Ctas 711 / 712** | (-) Variación existencias en curso y terminados | -109.366,49 € | 505.002,29 € | Variación contable neta: Cta 711 (-30.979,93 €) y Cta 712 (-78.386,56 €). Pendiente de conciliación física. |
+| **8** | **Cta 778000000** | (+) Ingresos excepcionales | +0,20 € | **505.002,49 €** | Redondeo de liquidaciones en libro mayor oficial. |
+| **9** | **Cascada P&L N1** | **(=) Ingresos de Explotación Cascada Oficial** | **505.002,49 €** | **505.002,49 €** | **Total exacto del Grupo 7 contable (desviación 0,00 € respecto al Balance).** |
+| **10** | **Conciliación Perímetro** | (-) Diferencia producción P&L vs Detalle SKU | -47.070,94 € | **457.931,55 €** | Diferencia entre valor de producción de planta y facturación neta de pedidos analizados con escandallo. |
+| **11** | **Tabla Clientes/SKUs** | **(=) Ventas Netas Industriales en Detalle** | **457.931,55 €** | **457.931,55 €** | **Base neta de cálculo del escandallo industrial unitario de septiembre de 2026.** |
 
 > [!NOTE]
 > **Conciliación Aritmética Completa (0,00 € Desviación):**  

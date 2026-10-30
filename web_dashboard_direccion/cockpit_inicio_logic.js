@@ -111,6 +111,25 @@ function renderCockpitInicioSection() {
     ? (scope === 'ALL' ? 'Total Company' : (scope === 'NACIONAL' ? 'Domestic Market' : 'Export Market'))
     : (scope === 'ALL' ? 'Total Empresa' : (scope === 'NACIONAL' ? 'Mercado Nacional' : 'Exportación'));
 
+  // Impacto económico dinámico de pedidos pendientes
+  let importePendientesEur = null;
+  if (scopeData && Array.isArray(scopeData.allLines) && scopeData.allLines.length > 0) {
+    let totP = 0;
+    let found = false;
+    scopeData.allLines.forEach(l => {
+      const pUds = Number(l.pendientes_uds || 0);
+      const tUds = Number(l.pedidos_uds || 0);
+      const imp = Number(l.importe_neto || 0);
+      if (tUds > 0 && pUds > 0) {
+        totP += (pUds / tUds) * imp;
+        found = true;
+      }
+    });
+    if (found || pendientesUds === 0) {
+      importePendientesEur = Math.round(totP * 100) / 100;
+    }
+  }
+
   return `
     <div style="display:flex; flex-direction:column; gap:1.45rem; animation:fadeIn 0.3s ease;">
       <!-- CABECERA EJECUTIVA -->
@@ -302,7 +321,7 @@ function renderCockpitInicioSection() {
                   ${isEn ? `${fmtNum(pendientesUds)} Units in Pending Orders` : `${fmtNum(pendientesUds)} Uds de Pedidos Pendientes de Servicio`}
                 </td>
                 <td><span class="tab-badge" style="background:rgba(16,185,129,0.15); color:#34d399">${isEn ? 'Operations / MRP' : 'Fábrica / MRP'}</span></td>
-                <td style="text-align:right; font-weight:800; color:#38bdf8; font-size:1.05rem">${isEn ? '~€680,000' : '~680.000 €'}</td>
+                <td style="text-align:right; font-weight:800; color:#38bdf8; font-size:1.05rem">${importePendientesEur !== null ? fmtEur(importePendientesEur) : (isEn ? 'Not available' : 'No disponible')}</td>
                 <td style="color:#cbd5e1; font-size:0.85rem">
                   ${isEn 
                     ? 'October delivery commitment with heavy workload in R-1 and R-3 reactors for export.' 
@@ -315,18 +334,18 @@ function renderCockpitInicioSection() {
                 </td>
               </tr>
 
-              <!-- PRIORIDAD 3: COMPLEJIDAD INDUSTRIAL Y MICRO-LOTES -->
+              <!-- PRIORIDAD 3: COMPLEJIDAD INDUSTRIAL Y MICRO-LOTES (ESCENARIO) -->
               <tr>
-                <td style="text-align:center"><span class="tab-badge badge-warning">${isEn ? 'HIGH 3' : 'ALTA 3'}</span></td>
+                <td style="text-align:center"><span class="tab-badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4)">${isEn ? 'SCENARIO 3' : 'ESCENARIO 3'}</span></td>
                 <td style="font-weight:700; color:#fff">
-                  ${isEn ? 'Batch Fragmentation & Downtime Cleanings' : 'Fragmentación de Lotes y Limpiezas Improductivas'}
+                  ${isEn ? 'Batch Fragmentation (Hypothetical Scenario)' : 'Fragmentación de Lotes (Escenario Hipotético)'}
                 </td>
                 <td><span class="tab-badge" style="background:rgba(245,158,11,0.15); color:#fbbf24">${isEn ? 'Plant Operations' : 'Operaciones / Planta'}</span></td>
-                <td style="text-align:right; font-weight:800; color:#34d399; font-size:1.05rem">${isEn ? '+€12,950/mo' : '+12.950 €/mes'}</td>
+                <td style="text-align:right; font-weight:800; color:#34d399; font-size:1.05rem">${isEn ? 'Scenario: +€12,950/mo' : 'Escenario: +12.950 €/mes'}</td>
                 <td style="color:#cbd5e1; font-size:0.85rem">
                   ${isEn 
-                    ? '26 references manufactured across multiple micro-batches (Alcaplant 6 batches, Agroxilato-K 4 batches). Projected annual savings: €155,400 (€12,950 × 12).' 
-                    : '26 referencias fabricadas en múltiples micro-lotes (Alcaplant 6 lotes, Agroxilato-K 4 lotes). Ahorro anual proyectado: 155.400 € (12.950 € × 12).'}
+                    ? 'Hypothetical scenario: Estimated cleaning downtime savings from consolidating 26 small-batch references into larger reactor runs (projected €155.4k/yr).' 
+                    : 'Supuestos del escenario: Ahorro potencial estimado en tiempos de limpieza al consolidar 26 referencias de micro-lotes en reactores mayores (ahorro anual proyectado: 155.400 €).'}
                 </td>
                 <td style="text-align:center">
                   <button class="pill-btn" onclick="switchTab('bi_complexity')" style="background:rgba(245,158,11,0.15); border-color:#fbbf24; color:#fbbf24; font-weight:700">
@@ -335,18 +354,18 @@ function renderCockpitInicioSection() {
                 </td>
               </tr>
 
-              <!-- PRIORIDAD 4: CONCENTRACIÓN Y VULNERABILIDAD -->
+              <!-- PRIORIDAD 4: CONCENTRACIÓN Y VULNERABILIDAD (TEST DE ESTRÉS) -->
               <tr>
-                <td style="text-align:center"><span class="tab-badge badge-neutral">${isEn ? 'MEDIUM 4' : 'MEDIA 4'}</span></td>
+                <td style="text-align:center"><span class="tab-badge" style="background:rgba(148,163,184,0.2); color:#cbd5e1; border:1px solid rgba(148,163,184,0.4)">${isEn ? 'STRESS TEST' : 'TEST DE ESTRÉS'}</span></td>
                 <td style="font-weight:700; color:#fff">
-                  ${isEn ? 'Top 5 Customer Concentration Vulnerability' : 'Vulnerabilidad por Concentración en Top 5 Clientes'}
+                  ${isEn ? 'Top 5 Concentration (Stress Test Scenario)' : 'Concentración Top 5 (Escenario de Estrés)'}
                 </td>
                 <td><span class="tab-badge" style="background:rgba(148,163,184,0.15); color:#cbd5e1">${isEn ? 'Executive Management' : 'Dirección General'}</span></td>
-                <td style="text-align:right; font-weight:800; color:#fbbf24; font-size:1.05rem">${isEn ? '€6,950,000' : '6.950.000 €'}</td>
+                <td style="text-align:right; font-weight:800; color:#fbbf24; font-size:1.05rem">${isEn ? 'Stress: -€308,000' : 'Estrés: -308.000 €'}</td>
                 <td style="color:#cbd5e1; font-size:0.85rem">
                   ${isEn 
-                    ? '45.8% of sales depends on 5 distributors. A 20% drop in Dotra would reduce direct margin by €308,000.' 
-                    : 'El 45,8% de las ventas depende de 5 distribuidores. Una caída del 20% en Dotra restaría 308.000 € de margen directo.'}
+                    ? 'Stress assumptions: 45.8% of budget sales concentrated in 5 distributors. Simulated hypothesis of a 20% order drop in the largest distributor (Dotra).' 
+                    : 'Supuestos del escenario: El 45,8% del presupuesto depende de 5 distribuidores. Hipótesis simulada de caída del 20% en pedidos del mayor cliente (Dotra).'}
                 </td>
                 <td style="text-align:center">
                   <button class="pill-btn" onclick="switchTab('bi_concentracion')" style="background:rgba(148,163,184,0.15); border-color:var(--card-border); color:#fff; font-weight:700">

@@ -199,20 +199,20 @@ window.CODIAGRO_I18N_PHRASES = [
     "Instant 360° access to any entity: type a customer, SKU, batch, or sales rep to check sales, packaged inventory, reactor bulk, margins, and active contracts."
   ],
   [
-    "Acuerdo: Mehmet contactará con la dirección de Dotra para cerrar la renovación de la tarifa 2026-Q4 condicionada a un pedido mínimo de 2 contenedores de Salwax Calcio.",
-    "Agreement: Mehmet will contact Dotra management to close the 2026-Q4 price renewal conditional on a minimum order of 2 containers of Salwax Calcium."
+    "Sin información registrada",
+    "No information recorded"
   ],
   [
-    "Comisión comercial: Liquidación según contrato de agencia internacional con soporte de factura mensual de servicios.",
-    "Sales commission: Settled per international agency contract backed by monthly service invoices."
+    "No constan excepciones de precio ni tarifas pactadas aprobadas documentalmente para este cliente.",
+    "No price exceptions or agreed tariffs documentarily approved for this customer."
   ],
   [
-    "Rappel cliente: No aplicable por venta en régimen de distribuidor exclusivo y tarifa neta pactada.",
-    "Customer rebate: Not applicable due to exclusive distributor regime and net agreed price list."
+    "No existen acuerdos de comité con fuente documental aprobada vinculados a este cliente.",
+    "No committee agreements with approved documentary sources linked to this customer."
   ],
   [
-    "Tarifa comercial acordada con cláusula FOB/CIF para volumen superior a 40.000 u/año.",
-    "Commercial tariff agreed under FOB/CIF terms for annual volume exceeding 40,000 units."
+    "Sin contratos de corretaje, comisión comercial o escalados de rappel formalizados documentalmente para este cliente.",
+    "No brokerage contracts, sales commissions, or rebate schedules documentarily formalized for this customer."
   ],
   [
     "Trayectoria de demanda a 15 meses (Oct 2026 - Dic 2027) y proyección de agotamiento",

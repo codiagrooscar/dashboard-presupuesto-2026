@@ -1,3 +1,14 @@
+// -------------------------------------------------------------------------
+// ESTADO Y MODO DEMOSTRACIÓN (SEPARACIÓN ESTRICTA AUDITADA)
+// -------------------------------------------------------------------------
+let isDemoModeActive = false;
+
+function toggleDemoMode(enable) {
+  isDemoModeActive = Boolean(enable);
+  const container = document.getElementById('biContentContainer') || document.getElementById('appContent');
+  if (typeof renderCurrentTab === 'function') renderCurrentTab();
+}
+
 
 // -------------------------------------------------------------------------
 // MEJORA 19: COMPONENTE UNIVERSAL DE ESTADOS EXPLÍCITOS DE PANTALLA
@@ -1728,12 +1739,15 @@ let currentExpFilter = 'ALL';
 
 function renderPriceExceptionsSection() {
   const bi = getBiData();
-  if (!bi || !bi.mejora_6_excepciones_precio) {
+  const isDemo = Boolean(isDemoModeActive);
+  if (!bi || (!bi.mejora_6_excepciones_precio && !bi.modo_demostracion)) {
     return `<div class="empty-state"><p>No se encontraron datos de excepciones de precio.</p></div>`;
   }
 
-  const exp = bi.mejora_6_excepciones_precio;
-  const list = exp.excepciones_list || [];
+  const exp = isDemo ? (bi?.modo_demostracion || bi?.mejora_6_excepciones_precio) : bi?.mejora_6_excepciones_precio;
+  const list = isDemo 
+    ? (bi?.modo_demostracion?.excepciones_list || exp.excepciones_list || []) 
+    : (exp.excepciones_list || []).filter(e => e.documento_origen && e.responsable_validacion);
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
@@ -1746,46 +1760,61 @@ function renderPriceExceptionsSection() {
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
                 Registro de Excepciones de Precio con Caducidad
               </h3>
-              <span class="tab-badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4)">
-                Gobernanza de Márgenes
+              <span class="tab-badge" style="background:${isDemo ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)'}; color:${isDemo ? '#fbbf24' : '#34d399'}; border:1px solid ${isDemo ? 'rgba(245,158,11,0.4)' : 'rgba(16,185,129,0.4)'}">
+                ${isDemo ? 'MODO DEMOSTRACIÓN' : 'MODO OPERATIVO FORMAL'}
               </span>
             </div>
             <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px">
-              <strong>Demostración de Control & Modelización:</strong> Registro de propuestas y acuerdos comerciales para modelización de márgenes fuera de tarifa. Todo precio pactado aplicable en facturación real requiere formalización contractual firmada por Dirección General.
+              ${isDemo 
+                ? 'Vista de demostración con ejemplos simulados de tarifas pactadas para verificación de interfaz.' 
+                : 'Registro formal de propuestas y tarifas comerciales validadas documentalmente por Dirección General.'}
             </p>
           </div>
-          <div style="text-align:right">
-            <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted)">Volumen Auditado</span>
-            <div style="font-size:1.15rem; font-weight:700; color:#34d399">${fmtEur(exp.volumen_afectado_eur)}</div>
+          <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+            <div style="text-align:right">
+              <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted)">Volumen Auditado</span>
+              <div style="font-size:1.15rem; font-weight:700; color:#34d399">${fmtEur(exp.volumen_afectado_eur || 0)}</div>
+            </div>
+            <div style="display:flex; gap:0.35rem; background:rgba(0,0,0,0.3); padding:0.3rem; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
+              <button class="pill-btn ${!isDemo ? 'active' : ''}" onclick="toggleDemoMode(false)" style="padding:0.3rem 0.65rem; font-size:0.78rem; cursor:pointer;">Operativo</button>
+              <button class="pill-btn ${isDemo ? 'active' : ''}" onclick="toggleDemoMode(true)" style="padding:0.3rem 0.65rem; font-size:0.78rem; cursor:pointer;">Demostración</button>
+            </div>
           </div>
         </div>
       </div>
+
+      ${isDemo ? `
+        <div style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:8px; padding:0.75rem 1.15rem; color:#fde68a; font-size:0.82rem; display:flex; align-items:center; gap:0.6rem;">
+          <span style="font-size:1.1rem;">⚠️</span>
+          <span><strong>MODO DEMOSTRACIÓN ACTIVO:</strong> Estos precios especiales son ejemplos ficticios para evaluación de interfaz y maquetas. No representan contratos aprobados ni tarifas reales.</span>
+        </div>
+      ` : ''}
 
       <!-- KPI METRIC CARDS -->
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem;">
         <div class="kpi-card" style="border-left: 4px solid #38bdf8;">
           <div class="kpi-label">Total Acuerdos Registrados</div>
-          <div class="kpi-val" style="color:#38bdf8">${exp.total_excepciones}</div>
+          <div class="kpi-val" style="color:#38bdf8">${list.length}</div>
           <div class="kpi-sub">Precios especiales fuera de tarifa</div>
         </div>
         <div class="kpi-card" style="border-left: 4px solid #10b981; cursor:pointer;" onclick="filterPriceExceptionsTable('VIGENTE')">
           <div class="kpi-label">🟢 Vigentes</div>
-          <div class="kpi-val" style="color:#34d399">${exp.vigentes_count} contratos</div>
+          <div class="kpi-val" style="color:#34d399">${list.filter(x => x.estado === 'VIGENTE').length} contratos</div>
           <div class="kpi-sub">Dentro de plazo y vigencia</div>
         </div>
         <div class="kpi-card" style="border-left: 4px solid #f59e0b; cursor:pointer;" onclick="filterPriceExceptionsTable('POR VENCER')">
           <div class="kpi-label">🟠 Por Vencer (&lt; 60 días)</div>
-          <div class="kpi-val" style="color:#fbbf24">${exp.por_vencer_count} acuerdo</div>
+          <div class="kpi-val" style="color:#fbbf24">${list.filter(x => x.estado === 'POR VENCER').length} acuerdo</div>
           <div class="kpi-sub">Requiere revisión comercial</div>
         </div>
         <div class="kpi-card" style="border-left: 4px solid #ef4444; cursor:pointer;" onclick="filterPriceExceptionsTable('CADUCADA')">
           <div class="kpi-label">🔴 Caducados</div>
-          <div class="kpi-val" style="color:#f87171">${exp.caducadas_count} acuerdo</div>
+          <div class="kpi-val" style="color:#f87171">${list.filter(x => x.estado === 'CADUCADA').length} acuerdo</div>
           <div class="kpi-sub">Bloqueado en cotizador</div>
         </div>
         <div class="kpi-card" style="border-left: 4px solid #a855f7;">
           <div class="kpi-label">Margen Medio Acordado</div>
-          <div class="kpi-val" style="color:#c084fc">${exp.margen_medio_acordado_pct}%</div>
+          <div class="kpi-val" style="color:#c084fc">${list.length > 0 ? (list.reduce((a,x) => a + (x.margen_acordado_pct || 0), 0) / list.length).toFixed(1) : '0.0'}%</div>
           <div class="kpi-sub">Tarifa estándar: 67,3%</div>
         </div>
       </div>
@@ -1818,41 +1847,49 @@ function renderPriceExceptionsSection() {
             </select>
           </div>
           <div>
-            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Precio Oferta Propuesto (€/L)</label>
-            <input type="number" id="expSimOfferPrice" value="2.90" step="0.05" min="0.5" oninput="recalcPriceExceptionSim()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.88rem; font-weight:700;">
+            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Precio Ofertado (€/u)</label>
+            <input type="number" id="expSimOfferPrice" value="2.95" step="0.05" oninput="recalcPriceExceptionSim()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#38bdf8; font-weight:700; font-size:0.95rem; font-family:monospace;" />
           </div>
           <div>
-            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Volumen Comprometido (L)</label>
-            <input type="number" id="expSimVolume" value="25000" step="1000" min="100" oninput="recalcPriceExceptionSim()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.88rem; font-weight:700;">
+            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Volumen Previsto (uds)</label>
+            <input type="number" id="expSimVolume" value="5000" step="500" oninput="recalcPriceExceptionSim()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.95rem; font-family:monospace;" />
           </div>
           <div>
-            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Duración Acuerdo (Meses)</label>
+            <label style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; font-weight:600; display:block; margin-bottom:0.3rem;">Plazo de Validez</label>
             <select id="expSimMonths" onchange="recalcPriceExceptionSim()" style="width:100%; padding:0.6rem 0.8rem; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:6px; color:#fff; font-size:0.88rem;">
-              <option value="3">3 Meses (Campaña corta)</option>
-              <option value="6" selected>6 Meses (Media campaña)</option>
-              <option value="12">12 Meses (Anual - Máx permitido)</option>
+              <option value="3">3 Meses (Campaña)</option>
+              <option value="6" selected>6 Meses (Semestral)</option>
+              <option value="12">12 Meses (Anual Marco)</option>
             </select>
           </div>
         </div>
 
-        <!-- RESULTADO DEL COTIZADOR -->
-        <div id="priceExceptionSimResult" style="margin-top:1.15rem; padding:1rem 1.25rem; background:rgba(15, 23, 42, 0.85); border:1px solid rgba(245, 158, 11, 0.3); border-radius:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-          <!-- Generado por recalcPriceExceptionSim() -->
+        <div id="priceExceptionSimResult" style="margin-top:1rem; padding:0.85rem 1rem; border-radius:6px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <div style="font-size:0.84rem; color:#cbd5e1;">
+            <span>Descuento s/tarifa: <strong style="color:#fbbf24">-23,4%</strong></span> &bull; 
+            <span>Margen resultante: <strong style="color:#34d399">61,0%</strong></span> &bull; 
+            <span>Volumen estimado: <strong style="color:#fff">14.750 €</strong></span>
+          </div>
+          <div>
+            <span class="tab-badge badge-success" style="font-size:0.8rem; font-weight:700;">Aprobación Nivel 1: Comercial</span>
+          </div>
         </div>
       </div>
 
-      <!-- TABLA DETALLADA DE CONTRATOS AUDITADOS -->
-      <div class="chart-box" style="padding:1.35rem;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
-          <div>
-            <h4 style="margin:0; font-size:1.05rem; color:#fff">Auditoría de Acuerdos Activos y Vencimientos</h4>
-            <span style="font-size:0.8rem; color:var(--muted)">Control de precios vigentes vs precios caducados</span>
+      <!-- TABLA DETALLADA DE CONTRATOS FUERA DE TARIFA -->
+      <div class="table-card">
+        <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+          <div style="display:flex; align-items:center; gap:0.75rem;">
+            <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem">
+              📋 Libro de Acuerdos Fuera de Tarifa & Auditoría
+            </h4>
+            <span style="font-size:0.8rem; color:var(--muted)">${list.length} Registros</span>
           </div>
-          <div style="display:flex; align-items:center; gap:0.6rem;">
-            <button class="pill-btn exp-filter-btn active" data-filter="ALL" onclick="filterPriceExceptionsTable('ALL')">Todos (${exp.total_excepciones})</button>
-            <button class="pill-btn exp-filter-btn" data-filter="VIGENTE" onclick="filterPriceExceptionsTable('VIGENTE')">🟢 Vigentes (${exp.vigentes_count})</button>
-            <button class="pill-btn exp-filter-btn" data-filter="POR VENCER" onclick="filterPriceExceptionsTable('POR VENCER')">🟠 Por Vencer (${exp.por_vencer_count})</button>
-            <button class="pill-btn exp-filter-btn" data-filter="CADUCADA" onclick="filterPriceExceptionsTable('CADUCADA')">🔴 Caducados (${exp.caducadas_count})</button>
+          <div style="display:flex; gap:0.4rem;">
+            <button class="pill-btn exp-filter-btn active" data-filter="ALL" onclick="filterPriceExceptionsTable('ALL')">Todos</button>
+            <button class="pill-btn exp-filter-btn" data-filter="VIGENTE" onclick="filterPriceExceptionsTable('VIGENTE')">Vigentes</button>
+            <button class="pill-btn exp-filter-btn" data-filter="POR VENCER" onclick="filterPriceExceptionsTable('POR VENCER')">Por Vencer</button>
+            <button class="pill-btn exp-filter-btn" data-filter="CADUCADA" onclick="filterPriceExceptionsTable('CADUCADA')">Caducados</button>
           </div>
         </div>
 
@@ -1860,23 +1897,23 @@ function renderPriceExceptionsSection() {
           <table id="priceExceptionsTable">
             <thead>
               <tr>
-                <th>Expediente</th>
+                <th>Código</th>
                 <th>Cliente</th>
                 <th>Comercial</th>
                 <th>Producto / SKU</th>
-                <th style="text-align:right">P. Tarifa</th>
-                <th style="text-align:right; color:#fbbf24">P. Pactado</th>
+                <th style="text-align:right">Tarifa</th>
+                <th style="text-align:right">Pactado</th>
                 <th style="text-align:center">Dto %</th>
                 <th style="text-align:center">Margen COGS</th>
                 <th>Nivel Autorización</th>
                 <th>Justificación Comercial</th>
                 <th style="text-align:center">Caducidad</th>
                 <th style="text-align:center">Estado</th>
-                <th style="text-align:center">Nivel 3 (Acuerdo)</th>
+                <th style="text-align:center">Acción</th>
               </tr>
             </thead>
             <tbody>
-              ${list.map(s => `
+              ${list.length > 0 ? list.map(s => `
                 <tr class="exp-row" data-estado="${s.estado}">
                   <td style="font-weight:700; font-family:monospace; color:#38bdf8">${s.id}</td>
                   <td style="font-weight:600; color:#fff;">${s.cliente} <span style="font-size:0.75rem; color:var(--muted)">(${s.pais})</span></td>
@@ -1886,24 +1923,33 @@ function renderPriceExceptionsSection() {
                   <td style="text-align:right; font-weight:700; color:#fbbf24">${fmtEur(s.precio_acordado)}</td>
                   <td style="text-align:center"><span class="tab-badge badge-warning">-${s.descuento_pct}%</span></td>
                   <td style="text-align:center; font-weight:700; color:${s.margen_acordado_pct >= 60 ? '#34d399' : '#f87171'}">${s.margen_acordado_pct}%</td>
-                  <td><span class="tab-badge" style="background:rgba(255,255,255,0.08); font-size:0.75rem;">${s.autorizado_por}</span></td>
+                  <td><span class="tab-badge" style="background:rgba(255,255,255,0.08); font-size:0.75rem;">${s.responsable_validacion || s.autorizado_por}</span></td>
                   <td style="font-size:0.8rem; color:#94a3b8; max-width:260px;">${s.motivo}</td>
                   <td style="text-align:center; font-size:0.85rem;">
-                    <span style="font-weight:600; color:#fff">${s.fecha_caducidad}</span>
+                    <span style="font-weight:600; color:#fff">${s.fecha_caducidad || s.vigencia || '-'}</span>
                     <div style="font-size:0.72rem; color:${s.dias_restantes < 0 ? '#f87171' : (s.dias_restantes <= 60 ? '#fbbf24' : '#94a3b8')}">
-                      ${s.dias_restantes < 0 ? 'Caducado (' + Math.abs(s.dias_restantes) + 'd)' : s.dias_restantes + ' días de vigencia'}
+                      ${s.dias_restantes < 0 ? 'Caducado (' + Math.abs(s.dias_restantes) + 'd)' : (s.dias_restantes ? s.dias_restantes + ' días' : 'Vigente')}
                     </div>
                   </td>
                   <td style="text-align:center">
-                    <span class="tab-badge badge-${s.badge_cls}">${s.estado}</span>
+                    <span class="tab-badge badge-${s.badge_cls || 'info'}">${s.estado}</span>
                   </td>
                   <td style="text-align:center">
-                    <button class="pill-btn" onclick="openDocumentTraceability('CONTRATO', '${s.id}', '${s.cliente.replace(/'/g, "\\'")}')" style="font-size:0.72rem; padding:0.25rem 0.55rem; background:rgba(52,211,153,0.15); border-color:#34d399; color:#34d399; cursor:pointer;">
+                    <button class="pill-btn" onclick="openDocumentTraceability('CONTRATO', '${s.id}', '${s.cliente.replace(/'/g, "\'")}')" style="font-size:0.72rem; padding:0.25rem 0.55rem; background:rgba(52,211,153,0.15); border-color:#34d399; color:#34d399; cursor:pointer;">
                       📜 Ver Acuerdo
                     </button>
                   </td>
                 </tr>
-              `).join('')}
+              `).join('') : `
+                <tr>
+                  <td colspan="13" style="text-align:center; padding:2.5rem 1rem; color:var(--muted);">
+                    <div style="font-size:1.1rem; color:#94a3b8; font-weight:700; margin-bottom:0.4rem;">Sin información registrada</div>
+                    <div style="font-size:0.84rem; color:#64748b; max-width:650px; margin:0 auto;">
+                      No constan excepciones de precio ni tarifas pactadas documentadas con fuente formalizada en el modo operativo.
+                    </div>
+                  </td>
+                </tr>
+              `}
             </tbody>
           </table>
         </div>
@@ -2331,12 +2377,12 @@ let currentOmniboxCategory = 'ALL';
 
 function renderOmniboxSearchSection() {
   const bi = getBiData();
-  if (!bi || !bi.mejora_9_busqueda_global) {
-    return `<div class="empty-state"><p>No se encontraron datos de búsqueda global.</p></div>`;
-  }
+  const isDemo = Boolean(isDemoModeActive);
+  const items = isDemo 
+    ? (bi?.modo_demostracion?.items_muestra || bi?.mejora_9_busqueda_global?.items_muestra || [])
+    : getOperativeOmniboxEntities();
 
-  const omni = bi.mejora_9_busqueda_global;
-  const items = omni.items_muestra || [];
+  const totalCount = items.length;
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
@@ -2349,20 +2395,35 @@ function renderOmniboxSearchSection() {
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
                 Búsqueda Global Unificada (Omnibox 360°)
               </h3>
-              <span class="tab-badge" style="background:rgba(168,85,247,0.2); color:#c084fc; border:1px solid rgba(168,85,247,0.4)">
-                Trazabilidad Integral
+              <span class="tab-badge" style="background:${isDemo ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)'}; color:${isDemo ? '#fbbf24' : '#34d399'}; border:1px solid ${isDemo ? 'rgba(245,158,11,0.4)' : 'rgba(16,185,129,0.4)'}">
+                ${isDemo ? 'MODO DEMOSTRACIÓN' : 'MODO OPERATIVO REAL'}
               </span>
             </div>
             <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px">
-              Acceso instantáneo a la información 360° de cualquier entidad: escribe un cliente, SKU, lote o comercial y consulta sus ventas, stock envasado, granel en reactor, márgenes y contratos activos.
+              ${isDemo 
+                ? 'Vista de demostración con datos simulados de muestra para verificación de interfaz.' 
+                : 'Acceso en vivo a clientes de rentabilidad, stock físico envasado y estado de saldos en seguimiento.'}
             </p>
           </div>
-          <div style="text-align:right">
-            <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted)">Entidades Indexadas</span>
-            <div style="font-size:1.15rem; font-weight:700; color:#c084fc">${omni.total_entidades_indexadas} Registros</div>
+          <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+            <div style="text-align:right">
+              <span style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted)">Entidades Operativas</span>
+              <div style="font-size:1.15rem; font-weight:700; color:#c084fc">${totalCount} Registros</div>
+            </div>
+            <div style="display:flex; gap:0.35rem; background:rgba(0,0,0,0.3); padding:0.3rem; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
+              <button class="pill-btn ${!isDemo ? 'active' : ''}" onclick="toggleDemoMode(false)" style="padding:0.3rem 0.65rem; font-size:0.78rem; cursor:pointer;">Operativo</button>
+              <button class="pill-btn ${isDemo ? 'active' : ''}" onclick="toggleDemoMode(true)" style="padding:0.3rem 0.65rem; font-size:0.78rem; cursor:pointer;">Demostración</button>
+            </div>
           </div>
         </div>
       </div>
+
+      ${isDemo ? `
+        <div style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:8px; padding:0.75rem 1.15rem; color:#fde68a; font-size:0.82rem; display:flex; align-items:center; gap:0.6rem;">
+          <span style="font-size:1.1rem;">⚠️</span>
+          <span><strong>MODO DEMOSTRACIÓN ACTIVO:</strong> Estos datos son ejemplos ficticios para evaluación de interfaz y maquetas. No alimentan la operativa real ni las fichas oficiales de cliente.</span>
+        </div>
+      ` : ''}
 
       <!-- BARRA DE BÚSQUEDA CENTRAL -->
       <div class="chart-box" style="padding:1.35rem; background:rgba(30, 41, 59, 0.7); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-md);">
@@ -2370,7 +2431,7 @@ function renderOmniboxSearchSection() {
           <input 
             type="text" 
             id="omniboxSearchInput" 
-            placeholder="Escribe cliente (ej. DOTRA, CASI), producto (ej. AN0020), lote o comercial..." 
+            placeholder="Escribe cliente (ej. DOTRA, CAMPOEJIDO), producto (ej. AN0020) o comercial..." 
             value="${currentOmniboxQuery}" 
             oninput="handleOmniboxInput(this.value)" 
             style="flex:1; min-width:280px; padding:0.75rem 1rem; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; font-size:0.95rem; font-weight:500;"
@@ -2379,7 +2440,6 @@ function renderOmniboxSearchSection() {
             <button class="pill-btn omni-cat-btn ${currentOmniboxCategory === 'ALL' ? 'active' : ''}" onclick="setOmniboxCategory('ALL')">Todos</button>
             <button class="pill-btn omni-cat-btn ${currentOmniboxCategory === 'CLIENTE' ? 'active' : ''}" onclick="setOmniboxCategory('CLIENTE')">Clientes</button>
             <button class="pill-btn omni-cat-btn ${currentOmniboxCategory === 'PRODUCTO' ? 'active' : ''}" onclick="setOmniboxCategory('PRODUCTO')">SKUs</button>
-            <button class="pill-btn omni-cat-btn ${currentOmniboxCategory === 'LOTE' ? 'active' : ''}" onclick="setOmniboxCategory('LOTE')">Lotes</button>
           </div>
         </div>
       </div>
@@ -2479,7 +2539,10 @@ function handleOmniboxInput(val) {
   currentOmniboxQuery = val;
   const container = document.getElementById('omniboxResultsContainer');
   const bi = getBiData();
-  const items = bi?.mejora_9_busqueda_global?.items_muestra || [];
+  const isDemo = Boolean(isDemoModeActive);
+  const items = isDemo 
+    ? (bi?.modo_demostracion?.items_muestra || bi?.mejora_9_busqueda_global?.items_muestra || [])
+    : getOperativeOmniboxEntities();
   if (container) container.innerHTML = renderOmniboxCardsHtml(items);
 }
 
@@ -2490,7 +2553,10 @@ function setOmniboxCategory(cat) {
   });
   const container = document.getElementById('omniboxResultsContainer');
   const bi = getBiData();
-  const items = bi?.mejora_9_busqueda_global?.items_muestra || [];
+  const isDemo = Boolean(isDemoModeActive);
+  const items = isDemo 
+    ? (bi?.modo_demostracion?.items_muestra || bi?.mejora_9_busqueda_global?.items_muestra || [])
+    : getOperativeOmniboxEntities();
   if (container) container.innerHTML = renderOmniboxCardsHtml(items);
 }
 
@@ -2503,13 +2569,12 @@ let currentMeetingComite = 'comite_comercial';
 
 function renderModoReunionSection() {
   const bi = getBiData();
-  if (!bi || !bi.mejora_10_modo_reunion) {
-    return `<div class="empty-state"><p>No se encontraron datos de Modo Reunión.</p></div>`;
-  }
-
-  const mr = bi.mejora_10_modo_reunion;
+  const mr = bi?.mejora_10_modo_reunion || {};
+  const isDemo = Boolean(isDemoModeActive);
   const comites = mr.comites || [];
-  const acuerdos = mr.acuerdos_registrados || [];
+  const acuerdos = isDemo 
+    ? (bi?.modo_demostracion?.acuerdos_registrados || mr.acuerdos_registrados || [])
+    : (mr.acuerdos_registrados || []).filter(a => a.documento_origen && a.responsable_validacion);
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
@@ -2522,23 +2587,36 @@ function renderModoReunionSection() {
               <h3 style="margin:0; font-family:'Outfit',sans-serif; font-size:1.25rem; color:#fff">
                 Modo Reunión de Comité & Cuaderno de Acuerdos Directivos
               </h3>
-              <span class="tab-badge" style="background:rgba(234,179,8,0.2); color:#facc15; border:1px solid rgba(234,179,8,0.4)">
-                Gobernanza y Seguimiento
+              <span class="tab-badge" style="background:${isDemo ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.2)'}; color:${isDemo ? '#fbbf24' : '#34d399'}; border:1px solid ${isDemo ? 'rgba(245,158,11,0.4)' : 'rgba(16,185,129,0.4)'}">
+                ${isDemo ? 'MODO DEMOSTRACIÓN' : 'MODO OPERATIVO FORMAL'}
               </span>
             </div>
             <p style="margin:0; font-size:0.86rem; color:#cbd5e1; max-width:850px">
-              Entorno ejecutivo optimizado para proyectar en comités de Dirección, Comercial y Fábrica. Permite registrar acuerdos vinculados a los datos analizados, asignar responsables y verificar su cumplimiento en la siguiente sesión.
+              ${isDemo 
+                ? 'Vista de demostración con ejemplos simulados de reuniones.' 
+                : 'Registro formal de acuerdos directivos vinculados a fuentes documentales aprobadas (cliente, documento de origen, fecha, vigencia y responsable).'}
             </p>
           </div>
-          <div style="display:flex; gap:0.5rem; align-items:center;">
+          <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+            <div style="display:flex; gap:0.35rem; background:rgba(0,0,0,0.3); padding:0.3rem; border-radius:6px; border:1px solid rgba(255,255,255,0.1);">
+              <button class="pill-btn ${!isDemo ? 'active' : ''}" onclick="toggleDemoMode(false)" style="padding:0.3rem 0.65rem; font-size:0.78rem; cursor:pointer;">Operativo</button>
+              <button class="pill-btn ${isDemo ? 'active' : ''}" onclick="toggleDemoMode(true)" style="padding:0.3rem 0.65rem; font-size:0.78rem; cursor:pointer;">Demostración</button>
+            </div>
             <button class="pill-btn" onclick="crearNuevoAcuerdoModal()" style="background:rgba(234,179,8,0.2); border-color:#eab308; color:#facc15; font-weight:700;">
-              ➕ Registrar Acuerdo
+              ➕ Registrar Acuerdo Aprobado
             </button>
           </div>
         </div>
       </div>
 
-      <!-- SELECTOR DE COMITÉ / VISTAS GUARDADAS -->
+      ${isDemo ? `
+        <div style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:8px; padding:0.75rem 1.15rem; color:#fde68a; font-size:0.82rem; display:flex; align-items:center; gap:0.6rem;">
+          <span style="font-size:1.1rem;">⚠️</span>
+          <span><strong>MODO DEMOSTRACIÓN ACTIVO:</strong> Estos acuerdos son ejemplos ficticios para evaluación de interfaz y maquetas. No representan decisiones ni obligaciones reales.</span>
+        </div>
+      ` : ''}
+
+      <!-- SELECTOR DE COMITÉ -->
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;">
         ${comites.map(c => `
           <div 
@@ -2568,30 +2646,41 @@ function renderModoReunionSection() {
               <tr>
                 <th>Código</th>
                 <th>Comité</th>
-                <th>Fecha</th>
+                <th>Cliente / Ámbito</th>
                 <th>Decisión / Acción Acordada</th>
+                <th>Doc. Origen</th>
                 <th>Responsable</th>
-                <th style="text-align:center">Fecha Límite</th>
+                <th style="text-align:center">Vigencia</th>
                 <th style="text-align:center">Estado</th>
               </tr>
             </thead>
             <tbody>
-              ${acuerdos.map(a => `
+              ${acuerdos.length > 0 ? acuerdos.map(a => `
                 <tr>
                   <td style="font-weight:700; font-family:monospace; color:#38bdf8">${a.id}</td>
                   <td style="font-size:0.8rem; color:var(--muted)">${a.comite}</td>
-                  <td style="font-size:0.8rem; color:#cbd5e1">${a.fecha_acuerdo}</td>
+                  <td style="font-size:0.82rem; font-weight:600; color:#fff">${a.cliente || 'General'}</td>
                   <td>
                     <div style="font-weight:600; color:#fff;">${a.tema}</div>
-                    <div style="font-size:0.78rem; color:#94a3b8; margin-top:0.2rem;">${a.detalle}</div>
+                    <div style="font-size:0.78rem; color:#94a3b8; margin-top:0.2rem;">${a.detalle || a.acuerdo || ''}</div>
                   </td>
-                  <td><span class="tag-commercial">${a.responsable}</span></td>
-                  <td style="text-align:center; font-weight:700; font-size:0.85rem; color:#fff">${a.fecha_limite}</td>
+                  <td style="font-size:0.78rem; color:#cbd5e1; font-family:monospace;">${a.documento_origen || 'No indicado'}</td>
+                  <td><span class="tag-commercial">${a.responsable_validacion || a.responsable}</span></td>
+                  <td style="text-align:center; font-weight:700; font-size:0.85rem; color:#fff">${a.vigencia || a.fecha_limite || 'Vigente'}</td>
                   <td style="text-align:center">
-                    <span class="tab-badge badge-${a.badge_cls}">${a.estado}</span>
+                    <span class="tab-badge badge-${a.badge_cls || 'info'}">${a.estado}</span>
                   </td>
                 </tr>
-              `).join('')}
+              `).join('') : `
+                <tr>
+                  <td colspan="8" style="text-align:center; padding:2.5rem 1rem; color:var(--muted);">
+                    <div style="font-size:1.1rem; color:#94a3b8; font-weight:700; margin-bottom:0.4rem;">Sin información registrada</div>
+                    <div style="font-size:0.84rem; color:#64748b; max-width:650px; margin:0 auto;">
+                      No existen acuerdos de comité con fuente documental formalizada (cliente, documento de origen, fecha, vigencia y responsable). Registra uno nuevo con el botón superior.
+                    </div>
+                  </td>
+                </tr>
+              `}
             </tbody>
           </table>
         </div>
@@ -2607,23 +2696,34 @@ function selectMeetingComite(id) {
 }
 
 function crearNuevoAcuerdoModal() {
-  const tema = prompt("Introduce el nuevo acuerdo o decisión directiva tomada:");
+  const cli = prompt("Cliente afectado (o Ámbito General):", "General");
+  if (!cli) return;
+  const tema = prompt("Decisión o acuerdo directivo tomado:");
   if (!tema) return;
-  const resp = prompt("Responsable asignado (ej. Pedro, Mehmet, Jefe de Planta):", "Dirección");
+  const doc = prompt("Documento o acta de soporte (ej. Acta Comité 30/10/2026):", "Acta Consejo de Dirección");
+  const resp = prompt("Responsable de validación:", "Dirección General");
+  const vig = prompt("Fecha límite o vigencia (dd/mm/aaaa):", "31/12/2026");
+
   const bi = getBiData();
   if (bi && bi.mejora_10_modo_reunion) {
-    const list = bi.mejora_10_modo_reunion.acuerdos_registrados || [];
-    const newId = `ACU-2026-00${list.length + 1}`;
+    if (!bi.mejora_10_modo_reunion.acuerdos_registrados) bi.mejora_10_modo_reunion.acuerdos_registrados = [];
+    const list = bi.mejora_10_modo_reunion.acuerdos_registrados;
+    const newId = `ACU-2026-${String(list.length + 1).padStart(3, '0')}`;
     list.unshift({
       id: newId,
       comite: "Consejo de Dirección",
-      fecha_acuerdo: "27/10/2026",
+      cliente: cli,
+      fecha_acuerdo: "30/10/2026",
+      fecha: "30/10/2026",
       tema: tema,
-      responsable: resp || "Dirección",
-      fecha_limite: "15/11/2026",
+      documento_origen: doc || "Acta aprobada",
+      responsable: resp || "Dirección General",
+      responsable_validacion: resp || "Dirección General",
+      fecha_limite: vig || "31/12/2026",
+      vigencia: vig || "31/12/2026",
       estado: "EN_CURSO",
       badge_cls: "warning",
-      detalle: "Acuerdo incorporado durante la sesión ejecutiva."
+      detalle: "Acuerdo formalizado con registro documental y responsable asignado."
     });
     if (typeof renderCurrentTab === 'function') renderCurrentTab();
   }
@@ -2813,8 +2913,9 @@ function findClient360Data(clientName) {
   if (!clientName) return null;
   const targetUpper = clientName.trim().toUpperCase();
   const targetNorm = normClientKey(clientName);
+  const bi = getBiData();
 
-  // 1. Matched profit details
+  // 1. Matched profit details (Fuente: Presupuesto_Ventas_2027_Definitivo.xlsx, Hoja Detalle Líneas Clasificadas)
   let matchedProfitKey = null;
   const pKeys = window.PROFITABILITY_DATA?.cliente_detalle || {};
   for (const k in pKeys) {
@@ -2829,29 +2930,25 @@ function findClient360Data(clientName) {
   const skus2026 = matchedProfitKey ? (pKeys[matchedProfitKey]['2026'] || []) : [];
   const skus2027 = matchedProfitKey ? (pKeys[matchedProfitKey]['2027'] || []) : [];
 
-  // Totals from SKUs (Detalle de Rentabilidad Real 2026)
+  // Totales desde el presupuesto detallado por SKU
   const totalVentasEur = skus2026.reduce((acc, s) => acc + (s.ventas_eur || 0), 0);
   const totalCogsEur = skus2026.reduce((acc, s) => acc + (s.cogs_eur || 0), 0);
   const totalUds = skus2026.reduce((acc, s) => acc + (s.uds || 0), 0);
   const totalMargenEur = totalVentasEur - totalCogsEur;
   const totalMargenPct = totalVentasEur > 0 ? (totalMargenEur / totalVentasEur * 100) : 0;
 
-  // 2. Omnibox Entity Information
-  const bi = getBiData();
-  let omniEntity = null;
-  const omniItems = bi?.mejora_9_busqueda_global?.items_muestra || [];
-  for (const it of omniItems) {
-    if (it.tipo === 'CLIENTE') {
-      const itUpper = it.nombre.toUpperCase();
-      const itNorm = normClientKey(it.nombre);
-      if (itUpper === targetUpper || itNorm === targetNorm || itNorm.includes(targetNorm) || targetNorm.includes(itNorm)) {
-        omniEntity = it;
-        break;
-      }
+  // 2. Información Operativa de Deuda Real (Fuente: Ageing Codiagro Sep.xlsx - Hoja SALDOS VENCIDOS)
+  let debtInfo = null;
+  const debtClients = bi?.antiguedad_deuda?.detalle_clientes || bi?.antiguedad_deuda?.clientes || [];
+  for (const dc of debtClients) {
+    const dcNorm = normClientKey(dc.cliente);
+    if (dcNorm === targetNorm || dcNorm.includes(targetNorm) || targetNorm.includes(dcNorm)) {
+      debtInfo = dc;
+      break;
     }
   }
 
-  // 3. Orders lines from dashboard_data across all periods (Conectar con DASHBOARD_PERIODS_DATA)
+  // 3. Orders lines from dashboard_data across all periods
   const orders = [];
   const periodsSource = (window.DASHBOARD_PERIODS_DATA && window.DASHBOARD_PERIODS_DATA.periods)
     ? window.DASHBOARD_PERIODS_DATA.periods
@@ -2895,44 +2992,62 @@ function findClient360Data(clientName) {
     }
   }
 
-  // 4. Commercial agreements & exceptions
+  // 4. Commercial agreements & exceptions: Solo con fuentes formalizadas (cliente, documento de origen, fecha, vigencia, responsable)
   const exceptions = [];
-  const activeExceptions = bi?.mejora_6_excepciones_precio?.excepciones_activas || [];
+  const activeExceptions = (typeof isDemoModeActive !== 'undefined' && isDemoModeActive)
+    ? (bi?.modo_demostracion?.excepciones_list || [])
+    : (bi?.mejora_6_excepciones_precio?.excepciones_list || []);
   for (const ex of activeExceptions) {
     const exClient = ex.cliente || '';
     const exNorm = normClientKey(exClient);
-    if (exNorm === targetNorm || exNorm.includes(targetNorm) || targetNorm.includes(exNorm)) {
+    if ((exNorm === targetNorm || exNorm.includes(targetNorm) || targetNorm.includes(exNorm)) && ex.documento_origen && ex.responsable_validacion) {
       exceptions.push(ex);
     }
   }
 
   const agreements = [];
-  const boardAgreements = bi?.mejora_10_modo_reunion?.cuaderno_acuerdos || [];
+  const boardAgreements = (typeof isDemoModeActive !== 'undefined' && isDemoModeActive)
+    ? (bi?.modo_demostracion?.acuerdos_registrados || [])
+    : (bi?.mejora_10_modo_reunion?.acuerdos_registrados || []);
   for (const ac of boardAgreements) {
     const acStr = (JSON.stringify(ac)).toUpperCase();
-    if (acStr.includes(targetUpper) || targetUpper.includes(ac.tema?.toUpperCase() || '')) {
+    if ((acStr.includes(targetUpper) || targetUpper.includes(ac.tema?.toUpperCase() || '')) && ac.documento_origen && ac.responsable_validacion) {
       agreements.push(ac);
     }
   }
 
-  // Aggregated KPIs: coherencia 100% entre cabecera y detalle (Punto 3 ChatGPT)
-  const clientVentasEur = skus2026.length > 0 ? totalVentasEur : (omniEntity?.ventas_2026_eur || 0);
-  const clientMargenPct = skus2026.length > 0 ? totalMargenPct : (omniEntity?.margen_medio_pct || 0);
-  const clientTotalUds = skus2026.length > 0 ? totalUds : (omniEntity?.total_uds || 0);
+  // Cifras estrictas: si no hay ventas en el detalle de presupuesto, es 0,00 € (NUNCA recuperar importes de ejemplo)
+  const clientVentasEur = skus2026.length > 0 ? totalVentasEur : 0.0;
+  const clientMargenPct = skus2026.length > 0 ? totalMargenPct : 0.0;
+  const clientTotalUds = skus2026.length > 0 ? totalUds : 0;
 
-  const pendientesUds = orders
-    .filter(o => o.periodId === '2026-10')
-    .reduce((acc, o) => acc + (o.pendientes_uds || 0), 0) || omniEntity?.pedidos_pendientes_uds || 0;
+  // Pedidos pendientes: si no hay pedidos pendientes en octubre, es estrictamente 0 (NUNCA sustituir por datos demo)
+  const octOrders = orders.filter(o => o.periodId === '2026-10');
+  const pendientesUds = octOrders.length > 0
+    ? octOrders.reduce((acc, o) => acc + (o.pendientes_uds || 0), 0)
+    : (orders.length > 0 ? orders.reduce((acc, o) => acc + (o.pendientes_uds || 0), 0) : 0);
 
-  const pais = skus2026[0]?.pais || (omniEntity?.subtitulo?.includes('Exportación') ? 'Exportación' : 'España');
-  const comercial = skus2026[0]?.comercial || omniEntity?.comercial || (orders[0]?.comercial || 'Comercial');
+  // Localización y Comercial
+  const pais = skus2026[0]?.pais || (orders.length > 0 ? (orders[0]?.is_nacional ? 'España' : 'Exportación') : (debtInfo?.pais || 'Sin información registrada'));
+  const comercial = skus2026[0]?.comercial || (orders.length > 0 ? orders[0]?.comercial : (debtInfo ? 'Administración' : 'Sin información registrada'));
+
+  // Alerta operativa real:
+  // Si tiene deuda vencida en Ageing Codiagro Sep.xlsx, indicarlo explícitamente.
+  // Si no tiene deuda ni incidencias, mostrar "Sin incidencias operativas registradas"
+  // (NUNCA afirmar positivamente "Al corriente" ni "Acuerdo activo" sin soporte).
+  let alertaOperativa = 'Sin incidencias ni acuerdos operativos registrados';
+  if (debtInfo) {
+    alertaOperativa = `Saldo vencido Ageing Sep-26: ${fmtEur(debtInfo.saldo_eur)} (${debtInfo.badge || 'En seguimiento'})`;
+  } else if (exceptions.length > 0) {
+    alertaOperativa = `Acuerdo de precio especial registrado`;
+  }
 
   return {
-    nombre: omniEntity?.nombre || matchedProfitKey || clientName,
+    nombre: matchedProfitKey || (debtInfo?.cliente) || clientName,
     pais: pais,
     comercial: comercial,
-    subtitulo: omniEntity?.subtitulo || `${pais} · Comercial: ${comercial}`,
-    alerta: omniEntity?.alerta || (exceptions.length > 0 ? `Acuerdo de precio especial registrado` : 'Cuenta al corriente'),
+    subtitulo: `${pais} · Comercial: ${comercial}`,
+    alerta: alertaOperativa,
     ventas_eur: clientVentasEur,
     margen_pct: clientMargenPct,
     margen_eur: totalMargenEur,
@@ -2943,7 +3058,8 @@ function findClient360Data(clientName) {
     skus2027: skus2027,
     orders: orders,
     exceptions: exceptions,
-    agreements: agreements
+    agreements: agreements,
+    debtInfo: debtInfo
   };
 }
 
@@ -2962,16 +3078,24 @@ function openClient360Modal(clientName) {
 
   const badgeEl = document.getElementById('client360ModalBadge');
   if (badgeEl) {
-    badgeEl.textContent = data.pais.toUpperCase().includes('ESP') ? 'CLIENTE NACIONAL' : 'DISTRIBUIDOR ESTRATÉGICO';
-    badgeEl.className = 'tab-badge ' + (data.pais.toUpperCase().includes('ESP') ? 'badge-success' : 'badge-info');
+    const isEsp = String(data.pais).toUpperCase().includes('ESP');
+    badgeEl.textContent = isEsp ? 'CLIENTE OPERATIVO NACIONAL' : (data.pais === 'Sin información registrada' ? 'CLIENTE' : 'DISTRIBUIDOR INTERNACIONAL');
+    badgeEl.className = 'tab-badge ' + (isEsp ? 'badge-success' : 'badge-info');
   }
 
   const subEl = document.getElementById('client360ModalSubtitle');
   if (subEl) {
     subEl.innerHTML = `
-      <span>🌍 ${data.pais}</span> &bull; 
-      <span>👤 Comercial: <strong>${data.comercial}</strong></span> &bull; 
-      <span>💡 ${data.alerta}</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-top:0.25rem;">
+        <div>
+          <span>🌍 ${data.pais}</span> &bull; 
+          <span>👤 Comercial: <strong>${data.comercial}</strong></span> &bull; 
+          <span>💡 ${data.alerta}</span>
+        </div>
+        <div style="font-size:0.73rem; color:#94a3b8; background:rgba(255,255,255,0.04); padding:0.25rem 0.6rem; border-radius:4px; border:1px solid rgba(255,255,255,0.08);">
+          Origen de cifras de presupuesto y margen: <strong>Presupuesto_Ventas_2027_Definitivo.xlsx (Hoja «Detalle Líneas Clasificadas»)</strong> &bull; Período: <strong>Presupuesto 2026</strong> (No equiparable a facturación contable conciliada)
+        </div>
+      </div>
     `;
   }
 
@@ -3013,6 +3137,8 @@ function openClient360Modal(clientName) {
 }
 
 function closeClient360Modal() {
+  currentClient360Client = null;
+  currentClient360Data = null;
   const modal = document.getElementById('client360ModalOverlay');
   if (modal) {
     modal.classList.remove('active');
@@ -3238,33 +3364,68 @@ function renderClientModalBody() {
     `;
   } else if (currentClient360ModalTab === 'acuerdos') {
     // TAB 3: CONDICIONES COMERCIALES Y ACUERDOS DIRECTIVOS
+    // Requisitos de Auditoría: Mostrar «Sin información registrada» cuando falten condiciones de pago,
+    // límite de crédito, cobertura del seguro, acuerdos o comisiones. No sustituir datos ausentes por
+    // afirmaciones positivas como «Al corriente», «Acuerdo activo» o «No aplicable».
+
     const exHtml = (d.exceptions && d.exceptions.length > 0) ? d.exceptions.map(ex => `
       <div style="background:rgba(15,23,42,0.7); border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-bottom:0.75rem;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
           <div>
-            <span class="tab-badge badge-warning">EXCEPCIÓN DE PRECIO CON CADUCIDAD</span>
+            <span class="tab-badge badge-warning">EXCEPCIÓN DE PRECIO REGISTRADA</span>
             <h4 style="margin:0.4rem 0 0.2rem 0; color:#fff; font-size:1.05rem;">${ex.sku} &bull; ${ex.precio_autorizado} €/u</h4>
           </div>
           <span style="font-size:0.8rem; color:#f87171; font-weight:700; background:rgba(239,68,68,0.15); padding:0.25rem 0.6rem; border-radius:4px;">
-            Caduca: ${ex.fecha_caducidad}
+            Vigencia: ${ex.vigencia || ex.fecha_caducidad || 'Sin fecha'}
           </span>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; margin-top:0.75rem; font-size:0.82rem; background:rgba(0,0,0,0.25); padding:0.6rem; border-radius:6px;">
           <div><span style="color:var(--muted)">Tarifa Oficial:</span> <strong>${ex.precio_tarifa} €</strong></div>
           <div><span style="color:var(--muted)">Margen Resultante:</span> <strong style="color:#34d399">${ex.margen_resultante_pct}%</strong></div>
-          <div><span style="color:var(--muted)">Aprobado por:</span> <strong>${ex.autorizado_por}</strong></div>
+          <div><span style="color:var(--muted)">Validado por:</span> <strong>${ex.responsable_validacion || ex.autorizado_por}</strong></div>
         </div>
-        <div style="margin-top:0.6rem; font-size:0.8rem; color:#cbd5e1;"><strong>Motivo:</strong> ${ex.motivo}</div>
+        <div style="margin-top:0.6rem; font-size:0.8rem; color:#cbd5e1;"><strong>Documento origen:</strong> ${ex.documento_origen || 'No indicado'}</div>
       </div>
     `).join('') : `
-      <div style="background:rgba(15,23,42,0.6); border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-bottom:1rem;">
-        <div style="display:flex; align-items:center; gap:0.6rem; color:#38bdf8;">
-          <span style="font-size:1.2rem;">📌</span>
-          <strong style="font-size:0.95rem;">Acuerdo de Cotización Especial Activo</strong>
+      <div style="background:rgba(15,23,42,0.6); border:1px dashed #334155; border-radius:8px; padding:1.25rem; margin-bottom:1rem; text-align:center;">
+        <div style="color:var(--muted); font-size:0.84rem; margin-bottom:0.35rem;">🏷️ Precios Especiales & Excepciones de Tarifa</div>
+        <strong style="color:#94a3b8; font-size:0.92rem;">Sin información registrada</strong>
+        <p style="margin:0.35rem 0 0 0; font-size:0.78rem; color:#64748b;">No constan excepciones de precio ni tarifas pactadas aprobadas documentalmente para este cliente.</p>
+      </div>
+    `;
+
+    // Situación de cobro según Ageing oficial
+    let cobroHtml = '';
+    if (d.debtInfo) {
+      cobroHtml = `
+        <div style="color:#fbbf24; font-weight:700;">En seguimiento (${fmtEur(d.debtInfo.saldo_eur)})</div>
+        <div style="font-size:0.70rem; color:#94a3b8; margin-top:2px;">Fuente: Ageing Codiagro Sep.xlsx (SALDOS VENCIDOS) · Vto: ${d.debtInfo.badge || 'Gestionado'}</div>
+      `;
+    } else {
+      cobroHtml = `
+        <div style="color:#94a3b8; font-weight:600;">Sin información registrada</div>
+        <div style="font-size:0.70rem; color:#64748b; margin-top:2px;">(No figura en registro de deuda de Ageing Sep.xlsx)</div>
+      `;
+    }
+
+    const agreementsHtml = (d.agreements && d.agreements.length > 0) ? d.agreements.map(ac => `
+      <div style="background:rgba(15,23,42,0.7); border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-bottom:0.75rem;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <span class="tab-badge badge-info">${ac.comite || 'COMITÉ'}</span>
+          <span style="font-size:0.75rem; color:var(--muted);">${ac.fecha || ac.fecha_acuerdo || 'Sin fecha'}</span>
         </div>
-        <p style="margin:0.5rem 0 0 0; font-size:0.84rem; color:#cbd5e1;">
-          ${d.alerta} &mdash; Tarifa comercial acordada con cláusula FOB/CIF para volumen superior a 40.000 u/año.
-        </p>
+        <h5 style="margin:0.5rem 0 0.25rem 0; color:#fff; font-size:0.95rem;">${ac.tema}</h5>
+        <p style="font-size:0.83rem; color:#cbd5e1; margin:0.35rem 0;">${ac.detalle || ac.acuerdo}</p>
+        <div style="margin-top:0.75rem; display:flex; justify-content:space-between; font-size:0.78rem; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.06); padding-top:0.5rem;">
+          <span>Doc. Origen: <strong>${ac.documento_origen || 'Acta de comité'}</strong> &bull; Responsable: <strong>${ac.responsable_validacion || ac.responsable}</strong></span>
+          <span style="color:#34d399; font-weight:700;">Vigencia: ${ac.vigencia || ac.fecha_limite || 'Vigente'}</span>
+        </div>
+      </div>
+    `).join('') : `
+      <div style="background:rgba(15,23,42,0.6); border:1px dashed #334155; border-radius:8px; padding:1.25rem; text-align:center;">
+        <div style="color:var(--muted); font-size:0.84rem; margin-bottom:0.35rem;">📋 Acuerdos Directivos de Comité</div>
+        <strong style="color:#94a3b8; font-size:0.92rem;">Sin información registrada</strong>
+        <p style="margin:0.35rem 0 0 0; font-size:0.78rem; color:#64748b;">No existen acuerdos de comité con fuente documental aprobada vinculados a este cliente.</p>
       </div>
     `;
 
@@ -3277,12 +3438,24 @@ function renderClientModalBody() {
           ${exHtml}
           
           <div style="background:rgba(15,23,42,0.6); border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-top:1rem;">
-            <h5 style="margin:0 0 0.5rem 0; color:#f1f5f9; font-size:0.9rem;">Condiciones Financieras y de Cobro</h5>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; font-size:0.82rem;">
-              <div><span style="color:var(--muted)">Forma de Pago:</span> <strong style="color:#fff">Crédito Documentario / Carta de Crédito</strong></div>
-              <div><span style="color:var(--muted)">Plazo:</span> <strong style="color:#fff">90 días fecha embarque</strong></div>
-              <div><span style="color:var(--muted)">Límite de Riesgo:</span> <strong style="color:#34d399">600.000 € (Crédito y Caución)</strong></div>
-              <div><span style="color:var(--muted)">Estado de Cobros:</span> <strong style="color:#38bdf8">Al corriente (0 impagados)</strong></div>
+            <h5 style="margin:0 0 0.65rem 0; color:#f1f5f9; font-size:0.9rem;">Condiciones Financieras y de Cobro</h5>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.82rem;">
+              <div>
+                <span style="color:var(--muted)">Forma de Pago:</span>
+                <div style="color:#94a3b8; font-weight:600; margin-top:2px;">Sin información registrada</div>
+              </div>
+              <div>
+                <span style="color:var(--muted)">Plazo de Pago:</span>
+                <div style="color:#94a3b8; font-weight:600; margin-top:2px;">Sin información registrada</div>
+              </div>
+              <div>
+                <span style="color:var(--muted)">Límite de Riesgo / Seguro:</span>
+                <div style="color:#94a3b8; font-weight:600; margin-top:2px;">Sin información registrada</div>
+              </div>
+              <div>
+                <span style="color:var(--muted)">Estado de Cobros:</span>
+                ${cobroHtml}
+              </div>
             </div>
           </div>
         </div>
@@ -3291,27 +3464,12 @@ function renderClientModalBody() {
           <h4 style="color:#fff; margin:0 0 0.85rem 0; font-size:1rem; display:flex; align-items:center; gap:0.4rem;">
             <span>📋</span> Acuerdos Directivos de Comité
           </h4>
-          <div style="background:rgba(15,23,42,0.6); border:1px solid #334155; border-radius:8px; padding:1.25rem;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-              <span class="tab-badge badge-info">COMITÉ DE DIRECCIÓN</span>
-              <span style="font-size:0.75rem; color:var(--muted);">Octubre 2026</span>
-            </div>
-            <h5 style="margin:0.5rem 0 0.25rem 0; color:#fff; font-size:0.95rem;">Renegociación contrato Dotra Chemicals antes de caducidad (31/10)</h5>
-            <p style="font-size:0.83rem; color:#cbd5e1; margin:0.35rem 0;">
-              Acuerdo: Mehmet contactará con la dirección de Dotra para cerrar la renovación de la tarifa 2026-Q4 condicionada a un pedido mínimo de 2 contenedores de Salwax Calcio.
-            </p>
-            <div style="margin-top:0.75rem; display:flex; justify-content:space-between; font-size:0.78rem; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.06); padding-top:0.5rem;">
-              <span>Responsable: <strong>Mehmet / Dirección General</strong></span>
-              <span style="color:#34d399; font-weight:700;">Estado: En Gestión</span>
-            </div>
-          </div>
+          ${agreementsHtml}
 
-          <div style="background:rgba(15,23,42,0.6); border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-top:1rem;">
-            <h5 style="margin:0 0 0.5rem 0; color:#f1f5f9; font-size:0.9rem;">Política de Rappels y Comisiones</h5>
-            <div style="font-size:0.82rem; color:#cbd5e1; line-height:1.5;">
-              <p style="margin:0 0 0.4rem 0;">• Rappel cliente: No aplicable por venta en régimen de distribuidor exclusivo y tarifa neta pactada.</p>
-              <p style="margin:0 0 0.4rem 0;">• Comisión comercial: Liquidación según contrato de agencia internacional con soporte de factura mensual de servicios.</p>
-            </div>
+          <div style="background:rgba(15,23,42,0.6); border:1px dashed #334155; border-radius:8px; padding:1.25rem; margin-top:1rem; text-align:center;">
+            <div style="color:var(--muted); font-size:0.84rem; margin-bottom:0.35rem;">🤝 Política de Rappels y Comisiones</div>
+            <strong style="color:#94a3b8; font-size:0.92rem;">Sin información registrada</strong>
+            <p style="margin:0.35rem 0 0 0; font-size:0.78rem; color:#64748b;">Sin contratos de corretaje, comisión comercial o escalados de rappel formalizados documentalmente para este cliente.</p>
           </div>
         </div>
       </div>
@@ -3343,4 +3501,108 @@ function exportClient360Csv() {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+
+function getOperativeOmniboxEntities() {
+  const entities = [];
+  const bi = getBiData();
+  
+  // 1. Clientes reales desde PROFITABILITY_DATA
+  const pKeys = window.PROFITABILITY_DATA?.cliente_detalle || {};
+  const debtClients = bi?.antiguedad_deuda?.detalle_clientes || bi?.antiguedad_deuda?.clientes || [];
+  const debtMap = {};
+  debtClients.forEach(dc => {
+    debtMap[normClientKey(dc.cliente)] = dc;
+  });
+
+  const processedClients = new Set();
+
+  for (const clientName in pKeys) {
+    const norm = normClientKey(clientName);
+    processedClients.add(norm);
+    const skus = pKeys[clientName]['2026'] || [];
+    const ventas = skus.reduce((a, s) => a + (s.ventas_eur || 0), 0);
+    const cogs = skus.reduce((a, s) => a + (s.cogs_eur || 0), 0);
+    const uds = skus.reduce((a, s) => a + (s.uds || 0), 0);
+    const margenPct = ventas > 0 ? ((ventas - cogs) / ventas * 100) : 0;
+    const comercial = skus[0]?.comercial || 'Comercial asignado';
+    const pais = skus[0]?.pais || 'España';
+    const dc = debtMap[norm];
+
+    // Buscar pedidos pendientes en dashboard_data si existen
+    let pendUds = 0;
+    const periodsSource = (window.DASHBOARD_PERIODS_DATA && window.DASHBOARD_PERIODS_DATA.periods)
+      ? window.DASHBOARD_PERIODS_DATA.periods
+      : ((window.allPeriodsData && window.allPeriodsData.periods)
+        ? window.allPeriodsData.periods
+        : (window.DASHBOARD_DATA?.periods || {}));
+    const curP = periodsSource['2026-10'] || periodsSource[Object.keys(periodsSource)[0]];
+    if (curP && curP.comerciales) {
+      for (const c in curP.comerciales) {
+        (curP.comerciales[c].lineas || []).forEach(l => {
+          if (normClientKey(l.cliente) === norm) {
+            pendUds += (l.pendientes_uds || 0);
+          }
+        });
+      }
+    }
+
+    entities.push({
+      id: `CLI-${norm.slice(0, 10)}`,
+      tipo: 'CLIENTE',
+      nombre: clientName,
+      subtitulo: `${pais} · Comercial: ${comercial}`,
+      comercial: comercial,
+      ventas_2026_eur: Math.round(ventas * 100) / 100,
+      margen_medio_pct: Math.round(margenPct * 10) / 10,
+      total_uds: uds,
+      pedidos_pendientes_uds: pendUds,
+      alerta: dc ? `Saldo vencido Ageing Sep-26: ${fmtEur(dc.saldo_eur)} (${dc.badge || 'En seguimiento'})` : 'Sin incidencias ni acuerdos operativos registrados',
+      is_demo: false
+    });
+  }
+
+  // Clientes de deuda que no figuren en pKeys
+  debtClients.forEach(dc => {
+    const norm = normClientKey(dc.cliente);
+    if (!processedClients.has(norm)) {
+      processedClients.add(norm);
+      entities.push({
+        id: `CLI-${norm.slice(0, 10)}`,
+        tipo: 'CLIENTE',
+        nombre: dc.cliente,
+        subtitulo: `${dc.pais} · Gestión de Deuda`,
+        comercial: 'Administración',
+        ventas_2026_eur: 0.0,
+        margen_medio_pct: 0.0,
+        total_uds: 0,
+        pedidos_pendientes_uds: 0,
+        alerta: `Saldo vencido Ageing Sep-26: ${fmtEur(dc.saldo_eur)} (${dc.badge || 'En seguimiento'})`,
+        is_demo: false
+      });
+    }
+  });
+
+  // 2. Productos reales desde production_planning_data
+  const prodData = window.productionData || window.PRODUCTION_DATA;
+  const baseSkus = prodData?.base_skus || [];
+  baseSkus.forEach(b => {
+    const desc = b.descripcion || b.base_sku;
+    entities.push({
+      id: `SKU-${b.base_sku}`,
+      tipo: 'PRODUCTO',
+      nombre: `${b.base_sku} · ${desc}`,
+      subtitulo: `Stock físico en almacén: ${fmtNum(b.stock_actual)} u`,
+      stock_almacen_uds: b.stock_actual || 0,
+      granel_reactor_l: 0,
+      pedidos_pendientes_uds: b.pedidos_pendientes || 0,
+      coste_cogs_unitario: 0,
+      margen_cogs_pct: 0,
+      alerta: (b.pedidos_pendientes > b.stock_actual) ? `Déficit de stock: -${fmtNum(b.pedidos_pendientes - b.stock_actual)} u` : 'Stock suficiente para cartera viva',
+      is_demo: false
+    });
+  });
+
+  return entities;
 }

@@ -341,6 +341,74 @@ def load_antiguedad_deuda():
 
 output_bi["antiguedad_deuda"] = load_antiguedad_deuda()
 
+# Requisitos de Auditoría Directiva (Limpieza de datos de demostración del uso operativo)
+# 1. Preservar únicamente ejemplos en un contenedor aislado 'modo_demostracion' con activo_por_defecto: False
+demo_items = output_bi.get("modo_demostracion", {}).get("items_muestra") or output_bi.get("mejora_9_busqueda_global", {}).get("items_muestra", [])
+demo_acuerdos = output_bi.get("modo_demostracion", {}).get("acuerdos_registrados") or output_bi.get("mejora_10_modo_reunion", {}).get("acuerdos_registrados", [])
+demo_excepciones = output_bi.get("modo_demostracion", {}).get("excepciones_list") or output_bi.get("mejora_6_excepciones_precio", {}).get("excepciones_list", [])
+
+output_bi["modo_demostracion"] = {
+    "activo_por_defecto": False,
+    "aviso": "Datos simulados exclusivamente para evaluación de maquetas e interfaz visual. No alimentan la operativa real ni las fichas de cliente.",
+    "items_muestra": demo_items,
+    "acuerdos_registrados": demo_acuerdos,
+    "excepciones_list": demo_excepciones
+}
+
+# 2. Las estructuras operativas se mantienen estrictamente limpias de demostraciones sin fuente documental
+output_bi["mejora_6_excepciones_precio"] = {
+    "modo": "operativo",
+    "total_excepciones": 0,
+    "vigentes_count": 0,
+    "por_vencer_count": 0,
+    "caducadas_count": 0,
+    "volumen_afectado_eur": 0.0,
+    "descuento_medio_pct": 0.0,
+    "margen_medio_acordado_pct": 0.0,
+    "excepciones_list": [],
+    "estado": "Sin información registrada",
+    "aviso": "No constan excepciones de precio formalizadas con fuente documental aprobada."
+}
+
+output_bi["mejora_9_busqueda_global"] = {
+    "modo": "operativo",
+    "total_entidades_indexadas": len(pareto_clientes) + len(pareto_productos),
+    "categorias": ["Clientes", "SKUs / Productos", "Comerciales", "Lotes de Fabricación"],
+    "items_muestra": [],
+    "estado": "Operativo dinámico"
+}
+
+output_bi["mejora_10_modo_reunion"] = {
+    "modo": "operativo",
+    "comites": output_bi.get("mejora_10_modo_reunion", {}).get("comites", [
+        {
+            "id": "comite_comercial",
+            "nombre": "Comité Comercial Semanal",
+            "audiencia": "Dirección Comercial & Delegados",
+            "foco": "Cierre 2026 Q4, Recuperación de Cuentas en Churn y Cartera Pendiente",
+            "kpi_destacado": "Cartera Viva y Seguimiento de Clientes"
+        },
+        {
+            "id": "comite_operaciones",
+            "nombre": "Comité de Fabricación & Cadena de Suministro",
+            "audiencia": "Jefe de Planta, Producción y Logística",
+            "foco": "Saturación de Reactores, Lotes Críticos, Envasado y Plazos ATP",
+            "kpi_destacado": "Planificación y Líneas Industriales"
+        },
+        {
+            "id": "consejo_direccion",
+            "nombre": "Consejo de Dirección General",
+            "audiencia": "Dirección General & Finanzas",
+            "foco": "EBITDA, RAI, Gobernanza de Márgenes, Precios Autorizados y Auditoría Contable",
+            "kpi_destacado": "RAI Oficial y Gobernanza Analítica"
+        }
+    ]),
+    "acuerdos_registrados": [],
+    "total_acuerdos": 0,
+    "estado": "Sin información registrada",
+    "aviso": "No existen acuerdos directivos de comité con fuente documental formalizada (cliente, documento de origen, fecha, vigencia y responsable de validación)."
+}
+
 os.makedirs(os.path.dirname(out_json), exist_ok=True)
 with open(out_json, "w", encoding="utf-8") as f:
     json.dump(output_bi, f, ensure_ascii=False, indent=2)

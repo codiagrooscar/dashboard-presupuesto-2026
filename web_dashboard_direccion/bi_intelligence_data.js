@@ -1,15 +1,15 @@
 window.BI_INTELLIGENCE_DATA = {
   "mejora_1_forecast_accuracy": {
     "tot_budget_uds": 284389.92000000004,
-    "tot_pedidos_uds": 283787.0,
-    "tot_bias_uds": -602.9200000000419,
-    "tot_error_abs_sku_uds": 440747.86,
-    "tot_importe_neto_eur": 1003052.7000000001,
-    "tot_consecucion_pct": 99.8,
-    "tot_consecucion_volumen_pct": 99.8,
+    "tot_pedidos_uds": 288547.0,
+    "tot_bias_uds": 4157.079999999958,
+    "tot_error_abs_sku_uds": 440761.38,
+    "tot_importe_neto_eur": 1020158.7000000001,
+    "tot_consecucion_pct": 101.5,
+    "tot_consecucion_volumen_pct": 101.5,
     "tot_forecast_accuracy_pct": 0.0,
     "tot_forecast_accuracy_sku_wmape_pct": 0.0,
-    "tot_wmape_error_pct": 155.3,
+    "tot_wmape_error_pct": 152.8,
     "comerciales": [
       {
         "comercial": "Alfonso",
@@ -41,14 +41,14 @@ window.BI_INTELLIGENCE_DATA = {
         "comercial": "Irene",
         "clientes_activos": 5,
         "budget_uds": 30553.53,
-        "pedidos_uds": 25745.0,
-        "desv_uds": -4808.529999999999,
-        "error_abs_sku_uds": 14587.71,
-        "pct_consec": 84.26194943759363,
-        "forecast_accuracy_pct": 43.3,
-        "wmape_error_pct": 56.7,
+        "pedidos_uds": 30505.0,
+        "desv_uds": -48.529999999998836,
+        "error_abs_sku_uds": 14601.23,
+        "pct_consec": 99.84116401607278,
+        "forecast_accuracy_pct": 52.1,
+        "wmape_error_pct": 47.9,
         "bias_tipo": "Sobreestimó (Ventas < Presupuesto)",
-        "importe_neto_eur": 105145.39999999998
+        "importe_neto_eur": 122251.4
       },
       {
         "comercial": "Javier",
@@ -103,7 +103,7 @@ window.BI_INTELLIGENCE_DATA = {
         "importe_neto_eur": 299520.20000000007
       }
     ],
-    "nota_metodologia": "La consecución de volumen total (99.8%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU WMAPE (0.0%) mide precisión ponderada por volumen."
+    "nota_metodologia": "La consecución de volumen total (101.5%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU WMAPE (0.0%) mide precisión ponderada por volumen."
   },
   "mejora_2_concentracion_stress_test": {
     "total_ventas_2026": 15179999.94,

@@ -132,8 +132,8 @@ function renderCockpitInicioSection() {
           <div style="display:flex; gap:0.6rem; align-items:center;">
             <div style="background:rgba(15,23,42,0.7); border:1px solid var(--card-border); padding:0.45rem 0.85rem; border-radius:var(--radius-sm); font-size:0.82rem; color:#cbd5e1;">
               ${isEn 
-                ? `📅 Fiscal Year 2026 · Cutoff: <strong>${fechaCorteFmt} (Orders 10/28)</strong>` 
-                : `📅 Ejercicio 2026 · Corte: <strong>${fechaCorte} (Pedidos 28.10)</strong>`}
+                ? `📅 Fiscal Year 2026 · Cutoff: <strong>${fechaCorteFmt} (Orders ${fechaCorteFmt.slice(0,5)})</strong>` 
+                : `📅 Ejercicio 2026 · Corte: <strong>${fechaCorte} (Pedidos ${fechaCorte.slice(0,5)})</strong>`}
             </div>
           </div>
         </div>

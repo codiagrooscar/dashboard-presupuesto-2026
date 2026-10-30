@@ -224,6 +224,121 @@ forecast_resumen["nota_metodologia"] = f"La consecución de volumen total ({cons
 output_bi["mejora_1_forecast_accuracy"] = forecast_resumen
 output_bi["mejora_2_concentracion_stress_test"] = concentracion_resumen
 
+# Panel de Antigüedad de Deuda y Situación de Cobros (Ageing Codiagro Sep.xlsx)
+output_bi["antiguedad_deuda"] = {
+  "fecha_corte": "30/09/2026",
+  "fuente": "Ageing Codiagro Sep.xlsx (Hoja SALDOS VENCIDOS)",
+  "total_deuda_gestionada_eur": 718769.55,
+  "totales_tramos": {
+    "t0_30": 214321.29,
+    "t31_60": 140363.27,
+    "t61_90": 83501.43,
+    "t91_120": 37387.11,
+    "t121_plus": 243196.45,
+    "total": 718769.55
+  },
+  "clientes": [
+    {
+      "cliente": "CODIMED EXPORT, S.L.",
+      "pais": "España",
+      "t0_30": 86922.03,
+      "t31_60": 70138.04,
+      "t61_90": 41670.28,
+      "t91_120": 37387.11,
+      "t121_plus": 151890.82,
+      "total_vencido": 388008.28,
+      "pct_total": 53.98,
+      "badge": "Plan Oct-Feb / Contado",
+      "badge_cls": "success",
+      "observaciones": "Está pagando al contado los pedidos que hace, nos ha enviado un calendario de pago, desde octubre hasta febrero para ponerse al día."
+    },
+    {
+      "cliente": "CAMPOEJIDO S.C.A.",
+      "pais": "España",
+      "t0_30": 122073.44,
+      "t31_60": 0.0,
+      "t61_90": 0.0,
+      "t91_120": 0.0,
+      "t121_plus": 0.0,
+      "total_vencido": 122073.44,
+      "pct_total": 16.98,
+      "badge": "Abono Pendiente",
+      "badge_cls": "warning",
+      "observaciones": "Discrepancias en un abono, nada más esté claro nos hará el pago de inmediato. (Deuda 100% en tramo corriente 0-30d)."
+    },
+    {
+      "cliente": "EUROFERTIL, S.A.",
+      "pais": "Costa Rica",
+      "t0_30": 0.0,
+      "t31_60": 63959.63,
+      "t61_90": 41831.15,
+      "t91_120": 0.0,
+      "t121_plus": 0.0,
+      "total_vencido": 105790.78,
+      "pct_total": 14.72,
+      "badge": "Cobro Activo 8.000 €/sem",
+      "badge_cls": "info",
+      "observaciones": "Seguimos cobrando a razón de 8.000 euros semanales, aunque en el mes de agosto sólo han podido enviar 2 transferencias."
+    },
+    {
+      "cliente": "DOGA TARIM TIC.SAN.VE TUR. LTD. STI",
+      "pais": "Turquía",
+      "t0_30": 0.0,
+      "t31_60": 0.0,
+      "t61_90": 0.0,
+      "t91_120": 0.0,
+      "t121_plus": 89504.67,
+      "total_vencido": 89504.67,
+      "pct_total": 12.45,
+      "badge": "Concordato Turquía",
+      "badge_cls": "danger",
+      "observaciones": "Está negociando su salida del Concordato (suspensión de pagos) para poder negociar un plan de pagos. Neutralizada de caída comercial."
+    },
+    {
+      "cliente": "T.J AGRICULTURA SL",
+      "pais": "España",
+      "t0_30": 3382.83,
+      "t31_60": 6265.6,
+      "t61_90": 0.0,
+      "t91_120": 0.0,
+      "t121_plus": 0.0,
+      "total_vencido": 9648.43,
+      "pct_total": 1.34,
+      "badge": "Importes Reclamados",
+      "badge_cls": "warning",
+      "observaciones": "Importes reclamados. En breve pagará."
+    },
+    {
+      "cliente": "DAVID BARAHONA HERNAEZ",
+      "pais": "España",
+      "t0_30": 1942.99,
+      "t31_60": 0.0,
+      "t61_90": 0.0,
+      "t91_120": 0.0,
+      "t121_plus": 0.0,
+      "total_vencido": 1942.99,
+      "pct_total": 0.27,
+      "badge": "Importes Reclamados",
+      "badge_cls": "warning",
+      "observaciones": "Importes reclamados. En breve pagará."
+    },
+    {
+      "cliente": "EURL BOUAZZA FILAHA",
+      "pais": "Argelia",
+      "t0_30": 0.0,
+      "t31_60": 0.0,
+      "t61_90": 0.0,
+      "t91_120": 0.0,
+      "t121_plus": 1800.96,
+      "total_vencido": 1800.96,
+      "pct_total": 0.25,
+      "badge": "Discrepancia Flete",
+      "badge_cls": "info",
+      "observaciones": "Cliente Argelia. Discrepancias en el último pedido (flete y análisis). Se arreglará en el próximo."
+    }
+  ]
+}
+
 os.makedirs(os.path.dirname(out_json), exist_ok=True)
 with open(out_json, "w", encoding="utf-8") as f:
     json.dump(output_bi, f, ensure_ascii=False, indent=2)

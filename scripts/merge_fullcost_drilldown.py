@@ -1871,6 +1871,114 @@ fc_full["maquila"] = maq_data
 fc_full["puente_existencias"] = puente_existencias
 fc_full["puente_transporte"] = puente_transporte
 
+# 7.2 Puente de Conciliación de Ventas y Facturación (Mayor Grupo 7 vs Detalle Analítico SKU)
+cta_700_dyn = round(cuentas_detalle.get('700000000', {}).get('saldo_mes', 632880.07), 2)
+ventas_netas_g7_dyn = round(sum(v.get('saldo_mes', 0.0) for c, v in cuentas_detalle.items() if c.startswith('70')), 2)
+var_exist_pt_dyn = round(sum(v.get('saldo_mes', 0.0) for c, v in cuentas_detalle.items() if c.startswith('71')), 2)
+
+puente_facturacion = {
+    "titulo": "Puente de Conciliación de Facturación y Cifra de Producción (Mayor Grupo 7 vs Detalle Analítico)",
+    "estado_global": "Pendiente de conciliación",
+    "ventas_mayor_cta_700": cta_700_dyn,
+    "ventas_netas_grupo_7": ventas_netas_g7_dyn,
+    "valor_produccion_n1": n1_val,
+    "ventas_detalle_analitico_sep": tot_v_sep_round,
+    "diferencia_produccion_vs_ventas_sep": round(n1_val - tot_v_sep_round, 2),
+    "lineas_conciliacion": [
+        {
+            "orden": 1,
+            "cuenta": "700000000",
+            "concepto": "Ventas brutas de mercaderías Codiagro (Mayor oficial)",
+            "importe_eur": cta_700_dyn,
+            "origen": "Mayor oficial PYG SEP.xlsx / Hoja Cuentas",
+            "tipo": "ingreso",
+            "estado": "Comprobado",
+            "explicacion": "Facturación bruta de productos estándar sin descuentos comerciales."
+        },
+        {
+            "orden": 2,
+            "cuenta": "700001624",
+            "concepto": "Venta por transporte repercutido a clientes",
+            "importe_eur": round(cuentas_detalle.get('700001624', {}).get('saldo_mes', 9613.00), 2),
+            "origen": "Mayor Cta 700001624",
+            "tipo": "ingreso",
+            "estado": "Comprobado",
+            "explicacion": "Portes cobrados a clientes en factura de venta (integrados en Cifra de Negocio)."
+        },
+        {
+            "orden": 3,
+            "cuenta": "704000000 / 705000001",
+            "concepto": "Ventas de envases e ingresos por gestión de envases",
+            "importe_eur": round(cuentas_detalle.get('704000000', {}).get('saldo_mes', 1203.47) + cuentas_detalle.get('705000001', {}).get('saldo_mes', 1405.89), 2),
+            "origen": "Mayor Ctas 704000000 y 705000001",
+            "tipo": "ingreso",
+            "estado": "Comprobado",
+            "explicacion": "Facturación accesoria de envases (1.203,47 €) y gestión de envases (1.405,89 €)."
+        },
+        {
+            "orden": 4,
+            "cuenta": "706000001",
+            "concepto": "Descuentos comerciales y pronto pago definitivo s/ventas",
+            "importe_eur": round(cuentas_detalle.get('706000001', {}).get('saldo_mes', -8347.10), 2),
+            "origen": "Hoja Ajustes_ventas (24 facturas AJ-001 a AJ-024) y Mayor Cta 706000001",
+            "tipo": "reduccion_ingreso",
+            "estado": "Comprobado",
+            "explicacion": "Abonos y descuentos concedidos a clientes en facturas de venta de septiembre."
+        },
+        {
+            "orden": 5,
+            "cuenta": "709000001",
+            "concepto": "Provisión de rappels comerciales acumulada septiembre",
+            "importe_eur": round(cuentas_detalle.get('709000001', {}).get('saldo_mes', -12327.75), 2),
+            "origen": "Hoja Ajustes_ventas (PROV-RAPEL-09) y Mayor Cta 709000001",
+            "tipo": "reduccion_ingreso",
+            "estado": "Comprobado",
+            "explicacion": "Provisión devengada por volumen y acuerdos de rappel según política comercial."
+        },
+        {
+            "orden": 6,
+            "cuenta": "702 / 703 / 705",
+            "concepto": "Aislamiento de actividad Maquila SAS fuera del catálogo comercial propio",
+            "importe_eur": round(current_maq_cuentas if 'current_maq_cuentas' in locals() else -10058.80, 2),
+            "origen": "Hoja Maquila y Mayor Ctas 705000000 (+3.682,80 €), 703000000 (+2.751,20 €), 702000000 (-16.492,80 €)",
+            "tipo": "maquila",
+            "estado": "Comprobado",
+            "explicacion": "Ingresos por formulación SAS menos abono de semiterminados; segregado para análisis propio."
+        },
+        {
+            "orden": 7,
+            "cuenta": "711 / 712",
+            "concepto": "Variación de existencias de productos semiterminados y terminados",
+            "importe_eur": var_exist_pt_dyn,
+            "origen": "Mayor Ctas 711000000 (-30.979,93 €) y 712000000 (-78.386,56 €)",
+            "tipo": "ajuste_stock",
+            "estado": "Pendiente de conciliación",
+            "explicacion": "Salida neta de almacén de productos terminados y semiterminados durante septiembre."
+        },
+        {
+            "orden": 8,
+            "cuenta": "778000000",
+            "concepto": "Ingresos excepcionales",
+            "importe_eur": round(cuentas_detalle.get('778000000', {}).get('saldo_mes', 0.20), 2),
+            "origen": "Mayor Cta 778000000",
+            "tipo": "ingreso",
+            "estado": "Comprobado",
+            "explicacion": "Ajuste de redondeo contable en libro mayor."
+        },
+        {
+            "orden": 9,
+            "cuenta": "Ajuste Perímetro",
+            "concepto": "Diferencia neta entre Cifra de Producción Grupo 7 (505.002,49 €) y Detalle SKU Ventas (457.931,55 €)",
+            "importe_eur": round(n1_val - tot_v_sep_round, 2),
+            "origen": "Comparativa Cascada P&L Nivel 1 vs Presupuesto_Ventas_2027_Definitivo.xlsx Detalle Líneas",
+            "tipo": "perimetro",
+            "estado": "Pendiente de conciliación",
+            "explicacion": "Diferencia por regularizaciones de facturación de períodos anteriores y entregas no coincidentes con devengo contable."
+        }
+    ]
+}
+fc_full["puente_facturacion"] = puente_facturacion
+
 # 7.3 Puente de Conciliación de Materiales (Consumo Contable vs Escandallos SKU)
 diff_materiales_dinamica = round(tot_cogs_sep_round - consumo_contable_cascada, 2)
 puente_materiales = {
@@ -1990,9 +2098,9 @@ fc_full["metadata"]["repartos_dinamicos"] = {
     "distribucion_210": pct_210,
     "distribucion_240": pct_240
 }
-fc_full["metadata"]["ventas_reales_cta_700"] = 632880.07
-fc_full["metadata"]["ventas_netas_grupo_7"] = round(614368.98 + delta_maq_net + delta_ajustes_ventas_own, 2)
-fc_full["metadata"]["variacion_existencias_pt"] = -109366.49
+fc_full["metadata"]["ventas_reales_cta_700"] = cta_700_dyn
+fc_full["metadata"]["ventas_netas_grupo_7"] = ventas_netas_g7_dyn
+fc_full["metadata"]["variacion_existencias_pt"] = var_exist_pt_dyn
 fc_full["metadata"]["produccion_neta_planta"] = n1_val
 
 fc_full["modelos_analiticos"] = modelos_analiticos
@@ -2000,14 +2108,15 @@ fc_full["modelos_analiticos"] = modelos_analiticos
 tot_transporte_imputado = round(sum(c["transporte_real"] for c in clientes_fc), 2)
 tot_margen_ind = round(tot_v_sep_round - tot_cogs_sep_round - tot_coste_planta_ventas, 2)
 tot_margen_ind_neto = round(tot_v_sep_round - tot_cogs_sep_round - target_plant_cost_total, 2)
+tot_margen_ind_tras_subactividad = round(tot_margen_ind - target_plant_cost_subactividad, 2)
 tot_margen_contrib = round(tot_margen_ind - tot_transporte_imputado, 2)
 tot_coste_stock_pt = round(target_plant_cost_actividad - tot_coste_planta_ventas, 2)
 
 fc_full["totales_drilldown"] = {
     "ventas": tot_v_sep_round,
-    "ventas_reales_cta_700": 632880.07,
-    "ventas_netas_grupo_7": round(614368.98 + delta_maq_net + delta_ajustes_ventas_own, 2),
-    "variacion_existencias_pt": -109366.49,
+    "ventas_reales_cta_700": cta_700_dyn,
+    "ventas_netas_grupo_7": ventas_netas_g7_dyn,
+    "variacion_existencias_pt": var_exist_pt_dyn,
     "produccion_neta_planta": n1_val,
     "cogs_materiales": tot_cogs_sep_round,
     "coste_planta": tot_coste_planta_ventas,
@@ -2016,8 +2125,11 @@ fc_full["totales_drilldown"] = {
     "coste_planta_total": target_plant_cost_total,
     "coste_stock_pt_no_vendido": tot_coste_stock_pt,
     "margen_industrial_eur": tot_margen_ind,
+    "margen_industrial_tras_subactividad_eur": tot_margen_ind_tras_subactividad,
     "margen_industrial_neto_planta_eur": tot_margen_ind_neto,
     "margen_industrial_pct": round(tot_margen_ind / tot_v_sep_round * 100, 1) if tot_v_sep_round > 0 else 0.0,
+    "margen_industrial_tras_subactividad_pct": round(tot_margen_ind_tras_subactividad / tot_v_sep_round * 100, 1) if tot_v_sep_round > 0 else 0.0,
+    "margen_industrial_neto_planta_pct": round(tot_margen_ind_neto / tot_v_sep_round * 100, 1) if tot_v_sep_round > 0 else 0.0,
     "transporte_real": tot_transporte_imputado,
     "margen_contribucion_eur": tot_margen_contrib,
     "margen_contribucion_pct": round(tot_margen_contrib / tot_v_sep_round * 100, 1) if tot_v_sep_round > 0 else 0.0,

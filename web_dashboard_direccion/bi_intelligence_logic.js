@@ -1056,195 +1056,126 @@ function renderChurnAlertSection() {
       </div>
 
       <!-- PANEL DIRECTIVO: ANTIGÜEDAD DE DEUDA Y SITUACIÓN DE COBROS CLIENTES (CORTE SEPTIEMBRE 2026) -->
-      <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%); border: 1px solid #334155; border-radius: var(--radius-md); padding: 1.25rem 1.5rem;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.75rem;">
-          <div style="display:flex; align-items:center; gap:0.65rem;">
-            <span style="font-size:1.4rem;">💳</span>
-            <div>
-              <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
-                <span>Antigüedad de Deuda y Situación de Cobros</span>
-                <span class="tab-badge badge-info" style="font-size:0.7rem;">Corte Sep-26</span>
-              </h4>
-              <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:#94a3b8;">
-                Seguimiento de saldos deudores, suspensiones de pago y acuerdos de cobro que condicionan la actividad de clientes en riesgo.
-              </p>
+      ${(() => {
+        const biData = getBiData();
+        const debtObj = biData?.antiguedad_deuda;
+        if (!debtObj || !Array.isArray(debtObj.clientes)) return '';
+        const dList = debtObj.clientes;
+        const tot0_30 = dList.reduce((acc, c) => acc + (c.t0_30 || 0), 0);
+        const tot31_60 = dList.reduce((acc, c) => acc + (c.t31_60 || 0), 0);
+        const tot61_90 = dList.reduce((acc, c) => acc + (c.t61_90 || 0), 0);
+        const tot91_120 = dList.reduce((acc, c) => acc + (c.t91_120 || 0), 0);
+        const tot121 = dList.reduce((acc, c) => acc + (c.t121_plus || 0), 0);
+        const grandTotal = tot0_30 + tot31_60 + tot61_90 + tot91_120 + tot121;
+        
+        return `
+        <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%); border: 1px solid #334155; border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom:1.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.65rem;">
+              <span style="font-size:1.4rem;">💳</span>
+              <div>
+                <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem; display:flex; align-items:center; gap:0.5rem;">
+                  <span>Antigüedad de Deuda y Situación de Cobros</span>
+                  <span class="tab-badge badge-info" style="font-size:0.7rem;">Corte ${debtObj.fecha_corte || 'Sep-26'}</span>
+                </h4>
+                <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:#94a3b8;">
+                  Seguimiento analítico de saldos deudores, suspensiones de pago y acuerdos de cobro generados desde Ageing Codiagro.
+                </p>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700;">Deuda Total Gestionada</span>
+              <div style="font-size:1.35rem; font-weight:800; color:#fbbf24;">${fmtEur(grandTotal)}</div>
             </div>
           </div>
-          <div style="text-align:right;">
-            <span style="font-size:0.7rem; color:var(--muted); text-transform:uppercase; font-weight:700;">Deuda Total Gestionada</span>
-            <div style="font-size:1.35rem; font-weight:800; color:#fbbf24;">719.000 €</div>
-          </div>
-        </div>
 
-        <!-- 5 TRAMOS DE VENCIMIENTO -->
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.75rem; margin-bottom:1rem;">
-          <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
-            <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">0 - 30 días</span>
-            <div style="font-size:1.05rem; font-weight:700; color:#38bdf8;">214.000 €</div>
-            <span style="font-size:0.68rem; color:#94a3b8;">30% (Corriente)</span>
+          <!-- 5 TRAMOS DE VENCIMIENTO -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.75rem; margin-bottom:1rem;">
+            <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
+              <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">0 - 30 días</span>
+              <div style="font-size:1.05rem; font-weight:700; color:#38bdf8;">${fmtEur(tot0_30)}</div>
+              <span style="font-size:0.68rem; color:#94a3b8;">${(tot0_30/grandTotal*100).toFixed(1).replace('.',',')}% (Corriente)</span>
+            </div>
+            <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
+              <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">31 - 60 días</span>
+              <div style="font-size:1.05rem; font-weight:700; color:#cbd5e1;">${fmtEur(tot31_60)}</div>
+              <span style="font-size:0.68rem; color:#94a3b8;">${(tot31_60/grandTotal*100).toFixed(1).replace('.',',')}% (Vencido corto)</span>
+            </div>
+            <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
+              <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">61 - 90 días</span>
+              <div style="font-size:1.05rem; font-weight:700; color:#fbbf24;">${fmtEur(tot61_90)}</div>
+              <span style="font-size:0.68rem; color:#94a3b8;">${(tot61_90/grandTotal*100).toFixed(1).replace('.',',')}% (En gestión)</span>
+            </div>
+            <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
+              <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">91 - 120 días</span>
+              <div style="font-size:1.05rem; font-weight:700; color:#f97316;">${fmtEur(tot91_120)}</div>
+              <span style="font-size:0.68rem; color:#94a3b8;">${(tot91_120/grandTotal*100).toFixed(1).replace('.',',')}% (Riesgo alto)</span>
+            </div>
+            <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(239,68,68,0.25); text-align:center;">
+              <span style="font-size:0.68rem; color:#f87171; text-transform:uppercase; font-weight:700;">+121 días</span>
+              <div style="font-size:1.05rem; font-weight:700; color:#ef4444;">${fmtEur(tot121)}</div>
+              <span style="font-size:0.68rem; color:#f87171;">${(tot121/grandTotal*100).toFixed(1).replace('.',',')}% (Concordato / Mora)</span>
+            </div>
           </div>
-          <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
-            <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">31 - 60 días</span>
-            <div style="font-size:1.05rem; font-weight:700; color:#cbd5e1;">140.000 €</div>
-            <span style="font-size:0.68rem; color:#94a3b8;">19% (Vencido corto)</span>
-          </div>
-          <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
-            <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">61 - 90 días</span>
-            <div style="font-size:1.05rem; font-weight:700; color:#fbbf24;">84.000 €</div>
-            <span style="font-size:0.68rem; color:#94a3b8;">12% (En gestión)</span>
-          </div>
-          <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.05); text-align:center;">
-            <span style="font-size:0.68rem; color:#94a3b8; text-transform:uppercase; font-weight:700;">91 - 120 días</span>
-            <div style="font-size:1.05rem; font-weight:700; color:#f97316;">37.000 €</div>
-            <span style="font-size:0.68rem; color:#94a3b8;">5% (Riesgo alto)</span>
-          </div>
-          <div style="background:rgba(15,23,42,0.6); padding:0.6rem 0.8rem; border-radius:6px; border:1px solid rgba(239,68,68,0.25); text-align:center;">
-            <span style="font-size:0.68rem; color:#f87171; text-transform:uppercase; font-weight:700;">+121 días</span>
-            <div style="font-size:1.05rem; font-weight:700; color:#ef4444;">243.000 €</div>
-            <span style="font-size:0.68rem; color:#f87171;">34% (Concordato / Mora)</span>
-          </div>
-        </div>
 
-        <!-- TABLA DETALLE DEUDORES -->
-        <div style="overflow-x:auto; border:1px solid #334155; border-radius:6px;">
-          <table style="width:100%; border-collapse:collapse; font-size:0.8rem; text-align:left;">
-            <thead style="background:rgba(15,23,42,0.9); color:#94a3b8; font-size:0.72rem; text-transform:uppercase;">
-              <tr>
-                <th style="padding:0.6rem 0.75rem;">Cliente / Razón Social</th>
-                <th style="padding:0.6rem 0.5rem;">País</th>
-                <th style="padding:0.6rem 0.5rem; text-align:right;">0-30 d</th>
-                <th style="padding:0.6rem 0.5rem; text-align:right;">31-60 d</th>
-                <th style="padding:0.6rem 0.5rem; text-align:right;">61-90 d</th>
-                <th style="padding:0.6rem 0.5rem; text-align:right;">91-120 d</th>
-                <th style="padding:0.6rem 0.5rem; text-align:right;">+121 d</th>
-                <th style="padding:0.6rem 0.5rem; text-align:right;">Sep-26 (€)</th>
-                <th style="padding:0.6rem 0.5rem; text-align:right;">% Total</th>
-                <th style="padding:0.6rem 0.75rem;">Situación de Cobro y Observaciones Directivas</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.01);">
-                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">CODIMED EXPORT, S.L.</strong></td>
-                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">España</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">87.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">70.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">42.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">37.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:#ef4444; font-weight:700;">152.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fbbf24;">388.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700; color:#fbbf24;">54%</td>
-                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
-                  <span class="tab-badge badge-success" style="font-size:0.68rem; margin-right:0.35rem;">Plan Oct-Feb / Contado</span>
-                  Está pagando al contado los pedidos que hace, nos ha enviado un calendario de pago, desde octubre hasta febrero para ponerse al día.
-                </td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">CAMPOEJIDO S.C.A.</strong></td>
-                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">España</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:#38bdf8; font-weight:700;">122.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">122.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">17%</td>
-                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
-                  <span class="tab-badge badge-warning" style="font-size:0.68rem; margin-right:0.35rem;">Abono Pendiente</span>
-                  Discrepancias en un abono, nada más esté claro nos hará el pago de inmediato. (Deuda 100% en tramo corriente 0-30d).
-                </td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.01);">
-                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">EUROFERTIL, S.A.</strong></td>
-                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">Costa Rica</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">64.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">42.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">106.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">15%</td>
-                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
-                  <span class="tab-badge badge-info" style="font-size:0.68rem; margin-right:0.35rem;">Cobro Activo 8.000 €/sem</span>
-                  Seguimos cobrando a razón de 8.000 euros semanales, aunque en el mes de agosto sólo han podido enviar 2 transferencias.
-                </td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                <td style="padding:0.65rem 0.75rem;"><strong style="color:#f87171;">DOGA TARIM TIC.SAN.VE TUR. LTD. STI</strong></td>
-                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">Turquía</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:#ef4444; font-weight:700;">90.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#f87171;">90.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">12%</td>
-                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
-                  <span class="tab-badge badge-danger" style="font-size:0.68rem; margin-right:0.35rem;">Concordato Turquía</span>
-                  Está negociando su salida del Concordato (suspensión de pagos) para poder negociar un plan de pagos. Neutralizada de caída comercial.
-                </td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.01);">
-                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">T.J AGRICULTURA SL</strong></td>
-                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">España</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">3.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">6.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">10.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">1%</td>
-                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
-                  <span class="tab-badge badge-warning" style="font-size:0.68rem; margin-right:0.35rem;">Importes Reclamados</span>
-                  Importes reclamados. En breve pagará.
-                </td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">DAVID BARAHONA HERNAEZ</strong></td>
-                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">España</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">2.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">2.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">0%</td>
-                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
-                  <span class="tab-badge badge-warning" style="font-size:0.68rem; margin-right:0.35rem;">Importes Reclamados</span>
-                  Importes reclamados. En breve pagará.
-                </td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.01);">
-                <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">EURL BOUAZZA FILAHA</strong></td>
-                <td style="padding:0.65rem 0.5rem; color:#94a3b8;">Argelia</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:var(--muted);">0 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace;">2.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">2.000 €</td>
-                <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700;">0%</td>
-                <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
-                  <span class="tab-badge badge-info" style="font-size:0.68rem; margin-right:0.35rem;">Discrepancia Flete</span>
-                  Cliente Argelia. Discrepancias en el último pedido (flete y análisis). Se arreglará en el próximo.
-                </td>
-              </tr>
-            </tbody>
-            <tfoot style="background:rgba(15,23,42,0.95); font-weight:700; border-top:2px solid #334155; color:#fff;">
-              <tr>
-                <td colspan="2" style="padding:0.75rem;">CODIAGRO (TOTAL CARTERA DEUDORA)</td>
-                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#38bdf8;">214.000 €</td>
-                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace;">140.000 €</td>
-                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace;">84.000 €</td>
-                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace;">37.000 €</td>
-                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#ef4444;">243.000 €</td>
-                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#fbbf24;">719.000 €</td>
-                <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#fbbf24;">100%</td>
-                <td style="padding:0.75rem; font-size:0.75rem; color:#94a3b8;">7 deudores auditados a Septiembre 2026</td>
-              </tr>
-            </tfoot>
-          </table>
+          <!-- TABLA DETALLE DEUDORES -->
+          <div style="overflow-x:auto; border:1px solid #334155; border-radius:6px;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.8rem; text-align:left;">
+              <thead style="background:rgba(15,23,42,0.9); color:#94a3b8; font-size:0.72rem; text-transform:uppercase;">
+                <tr>
+                  <th style="padding:0.6rem 0.75rem;">Cliente / Razón Social</th>
+                  <th style="padding:0.6rem 0.5rem;">País</th>
+                  <th style="padding:0.6rem 0.5rem; text-align:right;">0-30 d</th>
+                  <th style="padding:0.6rem 0.5rem; text-align:right;">31-60 d</th>
+                  <th style="padding:0.6rem 0.5rem; text-align:right;">61-90 d</th>
+                  <th style="padding:0.6rem 0.5rem; text-align:right;">91-120 d</th>
+                  <th style="padding:0.6rem 0.5rem; text-align:right;">+121 d</th>
+                  <th style="padding:0.6rem 0.5rem; text-align:right;">Sep-26 (€)</th>
+                  <th style="padding:0.6rem 0.5rem; text-align:right;">% Total</th>
+                  <th style="padding:0.6rem 0.75rem;">Situación de Cobro y Observaciones Directivas</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${dList.map(c => {
+                  const rowSum = (c.t0_30 || 0) + (c.t31_60 || 0) + (c.t61_90 || 0) + (c.t91_120 || 0) + (c.t121_plus || 0);
+                  const pct = grandTotal > 0 ? (rowSum / grandTotal * 100).toFixed(1).replace('.',',') : '0,0';
+                  return `
+                  <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <td style="padding:0.65rem 0.75rem;"><strong style="color:#fff;">${c.cliente}</strong></td>
+                    <td style="padding:0.65rem 0.5rem; color:#94a3b8;">${c.pais}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${c.t0_30 > 0 ? '#38bdf8' : 'var(--muted)'};">${fmtEur(c.t0_30)}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${c.t31_60 > 0 ? '#cbd5e1' : 'var(--muted)'};">${fmtEur(c.t31_60)}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${c.t61_90 > 0 ? '#fbbf24' : 'var(--muted)'};">${fmtEur(c.t61_90)}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${c.t91_120 > 0 ? '#f97316' : 'var(--muted)'};">${fmtEur(c.t91_120)}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; color:${c.t121_plus > 0 ? '#ef4444; font-weight:700' : 'var(--muted)'};">${fmtEur(c.t121_plus)}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:800; color:#fff;">${fmtEur(rowSum)}</td>
+                    <td style="padding:0.65rem 0.5rem; text-align:right; font-family:monospace; font-weight:700; color:#fbbf24;">${pct}%</td>
+                    <td style="padding:0.65rem 0.75rem; font-size:0.78rem; color:#cbd5e1;">
+                      <span class="tab-badge badge-${c.badge_cls || 'info'}" style="font-size:0.68rem; margin-right:0.35rem;">${c.badge}</span>
+                      ${c.observaciones}
+                    </td>
+                  </tr>
+                  `;
+                }).join('')}
+              </tbody>
+              <tfoot style="background:rgba(15,23,42,0.95); font-weight:700; border-top:2px solid #334155; color:#fff;">
+                <tr>
+                  <td colspan="2" style="padding:0.75rem;">CODIAGRO (TOTAL CARTERA DEUDORA AUDITADA)</td>
+                  <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#38bdf8;">${fmtEur(tot0_30)}</td>
+                  <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#cbd5e1;">${fmtEur(tot31_60)}</td>
+                  <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#fbbf24;">${fmtEur(tot61_90)}</td>
+                  <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#f97316;">${fmtEur(tot91_120)}</td>
+                  <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#ef4444;">${fmtEur(tot121)}</td>
+                  <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#fbbf24;">${fmtEur(grandTotal)}</td>
+                  <td style="padding:0.75rem 0.5rem; text-align:right; font-family:monospace; color:#fbbf24;">100,0%</td>
+                  <td style="padding:0.75rem 0.75rem; font-size:0.75rem; color:#94a3b8;">Conciliado al 100% con Ageing Codiagro Sep.xlsx (Diferencia sumas: 0,00 €)</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
-      </div>
+        `;
+      })()}
 
       <!-- AVISO DIRECTIVO: CUENTAS EN CONCURSO DE ACREEDORES (EXCLUIDAS DE CAÍDA COMERCIAL) -->
       <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(15, 23, 42, 0.95) 100%); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: var(--radius-md); padding: 1.15rem 1.4rem;">
@@ -2872,16 +2803,23 @@ let currentClient360Data = null;
 let client360OrderPeriodFilter = 'ALL';
 let client360SkuSearchQuery = '';
 
+function normClientKey(s) {
+  if (!s) return '';
+  return String(s).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Z0-9]/g, '');
+}
+
 function findClient360Data(clientName) {
   if (!clientName) return null;
   const targetUpper = clientName.trim().toUpperCase();
+  const targetNorm = normClientKey(clientName);
 
   // 1. Matched profit details
   let matchedProfitKey = null;
   const pKeys = window.PROFITABILITY_DATA?.cliente_detalle || {};
   for (const k in pKeys) {
     const kUpper = k.toUpperCase();
-    if (kUpper === targetUpper || targetUpper.includes(kUpper) || kUpper.includes(targetUpper)) {
+    const kNorm = normClientKey(k);
+    if (kUpper === targetUpper || kNorm === targetNorm || kNorm.includes(targetNorm) || targetNorm.includes(kNorm)) {
       matchedProfitKey = k;
       break;
     }
@@ -2890,7 +2828,7 @@ function findClient360Data(clientName) {
   const skus2026 = matchedProfitKey ? (pKeys[matchedProfitKey]['2026'] || []) : [];
   const skus2027 = matchedProfitKey ? (pKeys[matchedProfitKey]['2027'] || []) : [];
 
-  // Totals from SKUs
+  // Totals from SKUs (Detalle de Rentabilidad Real 2026)
   const totalVentasEur = skus2026.reduce((acc, s) => acc + (s.ventas_eur || 0), 0);
   const totalCogsEur = skus2026.reduce((acc, s) => acc + (s.cogs_eur || 0), 0);
   const totalUds = skus2026.reduce((acc, s) => acc + (s.uds || 0), 0);
@@ -2903,17 +2841,23 @@ function findClient360Data(clientName) {
   const omniItems = bi?.mejora_9_busqueda_global?.items_muestra || [];
   for (const it of omniItems) {
     if (it.tipo === 'CLIENTE') {
-      const itName = it.nombre.toUpperCase();
-      if (itName === targetUpper || targetUpper.includes(itName) || itName.includes(targetUpper)) {
+      const itUpper = it.nombre.toUpperCase();
+      const itNorm = normClientKey(it.nombre);
+      if (itUpper === targetUpper || itNorm === targetNorm || itNorm.includes(targetNorm) || targetNorm.includes(itNorm)) {
         omniEntity = it;
         break;
       }
     }
   }
 
-  // 3. Orders lines from dashboard_data across all periods
+  // 3. Orders lines from dashboard_data across all periods (Conectar con DASHBOARD_PERIODS_DATA)
   const orders = [];
-  const periodsSource = window.allPeriodsData?.periods || window.DASHBOARD_DATA?.periods || {};
+  const periodsSource = (window.DASHBOARD_PERIODS_DATA && window.DASHBOARD_PERIODS_DATA.periods)
+    ? window.DASHBOARD_PERIODS_DATA.periods
+    : ((window.allPeriodsData && window.allPeriodsData.periods)
+      ? window.allPeriodsData.periods
+      : (window.DASHBOARD_DATA?.periods || {}));
+
   const periodLabels = {
     '2026-10': 'Octubre 2026',
     '2026-09': 'Septiembre 2026',
@@ -2927,8 +2871,10 @@ function findClient360Data(clientName) {
     for (const cName in coms) {
       const lines = coms[cName].lineas || [];
       for (const ln of lines) {
-        const lnClient = (ln.cliente || '').toUpperCase();
-        if (lnClient === targetUpper || targetUpper.includes(lnClient) || lnClient.includes(targetUpper)) {
+        const lnClient = ln.cliente || '';
+        const lnUpper = lnClient.toUpperCase();
+        const lnNorm = normClientKey(lnClient);
+        if (lnUpper === targetUpper || lnNorm === targetNorm || lnNorm.includes(targetNorm) || targetNorm.includes(lnNorm)) {
           orders.push({
             periodId: pId,
             periodLabel: pLabel,
@@ -2952,8 +2898,9 @@ function findClient360Data(clientName) {
   const exceptions = [];
   const activeExceptions = bi?.mejora_6_excepciones_precio?.excepciones_activas || [];
   for (const ex of activeExceptions) {
-    const exClient = (ex.cliente || '').toUpperCase();
-    if (exClient === targetUpper || targetUpper.includes(exClient) || exClient.includes(targetUpper)) {
+    const exClient = ex.cliente || '';
+    const exNorm = normClientKey(exClient);
+    if (exNorm === targetNorm || exNorm.includes(targetNorm) || targetNorm.includes(exNorm)) {
       exceptions.push(ex);
     }
   }
@@ -2967,7 +2914,11 @@ function findClient360Data(clientName) {
     }
   }
 
-  // Aggregated KPIs
+  // Aggregated KPIs: coherencia 100% entre cabecera y detalle (Punto 3 ChatGPT)
+  const clientVentasEur = skus2026.length > 0 ? totalVentasEur : (omniEntity?.ventas_2026_eur || 0);
+  const clientMargenPct = skus2026.length > 0 ? totalMargenPct : (omniEntity?.margen_medio_pct || 0);
+  const clientTotalUds = skus2026.length > 0 ? totalUds : (omniEntity?.total_uds || 0);
+
   const pendientesUds = orders
     .filter(o => o.periodId === '2026-10')
     .reduce((acc, o) => acc + (o.pendientes_uds || 0), 0) || omniEntity?.pedidos_pendientes_uds || 0;
@@ -2981,10 +2932,10 @@ function findClient360Data(clientName) {
     comercial: comercial,
     subtitulo: omniEntity?.subtitulo || `${pais} · Comercial: ${comercial}`,
     alerta: omniEntity?.alerta || (exceptions.length > 0 ? `Acuerdo de precio especial registrado` : 'Cuenta al corriente'),
-    ventas_eur: omniEntity?.ventas_2026_eur || totalVentasEur,
-    margen_pct: omniEntity?.margen_medio_pct || totalMargenPct,
+    ventas_eur: clientVentasEur,
+    margen_pct: clientMargenPct,
     margen_eur: totalMargenEur,
-    total_uds: totalUds,
+    total_uds: clientTotalUds,
     pendientes_uds: pendientesUds,
     skus_count: skus2026.length,
     skus2026: skus2026,
@@ -3203,7 +3154,7 @@ function renderClientModalBody() {
     // TAB 2: PEDIDOS Y ENTREGAS (OCTUBRE, SEPTIEMBRE, ACUMULADO)
     const pFilter = client360OrderPeriodFilter;
     const filteredOrders = (d.orders || []).filter(o => {
-      if (pFilter === 'ALL') return true;
+      if (pFilter === 'ALL') return o.periodId !== 'acumulado'; // Mostrar meses individuales sin duplicar con el consolidado acumulado (Punto 2)
       return o.periodId === pFilter;
     });
 
@@ -3242,10 +3193,10 @@ function renderClientModalBody() {
       <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;">
         <div style="display:flex; gap:0.5rem; align-items:center;">
           <span style="font-size:0.78rem; color:#94a3b8; font-weight:600;">FILTRAR PERÍODO:</span>
-          <button class="pill-btn ${pFilter === 'ALL' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('ALL')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Todos (${d.orders.length})</button>
-          <button class="pill-btn ${pFilter === '2026-10' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('2026-10')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Octubre 2026</button>
-          <button class="pill-btn ${pFilter === '2026-09' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('2026-09')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Septiembre 2026</button>
-          <button class="pill-btn ${pFilter === 'acumulado' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('acumulado')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Acumulado Sep+Oct</button>
+          <button class="pill-btn ${pFilter === 'ALL' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('ALL')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Todos los Meses (${d.orders.filter(o => o.periodId !== 'acumulado').length})</button>
+          <button class="pill-btn ${pFilter === '2026-10' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('2026-10')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Octubre 2026 (${d.orders.filter(o => o.periodId === '2026-10').length})</button>
+          <button class="pill-btn ${pFilter === '2026-09' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('2026-09')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Septiembre 2026 (${d.orders.filter(o => o.periodId === '2026-09').length})</button>
+          <button class="pill-btn ${pFilter === 'acumulado' ? 'active' : ''}" onclick="handleClientOrderPeriodChange('acumulado')" style="padding:0.35rem 0.75rem; font-size:0.8rem; cursor:pointer;">Acumulado Sep+Oct (${d.orders.filter(o => o.periodId === 'acumulado').length})</button>
         </div>
         <div style="font-size:0.82rem; color:var(--muted);">
           Total líneas de pedido: <strong>${filteredOrders.length}</strong>

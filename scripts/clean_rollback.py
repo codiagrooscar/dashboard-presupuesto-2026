@@ -6,7 +6,7 @@ Gestor transaccional de copias de seguridad, staging temporal, activación y rev
 Garantiza:
   1. Aborto inmediato si falla la copia de seguridad.
   2. Generación en carpeta temporal de staging (scratch/staging) separada de carpetas activas.
-  3. Activación atómica de salidas tras superar la validación.
+  3. Activación controlada de salidas con respaldo y recuperación rápida ante errores.
   4. Reversión limpia con purga de huérfanos y verificación estricta de restauración.
 """
 
@@ -27,6 +27,26 @@ ROOT_FILES = [
     "Seguimiento_Presupuesto_Sep_2026.xlsx",
     "Orden_Fabricacion_MRP_Codiagro.xlsx"
 ]
+
+ALLOWED_COMMERCIAL_FILES = {
+    "chart.umd.min.js",
+    "codiagro_logo.png",
+    "dashboard_data.js",
+    "dashboard_data.json",
+    "dashboard_data_BACKUP_PRE_REVISION_Q4.js",
+    "dashboard_data_BACKUP_PRE_REVISION_Q4.json",
+    "dashboard_i18n.js",
+    "exceljs.min.js",
+    "index.html",
+    "marta_tracking.css",
+    "marta_tracking_data.js",
+    "marta_tracking_data.json",
+    "marta_tracking_logic.js",
+    "Orden_Fabricacion_MRP_Codiagro.xlsx",
+    "production_planning_data.js",
+    "production_planning_data.json",
+    "server.py"
+}
 
 FORBIDDEN_COMMERCIAL_FILES = [
     "fullcost_data.json",
@@ -196,14 +216,23 @@ def activate():
                 shutil.copy2(staging_rf, rf)
                 activated_count += 1
 
-        # Escudo de seguridad en web_dashboard activa
-        for fn in FORBIDDEN_COMMERCIAL_FILES:
-            bad_f = os.path.join("web_dashboard", fn)
-            if os.path.exists(bad_f):
-                try:
-                    os.remove(bad_f)
-                except Exception:
-                    pass
+        # Escudo de seguridad estricto: Lista explícita autorizada (allowlist)
+        # 1. Verificar staging de web_dashboard antes de activar
+        staging_comm = os.path.join(STAGING_DIR, "web_dashboard")
+        if os.path.exists(staging_comm):
+            unauth_stage = [f for f in os.listdir(staging_comm) if f not in ALLOWED_COMMERCIAL_FILES]
+            if unauth_stage:
+                print(f"[ERROR CRITICO DE SEGURIDAD] Archivos no autorizados en staging de web_dashboard: {unauth_stage}")
+                restore_snapshot()
+                return 1
+
+        # 2. Verificar web_dashboard tras copia
+        if os.path.exists("web_dashboard"):
+            unauth_prod = [f for f in os.listdir("web_dashboard") if f not in ALLOWED_COMMERCIAL_FILES]
+            if unauth_prod:
+                print(f"[ERROR CRITICO DE SEGURIDAD] Archivos no autorizados detectados en web_dashboard tras activación: {unauth_prod}")
+                restore_snapshot()
+                return 1
 
         if activated_count < len(REQUIRED_STAGING_DELIVERABLES):
             print(f"[ERROR CRITICO] Activación incompleta ({activated_count} < {len(REQUIRED_STAGING_DELIVERABLES)}). Abortando.")
@@ -333,7 +362,15 @@ def verify_activated():
             if not os.path.exists(r) or os.path.getsize(r) == 0:
                 print(f"[ERROR CRITICO] Entregable requerido ausente o vacío tras activación: {r}")
                 return 1
-        print("[VERIFICACIÓN] Todos los entregables requeridos han sido activados con éxito en producción.")
+
+        # Comprobar lista de archivos autorizados en web_dashboard
+        if os.path.exists("web_dashboard"):
+            unauth = [f for f in os.listdir("web_dashboard") if f not in ALLOWED_COMMERCIAL_FILES]
+            if unauth:
+                print(f"[ERROR CRITICO DE SEGURIDAD] Archivos no autorizados en web_dashboard tras activación: {unauth}")
+                return 1
+
+        print("[VERIFICACIÓN] Todos los entregables requeridos han sido activados con éxito en producción (aislamiento comercial verificado).")
         return 0
     except Exception as e:
         print(f"[ERROR CRITICO] Fallo en verify_activated: {e}")

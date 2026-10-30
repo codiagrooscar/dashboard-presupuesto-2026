@@ -15,6 +15,66 @@ except Exception as _e:
     def get_dest(p): return p
     def get_source(p): return p
 import json
+# Conjunto explícito de entregables comerciales autorizados (allowlist estricta)
+ALLOWED_COMMERCIAL_FILES = {
+    "chart.umd.min.js",
+    "codiagro_logo.png",
+    "dashboard_data.js",
+    "dashboard_data.json",
+    "dashboard_data_BACKUP_PRE_REVISION_Q4.js",
+    "dashboard_data_BACKUP_PRE_REVISION_Q4.json",
+    "dashboard_i18n.js",
+    "exceljs.min.js",
+    "index.html",
+    "marta_tracking.css",
+    "marta_tracking_data.js",
+    "marta_tracking_data.json",
+    "marta_tracking_logic.js",
+    "Orden_Fabricacion_MRP_Codiagro.xlsx",
+    "production_planning_data.js",
+    "production_planning_data.json",
+    "server.py"
+}
+
+def extract_js_data(js_path):
+    with open(js_path, "r", encoding="utf-8") as f:
+        content = f.read().strip()
+    idx_brace = -1
+    for i, c in enumerate(content):
+        if c in ['{', '[']:
+            idx_brace = i
+            break
+    if idx_brace == -1:
+        return None
+    decoder = json.JSONDecoder()
+    obj, _ = decoder.raw_decode(content[idx_brace:])
+    return obj
+
+def deep_compare_json_js(v1, v2, p=""):
+    if isinstance(v1, (int, float)) and isinstance(v2, (int, float)):
+        if abs(float(v1) - float(v2)) > 0.02:
+            return f"{p}: JSON ({v1}) != JS ({v2})"
+        return None
+    if type(v1) != type(v2):
+        return f"{p}: tipo JSON ({type(v1).__name__}) != tipo JS ({type(v2).__name__})"
+    if isinstance(v1, dict):
+        k1, k2 = set(v1.keys()), set(v2.keys())
+        if k1 != k2:
+            return f"{p}: claves discrepantes {k1 ^ k2}"
+        for k in v1:
+            err = deep_compare_json_js(v1[k], v2[k], f"{p}.{k}")
+            if err: return err
+    elif isinstance(v1, list):
+        if len(v1) != len(v2):
+            return f"{p}: longitud JSON ({len(v1)}) != longitud JS ({len(v2)})"
+        for i, (i1, i2) in enumerate(zip(v1, v2)):
+            err = deep_compare_json_js(i1, i2, f"{p}[{i}]")
+            if err: return err
+    else:
+        if v1 != v2:
+            return f"{p}: JSON ({v1}) != JS ({v2})"
+    return None
+
 import os
 import sys
 from datetime import datetime
@@ -184,6 +244,86 @@ def main():
         js_detail = round(float(js_pf.get("ventas_detalle_analitico_sep", 0.0) or js_tot.get("ventas", 0.0) or 0.0), 2)
         if abs(round(js_n1 + js_perim, 2) - js_detail) > 0.01:
             fail(f"Incoherencia en fullcost_data.js: cuadre de producción + deducción perímetro ({js_n1 + js_perim:.2f} €) != detalle SKU ({js_detail:.2f} €)")
+
+        # 1. Comprobación profunda exhaustiva (deep comparison) de fullcost_data JSON vs JS
+        err_fc_deep = deep_compare_json_js(fc, fc_from_js, "fullcost_data")
+        if err_fc_deep:
+            fail(f"Desincronización profunda entre fullcost_data.json y fullcost_data.js: {err_fc_deep}")
+
+        # 2. Recálculo y verificación de subtotales de P&L Waterfall en fullcost_data.js y JSON
+        for ds_name, pnl_to_check in [("JS", fc_from_js.get("pnl_waterfall", [])), ("JSON", fc.get("pnl_waterfall", []))]:
+            if not pnl_to_check or not isinstance(pnl_to_check, list) or len(pnl_to_check) == 0:
+                fail(f"El bloque pnl_waterfall en {ds_name} está vacío o ausente")
+            
+            run_tot = 0.0
+            final_rai_val = None
+            for item in pnl_to_check:
+                nv = str(item.get("nivel", "")).strip().upper()
+                tp = str(item.get("tipo", "")).strip().lower()
+                imp = round(float(item.get("importe", 0.0) or 0.0), 2)
+                if tp in ["ingreso", "coste"]:
+                    run_tot = round(run_tot + imp, 2)
+                elif tp in ["subtotal", "ebit"]:
+                    if abs(imp - run_tot) > 0.05:
+                        fail(f"Subtotal incorrecto en cascada P&L ({ds_name}) nivel {nv}: valor reportado {imp:.2f} € != calculado acumulado {run_tot:.2f} €")
+                    if nv == "FINAL" or tp == "ebit":
+                        final_rai_val = imp
+            
+            if final_rai_val is None:
+                fail(f"Falta el escalón final de RAI/EBIT en pnl_waterfall de {ds_name}")
+            expected_meta_rai = round(float(fc_from_js.get("metadata", {}).get("rai_analitico_cascada", 0.0)), 2)
+            if abs(final_rai_val - expected_meta_rai) > 0.01:
+                fail(f"El RAI final de pnl_waterfall en {ds_name} ({final_rai_val:.2f} €) no coincide con metadata.rai_analitico_cascada ({expected_meta_rai:.2f} €)")
+
+        # 3. Verificación de identidades en cuentas_resumen de fullcost_data.js y JSON
+        for ds_name, cres_to_check in [("JS", fc_from_js.get("cuentas_resumen", {})), ("JSON", fc.get("cuentas_resumen", {}))]:
+            if not cres_to_check or not isinstance(cres_to_check, dict) or not cres_to_check.get("ingresos_totales"):
+                fail(f"El bloque cuentas_resumen en {ds_name} está vacío o ausente")
+            cr_rai = round(float(cres_to_check.get("rai_neto", 0.0) or 0.0), 2)
+            cr_ing = round(float(cres_to_check.get("ingresos_totales", 0.0) or 0.0), 2)
+            cr_gas = round(float(cres_to_check.get("gastos_totales", 0.0) or 0.0), 2)
+            if abs(round(cr_ing - cr_gas, 2) - cr_rai) > 0.02:
+                fail(f"Incoherencia en cuentas_resumen ({ds_name}): ingresos ({cr_ing:.2f} €) - gastos ({cr_gas:.2f} €) != rai_neto ({cr_rai:.2f} €)")
+            expected_mayor_rai = round(float(fc_from_js.get("metadata", {}).get("rai_contable_mayor", 0.0)), 2)
+            if abs(cr_rai - expected_mayor_rai) > 0.01:
+                fail(f"El rai_neto de cuentas_resumen en {ds_name} ({cr_rai:.2f} €) no coincide con metadata.rai_contable_mayor ({expected_mayor_rai:.2f} €)")
+
+        # 4. Verificación de identidades entre costes, horas, tarifas y capacidad en capacidades
+        for ds_name, caps_to_check in [("JS", fc_from_js.get("capacidades", [])), ("JSON", fc.get("capacidades", []))]:
+            if not caps_to_check or not isinstance(caps_to_check, list) or len(caps_to_check) == 0:
+                fail(f"El bloque capacidades en {ds_name} está vacío o ausente")
+            sum_c_cecos = 0.0
+            sum_c_sub = 0.0
+            sum_c_act = 0.0
+            for cap in caps_to_check:
+                ceco = str(cap.get("ceco", ""))
+                c_tot_ceco = round(float(cap.get("coste_total_ceco", 0.0) or 0.0), 2)
+                c_sub_ceco = round(float(cap.get("coste_subactividad_eur", 0.0) or 0.0), 2)
+                c_act_ceco = round(float(cap.get("coste_actividad_eur", 0.0) or 0.0), 2)
+                h_nom = float(cap.get("horas_nominales", 0.0) or 0.0)
+                tarifa = round(float(cap.get("coste_hora", 0.0) or cap.get("tarifa_eur_h", 0.0) or 0.0), 2)
+                if abs(round(c_sub_ceco + c_act_ceco, 2) - c_tot_ceco) > 0.05:
+                    fail(f"Incoherencia en CECO {ceco} ({ds_name}): coste_total ({c_tot_ceco:.2f} €) != subactividad ({c_sub_ceco:.2f} €) + actividad ({c_act_ceco:.2f} €)")
+                if h_nom > 0:
+                    tarifa_calc = round(c_tot_ceco / h_nom, 2)
+                    if abs(tarifa - tarifa_calc) > 0.05:
+                        fail(f"Tarifa horaria violada en CECO {ceco} ({ds_name}): tarifa ({tarifa:.2f} €/h) != calculada ({c_tot_ceco:.2f} € / {h_nom:.2f} h = {tarifa_calc:.2f} €/h)")
+                sum_c_cecos = round(sum_c_cecos + c_tot_ceco, 2)
+                sum_c_sub = round(sum_c_sub + c_sub_ceco, 2)
+                sum_c_act = round(sum_c_act + c_act_ceco, 2)
+
+            exp_planta_tot = round(float(js_tot.get("coste_planta_total", 0.0) or 0.0), 2)
+            if abs(sum_c_cecos - exp_planta_tot) > 0.05:
+                fail(f"Suma de coste planta en capacidades {ds_name} ({sum_c_cecos:.2f} €) != totales_drilldown.coste_planta_total ({exp_planta_tot:.2f} €)")
+
+        # 5. Verificación de Maquila en JS y JSON
+        for ds_name, maq_to_check in [("JS", fc_from_js.get("maquila", {})), ("JSON", fc.get("maquila", {}))]:
+            if not maq_to_check or not isinstance(maq_to_check, dict):
+                fail(f"El bloque maquila en {ds_name} está vacío o ausente")
+            m_ett = round(float(maq_to_check.get("costes_absorbidos", {}).get("mod_envasado_ett", 0.0) or 0.0), 2)
+            if abs(m_ett - 1926.91) > 0.02:
+                fail(f"Conciliación de maquila SAS ETT violada en {ds_name}: {m_ett:.2f} € != 1.926,91 €")
+
 
         js_meta = fc_from_js.get("metadata", {})
         json_meta = fc.get("metadata", {})
@@ -702,6 +842,63 @@ def main():
     except Exception as e:
         fail(f"Error al validar paridad exhaustiva de deuda en bi_intelligence_data.js: {e}", last_date)
 
+
+    # 6.5 Validación integral de Rentabilidad (profitability_data.json y .js)
+    prof_json_p = get_dest(os.path.join("web_dashboard_direccion", "profitability_data.json"))
+    prof_js_p = get_dest(os.path.join("web_dashboard_direccion", "profitability_data.js"))
+    if not os.path.exists(prof_json_p) or not os.path.exists(prof_js_p):
+        fail("Archivos obligatorios profitability_data.json o .js ausentes", last_date)
+    try:
+        with open(prof_json_p, "r", encoding="utf-8") as f:
+            prof_json = json.load(f)
+        prof_js = extract_js_data(prof_js_p)
+        if not prof_js or not isinstance(prof_js, dict) or len(prof_js.keys()) == 0:
+            fail("El archivo profitability_data.js contiene un objeto vacío o carece de contenido", last_date)
+        for req_k in ["totales_empresa", "clientes", "productos"]:
+            if req_k not in prof_js or not prof_js[req_k]:
+                fail(f"El archivo profitability_data.js carece del bloque obligatorio '{req_k}' o está vacío", last_date)
+            if req_k not in prof_json or not prof_json[req_k]:
+                fail(f"El archivo profitability_data.json carece del bloque obligatorio '{req_k}' o está vacío", last_date)
+        
+        prof_tot = prof_js.get("totales_empresa", {})
+        v27 = round(float(prof_tot.get("ventas_2027", 0.0) or 0.0), 2)
+        c27 = round(float(prof_tot.get("cogs_2027", 0.0) or 0.0), 2)
+        m27 = round(float(prof_tot.get("margen_2027_eur", 0.0) or 0.0), 2)
+        if v27 <= 0 or c27 <= 0:
+            fail("profitability_data.js contiene ventas o COGS no válidos o cero en totales_empresa", last_date)
+        if abs(round(v27 - c27, 2) - m27) > 0.02:
+            fail(f"Identidad de margen bruto violada en profitability_data.js: ventas ({v27:.2f} €) - cogs ({c27:.2f} €) != margen ({m27:.2f} €)", last_date)
+        
+        err_prof = deep_compare_json_js(prof_json, prof_js, "profitability_data")
+        if err_prof:
+            fail(f"Desincronización profunda entre profitability_data.json y .js: {err_prof}", last_date)
+    except Exception as e:
+        fail(f"Error al validar profitability_data: {e}", last_date)
+
+    # 6.6 Comprobación profunda exhaustiva (deep comparison) de todos los demás pares JSON / JS
+    dataset_pairs_to_audit = [
+        ("treasury_data", get_dest(os.path.join("web_dashboard_direccion", "treasury_data.json")), get_dest(os.path.join("web_dashboard_direccion", "treasury_data.js"))),
+        ("marta_tracking_data_dir", get_dest(os.path.join("web_dashboard_direccion", "marta_tracking_data.json")), get_dest(os.path.join("web_dashboard_direccion", "marta_tracking_data.js"))),
+        ("dashboard_data_dir", get_dest(os.path.join("web_dashboard_direccion", "dashboard_data.json")), get_dest(os.path.join("web_dashboard_direccion", "dashboard_data.js"))),
+        ("production_planning_data_dir", get_dest(os.path.join("web_dashboard_direccion", "production_planning_data.json")), get_dest(os.path.join("web_dashboard_direccion", "production_planning_data.js"))),
+        ("dashboard_data_com", get_dest(os.path.join("web_dashboard", "dashboard_data.json")), get_dest(os.path.join("web_dashboard", "dashboard_data.js"))),
+        ("marta_tracking_data_com", get_dest(os.path.join("web_dashboard", "marta_tracking_data.json")), get_dest(os.path.join("web_dashboard", "marta_tracking_data.js"))),
+        ("production_planning_data_com", get_dest(os.path.join("web_dashboard", "production_planning_data.json")), get_dest(os.path.join("web_dashboard", "production_planning_data.js")))
+    ]
+    for ds_lbl, j_path, js_path in dataset_pairs_to_audit:
+        if os.path.exists(j_path) and os.path.exists(js_path):
+            try:
+                with open(j_path, "r", encoding="utf-8") as f:
+                    j_obj = json.load(f)
+                js_obj = extract_js_data(js_path)
+                if not js_obj or (isinstance(js_obj, dict) and len(js_obj) == 0):
+                    fail(f"El archivo {ds_lbl} en JavaScript está vacío o no contiene datos válidos", last_date)
+                err_pair = deep_compare_json_js(j_obj, js_obj, ds_lbl)
+                if err_pair:
+                    fail(f"Desincronización profunda en dataset {ds_lbl}: {err_pair}", last_date)
+            except Exception as e:
+                fail(f"Error al auditar paridad en {ds_lbl}: {e}", last_date)
+
     # 7. Validar Excel de seguimiento
     try:
         wb_seg = openpyxl.load_workbook(excel_seg_path, data_only=True)
@@ -711,21 +908,20 @@ def main():
     except Exception as e:
         fail(f"No se pudo abrir o validar Seguimiento_Presupuesto_Sep_2026.xlsx: {e}", last_date)
 
-    # 8. Escudo de seguridad: Verificar aislamiento estricto de web_dashboard (versión comerciales)
-    forbidden_commercial_files = [
-        "fullcost_data.json",
-        "fullcost_data.js",
-        "cockpit_inicio_logic.js",
-        "profitability_logic.js",
-        "bi_intelligence_logic.js",
-        "treasury_data.json",
-        "treasury_data.js",
-        "update_validation_status.json"
-    ]
-    for fn in forbidden_commercial_files:
-        p = os.path.join("web_dashboard", fn)
-        if os.path.exists(p):
-            fail(f"VIOLACIÓN DE SEGURIDAD: Archivo confidencial de Dirección General encontrado en web_dashboard ({fn}).")
+    # 8. Escudo de seguridad: Verificar aislamiento estricto de web_dashboard mediante ALLOWLIST explícita
+    # Se audita tanto el staging temporal (si está activo) como el directorio de producción
+    dirs_comm_to_check = []
+    if os.environ.get("CODIAGRO_STAGING_DIR"):
+        staging_comm = os.path.join(os.environ["CODIAGRO_STAGING_DIR"], "web_dashboard")
+        if os.path.exists(staging_comm):
+            dirs_comm_to_check.append(staging_comm)
+    if os.path.exists("web_dashboard"):
+        dirs_comm_to_check.append("web_dashboard")
+
+    for c_dir in dirs_comm_to_check:
+        for fn in os.listdir(c_dir):
+            if fn not in ALLOWED_COMMERCIAL_FILES:
+                fail(f"VIOLACIÓN DE SEGURIDAD: Archivo no autorizado para la versión comercial detectado en '{c_dir}': {fn}. Sólo se permiten los 17 entregables comerciales autorizados.")
 
     commercial_index = get_dest(os.path.join("web_dashboard", "index.html"))
     if os.path.exists(commercial_index):

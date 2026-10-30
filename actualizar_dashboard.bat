@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 
 echo ======================================================================
 echo   CODIAGRO - ACTUALIZADOR CONTROLADO DE FULL COSTING Y DASHBOARD
-echo   (Fases separadas: 1. Generacion - 2. Validacion - 3. Activacion)
+echo   (Fases separadas: 1. Generacion - 2. Validacion - 3. Activacion con respaldo y recuperacion)
 echo ======================================================================
 echo.
 
@@ -132,6 +132,12 @@ REM FASE 4: PUBLICACION SEPARADA (NO AUTOMATICA SALVO FLAG --publish)
 REM ----------------------------------------------------------------------
 if /I "%~1"=="--publish" (
     echo.
+    echo [FASE 4] Verificando lista autorizada de web_dashboard antes de publicar...
+    "%PY%" -X utf8 -c "import os, sys; allowed = {'chart.umd.min.js','codiagro_logo.png','dashboard_data.js','dashboard_data.json','dashboard_data_BACKUP_PRE_REVISION_Q4.js','dashboard_data_BACKUP_PRE_REVISION_Q4.json','dashboard_i18n.js','exceljs.min.js','index.html','marta_tracking.css','marta_tracking_data.js','marta_tracking_data.json','marta_tracking_logic.js','Orden_Fabricacion_MRP_Codiagro.xlsx','production_planning_data.js','production_planning_data.json','server.py'}; unauth = [f for f in os.listdir('web_dashboard') if f not in allowed]; sys.exit(1 if unauth else 0)"
+    if !ERRORLEVEL! NEQ 0 (
+        echo [ERROR CRITICO DE SEGURIDAD] Archivos confidenciales o no autorizados detectados en web_dashboard. Abortando publicacion.
+        exit /b 1
+    )
     echo [FASE 4] Publicando unicamente entregables autorizados de web_dashboard...
     git add web_dashboard/index.html web_dashboard/dashboard_data.json web_dashboard/dashboard_data.js web_dashboard/production_planning_data.json web_dashboard/production_planning_data.js
     git commit -m "Publicacion controlada web_dashboard: %date% %time%"

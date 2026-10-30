@@ -2680,11 +2680,15 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
               <div style="display:flex; align-items:center; gap:0.5rem;">
                 <span style="font-size:1.25rem">🌉</span>
                 <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.1rem;">
-                  Puente de Conciliación de Margen: Portada vs Detalle Analítico (126.472,78 €)
+                  Del margen de la cascada al margen de actividad de las ventas (${(() => {
+                    const s3H = (fc && fc.pnl_waterfall) ? (fc.pnl_waterfall.find(x => x.nivel === 'SUB3')?.importe || 278255.41) : 278255.41;
+                    const mDetH = (fc && fc.totales_drilldown) ? (fc.totales_drilldown.margen_industrial_eur || 216120.50) : 216120.50;
+                    return fmtEur(Math.abs(Math.round((s3H - mDetH) * 100) / 100));
+                  })()})
                 </h4>
               </div>
               <p style="margin:0.25rem 0 0 0; font-size:0.82rem; color:var(--muted);">
-                Conciliación técnica requerida por Auditoría (H01): Explica la diferencia entre el Margen de Planta Completo de la portada y el Margen Industrial desagregado en Clientes y Productos.
+                Conciliación técnica: Explica la transición entre el Margen de Planta Completo de la Cascada Contable (278.255,41 €) y el Margen de Actividad de las Ventas asignado a Clientes y SKUs (216.120,50 €), diferenciando con precisión el Margen tras Subactividad (157.788,63 €) y el Margen con Absorción Total (151.782,63 €).
               </p>
             </div>
             ${(() => {
@@ -2756,7 +2760,7 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
 
                   return `
                     <tr style="background:rgba(30,41,59,0.7); font-weight:700;">
-                      <td style="color:#fff">Margen Planta Completo (Reportado en Cascada / Portada)</td>
+                      <td style="color:#fff">Margen Planta Completo (Nivel SUB3 de Cascada Contable P&L)</td>
                       <td style="text-align:right; color:#38bdf8; font-weight:800">${sub3Obj ? fmtEur(s3) : 'Sin datos'}</td>
                       <td style="text-align:right; color:#38bdf8">${pctS3}</td>
                       <td style="color:#cbd5e1">Margen global contable de septiembre (${fmtEur(vCasc)} producción fabril - ${fmtEur(cMatMayor)} materiales - ${fmtEur((fc && fc.totales_drilldown) ? fc.totales_drilldown.coste_planta_total : 124561.76)} planta).</td>
@@ -2786,10 +2790,10 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
                       <td style="color:#cbd5e1">Diferencia técnica entre producción fabril (${fmtEur(actTot)}) y costes imputados a ventas expedidas (${fmtEur(fc && fc.totales_drilldown ? fc.totales_drilldown.coste_planta : 60223.89)}), pendiente de comprobación documental de inventario valorado.</td>
                     </tr>
                     <tr style="background:rgba(16,185,129,0.15); border-top:2px solid var(--accent); font-weight:800;">
-                      <td style="color:#34d399">(=) MARGEN INDUSTRIAL ASIGNADO EN DETALLE (Clientes y SKUs)</td>
+                      <td style="color:#34d399">(=) MARGEN DE ACTIVIDAD DE LAS VENTAS ASIGNADO EN DETALLE (Clientes y SKUs)</td>
                       <td style="text-align:right; color:#34d399; font-size:0.95rem">${(fc && fc.totales_drilldown && typeof mDet === 'number') ? fmtEur(mDet) : 'N/D'}</td>
                       <td style="text-align:right; color:#34d399">${pctMDet}</td>
-                      <td style="color:#34d399">Cuadre exacto con las tablas de Clientes y Productos tras absorber ${fmtEur((fc && fc.totales_drilldown) ? fc.totales_drilldown.coste_planta : 66229.89)} de actividad industrial.</td>
+                      <td style="color:#34d399">Margen de actividad analítico de ventas tras absorber ${fmtEur((fc && fc.totales_drilldown) ? fc.totales_drilldown.coste_planta : 66229.89)} de actividad industrial. Distinto del Margen tras Subactividad (157.788,63 €) y Margen Absorción Total (151.782,63 €).</td>
                     </tr>
                   `;
                 })()}

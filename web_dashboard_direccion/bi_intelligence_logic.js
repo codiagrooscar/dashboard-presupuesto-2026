@@ -64,24 +64,35 @@ function sincronizarAcuerdosPersistentes() {
   }
   const currentList = bi.mejora_10_modo_reunion.acuerdos_registrados;
   const currentIds = new Set(currentList.map(a => a.id));
-  const currentFingerprints = new Set(currentList.map(a => `${a.cliente}|${a.documento_origen}|${a.fecha}`));
+
+  // Acuerdos confirmados centralmente por el servidor (no son borradores locales)
+  const centralConfirmedIds = new Set(currentList.filter(a => !a._es_borrador_local).map(a => a.id));
+  const centralConfirmedFingerprints = new Set(currentList.filter(a => !a._es_borrador_local).map(a => `${a.cliente}|${a.documento_origen}|${a.fecha}`));
 
   const remainingStored = [];
   for (const s of stored) {
     const sFp = `${s.cliente}|${s.documento_origen}|${s.fecha}`;
-    // Si ya existe en base central por ID o por huella documental, el acuerdo ya está consolidado
-    if (currentIds.has(s.id) || currentFingerprints.has(sFp)) {
+    // Un borrador sólo se considera consolidado si existe confirmación central inequívoca
+    const isConfirmedInCentral = centralConfirmedIds.has(s.id) || centralConfirmedFingerprints.has(sFp);
+
+    if (isConfirmedInCentral) {
+      // Consolidado en el servidor: se depura de localStorage
       continue;
     }
-    if (esAcuerdoDocumentalValido(s)) {
+
+    // Si aún no está confirmado centralmente, es un borrador pendiente:
+    // 1. Debe permanecer guardado en localStorage siempre
+    remainingStored.push(s);
+
+    // 2. Si no está en la lista de la sesión en memoria, se añade marcado como borrador
+    if (esAcuerdoDocumentalValido(s) && !currentIds.has(s.id)) {
+      s._es_borrador_local = true;
       currentList.unshift(s);
       currentIds.add(s.id);
-      currentFingerprints.add(sFp);
-      remainingStored.push(s);
     }
   }
 
-  // Actualizar localStorage únicamente con los borradores verdaderamente pendientes de sincronización
+  // Actualizar localStorage manteniendo intactos todos los borradores pendientes de sincronización
   try {
     localStorage.setItem('codiagro_acuerdos_registrados', JSON.stringify(remainingStored));
   } catch (e) {}
@@ -134,7 +145,7 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
         acuerdo.id = assignedId;
         delete acuerdo._es_borrador_local;
 
-        // Reconciliar copia local: sustituir el identificador provisional por el definitivo
+        // Reconciliar copia local: eliminar el registro provisional y guardar el definitivo sin marca de borrador
         try {
           let storedDef = JSON.parse(localStorage.getItem(key) || '[]');
           storedDef = storedDef.filter(a => a.id !== provisionalId && a.id !== assignedId);
@@ -167,7 +178,52 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
     }
   }
 }
-// -------------------------------------------------------------------------
+
+function sincronizarBorradoresPendientes(callback) {
+  if (typeof fetch !== 'function') {
+    if (typeof callback === 'function') callback(0);
+    return;
+  }
+  const key = 'codiagro_acuerdos_registrados';
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) {}
+  const drafts = stored.filter(a => a._es_borrador_local);
+  if (drafts.length === 0) {
+    if (typeof callback === 'function') callback(0);
+    return;
+  }
+
+  let synced = 0;
+  const promises = drafts.map(draft => {
+    return fetch('/api/guardar_acuerdo', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(draft)
+    })
+    .then(r => r.ok ? r.json() : null)
+    .then(res => {
+      if (res && res.success) {
+        synced++;
+        const assignedId = (res.acuerdo && res.acuerdo.id) ? res.acuerdo.id : draft.id;
+        draft.id = assignedId;
+        delete draft._es_borrador_local;
+        return draft;
+      }
+      return null;
+    })
+    .catch(() => null);
+  });
+
+  Promise.all(promises).then(results => {
+    if (synced > 0) {
+      sincronizarAcuerdosPersistentes();
+      if (typeof renderCurrentTab === 'function') renderCurrentTab();
+    }
+    if (typeof callback === 'function') callback(synced);
+  });
+}
+window.sincronizarBorradoresPendientes = sincronizarBorradoresPendientes;
 // ESTADO Y MODO DEMOSTRACIÓN (SEPARACIÓN ESTRICTA AUDITADA)
 // -------------------------------------------------------------------------
 let isDemoModeActive = false;

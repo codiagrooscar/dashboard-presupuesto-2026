@@ -56,6 +56,88 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
 
+        if path == '/api/guardar_acuerdo':
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_body = self.rfile.read(content_length)
+            try:
+                data = json.loads(post_body.decode('utf-8'))
+                from datetime import datetime
+                def v_date(s):
+                    if not s: return False
+                    for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y", "%Y-%m-%d", "%Y/%m/%d"):
+                        try:
+                            dt = datetime.strptime(str(s).strip(), fmt)
+                            if 1900 <= dt.year <= 2100: return True
+                        except ValueError: pass
+                    return False
+
+                cli = str(data.get("cliente") or data.get("cliente_id") or "").strip()
+                doc = str(data.get("documento_origen") or "").strip()
+                fec = str(data.get("fecha") or data.get("fecha_acuerdo") or "").strip()
+                vig = str(data.get("vigencia") or data.get("fecha_limite") or "").strip()
+                resp = str(data.get("responsable_validacion") or data.get("responsable") or "").strip()
+
+                if not cli or not doc or not fec or not vig or not resp or not v_date(fec) or not v_date(vig):
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'success': False, 'error': 'Datos documentales incompletos o fechas de calendario no válidas.'}).encode('utf-8'))
+                    return
+
+                gastos_file = PROJECT_DIR / "Gastos" / "acuerdos_comerciales_registrados.json"
+                acuerdos = []
+                if gastos_file.exists():
+                    try:
+                        with open(gastos_file, "r", encoding="utf-8") as gf:
+                            acuerdos = json.load(gf)
+                    except Exception:
+                        acuerdos = []
+
+                aid = str(data.get("id") or f"ACU-{secrets.token_hex(4).upper()}")
+                data["id"] = aid
+                acuerdos = [a for a in acuerdos if a.get("id") != aid]
+                acuerdos.insert(0, data)
+
+                gastos_file.parent.mkdir(parents=True, exist_ok=True)
+                with open(gastos_file, "w", encoding="utf-8") as gf:
+                    json.dump(acuerdos, gf, ensure_ascii=False, indent=2)
+
+                bi_json = BASE_DIR / "bi_intelligence_data.json"
+                if bi_json.exists():
+                    try:
+                        with open(bi_json, "r", encoding="utf-8") as bf:
+                            bi_data = json.load(bf)
+                        mr = bi_data.setdefault("mejora_10_modo_reunion", {})
+                        mr_list = [a for a in mr.get("acuerdos_registrados", []) if a.get("id") != aid]
+                        mr_list.insert(0, data)
+                        mr["acuerdos_registrados"] = mr_list
+                        mr["total_acuerdos"] = len(mr_list)
+                        mr["estado"] = "Operativo"
+                        with open(bi_json, "w", encoding="utf-8") as bf:
+                            json.dump(bi_data, bf, ensure_ascii=False, indent=2)
+                        
+                        bi_js = BASE_DIR / "bi_intelligence_data.js"
+                        with open(bi_js, "w", encoding="utf-8") as jf:
+                            jf.write("window.BI_INTELLIGENCE_DATA = " + json.dumps(bi_data, ensure_ascii=False, indent=2) + ";\n")
+                    except Exception as e:
+                        print("Aviso al sincronizar bi_intelligence_data:", e)
+
+                resp_body = json.dumps({'success': True, 'acuerdo': data}).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(resp_body)))
+                self.end_headers()
+                self.wfile.write(resp_body)
+                return
+            except Exception as e:
+                err_body = json.dumps({'success': False, 'error': str(e)}).encode('utf-8')
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(err_body)))
+                self.end_headers()
+                self.wfile.write(err_body)
+                return
+
         if path == '/api/login':
             content_length = int(self.headers.get('Content-Length', 0))
             post_body = self.rfile.read(content_length)

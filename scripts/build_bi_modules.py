@@ -384,6 +384,19 @@ output_bi["mejora_9_busqueda_global"] = {
 # ---------------------------------------------------------
 import re
 
+def es_fecha_calendario_valida(s):
+    if not s or not isinstance(s, str):
+        return False
+    s = s.strip()
+    for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y", "%Y-%m-%d", "%Y/%m/%d"):
+        try:
+            dt = datetime.strptime(s, fmt)
+            if 1900 <= dt.year <= 2100:
+                return True
+        except ValueError:
+            continue
+    return False
+
 def es_acuerdo_documental_valido(a):
     if not isinstance(a, dict):
         return False
@@ -396,8 +409,7 @@ def es_acuerdo_documental_valido(a):
     resp = str(a.get("responsable_validacion") or a.get("responsable") or "").strip()
     if not cliente or not doc or not fecha or not vig or not resp:
         return False
-    date_regex = r"^(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})$"
-    if not re.match(date_regex, fecha) or not re.match(date_regex, vig):
+    if not es_fecha_calendario_valida(fecha) or not es_fecha_calendario_valida(vig):
         return False
     return True
 

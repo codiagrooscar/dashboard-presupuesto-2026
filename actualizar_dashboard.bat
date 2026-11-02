@@ -69,12 +69,12 @@ set "FAILED_STEP=build_profitability_data.py (Rentabilidad COGS)"
 "%PY%" -X utf8 scripts/build_profitability_data.py
 if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
 
-set "FAILED_STEP=build_bi_modules.py (Modulos de Inteligencia BI)"
-"%PY%" -X utf8 scripts/build_bi_modules.py
-if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
-
 set "FAILED_STEP=build_marta_tracking_data.py (Seguimiento Cierre 2026)"
 "%PY%" -X utf8 scripts/build_marta_tracking_data.py
+if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
+
+set "FAILED_STEP=build_bi_modules.py (Modulos de Inteligencia BI y Radar)"
+"%PY%" -X utf8 scripts/build_bi_modules.py
 if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
 
 set "FAILED_STEP=merge_fullcost_drilldown.py (Modelo Full Costing Septiembre 2026)"

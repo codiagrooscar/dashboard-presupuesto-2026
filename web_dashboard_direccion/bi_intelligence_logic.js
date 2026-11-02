@@ -3,17 +3,34 @@
 function validarFormatoFecha(str) {
   if (!str || typeof str !== 'string') return false;
   const s = str.trim();
-  const m1 = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+  let d, m, y;
+  
+  // Format DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY
+  const m1 = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
   if (m1) {
-    const d = parseInt(m1[1], 10), m = parseInt(m1[2], 10), y = parseInt(m1[3], 10);
-    return d >= 1 && d <= 31 && m >= 1 && m <= 12 && ((y >= 2000 && y <= 2100) || (y >= 0 && y <= 99));
+    d = parseInt(m1[1], 10);
+    m = parseInt(m1[2], 10);
+    y = parseInt(m1[3], 10);
+  } else {
+    // Format YYYY-MM-DD, YYYY/MM/DD
+    const m2 = s.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})$/);
+    if (m2) {
+      y = parseInt(m2[1], 10);
+      m = parseInt(m2[2], 10);
+      d = parseInt(m2[3], 10);
+    } else {
+      return false;
+    }
   }
-  const m2 = s.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})$/);
-  if (m2) {
-    const y = parseInt(m2[1], 10), m = parseInt(m2[2], 10), d = parseInt(m2[3], 10);
-    return d >= 1 && d <= 31 && m >= 1 && m <= 12 && y >= 2000 && y <= 2100;
+
+  if (m < 1 || m > 12 || y < 1900 || y > 2100) return false;
+
+  // Real calendar conversion
+  const dt = new Date(y, m - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== (m - 1) || dt.getDate() !== d) {
+    return false;
   }
-  return false;
+  return true;
 }
 
 function esAcuerdoDocumentalValido(a) {
@@ -32,6 +49,67 @@ function esAcuerdoDocumentalValido(a) {
   if (!validarFormatoFecha(fecha) || !validarFormatoFecha(vig)) return false;
 
   return true;
+}
+
+// Sincronización e hidratación de acuerdos persistentes (Browser & Server)
+function sincronizarAcuerdosPersistentes() {
+  const bi = getBiData();
+  if (!bi || !bi.mejora_10_modo_reunion) return;
+  let stored = [];
+  try {
+    stored = JSON.parse(localStorage.getItem('codiagro_acuerdos_registrados') || '[]');
+  } catch (e) {}
+  if (!Array.isArray(bi.mejora_10_modo_reunion.acuerdos_registrados)) {
+    bi.mejora_10_modo_reunion.acuerdos_registrados = [];
+  }
+  const currentList = bi.mejora_10_modo_reunion.acuerdos_registrados;
+  const currentIds = new Set(currentList.map(a => a.id));
+  for (const s of stored) {
+    if (esAcuerdoDocumentalValido(s) && !currentIds.has(s.id)) {
+      currentList.unshift(s);
+      currentIds.add(s.id);
+    }
+  }
+  bi.mejora_10_modo_reunion.total_acuerdos = currentList.filter(esAcuerdoDocumentalValido).length;
+  if (bi.mejora_10_modo_reunion.total_acuerdos > 0) {
+    bi.mejora_10_modo_reunion.estado = "Operativo";
+  }
+}
+
+function guardarAcuerdoPersistente(acuerdo, callback) {
+  // 1. Guardar en localStorage
+  try {
+    const key = 'codiagro_acuerdos_registrados';
+    let stored = [];
+    try { stored = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) {}
+    stored = stored.filter(a => a.id !== acuerdo.id);
+    stored.unshift(acuerdo);
+    localStorage.setItem(key, JSON.stringify(stored));
+  } catch (e) {
+    console.warn('Error en localStorage:', e);
+  }
+
+  // 2. Enviar a endpoint persistente del servidor si está disponible
+  if (typeof fetch === 'function') {
+    fetch('/api/guardar_acuerdo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(acuerdo)
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res && res.success) {
+        if (typeof callback === 'function') callback(true, 'Guardado permanente confirmado en archivo y servidor.');
+      } else {
+        if (typeof callback === 'function') callback(true, 'Guardado en almacenamiento permanente del navegador.');
+      }
+    })
+    .catch(() => {
+      if (typeof callback === 'function') callback(true, 'Guardado en almacenamiento permanente del navegador.');
+    });
+  } else {
+    if (typeof callback === 'function') callback(true, 'Guardado en almacenamiento permanente del navegador.');
+  }
 }
 
 // -------------------------------------------------------------------------
@@ -2785,6 +2863,9 @@ function crearNuevoAcuerdoModal() {
       list.unshift(nuevoAcuerdo);
       bi.mejora_10_modo_reunion.total_acuerdos = list.filter(esAcuerdoDocumentalValido).length;
       bi.mejora_10_modo_reunion.estado = "Operativo";
+      guardarAcuerdoPersistente(nuevoAcuerdo, (ok, msg) => {
+        alert("Acuerdo formalizado y guardado permanentemente con ID: " + nuevoAcuerdo.id + "\n" + msg);
+      });
       if (typeof renderCurrentTab === 'function') renderCurrentTab();
     }
   }
@@ -3128,6 +3209,7 @@ function findClient360Data(clientName) {
 }
 
 function openClient360Modal(clientName) {
+  sincronizarAcuerdosPersistentes();
   const data = findClient360Data(clientName);
   if (!data) return;
   currentClient360Client = clientName;

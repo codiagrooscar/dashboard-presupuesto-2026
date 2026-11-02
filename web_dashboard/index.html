@@ -1617,7 +1617,7 @@
         <img src="codiagro_logo.png" alt="Codiagro" class="sidebar-logo">
         <div class="sidebar-brand-text">
           <span class="sidebar-title">CODIAGRO</span>
-          <span class="sidebar-subtitle">Gestión Integral 2026</span>
+          <span class="sidebar-subtitle" id="sidebarSubtitle">Gestión Integral 2026</span>
         </div>
       </div>
 
@@ -1628,19 +1628,19 @@
         <div class="nav-group">
           <div class="nav-group-header">
             <span>💼</span>
-            <span>COMERCIAL</span>
+            <span id="navHeaderComercial">COMERCIAL</span>
           </div>
           <button class="nav-item-btn active" id="navBtnResumen" onclick="switchTab('resumen')">
             <div class="nav-item-left">
               <span class="nav-item-icon">📊</span>
-              <span>Ventas y Previsiones</span>
+              <span id="navTextResumen">Ventas y Previsiones</span>
             </div>
             <span class="tab-badge badge-success" id="tabBadgeResumen">128.4%</span>
           </button>
           <button class="nav-item-btn" id="navBtnTrackingMarta" onclick="switchTab('tracking_marta')" style="margin-top:0.3rem;">
             <div class="nav-item-left">
               <span class="nav-item-icon">🎯</span>
-              <span>Cierre 2026</span>
+              <span id="navTextTrackingMarta">Cierre 2026</span>
             </div>
             <span class="tab-badge" id="tabBadgeTrackingMarta" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">Unidades</span>
           </button>
@@ -1650,12 +1650,12 @@
         <div class="nav-group">
           <div class="nav-group-header">
             <span>🏭</span>
-            <span>FABRICACIÓN</span>
+            <span id="navHeaderProduccion">FABRICACIÓN</span>
           </div>
           <button class="nav-item-btn nav-mrp" id="navBtnProduccion" onclick="switchTab('produccion')">
             <div class="nav-item-left">
               <span class="nav-item-icon">⚙️</span>
-              <span>Planificación & MRP</span>
+              <span id="navTextProduccion">Planificación & MRP</span>
             </div>
             <span class="tab-badge" id="tabBadgeProduccion" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">Reactores</span>
           </button>
@@ -1667,8 +1667,8 @@
       <div class="sidebar-footer">
         <div class="sidebar-dot"></div>
         <div class="sidebar-footer-text">
-          <strong>Servidor Local Activo</strong>
-          <span id="sidebarCorteDate">Corte: 08/10/2026</span>
+          <strong id="sidebarFooterStatus">Servidor Local Activo</strong>
+          <span id="sidebarCorteDate">Corte: 02/11/2026</span>
         </div>
       </div>
     </aside>
@@ -2185,7 +2185,23 @@
         mrp_modal_th_forecast: "Previsión Mes (u)",
         mrp_modal_th_cum_demand: "Demanda Acumulada",
         mrp_modal_th_proj_stock: "Stock Proyectado",
-        mrp_modal_destinations: "Desglose por Destinos y Clientes:"
+        mrp_modal_destinations: "Desglose por Destinos y Clientes:",
+
+        sidebar_subtitle: "Gestión Integral 2026",
+        nav_header_comercial: "COMERCIAL",
+        nav_text_resumen: "Ventas y Previsiones",
+        nav_text_marta: "Cierre 2026",
+        badge_units: "Unidades",
+        badge_euros: "Euros",
+        nav_header_produccion: "FABRICACIÓN",
+        nav_text_produccion: "Planificación & MRP",
+        badge_reactors: "Reactores",
+        sidebar_footer_status: "Servidor Local Activo",
+        sidebar_cutoff_prefix: "Corte: ",
+        topbar_resumen: "Comercial | Ventas y Previsiones",
+        topbar_marta_prefix: "Comercial | Cierre 2026 & Termómetro Q4",
+        topbar_produccion: "Fabricación | Planificación & MRP",
+        topbar_commercial_prefix: "Comercial | Detalle: "
 
       },
       en: {
@@ -2419,7 +2435,23 @@
         mrp_modal_th_forecast: "Month Forecast (u)",
         mrp_modal_th_cum_demand: "Cumulative Demand",
         mrp_modal_th_proj_stock: "Projected Stock",
-        mrp_modal_destinations: "Breakdown by Destinations and Clients:"
+        mrp_modal_destinations: "Breakdown by Destinations and Clients:",
+
+        sidebar_subtitle: "Comprehensive Management 2026",
+        nav_header_comercial: "COMMERCIAL",
+        nav_text_resumen: "Sales & Forecasts",
+        nav_text_marta: "Year-End 2026",
+        badge_units: "Units",
+        badge_euros: "Euros",
+        nav_header_produccion: "MANUFACTURING",
+        nav_text_produccion: "Planning & MRP",
+        badge_reactors: "Reactors",
+        sidebar_footer_status: "Active Local Server",
+        sidebar_cutoff_prefix: "As of: ",
+        topbar_resumen: "Commercial | Sales & Forecasts",
+        topbar_marta_prefix: "Commercial | Year-End 2026 & Q4 Thermometer",
+        topbar_produccion: "Manufacturing | Planning & MRP",
+        topbar_commercial_prefix: "Commercial | Details: "
 
       }
     };
@@ -2505,8 +2537,9 @@
       updateLanguageStaticUI();
       updateHeaderInfo();
       updateNavBadges();
+      if (typeof updateSidebarActive === 'function') updateSidebarActive(currentTab);
       renderCurrentTab();
-      if (typeof applyGlobalDomTranslations === 'function') applyGlobalDomTranslations();
+      if (typeof applyGlobalDomTranslations === 'function') applyGlobalDomTranslations(document.body);
 
       const modalOverlay = document.getElementById('kpiModalOverlay');
       if (modalOverlay && modalOverlay.classList.contains('active')) {
@@ -2525,6 +2558,37 @@
       // Header brand
       const titleEl = document.getElementById('headerTitle');
       if (titleEl) titleEl.innerText = t('app_title');
+
+      // Sidebar items
+      const sideSub = document.getElementById('sidebarSubtitle');
+      if (sideSub) sideSub.innerText = t('sidebar_subtitle');
+
+      const sideHCom = document.getElementById('navHeaderComercial');
+      if (sideHCom) sideHCom.innerText = t('nav_header_comercial');
+
+      const navRes = document.getElementById('navTextResumen');
+      if (navRes) navRes.innerText = t('nav_text_resumen');
+
+      const navMarta = document.getElementById('navTextTrackingMarta');
+      if (navMarta) navMarta.innerText = t('nav_text_marta');
+
+      const badgeMarta = document.getElementById('tabBadgeTrackingMarta');
+      if (badgeMarta) {
+        const isEuros = (typeof window.getMartaMode === 'function' && window.getMartaMode() === 'euros');
+        badgeMarta.innerText = isEuros ? t('badge_euros') : t('badge_units');
+      }
+
+      const sideHProd = document.getElementById('navHeaderProduccion');
+      if (sideHProd) sideHProd.innerText = t('nav_header_produccion');
+
+      const navProd = document.getElementById('navTextProduccion');
+      if (navProd) navProd.innerText = t('nav_text_produccion');
+
+      const badgeProd = document.getElementById('tabBadgeProduccion');
+      if (badgeProd) badgeProd.innerText = t('badge_reactors');
+
+      const sideFoot = document.getElementById('sidebarFooterStatus');
+      if (sideFoot) sideFoot.innerText = t('sidebar_footer_status');
 
       // Scope Switcher
       const scopeLabel = document.getElementById('scopeLabel');
@@ -3057,23 +3121,41 @@
       }
       const elSidebarDate = document.getElementById('sidebarCorteDate');
       if (elSidebarDate && appData.global_kpis && appData.global_kpis.fecha_corte) {
-        elSidebarDate.innerText = 'Corte: ' + appData.global_kpis.fecha_corte;
+        elSidebarDate.innerText = (currentLang === 'en' ? 'As of: ' : 'Corte: ') + appData.global_kpis.fecha_corte;
       }
       const elSub = document.getElementById('headerSubtitle');
       if (elSub) {
-        const periodNote = appData.subtitulo || (appData.nombre + ' &bull; ' + appData.estado_periodo);
-        elSub.innerHTML = `Período: <strong style="color:#34d399">${appData.nombre || currentPeriod}</strong> &bull; ${periodNote} &bull; Corte: <strong style="color:#f8fafc">${appData.global_kpis ? appData.global_kpis.fecha_corte : '01/10/2026'}</strong>`;
+        let periodName = appData.nombre || currentPeriod;
+        if (currentLang === 'en') {
+          if (currentPeriod === '2026-10') periodName = 'October 2026';
+          else if (currentPeriod === '2026-09') periodName = 'September 2026';
+          else if (currentPeriod === 'acumulado') periodName = 'Cumulative Sep + Oct';
+        }
+        let periodStatus = appData.estado_periodo || '';
+        if (currentLang === 'en') {
+          if (periodStatus === 'En Curso') periodStatus = 'In Progress';
+          else if (periodStatus === 'Cerrado') periodStatus = 'Closed';
+          else if (periodStatus === 'Consolidado') periodStatus = 'Consolidated';
+        }
+        const periodNote = (currentLang === 'en' && appData.subtitulo)
+          ? appData.subtitulo.replace('En Curso (Corte a', 'In Progress (Cut-off:')
+                             .replace('Mes Cerrado Oficialmente a', 'Month Officially Closed as of')
+                             .replace('Consolidado histórico bimestral 2026 (Corte a', 'Two-month Historical Consolidation 2026 (Cut-off:')
+          : (appData.subtitulo || (periodName + ' &bull; ' + periodStatus));
+        const corteLabel = currentLang === 'en' ? 'Cut-off:' : 'Corte:';
+        const corteVal = appData.global_kpis ? appData.global_kpis.fecha_corte : '01/10/2026';
+        elSub.innerHTML = `${currentLang === 'en' ? 'Period:' : 'Período:'} <strong style="color:#34d399">${periodName}</strong> &bull; ${periodNote} &bull; ${corteLabel} <strong style="color:#f8fafc">${corteVal}</strong>`;
       }
       const elLive = document.getElementById('headerLiveBadge');
       if (elLive) {
         if (currentPeriod === '2026-09') {
-          elLive.innerText = 'Mes Cerrado';
+          elLive.innerText = t('badge_closed');
           elLive.className = 'tab-badge badge-neutral';
         } else if (currentPeriod === 'acumulado') {
-          elLive.innerText = 'Consolidado';
+          elLive.innerText = t('badge_consolidated');
           elLive.className = 'tab-badge badge-info';
         } else {
-          elLive.innerText = 'En Tiempo Real';
+          elLive.innerText = t('badge_live');
           elLive.className = 'badge-live';
         }
       }
@@ -5940,29 +6022,31 @@
 
       const titleIconEl = document.getElementById('topbarIcon');
       const titleTextEl = document.getElementById('topbarText');
+      const isEn = (typeof currentLang !== 'undefined' && currentLang === 'en');
 
       if (tabKey === 'resumen') {
         const b = document.getElementById('navBtnResumen');
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '💼';
-        if (titleTextEl) titleTextEl.textContent = 'Comercial | Ventas y Previsiones';
+        if (titleTextEl) titleTextEl.textContent = isEn ? 'Commercial | Sales & Forecasts' : 'Comercial | Ventas y Previsiones';
       } else if (tabKey === 'tracking_marta') {
         const b = document.getElementById('navBtnTrackingMarta');
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '🎯';
-        const modeSuffix = (typeof window.getMartaMode === 'function' && window.getMartaMode() === 'euros') ? 'Euros' : 'Unidades';
-        if (titleTextEl) titleTextEl.textContent = `Comercial | Cierre 2026 & Termómetro Q4 (${modeSuffix})`;
+        const isEuros = (typeof window.getMartaMode === 'function' && window.getMartaMode() === 'euros');
+        const modeSuffix = isEuros ? 'Euros' : (isEn ? 'Units' : 'Unidades');
+        if (titleTextEl) titleTextEl.textContent = isEn ? `Commercial | Year-End 2026 & Q4 Thermometer (${modeSuffix})` : `Comercial | Cierre 2026 & Termómetro Q4 (${modeSuffix})`;
       } else if (tabKey === 'produccion') {
         const b = document.getElementById('navBtnProduccion');
         if (b) b.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '🏭';
-        if (titleTextEl) titleTextEl.textContent = 'Fabricación | Planificación & MRP';
+        if (titleTextEl) titleTextEl.textContent = isEn ? 'Manufacturing | Planning & MRP' : 'Fabricación | Planificación & MRP';
       } else {
         // Comercial específico seleccionado desde la tabla
         const parentBtn = document.getElementById('navBtnResumen');
         if (parentBtn) parentBtn.classList.add('active');
         if (titleIconEl) titleIconEl.textContent = '👤';
-        if (titleTextEl) titleTextEl.textContent = `Comercial | Detalle: ${tabKey}`;
+        if (titleTextEl) titleTextEl.textContent = isEn ? `Commercial | Details: ${tabKey}` : `Comercial | Detalle: ${tabKey}`;
       }
     }
 

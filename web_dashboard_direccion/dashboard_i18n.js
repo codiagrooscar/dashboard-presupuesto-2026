@@ -393,7 +393,7 @@ let translationTimeout = null;
 function applyGlobalDomTranslations(root) {
   if (!isEnglishActive()) return;
 
-  const container = root || document.getElementById('appContent') || document.body;
+  const container = root || document.body;
   if (!container) return;
 
   // 1. Text Nodes Walker

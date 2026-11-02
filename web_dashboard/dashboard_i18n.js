@@ -4,6 +4,16 @@
 // =========================================================================
 
 window.CODIAGRO_I18N_DICT = {
+  "Comercial | Ventas y Previsiones": "Commercial | Sales & Forecasts",
+  "Fabricación | Planificación & MRP": "Manufacturing | Planning & MRP",
+  "Gestión Integral 2026": "Comprehensive Management 2026",
+  "COMERCIAL": "COMMERCIAL",
+  "Ventas y Previsiones": "Sales & Forecasts",
+  "Cierre 2026": "Year-End 2026",
+  "FABRICACIÓN": "MANUFACTURING",
+  "Planificación & MRP": "Planning & MRP",
+  "Reactores": "Reactors",
+  "Servidor Local Activo": "Active Local Server",
     "Antigüedad de Deuda y Situación de Cobros": "Debt Aging & Collection Status",
     "Deuda Total Gestionada": "Total Managed Debt",
     "0 - 30 días": "0 - 30 days",
@@ -393,7 +403,7 @@ let translationTimeout = null;
 function applyGlobalDomTranslations(root) {
   if (!isEnglishActive()) return;
 
-  const container = root || document.getElementById('appContent') || document.body;
+  const container = root || document.body;
   if (!container) return;
 
   // 1. Text Nodes Walker

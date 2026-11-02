@@ -118,6 +118,9 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 current_year = datetime.now().year
 
                 accion = str(data.get("accion") or "crear").lower()
+                req_op_key = str(data.get("clave_operacion") or data.get("idempotency_key") or "").strip()
+                req_tema = str(data.get("tema") or data.get("contenido") or data.get("detalle") or "").strip()
+
                 if accion == "editar":
                     aid = str(data.get("id") or "").strip()
                     if not aid or aid not in existing_ids:
@@ -131,25 +134,41 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     data["id"] = aid
                     acuerdos = [data if a.get("id") == aid else a for a in acuerdos]
                 else:
-                    # Comprobar si ya existe un acuerdo con la misma huella documental (cliente, documento_origen, fecha)
+                    # Reconocimiento de reintentos:
+                    # 1. Por clave única de operación (idempotency key) si está presente
+                    # 2. O por coincidencia exacta de cliente, documento, fecha Y contenido/tema
                     existing_match = None
                     for a in acuerdos:
-                        if (str(a.get("cliente") or "").strip().upper() == cli.upper() and
-                            str(a.get("documento_origen") or "").strip().upper() == doc.upper() and
-                            str(a.get("fecha") or "").strip() == fec):
+                        a_op_key = str(a.get("clave_operacion") or a.get("idempotency_key") or "").strip()
+                        if req_op_key and a_op_key and req_op_key == a_op_key:
                             existing_match = a
                             break
 
+                        a_cli = str(a.get("cliente") or "").strip().upper()
+                        a_doc = str(a.get("documento_origen") or "").strip().upper()
+                        a_fec = str(a.get("fecha") or "").strip()
+                        a_tema = str(a.get("tema") or a.get("contenido") or a.get("detalle") or "").strip()
+
+                        # Si coincide cliente, documento y fecha:
+                        if a_cli == cli.upper() and a_doc == doc.upper() and a_fec == fec:
+                            # Solo es el mismo acuerdo si el contenido solicitado coincide exactamente
+                            if req_tema and a_tema and req_tema == a_tema:
+                                existing_match = a
+                                break
+
                     if existing_match:
-                        # Si ya existe centralmente (idempotencia en reintentos o sincronizaciones consecutivas), conservar registro central
+                        # Reintento del mismo envío: devolver el registro original existente sin duplicar
                         aid = existing_match["id"]
                         data = existing_match
                     else:
+                        # Alta nueva (acuerdo nuevo para la misma acta o nueva operación)
                         aid = f"ACU-{current_year}-{next_seq:03d}"
                         while aid in existing_ids:
                             next_seq += 1
                             aid = f"ACU-{current_year}-{next_seq:03d}"
                         data["id"] = aid
+                        if not req_op_key:
+                            data["clave_operacion"] = f"OP-{current_year}-{aid}"
                         acuerdos.insert(0, data)
 
                 gastos_file.parent.mkdir(parents=True, exist_ok=True)

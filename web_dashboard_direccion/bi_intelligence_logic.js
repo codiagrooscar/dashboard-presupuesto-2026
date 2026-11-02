@@ -66,14 +66,22 @@ function sincronizarAcuerdosPersistentes() {
   const currentIds = new Set(currentList.map(a => a.id));
 
   // Acuerdos confirmados centralmente por el servidor (no son borradores locales)
-  const centralConfirmedIds = new Set(currentList.filter(a => !a._es_borrador_local).map(a => a.id));
-  const centralConfirmedFingerprints = new Set(currentList.filter(a => !a._es_borrador_local).map(a => `${a.cliente}|${a.documento_origen}|${a.fecha}`));
+  const centralConfirmed = currentList.filter(a => !a._es_borrador_local);
+  const centralConfirmedIds = new Set(centralConfirmed.map(a => a.id));
+  const centralConfirmedKeys = new Set(centralConfirmed.map(a => a.clave_operacion).filter(Boolean));
+  const centralConfirmedFingerprints = new Set(centralConfirmed.map(a => 
+    `${(a.cliente || '').trim().toUpperCase()}|${(a.documento_origen || '').trim().toUpperCase()}|${(a.fecha || '').trim()}|${(a.tema || a.detalle || '').trim()}`
+  ));
 
   const remainingStored = [];
   for (const s of stored) {
-    const sFp = `${s.cliente}|${s.documento_origen}|${s.fecha}`;
+    const sKey = s.clave_operacion;
+    const sFp = `${(s.cliente || '').trim().toUpperCase()}|${(s.documento_origen || '').trim().toUpperCase()}|${(s.fecha || '').trim()}|${(s.tema || s.detalle || '').trim()}`;
+    
     // Un borrador sólo se considera consolidado si existe confirmación central inequívoca
-    const isConfirmedInCentral = centralConfirmedIds.has(s.id) || centralConfirmedFingerprints.has(sFp);
+    const isConfirmedInCentral = centralConfirmedIds.has(s.id) || 
+      (sKey && centralConfirmedKeys.has(sKey)) || 
+      centralConfirmedFingerprints.has(sFp);
 
     if (isConfirmedInCentral) {
       // Consolidado en el servidor: se depura de localStorage
@@ -97,15 +105,19 @@ function sincronizarAcuerdosPersistentes() {
     localStorage.setItem('codiagro_acuerdos_registrados', JSON.stringify(remainingStored));
   } catch (e) {}
 
-  // Deduplicar currentList por ID y huella documental, conservando el registro consolidado
+  // Deduplicar currentList por ID, clave de operación o contenido exacto, conservando el registro consolidado
   const seenIds = new Set();
+  const seenKeys = new Set();
   const seenFps = new Set();
   const deduplicatedList = [];
   for (const item of currentList) {
-    const fp = `${item.cliente}|${item.documento_origen}|${item.fecha}`;
+    const key = item.clave_operacion;
+    const fp = `${(item.cliente || '').trim().toUpperCase()}|${(item.documento_origen || '').trim().toUpperCase()}|${(item.fecha || '').trim()}|${(item.tema || item.detalle || '').trim()}`;
     if (item.id && seenIds.has(item.id)) continue;
+    if (key && seenKeys.has(key)) continue;
     if (seenFps.has(fp)) continue;
     if (item.id) seenIds.add(item.id);
+    if (key) seenKeys.add(key);
     seenFps.add(fp);
     deduplicatedList.push(item);
   }
@@ -119,7 +131,11 @@ function sincronizarAcuerdosPersistentes() {
 
 function guardarAcuerdoPersistente(acuerdo, callback) {
   const key = 'codiagro_acuerdos_registrados';
+  if (!acuerdo.clave_operacion) {
+    acuerdo.clave_operacion = 'OP-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+  }
   const provisionalId = acuerdo.id;
+  const opKey = acuerdo.clave_operacion;
   let localSaved = false;
 
   // 1. Guardar provisionalmente en localStorage como borrador local
@@ -127,7 +143,7 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
     let stored = [];
     try { stored = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) {}
     acuerdo._es_borrador_local = true;
-    stored = stored.filter(a => a.id !== provisionalId);
+    stored = stored.filter(a => a.id !== provisionalId && !(opKey && a.clave_operacion === opKey));
     stored.unshift(acuerdo);
     localStorage.setItem(key, JSON.stringify(stored));
     localSaved = true;
@@ -166,7 +182,7 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
         // retirar el borrador pendiente de localStorage para que queden 0 borradores pendientes
         try {
           let storedDef = JSON.parse(localStorage.getItem(key) || '[]');
-          storedDef = storedDef.filter(a => a.id !== provisionalId && a.id !== assignedId && !(a.cliente === acuerdo.cliente && a.documento_origen === acuerdo.documento_origen && a.fecha === acuerdo.fecha));
+          storedDef = storedDef.filter(a => a.id !== provisionalId && a.id !== assignedId && !(opKey && a.clave_operacion === opKey));
           localStorage.setItem(key, JSON.stringify(storedDef));
         } catch (e) {}
 
@@ -213,6 +229,9 @@ function sincronizarBorradoresPendientes(callback) {
   let synced = 0;
   const promises = drafts.map(draft => {
     const provisionalId = draft.id;
+    const opKey = draft.clave_operacion || ('OP-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9));
+    draft.clave_operacion = opKey;
+
     const payload = Object.assign({}, draft);
     delete payload._es_borrador_local;
 
@@ -236,8 +255,12 @@ function sincronizarBorradoresPendientes(callback) {
           const list = bi.mejora_10_modo_reunion.acuerdos_registrados;
           let replaced = false;
           for (let i = 0; i < list.length; i++) {
-            if (list[i].id === provisionalId || list[i].id === assignedId || 
-                (list[i].cliente === draft.cliente && list[i].documento_origen === draft.documento_origen && list[i].fecha === draft.fecha)) {
+            const isMatch = Boolean(
+              (opKey && list[i].clave_operacion && list[i].clave_operacion === opKey) ||
+              (list[i].cliente === draft.cliente && list[i].documento_origen === draft.documento_origen && list[i].fecha === draft.fecha && ((list[i].tema || list[i].detalle || '').trim() === (draft.tema || draft.detalle || '').trim())) ||
+              (list[i]._es_borrador_local && list[i].id === provisionalId)
+            );
+            if (isMatch) {
               list[i] = Object.assign({}, list[i], serverAcuerdo, { id: assignedId });
               delete list[i]._es_borrador_local;
               replaced = true;
@@ -249,11 +272,11 @@ function sincronizarBorradoresPendientes(callback) {
           }
         }
 
-        return { success: true, provisionalId: provisionalId, assignedId: assignedId, draft: draft, serverAcuerdo: serverAcuerdo };
+        return { success: true, provisionalId: provisionalId, assignedId: assignedId, opKey: opKey, draft: draft, serverAcuerdo: serverAcuerdo };
       }
-      return { success: false, provisionalId: provisionalId, draft: draft };
+      return { success: false, provisionalId: provisionalId, opKey: opKey, draft: draft };
     })
-    .catch(() => ({ success: false, provisionalId: provisionalId, draft: draft }));
+    .catch(() => ({ success: false, provisionalId: provisionalId, opKey: opKey, draft: draft }));
   });
 
   Promise.all(promises).then(results => {
@@ -263,17 +286,21 @@ function sincronizarBorradoresPendientes(callback) {
         let storedCurrent = JSON.parse(localStorage.getItem(key) || '[]');
         const successful = results.filter(r => r.success);
         const removeIds = new Set();
+        const removeKeys = new Set();
         successful.forEach(s => {
           if (s.provisionalId) removeIds.add(s.provisionalId);
           if (s.assignedId) removeIds.add(s.assignedId);
+          if (s.opKey) removeKeys.add(s.opKey);
         });
 
         storedCurrent = storedCurrent.filter(a => {
           if (removeIds.has(a.id)) return false;
+          if (a.clave_operacion && removeKeys.has(a.clave_operacion)) return false;
           const matchSuccess = successful.some(s => 
             s.draft && a.cliente === s.draft.cliente && 
             a.documento_origen === s.draft.documento_origen && 
-            a.fecha === s.draft.fecha
+            a.fecha === s.draft.fecha &&
+            (a.tema || a.detalle) === (s.draft.tema || s.draft.detalle)
           );
           if (matchSuccess) return false;
           return true;

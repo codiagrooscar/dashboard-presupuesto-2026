@@ -65,10 +65,10 @@ def get_latest_october_file():
         m = re.search(r'(\d{1,2})\.(\d{1,2})', base_f)
         if m:
             day, month = int(m.group(1)), int(m.group(2))
-            if month == 10 and day >= 2:
-                oct_candidates.append((day, month, f))
+            if (month == 10 and day >= 2) or (month == 11 and day <= 5):
+                oct_candidates.append((month, day, f))
     if oct_candidates:
-        oct_candidates.sort(key=lambda x: (x[1], x[0]), reverse=True)
+        oct_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
         return oct_candidates[0][2]
     return 'Pedidos 02.10 comerciales.xlsx' if os.path.exists('Pedidos 02.10 comerciales.xlsx') else None
 

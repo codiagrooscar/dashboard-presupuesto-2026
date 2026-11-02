@@ -139,7 +139,7 @@ if /I "%~1"=="--publish" (
         exit /b 1
     )
     echo [FASE 4] Publicando unicamente entregables autorizados de web_dashboard...
-    git add web_dashboard/index.html web_dashboard/dashboard_data.json web_dashboard/dashboard_data.js web_dashboard/production_planning_data.json web_dashboard/production_planning_data.js
+    git add web_dashboard
     git commit -m "Publicacion controlada web_dashboard: %date% %time%"
     git subtree push --prefix web_dashboard origin gh-pages
 ) else (

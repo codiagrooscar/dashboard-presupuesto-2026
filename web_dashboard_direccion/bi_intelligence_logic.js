@@ -78,6 +78,7 @@ function sincronizarAcuerdosPersistentes() {
 
 function guardarAcuerdoPersistente(acuerdo, callback) {
   // 1. Guardar en localStorage
+  let localSaved = false;
   try {
     const key = 'codiagro_acuerdos_registrados';
     let stored = [];
@@ -85,6 +86,7 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
     stored = stored.filter(a => a.id !== acuerdo.id);
     stored.unshift(acuerdo);
     localStorage.setItem(key, JSON.stringify(stored));
+    localSaved = true;
   } catch (e) {
     console.warn('Error en localStorage:', e);
   }
@@ -93,22 +95,47 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
   if (typeof fetch === 'function') {
     fetch('/api/guardar_acuerdo', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(acuerdo)
     })
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) {
+        return r.json().then(errData => {
+          throw new Error(errData.error || ('HTTP ' + r.status));
+        }).catch(err => {
+          throw new Error('HTTP ' + r.status);
+        });
+      }
+      return r.json();
+    })
     .then(res => {
       if (res && res.success) {
-        if (typeof callback === 'function') callback(true, 'Guardado permanente confirmado en archivo y servidor.');
+        const assignedId = (res.acuerdo && res.acuerdo.id) ? res.acuerdo.id : acuerdo.id;
+        acuerdo.id = assignedId;
+        if (typeof callback === 'function') callback('SERVER_SUCCESS', 'Guardado permanente confirmado en base central y servidor.', assignedId);
       } else {
-        if (typeof callback === 'function') callback(true, 'Guardado en almacenamiento permanente del navegador.');
+        const errMsg = (res && res.error) ? res.error : 'Respuesta no válida del servidor';
+        if (localSaved) {
+          if (typeof callback === 'function') callback('LOCAL_ONLY', 'Pendiente de sincronización; guardado únicamente en este navegador (error servidor: ' + errMsg + ')', acuerdo.id);
+        } else {
+          if (typeof callback === 'function') callback('FAILED', 'Error crítico: no se pudo guardar en el servidor (' + errMsg + ') ni en el almacenamiento local.', acuerdo.id);
+        }
       }
     })
-    .catch(() => {
-      if (typeof callback === 'function') callback(true, 'Guardado en almacenamiento permanente del navegador.');
+    .catch((err) => {
+      if (localSaved) {
+        if (typeof callback === 'function') callback('LOCAL_ONLY', 'Pendiente de sincronización; guardado únicamente en este navegador (' + (err.message || 'sin conexión') + ')', acuerdo.id);
+      } else {
+        if (typeof callback === 'function') callback('FAILED', 'Error: no se pudo conectar con el servidor central ni almacenar en este navegador (' + (err.message || '') + ')', acuerdo.id);
+      }
     });
   } else {
-    if (typeof callback === 'function') callback(true, 'Guardado en almacenamiento permanente del navegador.');
+    if (localSaved) {
+      if (typeof callback === 'function') callback('LOCAL_ONLY', 'Pendiente de sincronización; guardado únicamente en este navegador (entorno sin fetch)', acuerdo.id);
+    } else {
+      if (typeof callback === 'function') callback('FAILED', 'Error: entorno sin almacenamiento persistente ni red.', acuerdo.id);
+    }
   }
 }
 
@@ -2860,13 +2887,25 @@ function crearNuevoAcuerdoModal() {
     };
 
     if (esAcuerdoDocumentalValido(nuevoAcuerdo)) {
-      list.unshift(nuevoAcuerdo);
-      bi.mejora_10_modo_reunion.total_acuerdos = list.filter(esAcuerdoDocumentalValido).length;
-      bi.mejora_10_modo_reunion.estado = "Operativo";
-      guardarAcuerdoPersistente(nuevoAcuerdo, (ok, msg) => {
-        alert("Acuerdo formalizado y guardado permanentemente con ID: " + nuevoAcuerdo.id + "\n" + msg);
+      nuevoAcuerdo.accion = 'crear';
+      guardarAcuerdoPersistente(nuevoAcuerdo, (status, msg, assignedId) => {
+        if (status === 'SERVER_SUCCESS') {
+          nuevoAcuerdo.id = assignedId;
+          list.unshift(nuevoAcuerdo);
+          bi.mejora_10_modo_reunion.total_acuerdos = list.filter(esAcuerdoDocumentalValido).length;
+          bi.mejora_10_modo_reunion.estado = "Operativo";
+          alert("Acuerdo formalizado y guardado permanentemente con ID: " + assignedId + "\n" + msg);
+          if (typeof renderCurrentTab === 'function') renderCurrentTab();
+        } else if (status === 'LOCAL_ONLY') {
+          list.unshift(nuevoAcuerdo);
+          bi.mejora_10_modo_reunion.total_acuerdos = list.filter(esAcuerdoDocumentalValido).length;
+          bi.mejora_10_modo_reunion.estado = "Operativo";
+          alert("⚠️ Pendiente de sincronización; guardado únicamente en este navegador.\n" + msg);
+          if (typeof renderCurrentTab === 'function') renderCurrentTab();
+        } else {
+          alert("❌ Error: No se pudo registrar el acuerdo.\n" + msg);
+        }
       });
-      if (typeof renderCurrentTab === 'function') renderCurrentTab();
     }
   }
 }

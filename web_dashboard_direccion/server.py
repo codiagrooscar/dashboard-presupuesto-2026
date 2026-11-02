@@ -57,6 +57,16 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         path = parsed.path
 
         if path == '/api/guardar_acuerdo':
+            user = self.get_session_user()
+            if not user:
+                err_body = json.dumps({'success': False, 'error': 'No autorizado: sesión requerida'}).encode('utf-8')
+                self.send_response(401)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(err_body)))
+                self.end_headers()
+                self.wfile.write(err_body)
+                return
+
             content_length = int(self.headers.get('Content-Length', 0))
             post_body = self.rfile.read(content_length)
             try:
@@ -93,10 +103,36 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     except Exception:
                         acuerdos = []
 
-                aid = str(data.get("id") or f"ACU-{secrets.token_hex(4).upper()}")
-                data["id"] = aid
-                acuerdos = [a for a in acuerdos if a.get("id") != aid]
-                acuerdos.insert(0, data)
+                import re
+                existing_ids = {a.get("id") for a in acuerdos if a.get("id")}
+                seq_numbers = []
+                for existing_id in existing_ids:
+                    m = re.match(r"^ACU-(\d{4})-(\d+)$", str(existing_id))
+                    if m:
+                        seq_numbers.append(int(m.group(2)))
+                next_seq = (max(seq_numbers) + 1) if seq_numbers else 1
+                current_year = datetime.now().year
+
+                accion = str(data.get("accion") or "crear").lower()
+                if accion == "editar":
+                    aid = str(data.get("id") or "").strip()
+                    if not aid or aid not in existing_ids:
+                        err_body = json.dumps({'success': False, 'error': f'Acuerdo no encontrado para editar (ID: {aid}).'}).encode('utf-8')
+                        self.send_response(404)
+                        self.send_header('Content-Type', 'application/json; charset=utf-8')
+                        self.send_header('Content-Length', str(len(err_body)))
+                        self.end_headers()
+                        self.wfile.write(err_body)
+                        return
+                    data["id"] = aid
+                    acuerdos = [data if a.get("id") == aid else a for a in acuerdos]
+                else:
+                    aid = f"ACU-{current_year}-{next_seq:03d}"
+                    while aid in existing_ids:
+                        next_seq += 1
+                        aid = f"ACU-{current_year}-{next_seq:03d}"
+                    data["id"] = aid
+                    acuerdos.insert(0, data)
 
                 gastos_file.parent.mkdir(parents=True, exist_ok=True)
                 with open(gastos_file, "w", encoding="utf-8") as gf:

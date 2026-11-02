@@ -14,12 +14,12 @@
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
-  <script src="dashboard_i18n.js?v=20261102_0835"></script>
-  <script src="dashboard_data.js?v=20261102_0835"></script>
-  <script src="production_planning_data.js?v=20261102_0835"></script>
-  <link rel="stylesheet" href="marta_tracking.css?v=20261102_0835">
-  <script src="marta_tracking_data.js?v=20261102_0835"></script>
-  <script src="marta_tracking_logic.js?v=20261102_0835"></script>
+  <script src="dashboard_i18n.js?v=20261102_1145"></script>
+  <script src="dashboard_data.js?v=20261102_1145"></script>
+  <script src="production_planning_data.js?v=20261102_1145"></script>
+  <link rel="stylesheet" href="marta_tracking.css?v=20261102_1145">
+  <script src="marta_tracking_data.js?v=20261102_1145"></script>
+  <script src="marta_tracking_logic.js?v=20261102_1145"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -1952,6 +1952,7 @@
       const savedLang = localStorage.getItem('codiagro_lang');
       if (savedLang === 'en' || savedLang === 'es') currentLang = savedLang;
     } catch (e) {}
+    window.currentLang = currentLang;
 
     const TRANSLATIONS = {
       es: {
@@ -2529,6 +2530,7 @@
 
     function setLanguage(lang) {
       currentLang = (lang === 'en' ? 'en' : 'es');
+      window.currentLang = currentLang;
       try {
         localStorage.setItem('codiagro_lang', currentLang);
       } catch (e) {}
@@ -2539,6 +2541,13 @@
       updateNavBadges();
       if (typeof updateSidebarActive === 'function') updateSidebarActive(currentTab);
       renderCurrentTab();
+      if (currentTab === 'tracking_marta') {
+        if (typeof window.renderMartaTracking === 'function') {
+          window.renderMartaTracking();
+        } else if (typeof window.initMartaTracking === 'function') {
+          window.initMartaTracking();
+        }
+      }
       if (typeof applyGlobalDomTranslations === 'function') applyGlobalDomTranslations(document.body);
 
       const modalOverlay = document.getElementById('kpiModalOverlay');
@@ -3035,6 +3044,8 @@
         }
         appData = allPeriodsData.periods[currentPeriod];
 
+        updateLanguageButtonsUI();
+        updateLanguageStaticUI();
         updateLanguageButtonsUI();
         updateLanguageStaticUI();
         updatePeriodSwitcherUI();

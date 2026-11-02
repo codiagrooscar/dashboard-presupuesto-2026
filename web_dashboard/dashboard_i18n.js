@@ -555,6 +555,14 @@ window.CODIAGRO_I18N_PHRASES = [
 ];
 
 function isEnglishActive() {
+  try {
+    if (typeof window !== 'undefined' && window.currentLang) {
+      return window.currentLang === 'en';
+    }
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('codiagro_lang') === 'en') {
+      return true;
+    }
+  } catch (e) {}
   return (typeof currentLang !== 'undefined' && currentLang === 'en');
 }
 

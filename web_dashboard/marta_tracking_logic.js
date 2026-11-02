@@ -14,6 +14,17 @@
   let searchQuery = '';
 
   function isEn() {
+    if (typeof window !== 'undefined' && typeof window.isEnglishActive === 'function') {
+      return window.isEnglishActive();
+    }
+    try {
+      if (typeof window !== 'undefined' && window.currentLang) {
+        return window.currentLang === 'en';
+      }
+      if (typeof localStorage !== 'undefined' && localStorage.getItem('codiagro_lang') === 'en') {
+        return true;
+      }
+    } catch (e) {}
     return (typeof currentLang !== 'undefined' && currentLang === 'en');
   }
 
@@ -703,4 +714,5 @@
   };
 
   window.initMartaTracking = initMartaTracking;
+  window.renderMartaTracking = renderTrackingDashboard;
 })();

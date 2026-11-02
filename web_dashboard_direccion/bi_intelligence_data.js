@@ -3717,53 +3717,10 @@ window.BI_INTELLIGENCE_DATA = {
         "kpi_destacado": "RAI Operativo: 111.933,69 € | Margen Industrial: 55,1%"
       }
     ],
-    "acuerdos_registrados": [
-      {
-        "cliente": "AGROVEYCA,S.L",
-        "documento_origen": "CONTRATO-AGROVEYCA-2026",
-        "fecha": "05/10/2026",
-        "vigencia": "31/12/2026",
-        "responsable_validacion": "Dirección Financiera",
-        "tipo": "Descuento Especial",
-        "accion": "crear",
-        "id": "ACU-2026-004"
-      },
-      {
-        "cliente": "DOTRA CHEMICALS",
-        "documento_origen": "CONTRATO-DOTRA-2026",
-        "fecha": "01/10/2026",
-        "vigencia": "31/12/2026",
-        "responsable_validacion": "Dirección General",
-        "tipo": "Rappel Anual",
-        "accion": "editar",
-        "id": "ACU-2026-003",
-        "detalle": "Acuerdo Dotra revisado y modificado con exito."
-      },
-      {
-        "cliente": "AGROVEYCA,S.L",
-        "documento_origen": "CONTRATO-AGROVEYCA-2026",
-        "fecha": "05/10/2026",
-        "vigencia": "31/12/2026",
-        "responsable_validacion": "Dirección Financiera",
-        "tipo": "Descuento Especial",
-        "accion": "crear",
-        "id": "ACU-2026-002"
-      },
-      {
-        "cliente": "DOTRA CHEMICALS",
-        "documento_origen": "CONTRATO-DOTRA-2026",
-        "fecha": "01/10/2026",
-        "vigencia": "31/12/2026",
-        "responsable_validacion": "Dirección General",
-        "tipo": "Rappel Anual",
-        "accion": "editar",
-        "id": "ACU-2026-001",
-        "detalle": "Acuerdo Dotra revisado y modificado con exito."
-      }
-    ],
-    "total_acuerdos": 4,
-    "estado": "Operativo",
-    "aviso": "4 acuerdo(s) directivo(s) formalizado(s) con soporte documental verificado."
+    "acuerdos_registrados": [],
+    "total_acuerdos": 0,
+    "estado": "Sin información registrada",
+    "aviso": "No existen acuerdos directivos de comité con fuente documental formalizada (cliente, documento de origen, fecha, vigencia y responsable de validación)."
   },
   "antiguedad_deuda": {
     "fecha_corte": "30/09/2026",

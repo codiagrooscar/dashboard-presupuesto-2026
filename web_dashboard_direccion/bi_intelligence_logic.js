@@ -64,12 +64,28 @@ function sincronizarAcuerdosPersistentes() {
   }
   const currentList = bi.mejora_10_modo_reunion.acuerdos_registrados;
   const currentIds = new Set(currentList.map(a => a.id));
+  const currentFingerprints = new Set(currentList.map(a => `${a.cliente}|${a.documento_origen}|${a.fecha}`));
+
+  const remainingStored = [];
   for (const s of stored) {
-    if (esAcuerdoDocumentalValido(s) && !currentIds.has(s.id)) {
+    const sFp = `${s.cliente}|${s.documento_origen}|${s.fecha}`;
+    // Si ya existe en base central por ID o por huella documental, el acuerdo ya está consolidado
+    if (currentIds.has(s.id) || currentFingerprints.has(sFp)) {
+      continue;
+    }
+    if (esAcuerdoDocumentalValido(s)) {
       currentList.unshift(s);
       currentIds.add(s.id);
+      currentFingerprints.add(sFp);
+      remainingStored.push(s);
     }
   }
+
+  // Actualizar localStorage únicamente con los borradores verdaderamente pendientes de sincronización
+  try {
+    localStorage.setItem('codiagro_acuerdos_registrados', JSON.stringify(remainingStored));
+  } catch (e) {}
+
   bi.mejora_10_modo_reunion.total_acuerdos = currentList.filter(esAcuerdoDocumentalValido).length;
   if (bi.mejora_10_modo_reunion.total_acuerdos > 0) {
     bi.mejora_10_modo_reunion.estado = "Operativo";
@@ -77,13 +93,16 @@ function sincronizarAcuerdosPersistentes() {
 }
 
 function guardarAcuerdoPersistente(acuerdo, callback) {
-  // 1. Guardar en localStorage
+  const key = 'codiagro_acuerdos_registrados';
+  const provisionalId = acuerdo.id;
   let localSaved = false;
+
+  // 1. Guardar provisionalmente en localStorage como borrador local
   try {
-    const key = 'codiagro_acuerdos_registrados';
     let stored = [];
     try { stored = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) {}
-    stored = stored.filter(a => a.id !== acuerdo.id);
+    acuerdo._es_borrador_local = true;
+    stored = stored.filter(a => a.id !== provisionalId);
     stored.unshift(acuerdo);
     localStorage.setItem(key, JSON.stringify(stored));
     localSaved = true;
@@ -113,32 +132,41 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
       if (res && res.success) {
         const assignedId = (res.acuerdo && res.acuerdo.id) ? res.acuerdo.id : acuerdo.id;
         acuerdo.id = assignedId;
+        delete acuerdo._es_borrador_local;
+
+        // Reconciliar copia local: sustituir el identificador provisional por el definitivo
+        try {
+          let storedDef = JSON.parse(localStorage.getItem(key) || '[]');
+          storedDef = storedDef.filter(a => a.id !== provisionalId && a.id !== assignedId);
+          storedDef.unshift(acuerdo);
+          localStorage.setItem(key, JSON.stringify(storedDef));
+        } catch (e) {}
+
         if (typeof callback === 'function') callback('SERVER_SUCCESS', 'Guardado permanente confirmado en base central y servidor.', assignedId);
       } else {
         const errMsg = (res && res.error) ? res.error : 'Respuesta no válida del servidor';
         if (localSaved) {
-          if (typeof callback === 'function') callback('LOCAL_ONLY', 'Pendiente de sincronización; guardado únicamente en este navegador (error servidor: ' + errMsg + ')', acuerdo.id);
+          if (typeof callback === 'function') callback('LOCAL_ONLY', 'Pendiente de sincronización; guardado únicamente en este navegador (error servidor: ' + errMsg + ')', provisionalId);
         } else {
-          if (typeof callback === 'function') callback('FAILED', 'Error crítico: no se pudo guardar en el servidor (' + errMsg + ') ni en el almacenamiento local.', acuerdo.id);
+          if (typeof callback === 'function') callback('FAILED', 'Error crítico: no se pudo guardar en el servidor (' + errMsg + ') ni en el almacenamiento local.', provisionalId);
         }
       }
     })
     .catch((err) => {
       if (localSaved) {
-        if (typeof callback === 'function') callback('LOCAL_ONLY', 'Pendiente de sincronización; guardado únicamente en este navegador (' + (err.message || 'sin conexión') + ')', acuerdo.id);
+        if (typeof callback === 'function') callback('LOCAL_ONLY', 'Pendiente de sincronización; guardado únicamente en este navegador (' + (err.message || 'sin conexión') + ')', provisionalId);
       } else {
-        if (typeof callback === 'function') callback('FAILED', 'Error: no se pudo conectar con el servidor central ni almacenar en este navegador (' + (err.message || '') + ')', acuerdo.id);
+        if (typeof callback === 'function') callback('FAILED', 'Error: no se pudo conectar con el servidor central ni almacenar en este navegador (' + (err.message || '') + ')', provisionalId);
       }
     });
   } else {
     if (localSaved) {
-      if (typeof callback === 'function') callback('LOCAL_ONLY', 'Pendiente de sincronización; guardado únicamente en este navegador (entorno sin fetch)', acuerdo.id);
+      if (typeof callback === 'function') callback('LOCAL_ONLY', 'Pendiente de sincronización; guardado únicamente en este navegador (entorno sin fetch)', provisionalId);
     } else {
-      if (typeof callback === 'function') callback('FAILED', 'Error: entorno sin almacenamiento persistente ni red.', acuerdo.id);
+      if (typeof callback === 'function') callback('FAILED', 'Error: entorno sin almacenamiento persistente ni red.', provisionalId);
     }
   }
 }
-
 // -------------------------------------------------------------------------
 // ESTADO Y MODO DEMOSTRACIÓN (SEPARACIÓN ESTRICTA AUDITADA)
 // -------------------------------------------------------------------------

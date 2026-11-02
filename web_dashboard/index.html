@@ -3898,25 +3898,26 @@
     }
 
     function renderProdSubtabsNavbar() {
+      const isEn = (typeof currentLang !== 'undefined' && currentLang === 'en');
       return `
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;background:rgba(15,23,42,0.85);padding:0.75rem 1.25rem;border-radius:var(--radius-md);border:1px solid #334155;">
           <div class="filter-pills" style="margin:0;">
             <button class="pill-btn ${prodSubtab === 'mrp' ? 'active' : ''}" onclick="setProdSubtab('mrp')">
-              📋 Orden de Fabricación (MRP)
+              📋 ${isEn ? 'Manufacturing Order (MRP)' : 'Orden de Fabricación (MRP)'}
             </button>
             <button class="pill-btn ${prodSubtab === 'granel' ? 'active' : ''}" onclick="setProdSubtab('granel')">
-              🛢️ Plan Graneles por Mes
+              🛢️ ${isEn ? 'Bulk Plan by Month' : 'Plan Graneles por Mes'}
             </button>
             <button class="pill-btn ${prodSubtab === 'envase' ? 'active' : ''}" onclick="setProdSubtab('envase')">
-              📦 Resumen por Envase
+              📦 ${isEn ? 'Packaging Summary' : 'Resumen por Envase'}
             </button>
             <button class="pill-btn ${prodSubtab === 'rotacion' ? 'active' : ''}" onclick="setProdSubtab('rotacion')" style="${prodSubtab === 'rotacion' ? '' : 'color:#fbbf24;'}">
-              🔄 SlowMovers & NoMovers (Nacional)
+              🔄 ${isEn ? 'SlowMovers & NoMovers (Domestic)' : 'SlowMovers & NoMovers (Nacional)'}
             </button>
           </div>
           <div style="display:flex;align-items:center;gap:0.75rem;">
             <a href="/Orden_Fabricacion_MRP_Codiagro.xlsx" download="Orden_Fabricacion_MRP_Codiagro.xlsx" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg, #059669 0%, #10b981 100%);color:#fff;border:none;padding:0.55rem 1.1rem;border-radius:var(--radius-sm);cursor:pointer;font-weight:700;text-decoration:none;font-size:0.85rem;box-shadow:0 4px 12px rgba(5,150,105,0.3);">
-              📊 Descargar Excel MRP (4 Hojas)
+              📊 ${isEn ? 'Download MRP Excel (4 Sheets)' : 'Descargar Excel MRP (4 Hojas)'}
             </a>
           </div>
         </div>

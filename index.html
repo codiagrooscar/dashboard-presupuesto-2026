@@ -6837,8 +6837,8 @@
         let explainText = '';
         if (comName === 'Mehmet') {
           explainText = currentLang === 'en'
-            ? 'Mehmet operates exclusively in the Export Market (Turkey). In the Official 2026-2027 Budget, he has 0 units budgeted for October 2026 (his demand is concentrated in September with 39,460 u and December with 103,520 u), and no orders have been registered yet this month.'
-            : 'Mehmet opera exclusivamente en el <strong>Mercado de Exportación (Turquía)</strong>. En el Presupuesto Oficial 2026-2027 tiene 0 unidades presupuestadas para Octubre 2026 (su campaña exterior está presupuestada en Septiembre con 39.460 u y Diciembre con 103.520 u), y todavía no han entrado pedidos en este mes.';
+            ? 'Mehmet operates in the Export Market (Turkey, Serbia, Georgia, Azerbaijan). No activity or orders registered for Mehmet in ' + (appData.nombre || currentPeriod) + '.'
+            : 'Mehmet opera en el Mercado de Exportación (Turquía, Serbia, Georgia, Azerbaiyán). No constan líneas ni pedidos registrados para Mehmet en ' + (appData.nombre || currentPeriod) + '.';
         } else {
           explainText = currentLang === 'en'
             ? `No budget lines or orders registered for ${comName} in ${appData.nombre || currentPeriod}.`

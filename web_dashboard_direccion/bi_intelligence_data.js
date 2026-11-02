@@ -1,15 +1,15 @@
 window.BI_INTELLIGENCE_DATA = {
   "mejora_1_forecast_accuracy": {
-    "tot_budget_uds": 284389.92000000004,
+    "tot_budget_uds": 374235.7685,
     "tot_pedidos_uds": 288547.0,
-    "tot_bias_uds": 4157.079999999958,
-    "tot_error_abs_sku_uds": 440761.38,
+    "tot_bias_uds": -85688.7685,
+    "tot_error_abs_sku_uds": 524601.3,
     "tot_importe_neto_eur": 1020158.7000000001,
-    "tot_consecucion_pct": 101.5,
-    "tot_consecucion_volumen_pct": 101.5,
+    "tot_consecucion_pct": 77.1,
+    "tot_consecucion_volumen_pct": 77.1,
     "tot_forecast_accuracy_pct": 0.0,
     "tot_forecast_accuracy_sku_wmape_pct": 0.0,
-    "tot_wmape_error_pct": 152.8,
+    "tot_wmape_error_pct": 181.8,
     "comerciales": [
       {
         "comercial": "Alfonso",
@@ -66,14 +66,14 @@ window.BI_INTELLIGENCE_DATA = {
       {
         "comercial": "Mehmet",
         "clientes_activos": 1,
-        "budget_uds": 0.0,
+        "budget_uds": 89845.84850000001,
         "pedidos_uds": 7632.0,
-        "desv_uds": 7632.0,
-        "error_abs_sku_uds": 7632.0,
-        "pct_consec": 100.0,
+        "desv_uds": -82213.84850000001,
+        "error_abs_sku_uds": 91471.92,
+        "pct_consec": 8.494549417049582,
         "forecast_accuracy_pct": 0.0,
-        "wmape_error_pct": 100.0,
-        "bias_tipo": "Subestimó (Ventas > Presupuesto)",
+        "wmape_error_pct": 1198.5,
+        "bias_tipo": "Sobreestimó (Ventas < Presupuesto)",
         "importe_neto_eur": 38415.16
       },
       {
@@ -103,7 +103,7 @@ window.BI_INTELLIGENCE_DATA = {
         "importe_neto_eur": 299520.20000000007
       }
     ],
-    "nota_metodologia": "La consecución de volumen total (101.5%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU WMAPE (0.0%) mide precisión ponderada por volumen."
+    "nota_metodologia": "La consecución de volumen total (77.1%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU WMAPE (0.0%) mide precisión ponderada por volumen."
   },
   "mejora_2_concentracion_stress_test": {
     "total_ventas_2026": 15179999.94,

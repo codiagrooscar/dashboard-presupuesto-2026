@@ -96,6 +96,14 @@ def load_data_sources():
     # Presupuesto_Ventas_2027_Definitivo.xlsx es el documento oficial definitivo de demanda.
     # No se aplican transformaciones artificiales de factor ni condiciones sobre decimales.
 
+    # Mehmet: al no haber rellenado la actualización de previsión Q4, sus previsiones de Octubre figuraban a 0.
+    # Se recupera su primera previsión registrada (en Dic-26 / Q4 inicial) para que figure en la webapp.
+    mehmet_mask = (df_bud['Comercial'] == 'Mehmet')
+    if df_bud.loc[mehmet_mask, 'Oct-26 (u)'].sum() == 0:
+        df_bud.loc[mehmet_mask, 'Oct-26 (u)'] = df_bud.loc[mehmet_mask, 'Dic-26 (u)']
+        if 'Oct-26 (€)' in df_bud.columns and 'Dic-26 (€)' in df_bud.columns:
+            df_bud.loc[mehmet_mask, 'Oct-26 (€)'] = df_bud.loc[mehmet_mask, 'Dic-26 (€)']
+
     df_bud['Cliente'] = df_bud['Cliente'].apply(map_client_name)
     df_bud['CLIENTE_NORM'] = df_bud['Cliente'].apply(norm)
     df_bud['SKU_CLEAN'] = df_bud.apply(clean_budget_sku, axis=1)

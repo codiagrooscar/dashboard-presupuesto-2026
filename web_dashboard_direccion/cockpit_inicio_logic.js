@@ -40,6 +40,58 @@ function renderCockpitInicioSection() {
 
   const fmtEur = (n) => typeof fmtCurr === 'function' ? fmtCurr(n) : (isEn ? `€${Number(n||0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `${Number(n||0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`);
 
+  // --- PRIORIDAD 1: CLIENTES EN RIESGO DE FUGA (CHURN) CALCULADO DINÁMICAMENTE ---
+  let churnAccountsCount = 0;
+  let churnImpactoEur = null;
+  let churnTopDetailText = '';
+
+  if (bi && bi.radar_prioridades && bi.radar_prioridades.prioridad_1_churn && bi.radar_prioridades.prioridad_1_churn.disponible) {
+    const p1 = bi.radar_prioridades.prioridad_1_churn;
+    churnAccountsCount = p1.cuentas_count;
+    churnImpactoEur = p1.impacto_eur;
+    const topStr = (p1.top_cuentas || []).map(c => `${c.cliente} (-${fmtEur(c.caida_eur)})`).join(', ');
+    churnTopDetailText = isEn
+      ? `Drop > 25% vs 2025 in ${churnAccountsCount} active accounts (${topStr}). *Doga Tarim excluded due to bankruptcy*.`
+      : `Caída > 25% frente a 2025 en ${churnAccountsCount} cuentas comerciales (${topStr}). *Doga Tarim excluida por concurso de acreedores*.`;
+  } else if (marta && marta.euros && Array.isArray(marta.euros.clientes)) {
+    const cList = marta.euros.clientes.filter(c => {
+      const name = (c.cliente || '').toUpperCase();
+      if (name.includes('DOGA')) return false;
+      const v25 = Number(c.ventas_2025_sep || 0);
+      const v26 = Number(c.ventas_2026_sep || 0);
+      return v25 > 5000 && v26 < v25 * 0.75;
+    });
+    cList.sort((a, b) => (b.ventas_2025_sep - b.ventas_2026_sep) - (a.ventas_2025_sep - a.ventas_2026_sep));
+    const top15 = cList.slice(0, 15);
+    churnAccountsCount = top15.length;
+    churnImpactoEur = -top15.reduce((acc, c) => acc + (c.ventas_2025_sep - c.ventas_2026_sep), 0);
+    const topStr = top15.slice(0, 3).map(c => `${c.cliente} (-${fmtEur(c.ventas_2025_sep - c.ventas_2026_sep)})`).join(', ');
+    churnTopDetailText = isEn
+      ? `Drop > 25% vs 2025 in ${churnAccountsCount} active accounts (${topStr}). *Doga Tarim excluded due to bankruptcy*.`
+      : `Caída > 25% frente a 2025 en ${churnAccountsCount} cuentas comerciales (${topStr}). *Doga Tarim excluida por concurso de acreedores*.`;
+  }
+
+  // --- PRIORIDAD 4: CONCENTRACIÓN Y TEST DE ESTRÉS CALCULADO DINÁMICAMENTE ---
+  let stressImpactoEur = null;
+  let stressDetailText = '';
+  if (bi && bi.radar_prioridades && bi.radar_prioridades.prioridad_4_estres && bi.radar_prioridades.prioridad_4_estres.disponible) {
+    const p4 = bi.radar_prioridades.prioridad_4_estres;
+    stressImpactoEur = p4.impacto_ventas_eur;
+    stressDetailText = isEn
+      ? `Stress assumptions: ${p4.top_5_concentracion_pct}% of budget sales concentrated in top 5 distributors. Simulated hypothesis: ${p4.hipotesis_caida_pct}% order drop in largest distributor (${p4.cliente_mayor}, ${fmtEur(p4.ventas_mayor_eur)} × -${p4.hipotesis_caida_pct}% = ${fmtEur(stressImpactoEur)}).`
+      : `Supuestos del escenario: El ${p4.top_5_concentracion_pct}% del presupuesto depende de 5 distribuidores. Hipótesis simulada: caída del ${p4.hipotesis_caida_pct}% en pedidos del mayor cliente (${p4.cliente_mayor}, ${fmtEur(p4.ventas_mayor_eur)} × -${p4.hipotesis_caida_pct}% = ${fmtEur(stressImpactoEur)}).`;
+  } else if (bi && bi.mejora_2_concentracion_stress_test && bi.mejora_2_concentracion_stress_test.clientes_pareto) {
+    const pareto = bi.mejora_2_concentracion_stress_test.clientes_pareto;
+    const top1 = pareto[0];
+    const top5Pct = bi.mejora_2_concentracion_stress_test.top_5_pct || 45.8;
+    if (top1) {
+      stressImpactoEur = -(top1.ventas_eur * 0.20);
+      stressDetailText = isEn
+        ? `Stress assumptions: ${top5Pct}% of budget sales concentrated in top 5 distributors. Simulated hypothesis: 20% order drop in largest distributor (${top1.cliente}, ${fmtEur(top1.ventas_eur)} × -20% = ${fmtEur(stressImpactoEur)}).`
+        : `Supuestos del escenario: El ${top5Pct}% del presupuesto depende de 5 distribuidores. Hipótesis simulada: caída del 20% en pedidos del mayor cliente (${top1.cliente}, ${fmtEur(top1.ventas_eur)} × -20% = ${fmtEur(stressImpactoEur)}).`;
+    }
+  }
+
   // Margen industrial Full Costing dinámico y coste de subactividad segregado
   const margenFullCostEur = (fc && fc.totales_drilldown && typeof fc.totales_drilldown.margen_industrial_eur === 'number')
     ? fc.totales_drilldown.margen_industrial_eur
@@ -294,18 +346,16 @@ function renderCockpitInicioSection() {
               </tr>
             </thead>
             <tbody>
-              <!-- PRIORIDAD 1: CLIENTES EN FUGA -->
+              <!-- PRIORIDAD 1: CLIENTES EN FUGA (DINÁMICO) -->
               <tr>
                 <td style="text-align:center"><span class="tab-badge badge-danger">${isEn ? 'URGENT 1' : 'URGENTE 1'}</span></td>
                 <td style="font-weight:700; color:#fff">
-                  ${isEn ? '15 Key Accounts at Churn Risk' : '15 Cuentas Clave en Riesgo de Fuga (Churn)'}
+                  ${churnAccountsCount > 0 ? (isEn ? `${churnAccountsCount} Key Accounts at Churn Risk` : `${churnAccountsCount} Cuentas Clave en Riesgo de Fuga (Churn)`) : (isEn ? 'Key Accounts at Churn Risk' : 'Cuentas Clave en Riesgo de Fuga (Churn)')}
                 </td>
                 <td><span class="tab-badge" style="background:rgba(59,130,246,0.15); color:#60a5fa">${isEn ? 'Sales / Reps' : 'Comercial / Delegados'}</span></td>
-                <td style="text-align:right; font-weight:800; color:#ef4444; font-size:1.05rem">${isEn ? '-€512,842' : '-512.842 €'}</td>
+                <td style="text-align:right; font-weight:800; color:#ef4444; font-size:1.05rem">${churnImpactoEur !== null ? fmtEur(churnImpactoEur) : (isEn ? 'Not available' : 'No disponible')}</td>
                 <td style="color:#cbd5e1; font-size:0.85rem">
-                  ${isEn 
-                    ? 'Drop > 25% vs 2025 in commercial accounts (Fitocarthago -€96k, Bouazza -€68k, Campo Abierto -€63k). <em style="color:#fbbf24;">*Doga Tarim excluded due to bankruptcy*</em>.' 
-                    : 'Caída > 25% frente a 2025 en cuentas comerciales (Fitocarthago -96k €, Bouazza -68k €, Campo Abierto -63k €). <em style="color:#fbbf24;">*Doga Tarim excluida por concurso de acreedores*</em>.'}
+                  ${churnTopDetailText || (isEn ? 'Calculation not available from current sources.' : 'Cálculo no disponible con las fuentes actuales.')}
                 </td>
                 <td style="text-align:center">
                   <button class="pill-btn" onclick="switchTab('bi_churn')" style="background:rgba(239,68,68,0.15); border-color:#ef4444; color:#f87171; font-weight:700">
@@ -354,18 +404,16 @@ function renderCockpitInicioSection() {
                 </td>
               </tr>
 
-              <!-- PRIORIDAD 4: CONCENTRACIÓN Y VULNERABILIDAD (TEST DE ESTRÉS) -->
+              <!-- PRIORIDAD 4: CONCENTRACIÓN Y VULNERABILIDAD (TEST DE ESTRÉS DINÁMICO) -->
               <tr>
                 <td style="text-align:center"><span class="tab-badge" style="background:rgba(148,163,184,0.2); color:#cbd5e1; border:1px solid rgba(148,163,184,0.4)">${isEn ? 'STRESS TEST' : 'TEST DE ESTRÉS'}</span></td>
                 <td style="font-weight:700; color:#fff">
                   ${isEn ? 'Top 5 Concentration (Stress Test Scenario)' : 'Concentración Top 5 (Escenario de Estrés)'}
                 </td>
                 <td><span class="tab-badge" style="background:rgba(148,163,184,0.15); color:#cbd5e1">${isEn ? 'Executive Management' : 'Dirección General'}</span></td>
-                <td style="text-align:right; font-weight:800; color:#fbbf24; font-size:1.05rem">${isEn ? 'Stress: -€308,000' : 'Estrés: -308.000 €'}</td>
+                <td style="text-align:right; font-weight:800; color:#fbbf24; font-size:1.05rem">${stressImpactoEur !== null ? (isEn ? `Stress: ${fmtEur(stressImpactoEur)}` : `Estrés: ${fmtEur(stressImpactoEur)}`) : (isEn ? 'Not available' : 'No disponible')}</td>
                 <td style="color:#cbd5e1; font-size:0.85rem">
-                  ${isEn 
-                    ? 'Stress assumptions: 45.8% of budget sales concentrated in 5 distributors. Simulated hypothesis of a 20% order drop in the largest distributor (Dotra).' 
-                    : 'Supuestos del escenario: El 45,8% del presupuesto depende de 5 distribuidores. Hipótesis simulada de caída del 20% en pedidos del mayor cliente (Dotra).'}
+                  ${stressDetailText || (isEn ? 'Hypothetical stress parameters not available.' : 'Parámetros del escenario de estrés no disponibles.')}
                 </td>
                 <td style="text-align:center">
                   <button class="pill-btn" onclick="switchTab('bi_concentracion')" style="background:rgba(148,163,184,0.15); border-color:var(--card-border); color:#fff; font-weight:700">

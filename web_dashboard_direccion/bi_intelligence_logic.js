@@ -1,3 +1,39 @@
+
+// --- VALIDACIÓN DOCUMENTAL ESTRICTA DE ACUERDOS (AUDITORÍA DIRECTIVA) ---
+function validarFormatoFecha(str) {
+  if (!str || typeof str !== 'string') return false;
+  const s = str.trim();
+  const m1 = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+  if (m1) {
+    const d = parseInt(m1[1], 10), m = parseInt(m1[2], 10), y = parseInt(m1[3], 10);
+    return d >= 1 && d <= 31 && m >= 1 && m <= 12 && ((y >= 2000 && y <= 2100) || (y >= 0 && y <= 99));
+  }
+  const m2 = s.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})$/);
+  if (m2) {
+    const y = parseInt(m2[1], 10), m = parseInt(m2[2], 10), d = parseInt(m2[3], 10);
+    return d >= 1 && d <= 31 && m >= 1 && m <= 12 && y >= 2000 && y <= 2100;
+  }
+  return false;
+}
+
+function esAcuerdoDocumentalValido(a) {
+  if (!a || typeof a !== 'object') return false;
+  if (a.es_demo) return false;
+  const cliente = (a.cliente || a.cliente_id || '').toString().trim();
+  const doc = (a.documento_origen || '').toString().trim();
+  const fecha = (a.fecha || a.fecha_acuerdo || '').toString().trim();
+  const vig = (a.vigencia || a.fecha_limite || '').toString().trim();
+  const resp = (a.responsable_validacion || a.responsable || '').toString().trim();
+
+  // Exigir estrictamente los 5 campos
+  if (!cliente || !doc || !fecha || !vig || !resp) return false;
+
+  // Validar formato de fechas
+  if (!validarFormatoFecha(fecha) || !validarFormatoFecha(vig)) return false;
+
+  return true;
+}
+
 // -------------------------------------------------------------------------
 // ESTADO Y MODO DEMOSTRACIÓN (SEPARACIÓN ESTRICTA AUDITADA)
 // -------------------------------------------------------------------------
@@ -2574,7 +2610,7 @@ function renderModoReunionSection() {
   const comites = mr.comites || [];
   const acuerdos = isDemo 
     ? (bi?.modo_demostracion?.acuerdos_registrados || mr.acuerdos_registrados || [])
-    : (mr.acuerdos_registrados || []).filter(a => a.documento_origen && a.responsable_validacion);
+    : (mr.acuerdos_registrados || []).filter(a => esAcuerdoDocumentalValido(a));
 
   return `
     <div style="display:flex; flex-direction:column; gap:1.35rem; animation:fadeIn 0.3s ease;">
@@ -2696,39 +2732,63 @@ function selectMeetingComite(id) {
 }
 
 function crearNuevoAcuerdoModal() {
-  const cli = prompt("Cliente afectado (o Ámbito General):", "General");
-  if (!cli) return;
-  const tema = prompt("Decisión o acuerdo directivo tomado:");
-  if (!tema) return;
-  const doc = prompt("Documento o acta de soporte (ej. Acta Comité 30/10/2026):", "Acta Consejo de Dirección");
-  const resp = prompt("Responsable de validación:", "Dirección General");
-  const vig = prompt("Fecha límite o vigencia (dd/mm/aaaa):", "31/12/2026");
+  const cli = prompt("1/5. Cliente afectado (o ámbito General):");
+  if (!cli || !cli.trim()) {
+    alert("Registro cancelado: El cliente es un campo documental obligatorio.");
+    return;
+  }
+  const doc = prompt("2/5. Documento de soporte documental (ej. Acta Comite 30/10/2026, Contrato, etc.):");
+  if (!doc || !doc.trim()) {
+    alert("Registro cancelado: El documento de origen es obligatorio. No se permiten registros sin soporte.");
+    return;
+  }
+  const fecha = prompt("3/5. Fecha del acuerdo (DD/MM/AAAA):");
+  if (!fecha || !fecha.trim() || !validarFormatoFecha(fecha.trim())) {
+    alert("Registro cancelado: La fecha del acuerdo es obligatoria y debe tener formato de fecha válido (DD/MM/AAAA).");
+    return;
+  }
+  const vig = prompt("4/5. Fecha de vigencia o límite (DD/MM/AAAA):");
+  if (!vig || !vig.trim() || !validarFormatoFecha(vig.trim())) {
+    alert("Registro cancelado: La vigencia es obligatoria y debe tener formato de fecha válido (DD/MM/AAAA).");
+    return;
+  }
+  const resp = prompt("5/5. Responsable de validación directiva:");
+  if (!resp || !resp.trim()) {
+    alert("Registro cancelado: El responsable de validación es obligatorio.");
+    return;
+  }
+  const tema = prompt("Descripción o contenido del acuerdo:") || "Acuerdo comercial formalizado";
 
   const bi = getBiData();
   if (bi && bi.mejora_10_modo_reunion) {
     if (!bi.mejora_10_modo_reunion.acuerdos_registrados) bi.mejora_10_modo_reunion.acuerdos_registrados = [];
     const list = bi.mejora_10_modo_reunion.acuerdos_registrados;
     const newId = `ACU-2026-${String(list.length + 1).padStart(3, '0')}`;
-    list.unshift({
+    const nuevoAcuerdo = {
       id: newId,
       comite: "Consejo de Dirección",
-      cliente: cli,
-      fecha_acuerdo: "30/10/2026",
-      fecha: "30/10/2026",
-      tema: tema,
-      documento_origen: doc || "Acta aprobada",
-      responsable: resp || "Dirección General",
-      responsable_validacion: resp || "Dirección General",
-      fecha_limite: vig || "31/12/2026",
-      vigencia: vig || "31/12/2026",
+      cliente: cli.trim(),
+      tema: tema.trim(),
+      documento_origen: doc.trim(),
+      fecha: fecha.trim(),
+      fecha_acuerdo: fecha.trim(),
+      vigencia: vig.trim(),
+      fecha_limite: vig.trim(),
+      responsable: resp.trim(),
+      responsable_validacion: resp.trim(),
       estado: "EN_CURSO",
       badge_cls: "warning",
-      detalle: "Acuerdo formalizado con registro documental y responsable asignado."
-    });
-    if (typeof renderCurrentTab === 'function') renderCurrentTab();
+      detalle: `Acuerdo formalizado con registro documental en ${doc.trim()} y validado por ${resp.trim()}.`
+    };
+
+    if (esAcuerdoDocumentalValido(nuevoAcuerdo)) {
+      list.unshift(nuevoAcuerdo);
+      bi.mejora_10_modo_reunion.total_acuerdos = list.filter(esAcuerdoDocumentalValido).length;
+      bi.mejora_10_modo_reunion.estado = "Operativo";
+      if (typeof renderCurrentTab === 'function') renderCurrentTab();
+    }
   }
 }
-
 
 // -------------------------------------------------------------------------
 // MEJORA 11: ESTRUCTURA ESTÁNDAR UNIFICADA (HEADER, BREADCRUMB, FILTROS)
@@ -3010,8 +3070,12 @@ function findClient360Data(clientName) {
     ? (bi?.modo_demostracion?.acuerdos_registrados || [])
     : (bi?.mejora_10_modo_reunion?.acuerdos_registrados || []);
   for (const ac of boardAgreements) {
-    const acStr = (JSON.stringify(ac)).toUpperCase();
-    if ((acStr.includes(targetUpper) || targetUpper.includes(ac.tema?.toUpperCase() || '')) && ac.documento_origen && ac.responsable_validacion) {
+    if (!esAcuerdoDocumentalValido(ac)) continue;
+    const acClient = (ac.cliente || ac.cliente_id || '').toString().trim();
+    const acNorm = normClientKey(acClient);
+    const isExactClient = (acNorm && (acNorm === targetNorm || acClient.toUpperCase() === targetUpper));
+    const isExplicitGeneral = (ac.ambito === 'GENERAL' || acClient.toUpperCase() === 'GENERAL' || acClient.toUpperCase() === 'TODOS');
+    if (isExactClient || isExplicitGeneral) {
       agreements.push(ac);
     }
   }
@@ -3411,10 +3475,13 @@ function renderClientModalBody() {
     const agreementsHtml = (d.agreements && d.agreements.length > 0) ? d.agreements.map(ac => `
       <div style="background:rgba(15,23,42,0.7); border:1px solid #334155; border-radius:8px; padding:1.25rem; margin-bottom:0.75rem;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-          <span class="tab-badge badge-info">${ac.comite || 'COMITÉ'}</span>
+          <div style="display:flex; gap:0.4rem; align-items:center;">
+            <span class="tab-badge badge-info">${ac.comite || 'COMITÉ'}</span>
+            ${ac.id ? `<span class="tab-badge" style="background:rgba(255,255,255,0.06); font-family:monospace; font-size:0.7rem;">${ac.id}</span>` : ''}
+          </div>
           <span style="font-size:0.75rem; color:var(--muted);">${ac.fecha || ac.fecha_acuerdo || 'Sin fecha'}</span>
         </div>
-        <h5 style="margin:0.5rem 0 0.25rem 0; color:#fff; font-size:0.95rem;">${ac.tema}</h5>
+        <h5 style="margin:0.5rem 0 0.25rem 0; color:#fff; font-size:0.95rem;">${ac.tema || ac.id || 'Acuerdo Formalizado'}</h5>
         <p style="font-size:0.83rem; color:#cbd5e1; margin:0.35rem 0;">${ac.detalle || ac.acuerdo}</p>
         <div style="margin-top:0.75rem; display:flex; justify-content:space-between; font-size:0.78rem; color:#94a3b8; border-top:1px solid rgba(255,255,255,0.06); padding-top:0.5rem;">
           <span>Doc. Origen: <strong>${ac.documento_origen || 'Acta de comité'}</strong> &bull; Responsable: <strong>${ac.responsable_validacion || ac.responsable}</strong></span>

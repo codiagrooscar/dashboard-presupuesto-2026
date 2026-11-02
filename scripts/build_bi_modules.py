@@ -378,6 +378,79 @@ output_bi["mejora_9_busqueda_global"] = {
     "estado": "Operativo dinámico"
 }
 
+# ---------------------------------------------------------
+# PERSISTENCIA Y VALIDACIÓN ESTRICTA DE ACUERDOS DOCUMENTADOS
+# (Exigir 5 campos: cliente, documento, fecha, vigencia, responsable y preservar entre ejecuciones)
+# ---------------------------------------------------------
+import re
+
+def es_acuerdo_documental_valido(a):
+    if not isinstance(a, dict):
+        return False
+    if a.get("es_demo"):
+        return False
+    cliente = str(a.get("cliente") or a.get("cliente_id") or "").strip()
+    doc = str(a.get("documento_origen") or "").strip()
+    fecha = str(a.get("fecha") or a.get("fecha_acuerdo") or "").strip()
+    vig = str(a.get("vigencia") or a.get("fecha_limite") or "").strip()
+    resp = str(a.get("responsable_validacion") or a.get("responsable") or "").strip()
+    if not cliente or not doc or not fecha or not vig or not resp:
+        return False
+    date_regex = r"^(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2})$"
+    if not re.match(date_regex, fecha) or not re.match(date_regex, vig):
+        return False
+    return True
+
+persist_path = os.path.join("Gastos", "acuerdos_comerciales_registrados.json")
+src_persist = get_source(persist_path)
+
+acuerdos_existentes = []
+if os.path.exists(src_persist):
+    try:
+        with open(src_persist, "r", encoding="utf-8") as f:
+            acuerdos_existentes = json.load(f)
+    except Exception as e:
+        print(f"Aviso al cargar persistencia de acuerdos desde {src_persist}: {e}")
+    raw_combined = acuerdos_existentes
+else:
+    prev_bi_acuerdos = output_bi.get("mejora_10_modo_reunion", {}).get("acuerdos_registrados", [])
+    raw_combined = prev_bi_acuerdos
+
+acuerdos_validados = []
+seen_ids = set()
+for a in raw_combined:
+    if es_acuerdo_documental_valido(a):
+        aid = str(a.get("id") or f"ACU-{a.get('cliente')}-{a.get('fecha')}")
+        if aid not in seen_ids:
+            seen_ids.add(aid)
+            a_copy = dict(a)
+            a_copy["id"] = aid
+            if not a_copy.get("responsable_validacion") and a_copy.get("responsable"):
+                a_copy["responsable_validacion"] = a_copy["responsable"]
+            if not a_copy.get("fecha") and a_copy.get("fecha_acuerdo"):
+                a_copy["fecha"] = a_copy["fecha_acuerdo"]
+            if not a_copy.get("vigencia") and a_copy.get("fecha_limite"):
+                a_copy["vigencia"] = a_copy["fecha_limite"]
+            acuerdos_validados.append(a_copy)
+
+# Guardar en persistencia (tanto staging como destino)
+dest_persist = get_dest(persist_path)
+os.makedirs(os.path.dirname(dest_persist), exist_ok=True)
+with open(dest_persist, "w", encoding="utf-8") as f:
+    json.dump(acuerdos_validados, f, ensure_ascii=False, indent=2)
+
+if not os.environ.get("CODIAGRO_STAGING_DIR") and dest_persist != persist_path:
+    with open(persist_path, "w", encoding="utf-8") as f:
+        json.dump(acuerdos_validados, f, ensure_ascii=False, indent=2)
+
+tot_acuerdos = len(acuerdos_validados)
+estado_acuerdos = "Operativo" if tot_acuerdos > 0 else "Sin información registrada"
+aviso_acuerdos = (
+    f"{tot_acuerdos} acuerdo(s) directivo(s) formalizado(s) con soporte documental verificado."
+    if tot_acuerdos > 0 else
+    "No existen acuerdos directivos de comité con fuente documental formalizada (cliente, documento de origen, fecha, vigencia y responsable de validación)."
+)
+
 output_bi["mejora_10_modo_reunion"] = {
     "modo": "operativo",
     "comites": output_bi.get("mejora_10_modo_reunion", {}).get("comites", [
@@ -403,11 +476,80 @@ output_bi["mejora_10_modo_reunion"] = {
             "kpi_destacado": "RAI Oficial y Gobernanza Analítica"
         }
     ]),
-    "acuerdos_registrados": [],
-    "total_acuerdos": 0,
-    "estado": "Sin información registrada",
-    "aviso": "No existen acuerdos directivos de comité con fuente documental formalizada (cliente, documento de origen, fecha, vigencia y responsable de validación)."
+    "acuerdos_registrados": acuerdos_validados,
+    "total_acuerdos": tot_acuerdos,
+    "estado": estado_acuerdos,
+    "aviso": aviso_acuerdos
 }
+
+# ---------------------------------------------------------
+# RADAR DE PRIORIDADES DINÁMICO (Cálculo directo sin cifras fijas)
+# ---------------------------------------------------------
+marta_path = get_source(os.path.join("web_dashboard_direccion", "marta_tracking_data.json"))
+churn_list = []
+total_churn_drop = 0.0
+if os.path.exists(marta_path):
+    try:
+        with open(marta_path, "r", encoding="utf-8") as f:
+            m_data = json.load(f)
+        m_clientes = m_data.get("euros", {}).get("clientes", [])
+        for c in m_clientes:
+            name = c.get("cliente", "")
+            if "DOGA" in name.upper():
+                continue
+            v25 = float(c.get("ventas_2025_sep", 0) or 0)
+            v26 = float(c.get("ventas_2026_sep", 0) or 0)
+            if v25 > 5000 and v26 < v25 * 0.75:
+                drop = v25 - v26
+                total_churn_drop += drop
+                churn_list.append({
+                    "cliente": name,
+                    "comercial": c.get("comercial"),
+                    "ventas_2025": round(v25, 2),
+                    "ventas_2026": round(v26, 2),
+                    "caida_eur": round(drop, 2),
+                    "pct_caida": round(((v26 / v25) - 1) * 100, 1) if v25 > 0 else -100.0
+                })
+        churn_list.sort(key=lambda x: x["caida_eur"], reverse=True)
+    except Exception as e:
+        print(f"Aviso al procesar marta_tracking_data para churn: {e}")
+
+top_churn = churn_list[:15] if len(churn_list) >= 15 else churn_list
+top_churn_drop = sum(x["caida_eur"] for x in top_churn)
+
+mayor_cliente = pareto_clientes[0] if pareto_clientes else None
+ventas_mayor = mayor_cliente["ventas_eur"] if mayor_cliente else 0.0
+margen_mayor = mayor_cliente["margen_eur"] if mayor_cliente else 0.0
+top1_nombre = mayor_cliente["cliente"] if mayor_cliente else "Mayor distribuidor"
+hipotesis_caida_pct = 20.0
+impacto_estres_ventas = round(ventas_mayor * (hipotesis_caida_pct / 100.0), 2)
+impacto_estres_margen = round(margen_mayor * (hipotesis_caida_pct / 100.0), 2)
+
+radar_prioridades = {
+    "prioridad_1_churn": {
+        "disponible": len(churn_list) > 0,
+        "cuentas_count": len(top_churn),
+        "total_en_riesgo_count": len(churn_list),
+        "impacto_eur": -round(top_churn_drop, 2),
+        "formula": f"Suma de pérdidas en ventas de las {len(top_churn)} cuentas con caída > 25% vs 2025",
+        "top_cuentas": [
+            {"cliente": x["cliente"], "caida_eur": x["caida_eur"]} for x in top_churn[:3]
+        ],
+        "detalle_metodologia": "Caída > 25% frente a 2025 en cuentas comerciales activas. DOGA TARIM excluida por situación concursal."
+    },
+    "prioridad_4_estres": {
+        "disponible": mayor_cliente is not None,
+        "cliente_mayor": top1_nombre,
+        "ventas_mayor_eur": ventas_mayor,
+        "margen_mayor_eur": margen_mayor,
+        "top_5_concentracion_pct": concentracion_resumen["top_5_pct"],
+        "hipotesis_caida_pct": hipotesis_caida_pct,
+        "impacto_ventas_eur": -impacto_estres_ventas,
+        "impacto_margen_eur": -impacto_estres_margen,
+        "formula": f"Hipótesis simulada: caída del {hipotesis_caida_pct:.0f}% en pedidos del mayor cliente ({top1_nombre}): {ventas_mayor:,.2f} € × (-{hipotesis_caida_pct:.0f}%) = -{impacto_estres_ventas:,.2f} €"
+    }
+}
+output_bi["radar_prioridades"] = radar_prioridades
 
 os.makedirs(os.path.dirname(out_json), exist_ok=True)
 with open(out_json, "w", encoding="utf-8") as f:

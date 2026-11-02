@@ -4319,5 +4319,40 @@
         "badge_cls": "danger"
       }
     ]
+  },
+  "radar_prioridades": {
+    "prioridad_1_churn": {
+      "disponible": true,
+      "cuentas_count": 15,
+      "total_en_riesgo_count": 24,
+      "impacto_eur": -516205.78,
+      "formula": "Suma de pérdidas en ventas de las 15 cuentas con caída > 25% vs 2025",
+      "top_cuentas": [
+        {
+          "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
+          "caida_eur": 96408.06
+        },
+        {
+          "cliente": "EURL BOUAZZA FILAHA",
+          "caida_eur": 67970.96
+        },
+        {
+          "cliente": "CAMPO ABIERTO, S.A.S.",
+          "caida_eur": 62901.28
+        }
+      ],
+      "detalle_metodologia": "Caída > 25% frente a 2025 en cuentas comerciales activas. DOGA TARIM excluida por situación concursal."
+    },
+    "prioridad_4_estres": {
+      "disponible": true,
+      "cliente_mayor": "DOTRA CHEMICALS",
+      "ventas_mayor_eur": 2200332.43,
+      "margen_mayor_eur": 1464021.0,
+      "top_5_concentracion_pct": 45.8,
+      "hipotesis_caida_pct": 20.0,
+      "impacto_ventas_eur": -440066.49,
+      "impacto_margen_eur": -292804.2,
+      "formula": "Hipótesis simulada: caída del 20% en pedidos del mayor cliente (DOTRA CHEMICALS): 2,200,332.43 € × (-20%) = -440,066.49 €"
+    }
   }
 }

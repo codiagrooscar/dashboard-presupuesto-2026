@@ -97,7 +97,21 @@ function sincronizarAcuerdosPersistentes() {
     localStorage.setItem('codiagro_acuerdos_registrados', JSON.stringify(remainingStored));
   } catch (e) {}
 
-  bi.mejora_10_modo_reunion.total_acuerdos = currentList.filter(esAcuerdoDocumentalValido).length;
+  // Deduplicar currentList por ID y huella documental, conservando el registro consolidado
+  const seenIds = new Set();
+  const seenFps = new Set();
+  const deduplicatedList = [];
+  for (const item of currentList) {
+    const fp = `${item.cliente}|${item.documento_origen}|${item.fecha}`;
+    if (item.id && seenIds.has(item.id)) continue;
+    if (seenFps.has(fp)) continue;
+    if (item.id) seenIds.add(item.id);
+    seenFps.add(fp);
+    deduplicatedList.push(item);
+  }
+  bi.mejora_10_modo_reunion.acuerdos_registrados = deduplicatedList;
+
+  bi.mejora_10_modo_reunion.total_acuerdos = deduplicatedList.filter(esAcuerdoDocumentalValido).length;
   if (bi.mejora_10_modo_reunion.total_acuerdos > 0) {
     bi.mejora_10_modo_reunion.estado = "Operativo";
   }
@@ -123,11 +137,14 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
 
   // 2. Enviar a endpoint persistente del servidor si está disponible
   if (typeof fetch === 'function') {
+    const payload = Object.assign({}, acuerdo);
+    delete payload._es_borrador_local;
+
     fetch('/api/guardar_acuerdo', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(acuerdo)
+      body: JSON.stringify(payload)
     })
     .then(r => {
       if (!r.ok) {
@@ -145,11 +162,11 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
         acuerdo.id = assignedId;
         delete acuerdo._es_borrador_local;
 
-        // Reconciliar copia local: eliminar el registro provisional y guardar el definitivo sin marca de borrador
+        // Reconciliar copia local: al consolidarse en el servidor central,
+        // retirar el borrador pendiente de localStorage para que queden 0 borradores pendientes
         try {
           let storedDef = JSON.parse(localStorage.getItem(key) || '[]');
-          storedDef = storedDef.filter(a => a.id !== provisionalId && a.id !== assignedId);
-          storedDef.unshift(acuerdo);
+          storedDef = storedDef.filter(a => a.id !== provisionalId && a.id !== assignedId && !(a.cliente === acuerdo.cliente && a.documento_origen === acuerdo.documento_origen && a.fecha === acuerdo.fecha));
           localStorage.setItem(key, JSON.stringify(storedDef));
         } catch (e) {}
 
@@ -195,28 +212,76 @@ function sincronizarBorradoresPendientes(callback) {
 
   let synced = 0;
   const promises = drafts.map(draft => {
+    const provisionalId = draft.id;
+    const payload = Object.assign({}, draft);
+    delete payload._es_borrador_local;
+
     return fetch('/api/guardar_acuerdo', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(draft)
+      body: JSON.stringify(payload)
     })
     .then(r => r.ok ? r.json() : null)
     .then(res => {
       if (res && res.success) {
         synced++;
-        const assignedId = (res.acuerdo && res.acuerdo.id) ? res.acuerdo.id : draft.id;
-        draft.id = assignedId;
-        delete draft._es_borrador_local;
-        return draft;
+        const serverAcuerdo = res.acuerdo || {};
+        const assignedId = serverAcuerdo.id || provisionalId;
+        delete serverAcuerdo._es_borrador_local;
+
+        // 1. Sustituir la entrada provisional en la vista (en memoria: bi.mejora_10_modo_reunion.acuerdos_registrados)
+        const bi = (window.BI_INTELLIGENCE_DATA || (typeof getBiData === 'function' ? getBiData() : null));
+        if (bi && bi.mejora_10_modo_reunion && Array.isArray(bi.mejora_10_modo_reunion.acuerdos_registrados)) {
+          const list = bi.mejora_10_modo_reunion.acuerdos_registrados;
+          let replaced = false;
+          for (let i = 0; i < list.length; i++) {
+            if (list[i].id === provisionalId || list[i].id === assignedId || 
+                (list[i].cliente === draft.cliente && list[i].documento_origen === draft.documento_origen && list[i].fecha === draft.fecha)) {
+              list[i] = Object.assign({}, list[i], serverAcuerdo, { id: assignedId });
+              delete list[i]._es_borrador_local;
+              replaced = true;
+              break;
+            }
+          }
+          if (!replaced) {
+            list.unshift(Object.assign({}, serverAcuerdo, { id: assignedId }));
+          }
+        }
+
+        return { success: true, provisionalId: provisionalId, assignedId: assignedId, draft: draft, serverAcuerdo: serverAcuerdo };
       }
-      return null;
+      return { success: false, provisionalId: provisionalId, draft: draft };
     })
-    .catch(() => null);
+    .catch(() => ({ success: false, provisionalId: provisionalId, draft: draft }));
   });
 
   Promise.all(promises).then(results => {
     if (synced > 0) {
+      // 2. Retirar los borradores sincronizados del almacenamiento local
+      try {
+        let storedCurrent = JSON.parse(localStorage.getItem(key) || '[]');
+        const successful = results.filter(r => r.success);
+        const removeIds = new Set();
+        successful.forEach(s => {
+          if (s.provisionalId) removeIds.add(s.provisionalId);
+          if (s.assignedId) removeIds.add(s.assignedId);
+        });
+
+        storedCurrent = storedCurrent.filter(a => {
+          if (removeIds.has(a.id)) return false;
+          const matchSuccess = successful.some(s => 
+            s.draft && a.cliente === s.draft.cliente && 
+            a.documento_origen === s.draft.documento_origen && 
+            a.fecha === s.draft.fecha
+          );
+          if (matchSuccess) return false;
+          return true;
+        });
+
+        localStorage.setItem(key, JSON.stringify(storedCurrent));
+      } catch (e) {}
+
       sincronizarAcuerdosPersistentes();
       if (typeof renderCurrentTab === 'function') renderCurrentTab();
     }

@@ -103,6 +103,10 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     except Exception:
                         acuerdos = []
 
+                # Eliminar metadatos internos del cliente antes de consolidar centralmente
+                for k in [k for k in list(data.keys()) if k.startswith("_")]:
+                    del data[k]
+
                 import re
                 existing_ids = {a.get("id") for a in acuerdos if a.get("id")}
                 seq_numbers = []
@@ -127,12 +131,26 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     data["id"] = aid
                     acuerdos = [data if a.get("id") == aid else a for a in acuerdos]
                 else:
-                    aid = f"ACU-{current_year}-{next_seq:03d}"
-                    while aid in existing_ids:
-                        next_seq += 1
+                    # Comprobar si ya existe un acuerdo con la misma huella documental (cliente, documento_origen, fecha)
+                    existing_match = None
+                    for a in acuerdos:
+                        if (str(a.get("cliente") or "").strip().upper() == cli.upper() and
+                            str(a.get("documento_origen") or "").strip().upper() == doc.upper() and
+                            str(a.get("fecha") or "").strip() == fec):
+                            existing_match = a
+                            break
+
+                    if existing_match:
+                        # Si ya existe centralmente (idempotencia en reintentos o sincronizaciones consecutivas), conservar registro central
+                        aid = existing_match["id"]
+                        data = existing_match
+                    else:
                         aid = f"ACU-{current_year}-{next_seq:03d}"
-                    data["id"] = aid
-                    acuerdos.insert(0, data)
+                        while aid in existing_ids:
+                            next_seq += 1
+                            aid = f"ACU-{current_year}-{next_seq:03d}"
+                        data["id"] = aid
+                        acuerdos.insert(0, data)
 
                 gastos_file.parent.mkdir(parents=True, exist_ok=True)
                 with open(gastos_file, "w", encoding="utf-8") as gf:

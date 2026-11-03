@@ -15,6 +15,8 @@ PROJECT_DIR = BASE_DIR.parent if BASE_DIR.name in ['web_dashboard', 'web_dashboa
 VALID_USERS = {
     'oscar.ocampo': 'Codiagro2026!',
     'oscar': 'Codiagro2026!',
+    'codiagrooscar@gmail.com': 'Codiagro2026!',
+    'oscar.ocampo@codiagro.com': 'Codiagro2026!',
     'direccion': 'Codiagro2026!',
     'admin': 'Codiagro2026!'
 }
@@ -492,8 +494,7 @@ def run_server():
     HOST = "127.0.0.1"
     with socketserver.TCPServer((HOST, PORT), DashboardHandler) as httpd:
         print(f"=== Servidor Dashboard Dirección General con Autenticación en http://{HOST}:{PORT} ===")
-        print(f"  Usuario: oscar.ocampo (o oscar / direccion)")
-        print(f"  Contraseña: Codiagro2026!")
+        print("  Autenticación habilitada (Acceso confidencial Dirección General)")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

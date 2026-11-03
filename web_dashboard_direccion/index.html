@@ -2019,10 +2019,15 @@
           <!-- PERIOD SELECTOR -->
           <div class="period-switcher" id="periodSwitcher">
             <span class="period-label" id="periodLabel">PERÍODO:</span>
-            <button class="period-btn active" id="pbtn-2026-10" onclick="switchPeriod('2026-10')">
+            <button class="period-btn active" id="pbtn-2026-11" onclick="switchPeriod('2026-11')">
               <span class="period-dot active"></span>
+              <span id="pbtn-2026-11-text">Noviembre 2026</span>
+              <span class="tab-badge badge-success" id="pbtn-2026-11-badge" style="font-size:0.65rem">En Curso</span>
+            </button>
+            <button class="period-btn" id="pbtn-2026-10" onclick="switchPeriod('2026-10')">
+              <span class="period-dot"></span>
               <span id="pbtn-2026-10-text">Octubre 2026</span>
-              <span class="tab-badge badge-success" id="pbtn-2026-10-badge" style="font-size:0.65rem">En Curso</span>
+              <span class="tab-badge badge-neutral" id="pbtn-2026-10-badge" style="font-size:0.65rem">Cerrado</span>
             </button>
             <button class="period-btn" id="pbtn-2026-09" onclick="switchPeriod('2026-09')">
               <span class="period-dot"></span>
@@ -2031,7 +2036,7 @@
             </button>
             <button class="period-btn" id="pbtn-acumulado" onclick="switchPeriod('acumulado')">
               <span class="period-dot"></span>
-              <span id="pbtn-acumulado-text">📊 Acumulado Sep + Oct</span>
+              <span id="pbtn-acumulado-text">📊 Acumulado Campaña</span>
               <span class="tab-badge badge-info" id="pbtn-acumulado-badge" style="font-size:0.65rem">Consolidado</span>
             </button>
           </div>
@@ -2754,9 +2759,10 @@
         export_market: "🌍 Export",
         in_progress: "In Progress",
         closed: "Closed",
+        period_nov: "November 2026",
         period_oct: "October 2026",
         period_sep: "September 2026",
-        period_accum: "📊 Cumulative Sep + Oct",
+        period_accum: "📊 Cumulative Season",
         tab_resumen: "Executive Summary",
         nav_group_dg: "EXECUTIVE MANAGEMENT",
         nav_group_com: "COMMERCIAL & SALES",
@@ -3134,16 +3140,20 @@
       // Period Switcher
       const periodLabel = document.getElementById('periodLabel');
       if (periodLabel) periodLabel.innerText = t('period_label');
+      const pbtnNov = document.getElementById('pbtn-2026-11-text');
+      if (pbtnNov) pbtnNov.innerText = t('period_nov') || (currentLang === 'en' ? 'November 2026' : 'Noviembre 2026');
+      const pbtnNovBadge = document.getElementById('pbtn-2026-11-badge');
+      if (pbtnNovBadge) pbtnNovBadge.innerText = t('in_progress');
       const pbtnOct = document.getElementById('pbtn-2026-10-text');
       if (pbtnOct) pbtnOct.innerText = t('period_oct');
       const pbtnOctBadge = document.getElementById('pbtn-2026-10-badge');
-      if (pbtnOctBadge) pbtnOctBadge.innerText = t('in_progress');
+      if (pbtnOctBadge) pbtnOctBadge.innerText = t('closed');
       const pbtnSep = document.getElementById('pbtn-2026-09-text');
       if (pbtnSep) pbtnSep.innerText = t('period_sep');
       const pbtnSepBadge = document.getElementById('pbtn-2026-09-badge');
       if (pbtnSepBadge) pbtnSepBadge.innerText = t('closed');
       const pbtnAcc = document.getElementById('pbtn-acumulado-text');
-      if (pbtnAcc) pbtnAcc.innerText = t('period_accum');
+      if (pbtnAcc) pbtnAcc.innerText = t('period_accum') || (currentLang === 'en' ? '📊 Cumulative Season' : '📊 Acumulado Campaña');
       const pbtnAccBadge = document.getElementById('pbtn-acumulado-badge');
       if (pbtnAccBadge) pbtnAccBadge.innerText = t('badge_consolidated');
 
@@ -3727,7 +3737,7 @@
       }
       const elLive = document.getElementById('headerLiveBadge');
       if (elLive) {
-        if (currentPeriod === '2026-09') {
+        if (currentPeriod === '2026-09' || currentPeriod === '2026-10') {
           elLive.innerText = 'Mes Cerrado';
           elLive.className = 'tab-badge badge-neutral';
         } else if (currentPeriod === 'acumulado') {

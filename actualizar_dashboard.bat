@@ -48,7 +48,7 @@ set "FAILED_STEP=build_dataset.py (Dataset comercial)"
 if %ERRORLEVEL% NEQ 0 goto :ROLLBACK
 
 if exist "scripts\build_multi_period.py" (
-    set "FAILED_STEP=build_multi_period.py (Consolidacion multi-periodo Sep/Oct)"
+    set "FAILED_STEP=build_multi_period.py (Consolidacion multi-periodo Sep/Oct/Nov)"
     "%PY%" -X utf8 scripts/build_multi_period.py
     if !ERRORLEVEL! NEQ 0 goto :ROLLBACK
 )

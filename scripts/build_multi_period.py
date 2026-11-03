@@ -57,6 +57,10 @@ def safe_read_excel(filepath, sheet_name=0):
         return pd.read_excel(temp_file, sheet_name=sheet_name)
 
 def get_latest_october_file():
+    preferred = ['Pedidos02.11 comerciales.xlsx', 'Pedidos 02.11 comerciales.xlsx', 'Pedidos30.10 comerciales.xlsx']
+    for p in preferred:
+        if os.path.exists(p): return p
+        if os.path.exists(os.path.join('Pedidos', p)): return os.path.join('Pedidos', p)
     candidates = [
         f for f in os.listdir('.')
         if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
@@ -66,19 +70,41 @@ def get_latest_october_file():
             os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
             if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
         ]
-    # October files have day 02 or higher of month 10
     oct_candidates = []
     for f in candidates:
         base_f = os.path.basename(f)
         m = re.search(r'(\d{1,2})\.(\d{1,2})', base_f)
         if m:
             day, month = int(m.group(1)), int(m.group(2))
-            if (month == 10 and day >= 2) or (month == 11 and day <= 5):
+            if month == 10 and day >= 2:
                 oct_candidates.append((month, day, f))
     if oct_candidates:
         oct_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
         return oct_candidates[0][2]
     return 'Pedidos 02.10 comerciales.xlsx' if os.path.exists('Pedidos 02.10 comerciales.xlsx') else None
+
+def get_latest_november_file():
+    candidates = [
+        f for f in os.listdir('.')
+        if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
+    ]
+    if os.path.exists('Pedidos') and os.path.isdir('Pedidos'):
+        candidates += [
+            os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
+            if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
+        ]
+    nov_candidates = []
+    for f in candidates:
+        base_f = os.path.basename(f)
+        m = re.search(r'(\d{1,2})\.(\d{1,2})', base_f)
+        if m:
+            day, month = int(m.group(1)), int(m.group(2))
+            if month == 11 and day >= 3:
+                nov_candidates.append((month, day, f))
+    if nov_candidates:
+        nov_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        return nov_candidates[0][2]
+    return 'Pedidos03.11 comerciales.xlsx' if os.path.exists('Pedidos03.11 comerciales.xlsx') else None
 
 def load_data_sources():
     # 1. Budget común oficial (H14: Priorizar Presupuesto_Ventas_2027_Definitivo.xlsx)
@@ -96,13 +122,17 @@ def load_data_sources():
     # Presupuesto_Ventas_2027_Definitivo.xlsx es el documento oficial definitivo de demanda.
     # No se aplican transformaciones artificiales de factor ni condiciones sobre decimales.
 
-    # Mehmet: al no haber rellenado la actualización de previsión Q4, sus previsiones de Octubre figuraban a 0.
+    # Mehmet: al no haber rellenado la actualización de previsión Q4, sus previsiones de Octubre y Noviembre figuraban a 0.
     # Se recupera su primera previsión registrada (en Dic-26 / Q4 inicial) para que figure en la webapp.
     mehmet_mask = (df_bud['Comercial'] == 'Mehmet')
     if df_bud.loc[mehmet_mask, 'Oct-26 (u)'].sum() == 0:
         df_bud.loc[mehmet_mask, 'Oct-26 (u)'] = df_bud.loc[mehmet_mask, 'Dic-26 (u)']
         if 'Oct-26 (€)' in df_bud.columns and 'Dic-26 (€)' in df_bud.columns:
             df_bud.loc[mehmet_mask, 'Oct-26 (€)'] = df_bud.loc[mehmet_mask, 'Dic-26 (€)']
+    if df_bud.loc[mehmet_mask, 'Nov-26 (u)'].sum() == 0:
+        df_bud.loc[mehmet_mask, 'Nov-26 (u)'] = df_bud.loc[mehmet_mask, 'Dic-26 (u)']
+        if 'Nov-26 (€)' in df_bud.columns and 'Dic-26 (€)' in df_bud.columns:
+            df_bud.loc[mehmet_mask, 'Nov-26 (€)'] = df_bud.loc[mehmet_mask, 'Dic-26 (€)']
 
     df_bud['Cliente'] = df_bud['Cliente'].apply(map_client_name)
     df_bud['CLIENTE_NORM'] = df_bud['Cliente'].apply(norm)
@@ -131,7 +161,7 @@ def load_data_sources():
         df_ped_sep = df_ped_sep[pd.to_datetime(df_ped_sep['FechaPedido']).dt.month == 9].copy()
     df_ped_sep['Comercial'] = df_ped_sep['CLIENTE_NORM'].map(client_map).fillna('Sin Asignar')
 
-    # 3. Pedidos Octubre (Pedidos 02.10 comerciales.xlsx y posteriores)
+    # 3. Pedidos Octubre (Pedidos 02.11 comerciales.xlsx y anteriores de octubre)
     oct_file = get_latest_october_file()
     if oct_file and os.path.exists(oct_file):
         df_ped_oct = safe_read_excel(oct_file)
@@ -146,7 +176,22 @@ def load_data_sources():
     else:
         df_ped_oct = df_ped_sep.iloc[0:0].copy()
 
-    return df_ped_sep, df_ped_oct, df_bud, sep_file, oct_file
+    # 4. Pedidos Noviembre (Pedidos 03.11 comerciales.xlsx y posteriores de noviembre)
+    nov_file = get_latest_november_file()
+    if nov_file and os.path.exists(nov_file):
+        df_ped_nov = safe_read_excel(nov_file)
+        df_ped_nov['Cliente'] = df_ped_nov['Cliente'].apply(map_client_name)
+        df_ped_nov['CLIENTE_NORM'] = df_ped_nov['Cliente'].apply(norm)
+        df_ped_nov['SKU_CLEAN'] = df_ped_nov['CodigoArticulo'].astype(str).str.strip().str.upper()
+        df_ped_nov = df_ped_nov[~df_ped_nov['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
+        if 'FechaPedido' in df_ped_nov.columns:
+            dt_nov = pd.to_datetime(df_ped_nov['FechaPedido'], errors='coerce')
+            df_ped_nov = df_ped_nov[(dt_nov.dt.month == 11) | (df_ped_nov['FechaPedido'].isna())].copy()
+        df_ped_nov['Comercial'] = df_ped_nov['CLIENTE_NORM'].map(client_map).fillna('Sin Asignar')
+    else:
+        df_ped_nov = df_ped_sep.iloc[0:0].copy()
+
+    return df_ped_sep, df_ped_oct, df_ped_nov, df_bud, sep_file, oct_file, nov_file
 
 COUNTRY_CODES_MAP = {
     'ESPANA': ('España', 'ES'),
@@ -457,67 +502,50 @@ def build_month_dataset(df_ped, df_bud, month_col, period_id, period_name, perio
         'comerciales': comerciales_data
     }
 
-def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
+def build_accumulated_dataset(*datasets, fecha_corte='03/11/2026'):
+    if len(datasets) == 1 and isinstance(datasets[0], (list, tuple)):
+        datasets = datasets[0]
     comerciales = ['Alfonso', 'García', 'Irene', 'Javier', 'Mehmet', 'Pedro', 'Ricardo']
     summary_list = []
     comerciales_data = {}
 
     for c in comerciales:
-        c_sep = d_sep['comerciales'][c]
-        c_oct = d_oct['comerciales'][c]
-
-        b_tot = c_sep['kpis']['budget_uds'] + c_oct['kpis']['budget_uds']
-        p_tot = c_sep['kpis']['pedidos_uds'] + c_oct['kpis']['pedidos_uds']
-        s_tot = c_sep['kpis']['servidas_uds'] + c_oct['kpis']['servidas_uds']
-        pend_tot = c_oct['kpis']['pendientes_uds'] + c_sep['kpis']['pendientes_uds']
-        imp_tot = c_sep['kpis']['importe_neto'] + c_oct['kpis']['importe_neto']
-        cli_cnt = max(c_sep['kpis'].get('clientes_activos', 0), c_oct['kpis'].get('clientes_activos', 0))
+        b_tot = sum(d['comerciales'][c]['kpis']['budget_uds'] for d in datasets)
+        p_tot = sum(d['comerciales'][c]['kpis']['pedidos_uds'] for d in datasets)
+        s_tot = sum(d['comerciales'][c]['kpis']['servidas_uds'] for d in datasets)
+        pend_tot = sum(d['comerciales'][c]['kpis']['pendientes_uds'] for d in datasets)
+        imp_tot = sum(d['comerciales'][c]['kpis']['importe_neto'] for d in datasets)
+        cli_cnt = max(d['comerciales'][c]['kpis'].get('clientes_activos', 0) for d in datasets)
 
         # Combinar líneas por (cliente, sku)
         lines_dict = {}
-        for l in c_sep['lineas']:
-            k = (l['cliente'], l['sku'])
-            lines_dict[k] = {
-                'cliente': l['cliente'],
-                'sku': l['sku'],
-                'sku_export': l.get('sku_export', l['sku']),
-                'pais': l.get('pais', 'España'),
-                'pais_codigo': l.get('pais_codigo', 'ES'),
-                'descripcion': l['descripcion'],
-                'budget_uds': l['budget_uds'],
-                'pedidos_uds': l['pedidos_uds'],
-                'servidas_uds': l['servidas_uds'],
-                'pendientes_uds': l['pendientes_uds'],
-                'importe_neto': l['importe_neto'],
-                'is_nacional': l.get('is_nacional', True),
-                'origen': l.get('origen', 'Nacional')
-            }
-        for l in c_oct['lineas']:
-            k = (l['cliente'], l['sku'])
-            if k in lines_dict:
-                lines_dict[k]['budget_uds'] += l['budget_uds']
-                lines_dict[k]['pedidos_uds'] += l['pedidos_uds']
-                lines_dict[k]['servidas_uds'] += l['servidas_uds']
-                lines_dict[k]['pendientes_uds'] += l['pendientes_uds']
-                lines_dict[k]['importe_neto'] += l['importe_neto']
-                if not lines_dict[k]['descripcion'] and l['descripcion']:
-                    lines_dict[k]['descripcion'] = l['descripcion']
-            else:
-                lines_dict[k] = {
-                    'cliente': l['cliente'],
-                    'sku': l['sku'],
-                    'sku_export': l.get('sku_export', l['sku']),
-                    'pais': l.get('pais', 'España'),
-                    'pais_codigo': l.get('pais_codigo', 'ES'),
-                    'descripcion': l['descripcion'],
-                    'budget_uds': l['budget_uds'],
-                    'pedidos_uds': l['pedidos_uds'],
-                    'servidas_uds': l['servidas_uds'],
-                    'pendientes_uds': l['pendientes_uds'],
-                    'importe_neto': l['importe_neto'],
-                    'is_nacional': l.get('is_nacional', True),
-                    'origen': l.get('origen', 'Nacional')
-                }
+        for d in datasets:
+            for l in d['comerciales'][c]['lineas']:
+                k = (l['cliente'], l['sku'])
+                if k in lines_dict:
+                    lines_dict[k]['budget_uds'] += l['budget_uds']
+                    lines_dict[k]['pedidos_uds'] += l['pedidos_uds']
+                    lines_dict[k]['servidas_uds'] += l['servidas_uds']
+                    lines_dict[k]['pendientes_uds'] += l['pendientes_uds']
+                    lines_dict[k]['importe_neto'] += l['importe_neto']
+                    if not lines_dict[k]['descripcion'] and l.get('descripcion'):
+                        lines_dict[k]['descripcion'] = l['descripcion']
+                else:
+                    lines_dict[k] = {
+                        'cliente': l['cliente'],
+                        'sku': l['sku'],
+                        'sku_export': l.get('sku_export', l['sku']),
+                        'pais': l.get('pais', 'España'),
+                        'pais_codigo': l.get('pais_codigo', 'ES'),
+                        'descripcion': l['descripcion'],
+                        'budget_uds': l['budget_uds'],
+                        'pedidos_uds': l['pedidos_uds'],
+                        'servidas_uds': l['servidas_uds'],
+                        'pendientes_uds': l['pendientes_uds'],
+                        'importe_neto': l['importe_neto'],
+                        'is_nacional': l.get('is_nacional', True),
+                        'origen': l.get('origen', 'Nacional')
+                    }
 
         lines = []
         for k, v in sorted(lines_dict.items(), key=lambda x: (x[0][0], x[0][1])):
@@ -620,10 +648,10 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
             'lineas': lines
         }
 
-    tot_budget_all = d_sep['global_kpis']['budget_uds'] + d_oct['global_kpis']['budget_uds']
-    tot_pedidos_all = d_sep['global_kpis']['pedidos_uds'] + d_oct['global_kpis']['pedidos_uds']
-    tot_servidas_all = d_sep['global_kpis']['servidas_uds'] + d_oct['global_kpis']['servidas_uds']
-    tot_pendientes_all = d_sep['global_kpis']['pendientes_uds'] + d_oct['global_kpis']['pendientes_uds']
+    tot_budget_all = sum(d['global_kpis']['budget_uds'] for d in datasets)
+    tot_pedidos_all = sum(d['global_kpis']['pedidos_uds'] for d in datasets)
+    tot_servidas_all = sum(d['global_kpis']['servidas_uds'] for d in datasets)
+    tot_pendientes_all = sum(d['global_kpis']['pendientes_uds'] for d in datasets)
     tot_desv_all = float(sum(item['desv_uds'] for item in summary_list))
     tot_gap_all = float(sum(item['gap_uds'] for item in summary_list))
     global_accuracy = float(max(0.0, (1.0 - tot_desv_all / tot_budget_all) * 100) if tot_budget_all > 0 else 0.0)
@@ -655,15 +683,15 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
         'desv_uds_nacional': tot_desv_nac,
         'pct_consec_nacional': global_pct_nac,
         'forecast_accuracy_nacional': global_accuracy_nac,
-        'importe_neto': d_sep['global_kpis']['importe_neto'] + d_oct['global_kpis']['importe_neto'],
+        'importe_neto': sum(d['global_kpis']['importe_neto'] for d in datasets),
         'fecha_corte': fecha_corte,
         'fecha_generacion': datetime.now().strftime('%d/%m/%Y %H:%M')
     }
 
     return {
         'id': 'acumulado',
-        'nombre': 'Acumulado Campaña (Sep + Oct)',
-        'subtitulo': f'Consolidado histórico bimestral 2026 (Corte a {fecha_corte})',
+        'nombre': 'Acumulado Campaña (Sep + Oct + Nov)',
+        'subtitulo': f'Consolidado histórico campaña 2026 (Corte a {fecha_corte})',
         'estado_periodo': 'Consolidado',
         'badge_class': 'badge-info',
         'is_active': False,
@@ -673,7 +701,7 @@ def build_accumulated_dataset(d_sep, d_oct, fecha_corte='02/10/2026'):
     }
 
 def build_all():
-    df_ped_sep, df_ped_oct, df_bud, sep_file, oct_file = load_data_sources()
+    df_ped_sep, df_ped_oct, df_ped_nov, df_bud, sep_file, oct_file, nov_file = load_data_sources()
 
     # Período Septiembre 2026 (Cerrado oficial al 30/09/2026)
     d_sep = build_month_dataset(
@@ -689,37 +717,53 @@ def build_all():
         is_active=False
     )
 
-    # Período Octubre 2026 (En curso con pedidos actuales de octubre)
-    m_oct = re.search(r'(\d{1,2})\.(\d{1,2})', oct_file) if oct_file else None
-    oct_corte = f"{m_oct.group(1).zfill(2)}/{m_oct.group(2).zfill(2)}/2026" if m_oct else "02/10/2026"
-
+    # Período Octubre 2026 (Mes Cerrado a 31/10/2026)
     d_oct = build_month_dataset(
         df_ped=df_ped_oct,
         df_bud=df_bud,
         month_col='Oct-26 (u)',
         period_id='2026-10',
         period_name='Octubre 2026',
-        period_subtitle=f'En Curso (Corte a {oct_corte})',
+        period_subtitle='Mes Cerrado (Corte a 31/10/2026)',
+        period_status='Cerrado',
+        badge_class='badge-neutral',
+        fecha_corte='31/10/2026',
+        is_active=False
+    )
+
+    # Período Noviembre 2026 (En Curso a 03/11/2026)
+    m_nov = re.search(r'(\d{1,2})\.(\d{1,2})', nov_file) if nov_file else None
+    nov_corte = f"{m_nov.group(1).zfill(2)}/{m_nov.group(2).zfill(2)}/2026" if m_nov else "03/11/2026"
+
+    d_nov = build_month_dataset(
+        df_ped=df_ped_nov,
+        df_bud=df_bud,
+        month_col='Nov-26 (u)',
+        period_id='2026-11',
+        period_name='Noviembre 2026',
+        period_subtitle=f'En Curso (Corte a {nov_corte})',
         period_status='En Curso',
         badge_class='badge-success',
-        fecha_corte=oct_corte,
+        fecha_corte=nov_corte,
         is_active=True
     )
 
-    # Período Acumulado Campaña (Sep + Oct)
-    d_acum = build_accumulated_dataset(d_sep, d_oct, fecha_corte=oct_corte)
+    # Período Acumulado Campaña (Sep + Oct + Nov)
+    d_acum = build_accumulated_dataset([d_sep, d_oct, d_nov], fecha_corte=nov_corte)
 
     periods_data = {
-        'default_period': '2026-10',
+        'default_period': '2026-11',
         'periods': {
+            '2026-11': d_nov,
             '2026-10': d_oct,
             '2026-09': d_sep,
             'acumulado': d_acum
         },
         'period_list': [
-            {'id': '2026-10', 'nombre': 'Octubre 2026', 'badge': 'EN CURSO', 'badge_class': 'badge-success'},
+            {'id': '2026-11', 'nombre': 'Noviembre 2026', 'badge': 'EN CURSO', 'badge_class': 'badge-success'},
+            {'id': '2026-10', 'nombre': 'Octubre 2026', 'badge': 'CERRADO', 'badge_class': 'badge-neutral'},
             {'id': '2026-09', 'nombre': 'Septiembre 2026', 'badge': 'CERRADO', 'badge_class': 'badge-neutral'},
-            {'id': 'acumulado', 'nombre': 'Acumulado (Sep + Oct)', 'badge': 'CONSOLIDADO', 'badge_class': 'badge-info'}
+            {'id': 'acumulado', 'nombre': 'Acumulado Campaña', 'badge': 'CONSOLIDADO', 'badge_class': 'badge-info'}
         ]
     }
 
@@ -729,8 +773,8 @@ def build_all():
 
     with open(get_dest('web_dashboard/dashboard_data.js'), 'w', encoding='utf-8') as f:
         f.write("window.DASHBOARD_PERIODS_DATA = " + json.dumps(periods_data, ensure_ascii=False) + ";\n")
-        # Mantener window.DASHBOARD_DATA apuntando por defecto a Octubre (período en curso)
-        f.write("window.DASHBOARD_DATA = window.DASHBOARD_PERIODS_DATA.periods['2026-10'];\n")
+        # Mantener window.DASHBOARD_DATA apuntando por defecto al período en curso (Noviembre)
+        f.write("window.DASHBOARD_DATA = window.DASHBOARD_PERIODS_DATA.periods['2026-11'];\n")
 
     def safe_copy(src, dst):
         try:
@@ -758,7 +802,8 @@ def build_all():
 
     print("Multi-period dataset generado con éxito:")
     print(f"- Sep (cierre {d_sep['global_kpis']['fecha_corte']}): budget={d_sep['global_kpis']['budget_uds']}, pedidos={d_sep['global_kpis']['pedidos_uds']}, accuracy={d_sep['global_kpis']['forecast_accuracy']:.1f}%")
-    print(f"- Oct (corte {d_oct['global_kpis']['fecha_corte']}): budget={d_oct['global_kpis']['budget_uds']}, pedidos={d_oct['global_kpis']['pedidos_uds']}, accuracy={d_oct['global_kpis']['forecast_accuracy']:.1f}%")
+    print(f"- Oct (cierre {d_oct['global_kpis']['fecha_corte']}): budget={d_oct['global_kpis']['budget_uds']}, pedidos={d_oct['global_kpis']['pedidos_uds']}, accuracy={d_oct['global_kpis']['forecast_accuracy']:.1f}%")
+    print(f"- Nov (corte {d_nov['global_kpis']['fecha_corte']}): budget={d_nov['global_kpis']['budget_uds']}, pedidos={d_nov['global_kpis']['pedidos_uds']}, accuracy={d_nov['global_kpis']['forecast_accuracy']:.1f}%")
     print(f"- Acumulado (corte {d_acum['global_kpis']['fecha_corte']}): budget={d_acum['global_kpis']['budget_uds']}, pedidos={d_acum['global_kpis']['pedidos_uds']}, accuracy={d_acum['global_kpis']['forecast_accuracy']:.1f}%")
 
 if __name__ == '__main__':

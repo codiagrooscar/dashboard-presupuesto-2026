@@ -49,7 +49,17 @@ def get_latest_stock_file():
     candidates.sort(key=sort_key, reverse=True)
     return os.path.join(stock_dir, candidates[0])
 
-def get_latest_october_file():
+def get_active_order_files():
+    order_files = []
+    # October closure
+    for f in ['Pedidos02.11 comerciales.xlsx', 'Pedidos 02.11 comerciales.xlsx', 'Pedidos30.10 comerciales.xlsx']:
+        if os.path.exists(f):
+            order_files.append(f)
+            break
+        elif os.path.exists(os.path.join('Pedidos', f)):
+            order_files.append(os.path.join('Pedidos', f))
+            break
+    # November in-progress
     candidates = [
         f for f in os.listdir('.')
         if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
@@ -59,18 +69,24 @@ def get_latest_october_file():
             os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
             if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
         ]
-    oct_candidates = []
+    nov_candidates = []
     for f in candidates:
         base_f = os.path.basename(f)
-        m = re.search(r'(\d{1,2})\.(\d{1,2})', base_f)
+        m = re.search(r'(\d{1,2})\.11', base_f)
         if m:
-            day, month = int(m.group(1)), int(m.group(2))
-            if (month == 10 and day >= 2) or (month == 11 and day <= 5):
-                oct_candidates.append((month, day, f))
-    if oct_candidates:
-        oct_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
-        return oct_candidates[0][2]
-    return 'Pedidos 02.10 comerciales.xlsx' if os.path.exists('Pedidos 02.10 comerciales.xlsx') else None
+            day = int(m.group(1))
+            if day >= 3:
+                nov_candidates.append((day, f))
+    if nov_candidates:
+        nov_candidates.sort(key=lambda x: x[0], reverse=True)
+        order_files.append(nov_candidates[0][1])
+    elif os.path.exists('Pedidos03.11 comerciales.xlsx'):
+        order_files.append('Pedidos03.11 comerciales.xlsx')
+    return list(dict.fromkeys(order_files))
+
+def get_latest_october_file():
+    files = get_active_order_files()
+    return files[0] if files else 'Pedidos 02.10 comerciales.xlsx'
 
 # 1. Load Stock from latest stock file
 stock_path = get_latest_stock_file() or r'C:\Users\oscar.ocampo\OneDrive - Agroquímica Codiagro S.L\Escritorio\Estado de pedidos\Aplicacion web\Stock 02.10.xlsx'
@@ -130,19 +146,26 @@ for com, cdata in p_sep.get('comerciales', {}).items():
             if l.get('cliente'):
                 pending_orders[sku]['clientes'].add(str(l.get('cliente')).strip())
 
-# Additional pending orders from latest October orders file
-oct_file = get_latest_october_file()
-if oct_file:
+# Additional pending orders from active orders files (October and November)
+active_order_files = get_active_order_files()
+seen_pending_lines = set()
+
+for ord_file in active_order_files:
     try:
-        print(f"Loading October pending orders from: {oct_file}")
-        wb_ped = safe_load_workbook(oct_file, data_only=True)
+        print(f"Loading pending orders from: {ord_file}")
+        wb_ped = safe_load_workbook(ord_file, data_only=True)
         ws_ped = wb_ped.active
         for row in ws_ped.iter_rows(min_row=2, values_only=True):
             p_uds = row[10]
             if p_uds and float(p_uds) > 0:
+                ped_num = str(row[3] or '').strip()
                 c_art = str(row[6] or '').strip().upper()
                 d_art = str(row[7] or '').strip()
                 cli = str(row[5] or '').strip()
+                line_key = (ped_num, c_art)
+                if line_key in seen_pending_lines:
+                    continue
+                seen_pending_lines.add(line_key)
                 if c_art not in pending_orders:
                     pending_orders[c_art] = {
                         'sku': c_art,
@@ -152,9 +175,10 @@ if oct_file:
                         'clientes': set()
                     }
                 pending_orders[c_art]['pendientes_uds'] += float(p_uds)
-                pending_orders[c_art]['clientes'].add(cli)
+                if cli:
+                    pending_orders[c_art]['clientes'].add(cli)
     except Exception as e:
-        print(f"Notice checking {oct_file}:", e)
+        print(f"Notice checking {ord_file}:", e)
 
 # Convert client sets to sorted lists
 for s in pending_orders:
@@ -578,9 +602,9 @@ output_data = {
     "metadata": {
         "generated_at": datetime.now().isoformat(),
         "stock_source": os.path.basename(stock_path) if stock_path else "Stock.xlsx",
-        "orders_source": oct_file or "Pedidos.xlsx",
+        "orders_source": ", ".join(os.path.basename(f) for f in active_order_files) if active_order_files else "Pedidos.xlsx",
         "forecast_source": "Presupuesto_Ventas_2027_Definitivo.xlsx",
-        "current_month": "2026-10",
+        "current_month": "2026-11",
         "months": months_metadata,
         "presets": presets,
         "default_preset": "N2",

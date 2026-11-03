@@ -2486,9 +2486,10 @@
         export_market: "🌍 Exportación",
         in_progress: "En Curso",
         closed: "Cerrado",
+        period_nov: "Noviembre 2026",
         period_oct: "Octubre 2026",
         period_sep: "Septiembre 2026",
-        period_accum: "📊 Acumulado Sep + Oct",
+        period_accum: "📊 Acumulado Campaña",
         tab_resumen: "Resumen General",
         nav_group_dg: "DIRECCIÓN GENERAL",
         nav_group_com: "COMERCIAL",
@@ -3044,6 +3045,11 @@
       const str = Number(n).toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       return currentLang === 'en' ? `€${str}` : `${str} €`;
     };
+
+    const fmtEur = (n) => fmtCurr(n);
+    window.fmtNum = fmtNum;
+    window.fmtCurr = fmtCurr;
+    window.fmtEur = fmtEur;
 
     const fmtPct = (val) => {
       const n = Number(val);

@@ -2487,7 +2487,7 @@
       return currentLang === 'en' ? `€${str}` : `${str} €`;
     };
 
-    const fmtEur = (n) => fmtCurr(n);
+    var fmtEur = (n) => fmtCurr(n);
     window.fmtNum = fmtNum;
     window.fmtCurr = fmtCurr;
     window.fmtEur = fmtEur;

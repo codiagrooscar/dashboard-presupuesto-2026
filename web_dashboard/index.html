@@ -1965,7 +1965,7 @@
 
   <script>
     let allPeriodsData = null;
-    let currentPeriod = '2026-10'; // Por defecto Octubre 2026
+    let currentPeriod = null; // Inicializado dinámicamente según default_period de los datos
     let appData = null;
     let currentTab = 'resumen';
     let currentFilter = 'ALL';
@@ -3081,8 +3081,20 @@
           ensureAccuracyFields(allPeriodsData.periods[pid]);
         });
 
-        if (!allPeriodsData.periods[currentPeriod]) {
-          currentPeriod = allPeriodsData.default_period || Object.keys(allPeriodsData.periods)[0];
+        // Período predeterminado: respetar selección expresa de sesión o aplicar default_period de los datos
+        let userSelectedPeriod = null;
+        try {
+          userSelectedPeriod = sessionStorage.getItem('codiagro_selected_period');
+        } catch (e) {}
+
+        if (userSelectedPeriod && allPeriodsData.periods && allPeriodsData.periods[userSelectedPeriod]) {
+          currentPeriod = userSelectedPeriod;
+        } else if (allPeriodsData.default_period && allPeriodsData.periods && allPeriodsData.periods[allPeriodsData.default_period]) {
+          currentPeriod = allPeriodsData.default_period;
+        } else if (allPeriodsData.metadata && allPeriodsData.metadata.default_period && allPeriodsData.periods && allPeriodsData.periods[allPeriodsData.metadata.default_period]) {
+          currentPeriod = allPeriodsData.metadata.default_period;
+        } else if (!currentPeriod || !allPeriodsData.periods[currentPeriod]) {
+          currentPeriod = Object.keys(allPeriodsData.periods)[0];
         }
         appData = allPeriodsData.periods[currentPeriod];
 
@@ -3142,6 +3154,7 @@
     function switchPeriod(periodId) {
       if (!allPeriodsData || !allPeriodsData.periods[periodId]) return;
       currentPeriod = periodId;
+      try { sessionStorage.setItem('codiagro_selected_period', periodId); } catch (e) {}
       appData = allPeriodsData.periods[periodId];
       updatePeriodSwitcherUI();
       updateScopeSwitcherUI();

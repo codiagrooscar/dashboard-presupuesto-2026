@@ -193,11 +193,17 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
   let localSaved = false;
 
   // 1. Guardar provisionalmente en localStorage como borrador local
+  // REGLA CRITICA: Identificar y reconciliar borradores EXCLUSIVAMENTE mediante clave_operacion.
+  // Un ID provisional coincidente generado por otra pestana NUNCA debe borrar otra operacion.
   try {
     let stored = [];
     try { stored = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) {}
     acuerdo._es_borrador_local = true;
-    stored = stored.filter(a => a.id !== provisionalId && !(opKey && a.clave_operacion === opKey));
+    stored = stored.filter(a => {
+      if (opKey && a.clave_operacion) return a.clave_operacion !== opKey;
+      if (!opKey && !a.clave_operacion) return a.id !== provisionalId;
+      return true;
+    });
     stored.unshift(acuerdo);
     localStorage.setItem(key, JSON.stringify(stored));
     localSaved = true;
@@ -239,7 +245,8 @@ function guardarAcuerdoPersistente(acuerdo, callback) {
           let storedDef = JSON.parse(localStorage.getItem(key) || '[]');
           storedDef = storedDef.filter(a => {
             if (opKey && a.clave_operacion) return a.clave_operacion !== opKey;
-            return a.id !== provisionalId;
+            if (!opKey && !a.clave_operacion) return a.id !== provisionalId;
+            return true;
           });
           localStorage.setItem(key, JSON.stringify(storedDef));
         } catch (e) {}

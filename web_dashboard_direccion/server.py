@@ -101,9 +101,26 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 if gastos_file.exists():
                     try:
                         with open(gastos_file, "r", encoding="utf-8") as gf:
-                            acuerdos = json.load(gf)
-                    except Exception:
-                        acuerdos = []
+                            raw_content = gf.read()
+                            if raw_content.strip():
+                                parsed = json.loads(raw_content)
+                                if isinstance(parsed, list):
+                                    acuerdos = parsed
+                                else:
+                                    raise ValueError("El contenido del archivo central no es una lista válida.")
+                            else:
+                                acuerdos = []
+                    except Exception as e:
+                        # REGLA CRITICA DE INTEGRIDAD: Si el archivo existe pero está dañado o no se puede leer,
+                        # BLOQUEAR la escritura para proteger los datos históricos existentes y conservar exactamente sus bytes.
+                        err_msg = f"Error de integridad: el archivo central de acuerdos existe pero está dañado o no se puede leer ({e}). Operación rechazada para preservar los datos."
+                        err_body = json.dumps({'success': False, 'error': err_msg}).encode('utf-8')
+                        self.send_response(500)
+                        self.send_header('Content-Type', 'application/json; charset=utf-8')
+                        self.send_header('Content-Length', str(len(err_body)))
+                        self.end_headers()
+                        self.wfile.write(err_body)
+                        return
 
                 # Eliminar metadatos internos del cliente antes de consolidar centralmente
                 for k in [k for k in list(data.keys()) if k.startswith("_")]:
@@ -173,9 +190,30 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                             data["clave_operacion"] = f"OP-{current_year}-{aid}"
                         acuerdos.insert(0, data)
 
+                import tempfile
                 gastos_file.parent.mkdir(parents=True, exist_ok=True)
-                with open(gastos_file, "w", encoding="utf-8") as gf:
-                    json.dump(acuerdos, gf, ensure_ascii=False, indent=2)
+
+                # 1. Copia de respaldo previa antes de modificar (si existía archivo previo)
+                if gastos_file.exists():
+                    try:
+                        bak_file = gastos_file.with_suffix('.json.bak')
+                        shutil.copy2(gastos_file, bak_file)
+                    except Exception as e:
+                        print("Aviso al crear backup previo de acuerdos:", e)
+
+                # 2. Guardado atómico mediante archivo temporal y sustitución segura (os.replace)
+                temp_fd, temp_path = tempfile.mkstemp(dir=gastos_file.parent, prefix='acuerdos_tmp_', suffix='.json')
+                try:
+                    with os.fdopen(temp_fd, 'w', encoding='utf-8') as tf:
+                        json.dump(acuerdos, tf, ensure_ascii=False, indent=2)
+                        tf.flush()
+                        os.fsync(tf.fileno())
+                    os.replace(temp_path, gastos_file)
+                except Exception as e:
+                    if os.path.exists(temp_path):
+                        try: os.remove(temp_path)
+                        except: pass
+                    raise e
 
                 bi_json = BASE_DIR / "bi_intelligence_data.json"
                 if bi_json.exists():
@@ -188,12 +226,21 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                         mr["acuerdos_registrados"] = mr_list
                         mr["total_acuerdos"] = len(mr_list)
                         mr["estado"] = "Operativo"
-                        with open(bi_json, "w", encoding="utf-8") as bf:
+
+                        t_fd, t_path = tempfile.mkstemp(dir=bi_json.parent, prefix='bi_tmp_', suffix='.json')
+                        with os.fdopen(t_fd, 'w', encoding='utf-8') as bf:
                             json.dump(bi_data, bf, ensure_ascii=False, indent=2)
+                            bf.flush()
+                            os.fsync(bf.fileno())
+                        os.replace(t_path, bi_json)
                         
                         bi_js = BASE_DIR / "bi_intelligence_data.js"
-                        with open(bi_js, "w", encoding="utf-8") as jf:
+                        t_fd2, t_path2 = tempfile.mkstemp(dir=bi_js.parent, prefix='bi_js_tmp_', suffix='.js')
+                        with os.fdopen(t_fd2, 'w', encoding='utf-8') as jf:
                             jf.write("window.BI_INTELLIGENCE_DATA = " + json.dumps(bi_data, ensure_ascii=False, indent=2) + ";\n")
+                            jf.flush()
+                            os.fsync(jf.fileno())
+                        os.replace(t_path2, bi_js)
                     except Exception as e:
                         print("Aviso al sincronizar bi_intelligence_data:", e)
 

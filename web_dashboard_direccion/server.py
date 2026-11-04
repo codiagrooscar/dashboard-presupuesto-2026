@@ -2,6 +2,8 @@ import http.server
 import socketserver
 import os
 import json
+import shutil
+import tempfile
 import urllib.parse
 import secrets
 import time
@@ -102,14 +104,13 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     try:
                         with open(gastos_file, "r", encoding="utf-8") as gf:
                             raw_content = gf.read()
-                            if raw_content.strip():
-                                parsed = json.loads(raw_content)
-                                if isinstance(parsed, list):
-                                    acuerdos = parsed
-                                else:
-                                    raise ValueError("El contenido del archivo central no es una lista válida.")
+                            if not raw_content.strip():
+                                raise ValueError("El archivo central existe pero está vacío (0 bytes o solo espacios). No es un JSON válido.")
+                            parsed = json.loads(raw_content)
+                            if isinstance(parsed, list):
+                                acuerdos = parsed
                             else:
-                                acuerdos = []
+                                raise ValueError("El contenido del archivo central no es una lista válida.")
                     except Exception as e:
                         # REGLA CRITICA DE INTEGRIDAD: Si el archivo existe pero está dañado o no se puede leer,
                         # BLOQUEAR la escritura para proteger los datos históricos existentes y conservar exactamente sus bytes.
@@ -193,13 +194,22 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                 import tempfile
                 gastos_file.parent.mkdir(parents=True, exist_ok=True)
 
-                # 1. Copia de respaldo previa antes de modificar (si existía archivo previo)
+                # 1. Copia de respaldo previa obligatoria antes de modificar (si existía archivo previo)
                 if gastos_file.exists():
                     try:
                         bak_file = gastos_file.with_suffix('.json.bak')
                         shutil.copy2(gastos_file, bak_file)
+                        if not bak_file.exists() or bak_file.stat().st_size != gastos_file.stat().st_size:
+                            raise IOError("Fallo en la verificación de integridad de la copia de respaldo.")
                     except Exception as e:
-                        print("Aviso al crear backup previo de acuerdos:", e)
+                        err_msg = f"Error crítico de seguridad: fallo al generar o verificar la copia de seguridad previa ({e}). Guardado abortado para proteger el archivo central."
+                        err_body = json.dumps({'success': False, 'error': err_msg}).encode('utf-8')
+                        self.send_response(500)
+                        self.send_header('Content-Type', 'application/json; charset=utf-8')
+                        self.send_header('Content-Length', str(len(err_body)))
+                        self.end_headers()
+                        self.wfile.write(err_body)
+                        return
 
                 # 2. Guardado atómico mediante archivo temporal y sustitución segura (os.replace)
                 temp_fd, temp_path = tempfile.mkstemp(dir=gastos_file.parent, prefix='acuerdos_tmp_', suffix='.json')

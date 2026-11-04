@@ -1,3 +1,21 @@
+// Formatters seguros universales
+var fmtEur = window.fmtEur = window.fmtEur || function(n) {
+  if (typeof fmtCurr === 'function') return fmtCurr(n);
+  const loc = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en-US' : 'es-ES';
+  const str = Number(n || 0).toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (typeof currentLang !== 'undefined' && currentLang === 'en') ? ('€' + str) : (str + ' €');
+};
+var fmtNum = window.fmtNum = window.fmtNum || function(n, dec=0) {
+  if (isNaN(n) || n === null || n === undefined) return '0';
+  const loc = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en-US' : 'es-ES';
+  return Number(n).toLocaleString(loc, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+};
+var fmtPct = window.fmtPct = window.fmtPct || function(val) {
+  const n = Number(val);
+  if (isNaN(n) || val === null || val === undefined) return (typeof currentLang !== 'undefined' && currentLang === 'en') ? '0.0%' : '0,0%';
+  const s = n.toFixed(1);
+  return ((typeof currentLang !== 'undefined' && currentLang === 'en') ? s : s.replace('.', ',')) + '%';
+};
 // =========================================================================
 // PANTALLA DE INICIO: COCKPIT DE DIRECCIÓN GENERAL & RADAR DE PRIORIDADES
 // =========================================================================

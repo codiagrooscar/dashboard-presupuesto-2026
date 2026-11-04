@@ -12,6 +12,9 @@
 var fmtEur = (n) => typeof fmtCurr === 'function' ? fmtCurr(n) : (Number(n||0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €');
 const fmtNumLocal = (n, dec=0) => typeof fmtNum === 'function' ? fmtNum(n, dec) : Number(n||0).toLocaleString('es-ES', { minimumFractionDigits: dec, maximumFractionDigits: dec });
 const fmtPctLocal = (n) => typeof fmtPct === 'function' ? fmtPct(n) : (Number(n||0).toFixed(1).replace('.', ',') + '%');
+window.fmtEur = fmtEur;
+window.fmtNum = fmtNumLocal;
+window.fmtPct = fmtPctLocal;
 
 let profitData = null;
 let profitSubtab = 'radar'; // 'radar', 'clientes', 'comparador', 'productos', 'mercados', 'comerciales', 'historico'

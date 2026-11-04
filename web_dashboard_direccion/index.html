@@ -14,19 +14,19 @@
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
-  <script src="dashboard_i18n.js?v=20261102_0835"></script>
-  <script src="dashboard_data.js?v=20261102_0835"></script>
-  <script src="production_planning_data.js?v=20261102_0835"></script>
-  <script src="treasury_data.js?v=20261102_0835"></script>
-  <script src="profitability_data.js?v=20261102_0835"></script>
-  <script src="fullcost_data.js?v=20261102_0835"></script>
-  <script src="profitability_logic.js?v=20261102_0835"></script>
-  <script src="bi_intelligence_data.js?v=20261102_0835"></script>
-  <script src="cockpit_inicio_logic.js?v=20261102_0835"></script>
-  <script src="bi_intelligence_logic.js?v=20261102_0835"></script>
-  <link rel="stylesheet" href="marta_tracking.css?v=20261102_0835">
-  <script src="marta_tracking_data.js?v=20261102_0835"></script>
-  <script src="marta_tracking_logic.js?v=20261102_0835"></script>
+  <script src="dashboard_i18n.js?v=20261104_0815"></script>
+  <script src="dashboard_data.js?v=20261104_0815"></script>
+  <script src="production_planning_data.js?v=20261104_0815"></script>
+  <script src="treasury_data.js?v=20261104_0815"></script>
+  <script src="profitability_data.js?v=20261104_0815"></script>
+  <script src="fullcost_data.js?v=20261104_0815"></script>
+  <script src="profitability_logic.js?v=20261104_0815"></script>
+  <script src="bi_intelligence_data.js?v=20261104_0815"></script>
+  <script src="cockpit_inicio_logic.js?v=20261104_0815"></script>
+  <script src="bi_intelligence_logic.js?v=20261104_0815"></script>
+  <link rel="stylesheet" href="marta_tracking.css?v=20261104_0815">
+  <script src="marta_tracking_data.js?v=20261104_0815"></script>
+  <script src="marta_tracking_logic.js?v=20261104_0815"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -2342,6 +2342,26 @@
   </footer>
 
   <script>
+    // Formatters universales globales
+    var fmtCurr = window.fmtCurr = window.fmtCurr || function(n) {
+      const lang = (typeof currentLang !== "undefined" && currentLang === "en") ? "en" : "es";
+      if (isNaN(n) || n === null || n === undefined) return lang === "en" ? "€0.00" : "0,00 €";
+      const loc = lang === "en" ? "en-US" : "es-ES";
+      const str = Number(n).toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return lang === "en" ? ("€" + str) : (str + " €");
+    };
+    var fmtEur = window.fmtEur = window.fmtEur || function(n) { return window.fmtCurr(n); };
+    var fmtNum = window.fmtNum = window.fmtNum || function(n, dec=0) {
+      if (isNaN(n) || n === null || n === undefined) return "0";
+      const loc = (typeof currentLang !== "undefined" && currentLang === "en") ? "en-US" : "es-ES";
+      return Number(n).toLocaleString(loc, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    };
+    var fmtPct = window.fmtPct = window.fmtPct || function(val) {
+      const n = Number(val);
+      if (isNaN(n) || val === null || val === undefined) return (typeof currentLang !== "undefined" && currentLang === "en") ? "0.0%" : "0,0%";
+      const s = n.toFixed(1);
+      return ((typeof currentLang !== "undefined" && currentLang === "en") ? s : s.replace(".", ",")) + "%";
+    };
     const VALID_SHIELD_USERS = ['oscar.ocampo', 'oscar', 'codiagrooscar@gmail.com', 'oscar.ocampo@codiagro.com', 'direccion', 'admin'];
     const VALID_SHIELD_HASHES = [
       'a64d65628727d9f0e6a8c75fd1313c0a770c664396c0b954bb36c6408ce81861', // SHA-256 de Codiagro2026!
@@ -3063,13 +3083,13 @@
       return key;
     }
 
-    const fmtNum = (n, dec=0) => {
+    var fmtNum = (n, dec=0) => {
       if (isNaN(n) || n === null || n === undefined) return '0';
       const loc = currentLang === 'en' ? 'en-US' : 'es-ES';
       return Number(n).toLocaleString(loc, { minimumFractionDigits: dec, maximumFractionDigits: dec });
     };
 
-    const fmtCurr = (n) => {
+    var fmtCurr = (n) => {
       if (isNaN(n) || n === null || n === undefined) return currentLang === 'en' ? '€0.00' : '0,00 €';
       const loc = currentLang === 'en' ? 'en-US' : 'es-ES';
       const str = Number(n).toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -3081,14 +3101,14 @@
     window.fmtCurr = fmtCurr;
     window.fmtEur = fmtEur;
 
-    const fmtPct = (val) => {
+    var fmtPct = (val) => {
       const n = Number(val);
       if (isNaN(n) || val === null || val === undefined) return currentLang === 'en' ? '0.0%' : '0,0%';
       const s = n.toFixed(1);
       return (currentLang === 'en' ? s : s.replace('.', ',')) + '%';
     };
 
-    const fmtAcc = (val) => {
+    var fmtAcc = (val) => {
       let n = Number(val);
       if (isNaN(n) || val === null || val === undefined) return currentLang === 'en' ? '0.0%' : '0,0%';
       if (n < 0) n = 0;
@@ -3177,7 +3197,7 @@
       const periodLabel = document.getElementById('periodLabel');
       if (periodLabel) periodLabel.innerText = t('period_label');
       const pbtnNov = document.getElementById('pbtn-2026-11-text');
-      if (pbtnNov) pbtnNov.innerText = t('period_nov') || (currentLang === 'en' ? 'November 2026' : 'Noviembre 2026');
+      if (pbtnNov) { const novVal = t('period_nov'); pbtnNov.innerText = (novVal && novVal !== 'period_nov') ? novVal : (currentLang === 'en' ? 'November 2026' : 'Noviembre 2026'); }
       const pbtnNovBadge = document.getElementById('pbtn-2026-11-badge');
       if (pbtnNovBadge) pbtnNovBadge.innerText = t('in_progress');
       const pbtnOct = document.getElementById('pbtn-2026-10-text');

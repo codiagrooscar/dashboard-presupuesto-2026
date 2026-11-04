@@ -2474,13 +2474,13 @@
       return key;
     }
 
-    const fmtNum = (n, dec=0) => {
+    var fmtNum = (n, dec=0) => {
       if (isNaN(n) || n === null || n === undefined) return '0';
       const loc = currentLang === 'en' ? 'en-US' : 'es-ES';
       return Number(n).toLocaleString(loc, { minimumFractionDigits: dec, maximumFractionDigits: dec });
     };
 
-    const fmtCurr = (n) => {
+    var fmtCurr = (n) => {
       if (isNaN(n) || n === null || n === undefined) return currentLang === 'en' ? '€0.00' : '0,00 €';
       const loc = currentLang === 'en' ? 'en-US' : 'es-ES';
       const str = Number(n).toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -2492,14 +2492,14 @@
     window.fmtCurr = fmtCurr;
     window.fmtEur = fmtEur;
 
-    const fmtPct = (val) => {
+    var fmtPct = (val) => {
       const n = Number(val);
       if (isNaN(n) || val === null || val === undefined) return currentLang === 'en' ? '0.0%' : '0,0%';
       const s = n.toFixed(1);
       return (currentLang === 'en' ? s : s.replace('.', ',')) + '%';
     };
 
-    const fmtAcc = (val) => {
+    var fmtAcc = (val) => {
       let n = Number(val);
       if (isNaN(n) || val === null || val === undefined) return currentLang === 'en' ? '0.0%' : '0,0%';
       if (n < 0) n = 0;
@@ -2625,7 +2625,7 @@
       const periodLabel = document.getElementById('periodLabel');
       if (periodLabel) periodLabel.innerText = t('period_label');
       const pbtnNov = document.getElementById('pbtn-2026-11-text');
-      if (pbtnNov) pbtnNov.innerText = t('period_nov') || (currentLang === 'en' ? 'November 2026' : 'Noviembre 2026');
+      if (pbtnNov) { const novVal = t('period_nov'); pbtnNov.innerText = (novVal && novVal !== 'period_nov') ? novVal : (currentLang === 'en' ? 'November 2026' : 'Noviembre 2026'); }
       const pbtnNovBadge = document.getElementById('pbtn-2026-11-badge');
       if (pbtnNovBadge) pbtnNovBadge.innerText = t('in_progress');
       const pbtnOct = document.getElementById('pbtn-2026-10-text');

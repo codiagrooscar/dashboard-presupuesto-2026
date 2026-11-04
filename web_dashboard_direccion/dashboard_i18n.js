@@ -243,6 +243,8 @@ window.CODIAGRO_I18N_DICT = {
   "Nacional": "Domestic",
   "Exportación": "Export",
   "Noviembre 2026": "November 2026",
+  "period_nov": "November 2026",
+  "period_nov_corte": "November 2026 (04.11)",
   "Octubre 2026": "October 2026",
   "Acumulado Campaña": "Cumulative Season",
   "Septiembre 2026": "September 2026",

@@ -1729,6 +1729,16 @@
       .app-topbar { padding: 0.75rem 1rem; }
     }
 
+    #shieldPassInput::-ms-reveal,
+    #shieldPassInput::-ms-clear,
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      pointer-events: none !important;
+    }
+
 </style>
 </head>
 <body>
@@ -1751,7 +1761,7 @@
         <span id="shieldErrorMsg">Usuario o contraseña incorrectos.</span>
       </div>
 
-      <form onsubmit="handleShieldLogin(event)">
+      <form id="shieldLoginForm" action="javascript:void(0);" onsubmit="handleShieldLogin(event); return false;">
         <div style="margin-bottom: 1.25rem;">
           <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #cbd5e1; margin-bottom: 0.45rem;">Usuario</label>
           <div style="position: relative; display: flex; align-items: center;">
@@ -1765,7 +1775,7 @@
           <div style="position: relative; display: flex; align-items: center;">
             <span style="position: absolute; left: 1rem; font-size: 1rem; color: #64748b; pointer-events: none;">🔒</span>
             <input type="password" id="shieldPassInput" placeholder="Contraseña de acceso" required autocomplete="current-password" style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; padding: 0.8rem 2.75rem 0.8rem 2.75rem; color: #ffffff; font-family: inherit; font-size: 0.95rem; outline: none;">
-            <button type="button" onclick="toggleShieldPassVisibility()" style="position: absolute; right: 0.75rem; background: transparent; border: none; color: #64748b; cursor: pointer; font-size: 1.1rem; padding: 0.35rem;" id="shieldEyeBtn">👁️</button>
+            <button type="button" onclick="toggleShieldPassVisibility(event)" style="position: absolute; right: 0.65rem; z-index: 9999; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 1.25rem; padding: 0.4rem; display: flex; align-items: center; justify-content: center; outline: none; user-select: none;" id="shieldEyeBtn" title="Ver contraseña">👁️</button>
           </div>
         </div>
 
@@ -2332,8 +2342,12 @@
   </footer>
 
   <script>
-    const VALID_SHIELD_USERS = ['oscar.ocampo', 'oscar', 'direccion', 'admin'];
-    const VALID_SHIELD_HASH = 'a64d65628727d9f0e6a8c75fd1313c0a770c664396c0b954bb36c6408ce81861'; // SHA-256 de Codiagro2026!
+    const VALID_SHIELD_USERS = ['oscar.ocampo', 'oscar', 'codiagrooscar@gmail.com', 'oscar.ocampo@codiagro.com', 'direccion', 'admin'];
+    const VALID_SHIELD_HASHES = [
+      'a64d65628727d9f0e6a8c75fd1313c0a770c664396c0b954bb36c6408ce81861', // SHA-256 de Codiagro2026!
+      '2e12bdab84b2e6c3977f0a774d83c135b3dea882f49fe5a261dbf8848536228f'  // SHA-256 de Codiagro2026
+    ];
+    const VALID_SHIELD_RAW_PASSWORDS = ['Codiagro2026!', 'Codiagro2026'];
 
     async function computeSha256(text) {
       const enc = new TextEncoder().encode(text);
@@ -2341,16 +2355,23 @@
       return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    function toggleShieldPassVisibility() {
+    function toggleShieldPassVisibility(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       const input = document.getElementById('shieldPassInput');
       const btn = document.getElementById('shieldEyeBtn');
+      if (!input) return false;
       if (input.type === 'password') {
         input.type = 'text';
-        btn.textContent = '🙈';
+        if (btn) btn.textContent = '🙈';
       } else {
         input.type = 'password';
-        btn.textContent = '👁️';
+        if (btn) btn.textContent = '👁️';
       }
+      input.focus();
+      return false;
     }
 
     function unlockDashboard(userName) {
@@ -2360,6 +2381,9 @@
       if (layout) layout.style.display = '';
       const uEl = document.getElementById('headerUserName');
       if (uEl && userName) uEl.textContent = userName;
+      if (typeof renderCurrentTab === 'function') {
+        try { renderCurrentTab(); } catch(e) {}
+      }
     }
 
     function lockDashboard() {
@@ -2377,7 +2401,10 @@
     }
 
     async function handleShieldLogin(e) {
-      e.preventDefault();
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       const user = document.getElementById('shieldUserInput').value.trim().toLowerCase();
       const pass = document.getElementById('shieldPassInput').value;
       const remember = document.getElementById('shieldRememberMe').checked;
@@ -2403,18 +2430,20 @@
               sessionStorage.setItem('codiagro_auth', JSON.stringify(authData));
               if (remember) localStorage.setItem('codiagro_auth', JSON.stringify(authData));
               unlockDashboard(authData.user);
-              return;
+              return false;
             }
           }
         } catch(netErr) {}
 
         // 2. Cryptographic Client-Side Verification (Zero-leak fallback everywhere in the world)
         const hash = await computeSha256(pass);
-        if (VALID_SHIELD_USERS.includes(user) && (hash === VALID_SHIELD_HASH || pass === 'Codiagro2026!')) {
+        const passMatch = VALID_SHIELD_HASHES.includes(hash) || VALID_SHIELD_RAW_PASSWORDS.includes(pass);
+        if (VALID_SHIELD_USERS.includes(user) && passMatch) {
           const authData = {user: user, token: 'shield_sec_' + Date.now(), ts: Date.now()};
           sessionStorage.setItem('codiagro_auth', JSON.stringify(authData));
           if (remember) localStorage.setItem('codiagro_auth', JSON.stringify(authData));
           unlockDashboard(user);
+          return false;
         } else {
           errMsg.textContent = 'Usuario o contraseña incorrectos.';
           errEl.style.display = 'flex';
@@ -2422,6 +2451,7 @@
       } finally {
         btn.disabled = false;
       }
+      return false;
     }
 
     // Auto-check on load (local server check + local storage check)

@@ -164,9 +164,17 @@
       color: #475569;
     }
 
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
     .toggle-pwd-btn {
       position: absolute;
       right: 0.75rem;
+      z-index: 999;
       background: transparent;
       border: none;
       color: #64748b;
@@ -388,9 +396,9 @@
         }
       } catch (err) {
         // Fallback para ejecución estática sin backend
-        const validUsers = ['oscar.ocampo', 'oscar', 'direccion', 'admin'];
-        const validPass = 'Codiagro2026!';
-        if (validUsers.includes(user.toLowerCase()) && pass === validPass) {
+        const validUsers = ['oscar.ocampo', 'oscar', 'codiagrooscar@gmail.com', 'oscar.ocampo@codiagro.com', 'direccion', 'admin'];
+        const validPasses = ['Codiagro2026!', 'Codiagro2026'];
+        if (validUsers.includes(user.toLowerCase()) && validPasses.includes(pass)) {
           const authData = {
             user: user,
             token: 'local_static_token',

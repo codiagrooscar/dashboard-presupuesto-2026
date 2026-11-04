@@ -26,6 +26,72 @@ VALID_USERS = {
 # In-memory session store: { token: { 'user': username, 'created': timestamp } }
 ACTIVE_SESSIONS = {}
 
+def sincronizar_vista_desde_central(base_dir, project_dir):
+    """
+    Sincroniza y reconcilia bi_intelligence_data.json y bi_intelligence_data.js
+    a partir del archivo central Gastos/acuerdos_comerciales_registrados.json.
+    Devuelve (True, None) si la sincronización fue completa y exitosa.
+    Devuelve (False, str_error) si falló la actualización de la vista web.
+    """
+    gastos_file = project_dir / "Gastos" / "acuerdos_comerciales_registrados.json"
+    if not gastos_file.exists():
+        return True, None
+    try:
+        with open(gastos_file, "r", encoding="utf-8") as gf:
+            raw = gf.read()
+        if not raw.strip():
+            return False, "El archivo central está vacío"
+        acuerdos_centrales = json.loads(raw)
+        if not isinstance(acuerdos_centrales, list):
+            return False, "El archivo central no contiene una lista válida"
+    except Exception as e:
+        return False, f"Fallo al leer archivo central: {e}"
+
+    bi_json = base_dir / "bi_intelligence_data.json"
+    bi_js = base_dir / "bi_intelligence_data.js"
+    if not bi_json.exists():
+        return True, None
+
+    try:
+        with open(bi_json, "r", encoding="utf-8") as bf:
+            bi_data = json.load(bf)
+        mr = bi_data.setdefault("mejora_10_modo_reunion", {})
+        
+        # Deduplicación y orden garantizado: la fuente de verdad es acuerdos_centrales
+        mr["acuerdos_registrados"] = acuerdos_centrales
+        mr["total_acuerdos"] = len([a for a in acuerdos_centrales if str(a.get("cliente") or "").strip()])
+        mr["estado"] = "Operativo" if mr["total_acuerdos"] > 0 else "Sin información registrada"
+
+        # 1. Escritura atómica de bi_json
+        t_fd, t_path = tempfile.mkstemp(dir=bi_json.parent, prefix='bi_tmp_', suffix='.json')
+        try:
+            with os.fdopen(t_fd, 'w', encoding='utf-8') as bf:
+                json.dump(bi_data, bf, ensure_ascii=False, indent=2)
+                bf.flush()
+                os.fsync(bf.fileno())
+            os.replace(t_path, bi_json)
+        finally:
+            if os.path.exists(t_path):
+                try: os.remove(t_path)
+                except: pass
+
+        # 2. Escritura atómica de bi_js
+        t_fd2, t_path2 = tempfile.mkstemp(dir=bi_js.parent, prefix='bi_js_tmp_', suffix='.js')
+        try:
+            with os.fdopen(t_fd2, 'w', encoding='utf-8') as jf:
+                jf.write("window.BI_INTELLIGENCE_DATA = " + json.dumps(bi_data, ensure_ascii=False, indent=2) + ";\n")
+                jf.flush()
+                os.fsync(jf.fileno())
+            os.replace(t_path2, bi_js)
+        finally:
+            if os.path.exists(t_path2):
+                try: os.remove(t_path2)
+                except: pass
+
+        return True, None
+    except Exception as e:
+        return False, str(e)
+
 class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(BASE_DIR), **kwargs)
@@ -225,36 +291,24 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                         except: pass
                     raise e
 
-                bi_json = BASE_DIR / "bi_intelligence_data.json"
-                if bi_json.exists():
-                    try:
-                        with open(bi_json, "r", encoding="utf-8") as bf:
-                            bi_data = json.load(bf)
-                        mr = bi_data.setdefault("mejora_10_modo_reunion", {})
-                        mr_list = [a for a in mr.get("acuerdos_registrados", []) if a.get("id") != aid]
-                        mr_list.insert(0, data)
-                        mr["acuerdos_registrados"] = mr_list
-                        mr["total_acuerdos"] = len(mr_list)
-                        mr["estado"] = "Operativo"
+                # Sincronización controlada de la vista web distinguiendo guardado central vs vista
+                vista_ok, vista_err = sincronizar_vista_desde_central(BASE_DIR, PROJECT_DIR)
 
-                        t_fd, t_path = tempfile.mkstemp(dir=bi_json.parent, prefix='bi_tmp_', suffix='.json')
-                        with os.fdopen(t_fd, 'w', encoding='utf-8') as bf:
-                            json.dump(bi_data, bf, ensure_ascii=False, indent=2)
-                            bf.flush()
-                            os.fsync(bf.fileno())
-                        os.replace(t_path, bi_json)
-                        
-                        bi_js = BASE_DIR / "bi_intelligence_data.js"
-                        t_fd2, t_path2 = tempfile.mkstemp(dir=bi_js.parent, prefix='bi_js_tmp_', suffix='.js')
-                        with os.fdopen(t_fd2, 'w', encoding='utf-8') as jf:
-                            jf.write("window.BI_INTELLIGENCE_DATA = " + json.dumps(bi_data, ensure_ascii=False, indent=2) + ";\n")
-                            jf.flush()
-                            os.fsync(jf.fileno())
-                        os.replace(t_path2, bi_js)
-                    except Exception as e:
-                        print("Aviso al sincronizar bi_intelligence_data:", e)
+                resp_payload = {
+                    'success': True,
+                    'guardado_central': True,
+                    'vista_sincronizada': vista_ok,
+                    'estado_vista': 'completada' if vista_ok else 'pendiente',
+                    'id': aid,
+                    'acuerdo': data
+                }
+                if not vista_ok:
+                    resp_payload['aviso'] = f'Acuerdo consolidado centralmente con ID {aid}, pero la actualización de la vista web ha fallado ({vista_err}) y queda pendiente de sincronización.'
+                    resp_payload['mensaje'] = 'Guardado central confirmado. Vista web pendiente de sincronización.'
+                else:
+                    resp_payload['mensaje'] = 'Acuerdo formalizado y sincronizado permanentemente en base central y vista web.'
 
-                resp_body = json.dumps({'success': True, 'acuerdo': data}).encode('utf-8')
+                resp_body = json.dumps(resp_payload).encode('utf-8')
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.send_header('Content-Length', str(len(resp_body)))
@@ -394,6 +448,40 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
+
+        # Endpoint de sincronización forzada / recuperación de vista web
+        if path == '/api/sincronizar_vista':
+            user = self.get_session_user()
+            if not user:
+                self.send_response(401)
+                self.end_headers()
+                return
+            v_ok, v_err = sincronizar_vista_desde_central(BASE_DIR, PROJECT_DIR)
+            resp = json.dumps({'success': v_ok, 'vista_sincronizada': v_ok, 'error': v_err}).encode('utf-8')
+            self.send_response(200 if v_ok else 500)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(resp)))
+            self.end_headers()
+            self.wfile.write(resp)
+            return
+
+        # Auto-reconciliación transparente al consultar la vista o los datos
+        if path in ['/bi_intelligence_data.json', '/bi_intelligence_data.js', '/api/data']:
+            gastos_f = PROJECT_DIR / "Gastos" / "acuerdos_comerciales_registrados.json"
+            bi_j = BASE_DIR / "bi_intelligence_data.json"
+            if gastos_f.exists() and bi_j.exists():
+                try:
+                    with open(gastos_f, "r", encoding="utf-8") as gf:
+                        c_acuerdos = json.load(gf)
+                    with open(bi_j, "r", encoding="utf-8") as bf:
+                        c_bi = json.load(bf)
+                    v_acuerdos = c_bi.get("mejora_10_modo_reunion", {}).get("acuerdos_registrados", [])
+                    c_ids = {a.get("id") for a in c_acuerdos if isinstance(a, dict) and a.get("id")}
+                    v_ids = {a.get("id") for a in v_acuerdos if isinstance(a, dict) and a.get("id")}
+                    if c_ids != v_ids:
+                        sincronizar_vista_desde_central(BASE_DIR, PROJECT_DIR)
+                except Exception:
+                    pass
 
         # Status check
         if path == '/api/auth/status':

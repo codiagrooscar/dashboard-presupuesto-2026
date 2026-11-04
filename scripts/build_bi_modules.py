@@ -420,9 +420,18 @@ acuerdos_existentes = []
 if os.path.exists(src_persist):
     try:
         with open(src_persist, "r", encoding="utf-8") as f:
-            acuerdos_existentes = json.load(f)
+            raw_content = f.read()
+        if not raw_content.strip():
+            sys.stderr.write(f"[ERROR CRÍTICO] El archivo central de acuerdos {src_persist} existe pero está vacío (0 bytes o espacios). Se aborta la generación para proteger la persistencia.\n")
+            sys.exit(1)
+        parsed = json.loads(raw_content)
+        if not isinstance(parsed, list):
+            sys.stderr.write(f"[ERROR CRÍTICO] El contenido de {src_persist} no es una lista JSON válida. Se aborta la generación.\n")
+            sys.exit(1)
+        acuerdos_existentes = parsed
     except Exception as e:
-        print(f"Aviso al cargar persistencia de acuerdos desde {src_persist}: {e}")
+        sys.stderr.write(f"[ERROR CRÍTICO] Error al cargar persistencia de acuerdos desde {src_persist}: {e}. Se aborta la generación para evitar pérdida de datos.\n")
+        sys.exit(1)
     raw_combined = acuerdos_existentes
 else:
     prev_bi_acuerdos = output_bi.get("mejora_10_modo_reunion", {}).get("acuerdos_registrados", [])
@@ -445,15 +454,24 @@ for a in raw_combined:
                 a_copy["vigencia"] = a_copy["fecha_limite"]
             acuerdos_validados.append(a_copy)
 
-# Guardar en persistencia (tanto staging como destino)
+# Guardar en persistencia atómicamente (tanto staging como destino)
 dest_persist = get_dest(persist_path)
 os.makedirs(os.path.dirname(dest_persist), exist_ok=True)
-with open(dest_persist, "w", encoding="utf-8") as f:
+import tempfile
+t_fd, t_path = tempfile.mkstemp(dir=os.path.dirname(dest_persist), prefix='acu_tmp_', suffix='.json')
+with os.fdopen(t_fd, "w", encoding="utf-8") as f:
     json.dump(acuerdos_validados, f, ensure_ascii=False, indent=2)
+    f.flush()
+    os.fsync(f.fileno())
+os.replace(t_path, dest_persist)
 
 if not os.environ.get("CODIAGRO_STAGING_DIR") and dest_persist != persist_path:
-    with open(persist_path, "w", encoding="utf-8") as f:
+    t_fd2, t_path2 = tempfile.mkstemp(dir=os.path.dirname(persist_path), prefix='acu_tmp_', suffix='.json')
+    with os.fdopen(t_fd2, "w", encoding="utf-8") as f:
         json.dump(acuerdos_validados, f, ensure_ascii=False, indent=2)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(t_path2, persist_path)
 
 tot_acuerdos = len(acuerdos_validados)
 estado_acuerdos = "Operativo" if tot_acuerdos > 0 else "Sin información registrada"

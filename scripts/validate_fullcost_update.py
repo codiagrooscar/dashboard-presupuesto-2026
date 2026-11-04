@@ -2964,10 +2964,36 @@ def main():
 
 
         with open(bi_path, "r", encoding="utf-8") as f_bi:
-
-
-
             bi_data = json.load(f_bi)
+
+        # Validación estricta de conservación de acuerdos comerciales frente a la fuente
+        fuente_acuerdos_path = get_source(os.path.join("Gastos", "acuerdos_comerciales_registrados.json"))
+        fuente_ids = set()
+        fuente_acuerdos = []
+        if os.path.exists(fuente_acuerdos_path):
+            try:
+                with open(fuente_acuerdos_path, "r", encoding="utf-8") as f_ac:
+                    raw_ac = f_ac.read()
+                if not raw_ac.strip():
+                    fail(f"El archivo fuente de acuerdos {fuente_acuerdos_path} existe pero está vacío (0 bytes o solo espacios).", last_date)
+                fuente_acuerdos = json.loads(raw_ac)
+                if not isinstance(fuente_acuerdos, list):
+                    fail(f"El archivo fuente de acuerdos {fuente_acuerdos_path} no contiene una lista JSON válida.", last_date)
+            except Exception as e:
+                fail(f"El archivo fuente de acuerdos {fuente_acuerdos_path} está dañado o no es legible: {e}", last_date)
+
+            mr_json = bi_data.get("mejora_10_modo_reunion", {})
+            acuerdos_bi = mr_json.get("acuerdos_registrados", [])
+            fuente_ids = {str(a.get("id")) for a in fuente_acuerdos if isinstance(a, dict) and a.get("id")}
+            bi_ids = {str(a.get("id")) for a in acuerdos_bi if isinstance(a, dict) and a.get("id")}
+
+            if len(fuente_ids) > 0:
+                missing_ids = fuente_ids - bi_ids
+                if missing_ids:
+                    fail(f"Pérdida de acuerdos detectada en bi_intelligence_data.json: faltan los acuerdos {missing_ids} procedentes de la fuente validada.", last_date)
+                if len(acuerdos_bi) < len(fuente_acuerdos):
+                    fail(f"Discrepancia en recuento de acuerdos: fuente={len(fuente_acuerdos)}, generado={len(acuerdos_bi)}.", last_date)
+
 
 
 

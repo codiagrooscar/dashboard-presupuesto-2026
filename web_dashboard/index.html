@@ -10,6 +10,32 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    window.fmtCurr = window.fmtCurr || function(n) {
+      var lang = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en' : 'es';
+      if (isNaN(n) || n === null || n === undefined) return lang === 'en' ? '€0.00' : '0,00 €';
+      var loc = lang === 'en' ? 'en-US' : 'es-ES';
+      var str = Number(n).toLocaleString(loc, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return lang === 'en' ? ('€' + str) : (str + ' €');
+    };
+    window.fmtEur = window.fmtEur || function(n) { return window.fmtCurr(n); };
+    window.fmtNum = window.fmtNum || function(n, dec) {
+      dec = dec || 0;
+      if (isNaN(n) || n === null || n === undefined) return '0';
+      var loc = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en-US' : 'es-ES';
+      return Number(n).toLocaleString(loc, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    };
+    window.fmtPct = window.fmtPct || function(val) {
+      var n = Number(val);
+      if (isNaN(n) || val === null || val === undefined) return (typeof currentLang !== 'undefined' && currentLang === 'en') ? '0.0%' : '0,0%';
+      var s = n.toFixed(1);
+      return ((typeof currentLang !== 'undefined' && currentLang === 'en') ? s : s.replace('.', ',')) + '%';
+    };
+    var fmtCurr = window.fmtCurr;
+    var fmtEur = window.fmtEur;
+    var fmtNum = window.fmtNum;
+    var fmtPct = window.fmtPct;
+  </script>
   <script src="chart.umd.min.js"></script>
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>

@@ -25,6 +25,81 @@ VALID_USERS = {
 
 # In-memory session store: { token: { 'user': username, 'created': timestamp } }
 ACTIVE_SESSIONS = {}
+VISTA_SYNC_PENDIENTE = False
+
+def canonical_acuerdo_server(a):
+    if not isinstance(a, dict):
+        return {}
+    return {
+        k: (str(v).strip() if isinstance(v, str) else v)
+        for k, v in sorted(a.items())
+        if not k.startswith('_')
+    }
+
+def comprobar_paridad_vista_y_central(base_dir, project_dir):
+    """
+    Comprueba si bi_intelligence_data.json y bi_intelligence_data.js
+    están en perfecta paridad con Gastos/acuerdos_comerciales_registrados.json.
+    """
+    gastos_file = project_dir / "Gastos" / "acuerdos_comerciales_registrados.json"
+    acuerdos_centrales = []
+    if gastos_file.exists():
+        try:
+            with open(gastos_file, "r", encoding="utf-8") as gf:
+                raw = gf.read()
+            if not raw.strip():
+                return False, []
+            acuerdos_centrales = json.loads(raw)
+            if not isinstance(acuerdos_centrales, list):
+                return False, []
+        except Exception:
+            return False, []
+
+    bi_json = base_dir / "bi_intelligence_data.json"
+    bi_js = base_dir / "bi_intelligence_data.js"
+    if not bi_json.exists() or not bi_js.exists():
+        return False, acuerdos_centrales
+
+    c_can = [canonical_acuerdo_server(a) for a in acuerdos_centrales]
+    c_ids = [str(a.get("id")) for a in c_can if a.get("id")]
+
+    # 1. Comprobar JSON
+    try:
+        with open(bi_json, "r", encoding="utf-8") as jf:
+            bi_data = json.load(jf)
+        j_acuerdos = bi_data.get("mejora_10_modo_reunion", {}).get("acuerdos_registrados", [])
+        if not isinstance(j_acuerdos, list):
+            return False, acuerdos_centrales
+        j_can = [canonical_acuerdo_server(a) for a in j_acuerdos]
+        j_ids = [str(a.get("id")) for a in j_can if a.get("id")]
+        if len(c_can) != len(j_can) or c_ids != j_ids or c_can != j_can:
+            return False, acuerdos_centrales
+    except Exception:
+        return False, acuerdos_centrales
+
+    # 2. Comprobar JS
+    try:
+        with open(bi_js, "r", encoding="utf-8") as jsf:
+            js_content = jsf.read()
+        prefix = "window.BI_INTELLIGENCE_DATA ="
+        idx = js_content.find(prefix)
+        if idx == -1:
+            return False, acuerdos_centrales
+        js_json_str = js_content[idx + len(prefix):].rstrip()
+        if js_json_str.endswith(";"):
+            js_json_str = js_json_str[:-1].rstrip()
+        js_data = json.loads(js_json_str)
+        js_acuerdos = js_data.get("mejora_10_modo_reunion", {}).get("acuerdos_registrados", [])
+        if not isinstance(js_acuerdos, list):
+            return False, acuerdos_centrales
+        js_can = [canonical_acuerdo_server(a) for a in js_acuerdos]
+        js_ids = [str(a.get("id")) for a in js_can if a.get("id")]
+        if len(c_can) != len(js_can) or c_ids != js_ids or c_can != js_can:
+            return False, acuerdos_centrales
+    except Exception:
+        return False, acuerdos_centrales
+
+    return True, acuerdos_centrales
 
 def sincronizar_vista_desde_central(base_dir, project_dir):
     """
@@ -33,6 +108,7 @@ def sincronizar_vista_desde_central(base_dir, project_dir):
     Devuelve (True, None) si la sincronización fue completa y exitosa.
     Devuelve (False, str_error) si falló la actualización de la vista web.
     """
+    global VISTA_SYNC_PENDIENTE
     gastos_file = project_dir / "Gastos" / "acuerdos_comerciales_registrados.json"
     if not gastos_file.exists():
         return True, None
@@ -88,8 +164,10 @@ def sincronizar_vista_desde_central(base_dir, project_dir):
                 try: os.remove(t_path2)
                 except: pass
 
+        VISTA_SYNC_PENDIENTE = False
         return True, None
     except Exception as e:
+        VISTA_SYNC_PENDIENTE = True
         return False, str(e)
 
 class DashboardHandler(http.server.SimpleHTTPRequestHandler):
@@ -465,23 +543,14 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(resp)
             return
 
-        # Auto-reconciliación transparente al consultar la vista o los datos
-        if path in ['/bi_intelligence_data.json', '/bi_intelligence_data.js', '/api/data']:
-            gastos_f = PROJECT_DIR / "Gastos" / "acuerdos_comerciales_registrados.json"
-            bi_j = BASE_DIR / "bi_intelligence_data.json"
-            if gastos_f.exists() and bi_j.exists():
-                try:
-                    with open(gastos_f, "r", encoding="utf-8") as gf:
-                        c_acuerdos = json.load(gf)
-                    with open(bi_j, "r", encoding="utf-8") as bf:
-                        c_bi = json.load(bf)
-                    v_acuerdos = c_bi.get("mejora_10_modo_reunion", {}).get("acuerdos_registrados", [])
-                    c_ids = {a.get("id") for a in c_acuerdos if isinstance(a, dict) and a.get("id")}
-                    v_ids = {a.get("id") for a in v_acuerdos if isinstance(a, dict) and a.get("id")}
-                    if c_ids != v_ids:
-                        sincronizar_vista_desde_central(BASE_DIR, PROJECT_DIR)
-                except Exception:
-                    pass
+        # Auto-reconciliación transparente al consultar la vista, javascript, json o datos
+        global VISTA_SYNC_PENDIENTE
+        if path in ['/bi_intelligence_data.json', '/bi_intelligence_data.js', '/api/data', '/', '/index.html'] or VISTA_SYNC_PENDIENTE:
+            en_paridad, _ = comprobar_paridad_vista_y_central(BASE_DIR, PROJECT_DIR)
+            if not en_paridad or VISTA_SYNC_PENDIENTE:
+                v_ok, _ = sincronizar_vista_desde_central(BASE_DIR, PROJECT_DIR)
+                if v_ok:
+                    VISTA_SYNC_PENDIENTE = False
 
         # Status check
         if path == '/api/auth/status':

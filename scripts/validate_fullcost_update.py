@@ -2968,7 +2968,6 @@ def main():
 
         # Validación estricta de conservación de acuerdos comerciales frente a la fuente
         fuente_acuerdos_path = get_source(os.path.join("Gastos", "acuerdos_comerciales_registrados.json"))
-        fuente_ids = set()
         fuente_acuerdos = []
         if os.path.exists(fuente_acuerdos_path):
             try:
@@ -2982,17 +2981,93 @@ def main():
             except Exception as e:
                 fail(f"El archivo fuente de acuerdos {fuente_acuerdos_path} está dañado o no es legible: {e}", last_date)
 
-            mr_json = bi_data.get("mejora_10_modo_reunion", {})
-            acuerdos_bi = mr_json.get("acuerdos_registrados", [])
-            fuente_ids = {str(a.get("id")) for a in fuente_acuerdos if isinstance(a, dict) and a.get("id")}
-            bi_ids = {str(a.get("id")) for a in acuerdos_bi if isinstance(a, dict) and a.get("id")}
+        def canonical_acuerdo_val(item):
+            if not isinstance(item, dict):
+                return {}
+            return {
+                k: (str(v).strip() if isinstance(v, str) else v)
+                for k, v in sorted(item.items())
+                if not k.startswith('_')
+            }
 
-            if len(fuente_ids) > 0:
-                missing_ids = fuente_ids - bi_ids
-                if missing_ids:
-                    fail(f"Pérdida de acuerdos detectada en bi_intelligence_data.json: faltan los acuerdos {missing_ids} procedentes de la fuente validada.", last_date)
-                if len(acuerdos_bi) < len(fuente_acuerdos):
-                    fail(f"Discrepancia en recuento de acuerdos: fuente={len(fuente_acuerdos)}, generado={len(acuerdos_bi)}.", last_date)
+        mr_json = bi_data.get("mejora_10_modo_reunion", {})
+        acuerdos_bi_json = mr_json.get("acuerdos_registrados", [])
+        if not isinstance(acuerdos_bi_json, list):
+            fail("El campo acuerdos_registrados en bi_intelligence_data.json no es una lista válida.", last_date)
+
+        # Cargar y verificar también bi_intelligence_data.js
+        acuerdos_bi_js = []
+        if not os.path.exists(bi_js_path):
+            fail(f"El archivo obligatorio {bi_js_path} no existe.", last_date)
+        try:
+            with open(bi_js_path, "r", encoding="utf-8") as f_js:
+                js_raw = f_js.read()
+            prefix = "window.BI_INTELLIGENCE_DATA ="
+            p_idx = js_raw.find(prefix)
+            if p_idx == -1:
+                fail("Estructura inválida en bi_intelligence_data.js: falta window.BI_INTELLIGENCE_DATA.", last_date)
+            js_json_str = js_raw[p_idx + len(prefix):].rstrip()
+            if js_json_str.endswith(";"):
+                js_json_str = js_json_str[:-1].rstrip()
+            bi_js_data = json.loads(js_json_str)
+            acuerdos_bi_js = bi_js_data.get("mejora_10_modo_reunion", {}).get("acuerdos_registrados", [])
+            if not isinstance(acuerdos_bi_js, list):
+                fail("El campo acuerdos_registrados en bi_intelligence_data.js no es una lista válida.", last_date)
+        except Exception as e:
+            fail(f"Error al analizar bi_intelligence_data.js: {e}", last_date)
+
+        # 1. Caso fuente vacía ([]): debe exigir estrictamente cero acuerdos generados
+        if len(fuente_acuerdos) == 0:
+            if len(acuerdos_bi_json) > 0:
+                fail(f"La fuente central de acuerdos está vacía ([]), pero bi_intelligence_data.json contiene {len(acuerdos_bi_json)} acuerdos generados no autorizados.", last_date)
+            if len(acuerdos_bi_js) > 0:
+                fail(f"La fuente central de acuerdos está vacía ([]), pero bi_intelligence_data.js contiene {len(acuerdos_bi_js)} acuerdos generados no autorizados.", last_date)
+
+        # 2. Comprobación bidireccional estricta de identificadores y recuentos
+        fuente_ids = {str(a.get("id")) for a in fuente_acuerdos if isinstance(a, dict) and a.get("id")}
+        json_ids = {str(a.get("id")) for a in acuerdos_bi_json if isinstance(a, dict) and a.get("id")}
+        js_ids = {str(a.get("id")) for a in acuerdos_bi_js if isinstance(a, dict) and a.get("id")}
+
+        if len(acuerdos_bi_json) != len(fuente_acuerdos):
+            fail(f"Discrepancia en recuento de acuerdos en bi_intelligence_data.json: fuente={len(fuente_acuerdos)}, generado={len(acuerdos_bi_json)}.", last_date)
+        if len(acuerdos_bi_js) != len(fuente_acuerdos):
+            fail(f"Discrepancia en recuento de acuerdos en bi_intelligence_data.js: fuente={len(fuente_acuerdos)}, generado={len(acuerdos_bi_js)}.", last_date)
+
+        if fuente_ids != json_ids:
+            extra_json = json_ids - fuente_ids
+            miss_json = fuente_ids - json_ids
+            if extra_json:
+                fail(f"Registros adicionales no autorizados en bi_intelligence_data.json: {extra_json}", last_date)
+            if miss_json:
+                fail(f"Pérdida de acuerdos en bi_intelligence_data.json: faltan {miss_json}", last_date)
+
+        if fuente_ids != js_ids:
+            extra_js = js_ids - fuente_ids
+            miss_js = fuente_ids - js_ids
+            if extra_js:
+                fail(f"Registros adicionales no autorizados en bi_intelligence_data.js: {extra_js}", last_date)
+            if miss_js:
+                fail(f"Pérdida de acuerdos en bi_intelligence_data.js: faltan {miss_js}", last_date)
+
+        # 3. Comprobación canónica de contenido por acuerdo
+        for a_src in fuente_acuerdos:
+            aid = str(a_src.get("id"))
+            c_src = canonical_acuerdo_val(a_src)
+            # Buscar en JSON
+            matching_json = next((a for a in acuerdos_bi_json if str(a.get("id")) == aid), None)
+            if matching_json is None:
+                fail(f"Acuerdo {aid} ausente en bi_intelligence_data.json.", last_date)
+            c_json = canonical_acuerdo_val(matching_json)
+            if c_src != c_json:
+                fail(f"Alteración de contenido detectada en acuerdo {aid} en bi_intelligence_data.json frente a la fuente validada.", last_date)
+
+            # Buscar en JS
+            matching_js = next((a for a in acuerdos_bi_js if str(a.get("id")) == aid), None)
+            if matching_js is None:
+                fail(f"Acuerdo {aid} ausente en bi_intelligence_data.js.", last_date)
+            c_js = canonical_acuerdo_val(matching_js)
+            if c_src != c_js:
+                fail(f"Alteración de contenido detectada en acuerdo {aid} en bi_intelligence_data.js frente a la fuente validada.", last_date)
 
 
 

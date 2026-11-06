@@ -312,10 +312,18 @@
     const cursorPos = existingInput ? existingInput.selectionStart : (searchQuery ? searchQuery.length : 0);
 
     const totales = data.metadata.totales;
-    const sas = data.metadata.sas_info;
+    const sas = data.metadata.sas_info || {};
+    const meta = data.metadata || {};
     const isEur = isEurosMode();
     const unitSymbol = isEur ? '€' : 'u';
     const unitName = isEur ? 'Euros' : (isEn() ? 'Units' : 'Unidades');
+
+    const fechaCorte = meta.fecha_corte || '31/10/2026';
+    const cortePeriodo = meta.corte_periodo || (fechaCorte.includes('10') ? 10 : 9);
+    const fechaCorteShort = cortePeriodo === 10 ? '31/10' : '30/09';
+    const isOctClose = cortePeriodo >= 10;
+    const pendPeriodName = isOctClose ? (isEn() ? 'Nov-Dec' : 'Nov-Dic') : 'Q4';
+    const pendMonths = isOctClose ? (isEn() ? 'November - December' : 'Noviembre - Diciembre') : (isEn() ? 'October - December' : 'Octubre - Diciembre');
 
     // Ajustar si SAS está activo
     const sasVal = isEur ? (sas.euros_2026 || 0) : (sas.unidades_2026 || 0);
@@ -329,8 +337,8 @@
 
     const pageTitle = isEn() ? `Year-End 2026 & Q4 Thermometer (${unitName})` : `Cierre 2026 & Termómetro Q4 (${unitName})`;
     const pageSubtitle = isEn()
-      ? (isEur ? 'Financial Tracking in Net Amount (€): 2025 vs 2026 Actual to 30/09 vs Year-End Forecast' : 'Volume Tracking in Units (L / Kg): 2025 vs 2026 Actual to 30/09 vs Year-End Forecast')
-      : (isEur ? 'Seguimiento Económico en Importe Neto (€): 2025 vs 2026 Real a 30/09 vs Estimación de Cierre' : 'Seguimiento en Unidades (L / Kg): 2025 vs 2026 Real a 30/09 vs Estimación de Cierre');
+      ? (isEur ? `Financial Tracking in Net Amount (€): 2025 vs 2026 Actual to ${fechaCorteShort} vs Year-End Forecast` : `Volume Tracking in Units (L / Kg): 2025 vs 2026 Actual to ${fechaCorteShort} vs Year-End Forecast`)
+      : (isEur ? `Seguimiento Económico en Importe Neto (€): 2025 vs 2026 Real a ${fechaCorteShort} vs Estimación de Cierre` : `Seguimiento en Unidades (L / Kg): 2025 vs 2026 Real a ${fechaCorteShort} vs Estimación de Cierre`);
 
     const toggleUnitsText = isEn() ? '📦 Units (L/Kg)' : '📦 Unidades (L/Kg)';
     const toggleEurosText = isEn() ? '💶 Euros (€)' : '💶 Euros (€)';
@@ -343,14 +351,22 @@
     // Labels de KPIs
     const kpi1Label = isEn() ? `Year-End 2026 Forecast (${unitSymbol})` : `Estimación Cierre 2026 (${unitSymbol})`;
     const kpi1Sub = isEn() ? (isEur ? 'Total 2026 sales budget' : 'Commercial commitment in units') : (isEur ? 'Presupuesto total ventas 2026' : 'Compromiso comercial en unidades');
-    const kpi2Label = isEn() ? (isEur ? 'Actual Invoiced (as of 30/09)' : 'Manufactured / Sold (as of 30/09)') : (isEur ? 'Facturado Real (a 30/09)' : 'Fabricado / Vendido (a 30/09)');
+    const kpi2Label = isEn() ? (isEur ? `Actual Invoiced (as of ${fechaCorteShort})` : `Manufactured / Sold (as of ${fechaCorteShort})`) : (isEur ? `Facturado Real (a ${fechaCorteShort})` : `Fabricado / Vendido (a ${fechaCorteShort})`);
     const kpi2Badge = formatPct(pctVendido) + (isEn() ? ' ALREADY ACHIEVED' : ' YA CUMPLIDO');
-    const kpi3Label = isEn() ? (isEur ? 'Pending to Invoice (Q4)' : 'Pending to Sell (Q4)') : (isEur ? 'Pendiente por Facturar (Q4)' : 'Pendiente por Vender (Q4)');
-    const kpi3Sub = isEn() ? (isEur ? 'October - December Revenue' : 'October - December Volume') : (isEur ? 'Importe Octubre - Diciembre' : 'Volumen Octubre - Diciembre');
-    const kpi4Label = isEn() ? 'Q4 Effort vs Q4-2025' : 'Esfuerzo Q4 vs Q4-2025';
+    const kpi3Label = isEn() ? (isEur ? `Pending to Invoice (${pendPeriodName})` : `Pending to Sell (${pendPeriodName})`) : (isEur ? `Pendiente por Facturar (${pendPeriodName})` : `Pendiente por Vender (${pendPeriodName})`);
+    const kpi3Sub = isEn() ? (isEur ? `${pendMonths} Revenue` : `${pendMonths} Volume`) : (isEur ? `Importe ${pendMonths}` : `Volumen ${pendMonths}`);
+    const prevNovDic = totales.prevision_nov_dic || 0;
+    const cierreConPrev = totales.cierre_con_prevision || (realVendido + prevNovDic);
+    const pctCierreConPrev = estTotal > 0 ? ((cierreConPrev / estTotal) * 100) : 0;
+
+    const kpi4Label = isEn() ? `Sales Rep Forecast (${pendPeriodName})` : `Previsión Comercial (${pendPeriodName})`;
+    const kpi4Val = formatAmountCompact(prevNovDic);
     const kpi4Sub = isEn()
-      ? (isEur ? `Invoiced in Q4-2025: ${formatAmountCompact(q4_2025)}` : `Sold in Q4-2025: ${formatAmountCompact(q4_2025)}`)
-      : (isEur ? `Facturado en Q4-2025: ${formatAmountCompact(q4_2025)}` : `Vendido en Q4-2025: ${formatAmountCompact(q4_2025)}`);
+      ? `Year-End with Forecast: ${formatAmountCompact(cierreConPrev)} (${formatPct(pctCierreConPrev)})`
+      : `Ventas a fin de año: ${formatAmountCompact(cierreConPrev)} (${formatPct(pctCierreConPrev)})`;
+    const kpi4Tooltip = isEn()
+      ? `Commercial forecast for ${pendPeriodName}: ${formatAmount(prevNovDic)} | Projected 2026 Year-End: ${formatAmount(cierreConPrev)} (${formatPct(pctCierreConPrev)} of budget)`
+      : `Previsión de comerciales para ${pendPeriodName}: ${formatAmount(prevNovDic)} | Ventas a fin de año si se cumplen: ${formatAmount(cierreConPrev)} (${formatPct(pctCierreConPrev)} sobre presupuesto)`;
 
     const sectionThermometerTitle = isEn() ? `📊 Achievement Thermometer by Sales Rep (${unitName})` : `📊 Termómetro de Cumplimiento por Comercial (${unitName})`;
     const sectionHintText = isEn() ? 'Click on a sales rep to filter the table' : 'Haz clic en un comercial para filtrar la tabla';
@@ -411,9 +427,9 @@
           <span class="kpi-value ${pendiente <= 0 ? 'text-accent' : 'text-warn'}">${formatAmountCompact(pendiente)}</span>
           <span class="kpi-sub">${kpi3Sub}</span>
         </div>
-        <div class="marta-kpi-card highlight-danger">
+        <div class="marta-kpi-card highlight-info" title="${kpi4Tooltip}">
           <span class="kpi-label">${kpi4Label}</span>
-          <span class="kpi-value text-orange">${crecReqQ4 !== null ? (crecReqQ4 > 0 ? '+' : '') + formatPct(crecReqQ4) : 'n/a'}</span>
+          <span class="kpi-value text-cyan">${kpi4Val}</span>
           <span class="kpi-sub">${kpi4Sub}</span>
         </div>
       </div>
@@ -449,8 +465,8 @@
 
       const clientsWord = isEn() ? 'accounts' : 'clientes';
       const achievedWord = isEn() ? 'achieved' : 'cumplido';
-      const pendLabel = isEn() ? 'Pending Q4' : 'Pendiente Q4';
-      const crecLabel = isEn() ? 'Req. Q4 Grw.' : 'Crec. Req. Q4';
+      const pendLabel = isEn() ? `Pending ${pendPeriodName}` : `Pendiente ${pendPeriodName}`;
+      const prevLabel = isEn() ? `Forecast ${pendPeriodName}` : `Prev. ${pendPeriodName}`;
 
       html += `
         <div class="commercial-card ${isSel ? 'active' : ''}" onclick="window.selectMartaCommercial('${c.comercial}')">
@@ -478,10 +494,8 @@
               <span class="m-val ${c.pendiente_oct_dic <= 0 ? 'text-accent' : ''}" title="${formatAmount(c.pendiente_oct_dic)}">${formatAmountCompact(c.pendiente_oct_dic)}</span>
             </div>
             <div class="metric-col">
-              <span class="m-label">${crecLabel}</span>
-              <span class="m-val ${c.crec_nec_oct_pct > 50 ? 'text-danger' : (c.crec_nec_oct_pct < 0 ? 'text-accent' : 'text-warn')}">
-                ${c.crec_nec_oct_pct !== null ? (c.crec_nec_oct_pct > 0 ? '+' : '') + formatPct(c.crec_nec_oct_pct) : 'n/a'}
-              </span>
+              <span class="m-label">${prevLabel}</span>
+              <span class="m-val text-cyan" title="${isEn() ? 'Forecast' : 'Previsión'} ${pendPeriodName}: ${formatAmount(c.prevision_nov_dic)} | ${isEn() ? 'Year-End' : 'Cierre esperado'}: ${formatAmount(c.cierre_con_prevision)} (${formatPct(c.pct_cierre_con_prevision)})">${formatAmountCompact(c.prevision_nov_dic)}</span>
             </div>
           </div>
         </div>
@@ -512,10 +526,10 @@
     const thCli = isEn() ? 'Customer' : 'Cliente';
     const thClas = isEn() ? 'Tier' : 'Clasificación';
     const thV25 = isEn() ? `2025 Sales (${unitSymbol})` : `Ventas 2025 (${unitSymbol})`;
-    const thV26 = isEn() ? `2026 Sep Actual (${unitSymbol})` : `Real 2026 Sep (${unitSymbol})`;
+    const thV26 = isEn() ? `2026 ${isOctClose ? 'Oct' : 'Sep'} Actual (${unitSymbol})` : `Real 2026 ${isOctClose ? 'Oct' : 'Sep'} (${unitSymbol})`;
     const thEst26 = isEn() ? `2026 Forecast (${unitSymbol})` : `Estimación 2026 (${unitSymbol})`;
-    const thPend = isEn() ? `Pending Q4 (${unitSymbol})` : `Pendiente Q4 (${unitSymbol})`;
-    const thCrec = isEn() ? 'Req. Q4 Grw.' : 'Crec. Req. Q4';
+    const thPend = isEn() ? `Pending ${pendPeriodName} (${unitSymbol})` : `Pendiente ${pendPeriodName} (${unitSymbol})`;
+    const thCrec = isEn() ? `Req. ${pendPeriodName} Grw.` : `Crec. Req. ${pendPeriodName}`;
     const thPct = isEn() ? '% Achieved' : '% Cumplido';
     const thVal = isEn() ? 'Feasibility Assessment' : 'Valoración Viabilidad';
 
@@ -673,10 +687,10 @@
       { header: isEn() ? 'Customer' : 'Cliente', key: 'cliente', width: 38 },
       { header: isEn() ? 'Tier' : 'Clasificación', key: 'clasif', width: 22 },
       { header: isEn() ? `2025 Sales (${unitSym})` : `Ventas 2025 (${unitSym})`, key: 'v25', width: 18 },
-      { header: isEn() ? `2026 Sep Actual (${unitSym})` : `Real 2026 Sep (${unitSym})`, key: 'v26', width: 18 },
+      { header: isEn() ? `2026 ${data.metadata && data.metadata.corte_periodo >= 10 ? 'Oct' : 'Sep'} Actual (${unitSym})` : `Real 2026 ${data.metadata && data.metadata.corte_periodo >= 10 ? 'Oct' : 'Sep'} (${unitSym})`, key: 'v26', width: 18 },
       { header: isEn() ? `2026 Forecast (${unitSym})` : `Estimación 2026 (${unitSym})`, key: 'est26', width: 18 },
-      { header: isEn() ? `Pending Q4 (${unitSym})` : `Pendiente Q4 (${unitSym})`, key: 'pend', width: 18 },
-      { header: isEn() ? 'Req. Q4 Grw. (%)' : 'Crec. Req. Q4 (%)', key: 'crec', width: 16 },
+      { header: isEn() ? `Pending ${data.metadata && data.metadata.corte_periodo >= 10 ? 'Nov-Dec' : 'Q4'} (${unitSym})` : `Pendiente ${data.metadata && data.metadata.corte_periodo >= 10 ? 'Nov-Dic' : 'Q4'} (${unitSym})`, key: 'pend', width: 18 },
+      { header: isEn() ? `Req. ${data.metadata && data.metadata.corte_periodo >= 10 ? 'Nov-Dec' : 'Q4'} Grw. (%)` : `Crec. Req. ${data.metadata && data.metadata.corte_periodo >= 10 ? 'Nov-Dic' : 'Q4'} (%)`, key: 'crec', width: 16 },
       { header: isEn() ? `% Achieved (${unitSym})` : `% Cumplido (${unitSym})`, key: 'pct', width: 14 },
       { header: isEn() ? 'Assessment' : 'Valoración', key: 'val', width: 18 },
     ];

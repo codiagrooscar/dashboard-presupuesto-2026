@@ -535,3 +535,10 @@
 .text-orange { color: #f97316 !important; }
 .text-danger { color: #f87171 !important; }
 .font-bold { font-weight: 700; }
+
+.marta-kpi-card.highlight-info {
+  border-color: rgba(56, 189, 248, 0.5);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(14, 116, 144, 0.3) 100%);
+}
+.text-cyan { color: #38bdf8 !important; }
+.text-blue { color: #60a5fa !important; }

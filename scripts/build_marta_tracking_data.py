@@ -49,12 +49,47 @@ def round_conserving_sum(items, field, target_total, decimals=2):
 def build_data():
     print("=== Procesando fichero de seguimiento de Cierre 2026 (UNIDADES & EUROS) ===")
 
-    # 1. Cargar ERP DATOS (Ventas Septiembre 2026.xlsx)
-    marta_sales_file = r"C:\Users\oscar.ocampo\OneDrive - Agroquímica Codiagro S.L\Escritorio\REPORTING SIMPLIFICADO\SEPTIEMBRE\Marta y Pere\Ventas Septiembre 2026.xlsx"
+    # 1. Detección dinámica del fichero ERP en REPORTING SIMPLIFICADO (Prioridad: Octubre > Septiembre)
+    oct_file = r"C:\Users\oscar.ocampo\OneDrive - Agroquímica Codiagro S.L\Escritorio\REPORTING SIMPLIFICADO\Octubre\Marta y Pere\Ventas Octubre 2026.xlsx"
+    sep_file = r"C:\Users\oscar.ocampo\OneDrive - Agroquímica Codiagro S.L\Escritorio\REPORTING SIMPLIFICADO\SEPTIEMBRE\Marta y Pere\Ventas Septiembre 2026.xlsx"
+
+    if os.path.exists(oct_file):
+        marta_sales_file = oct_file
+        cutoff_period = 10
+        cutoff_date = "31/10/2026"
+        cutoff_month = "Octubre"
+        cutoff_name = "Octubre 2026"
+        pending_name = "Noviembre - Diciembre 2026"
+        pending_short = "Nov-Dic"
+    elif os.path.exists(sep_file):
+        marta_sales_file = sep_file
+        cutoff_period = 9
+        cutoff_date = "30/09/2026"
+        cutoff_month = "Septiembre"
+        cutoff_name = "Septiembre 2026"
+        pending_name = "Octubre - Diciembre 2026"
+        pending_short = "Oct-Dic"
+    else:
+        raise FileNotFoundError("No se encontró fichero de ventas en REPORTING SIMPLIFICADO (ni Octubre ni Septiembre)")
+
+    print(f"Fichero ERP seleccionado: {marta_sales_file}")
+    print(f"Corte activo: Periodo {cutoff_period} ({cutoff_name}) | Cierre pendiente: {pending_name}")
+
     wb_erp = openpyxl.load_workbook(marta_sales_file, read_only=True, data_only=True)
     ws_datos = wb_erp['DATOS']
 
-    erp_u = defaultdict(lambda: {'2025_tot': 0.0, '2025_sep': 0.0, '2025_oct': 0.0, '2026_sep': 0.0})
+    # Diccionario de respaldo CódigoCliente -> CLIENTE para filas sin CLIENTE explícito
+    codes_to_name = {}
+    for r in ws_datos.iter_rows(values_only=True):
+        cod = str(r[16] or '').strip()
+        nom = str(r[35] or '').strip().upper()
+        if cod and nom:
+            codes_to_name[cod] = nom
+
+    erp_data = defaultdict(lambda: {
+        '2025_tot_u': 0.0, '2025_cum_u': 0.0, '2025_rem_u': 0.0, '2026_cum_u': 0.0,
+        '2025_tot_eur': 0.0, '2025_cum_eur': 0.0, '2025_rem_eur': 0.0, '2026_cum_eur': 0.0
+    })
     sas_u_2026 = 0.0
     sas_eur_2026 = 0.0
 
@@ -65,6 +100,9 @@ def build_data():
         p = r[7]  # Periodo
         cod_cl = str(r[16] or '').strip()
         cl_nom = str(r[35] or '').strip().upper()
+        if not cl_nom and cod_cl in codes_to_name:
+            cl_nom = codes_to_name[cod_cl]
+
         try:
             u = float(r[20] or 0) # Unidades
         except:
@@ -75,23 +113,28 @@ def build_data():
             eur = 0.0
 
         if cod_cl == '430000427' or 'SUSTAINABLE' in cl_nom:
-            if ej == 2026 and p and int(p) <= 9:
+            if ej == 2026 and p and int(p) <= cutoff_period:
                 sas_u_2026 += u
                 sas_eur_2026 += eur
             continue
 
         if ej == 2025:
-            erp_u[cl_nom]['2025_tot'] += u
-            if p and int(p) <= 9:
-                erp_u[cl_nom]['2025_sep'] += u
+            erp_data[cl_nom]['2025_tot_u'] += u
+            erp_data[cl_nom]['2025_tot_eur'] += eur
+            if p and int(p) <= cutoff_period:
+                erp_data[cl_nom]['2025_cum_u'] += u
+                erp_data[cl_nom]['2025_cum_eur'] += eur
             else:
-                erp_u[cl_nom]['2025_oct'] += u
-        elif ej == 2026 and p and int(p) <= 9:
-            erp_u[cl_nom]['2026_sep'] += u
+                erp_data[cl_nom]['2025_rem_u'] += u
+                erp_data[cl_nom]['2025_rem_eur'] += eur
+        elif ej == 2026 and p and int(p) <= cutoff_period:
+            erp_data[cl_nom]['2026_cum_u'] += u
+            erp_data[cl_nom]['2026_cum_eur'] += eur
 
-    print(f"Total clientes ERP cargados: {len(erp_u)}")
-    print(f"Unidades ERP 2025: {sum(d['2025_tot'] for d in erp_u.values()):,.2f} u")
-    print(f"Unidades ERP 2026 Ene-Sep: {sum(d['2026_sep'] for d in erp_u.values()):,.2f} u")
+    print(f"Total clientes ERP cargados: {len(erp_data)}")
+    print(f"Unidades ERP 2025 Total: {sum(d['2025_tot_u'] for d in erp_data.values()):,.2f} u")
+    print(f"Unidades ERP 2026 Ene-{cutoff_month[:3]}: {sum(d['2026_cum_u'] for d in erp_data.values()):,.2f} u")
+    print(f"Euros ERP 2026 Ene-{cutoff_month[:3]}: {sum(d['2026_cum_eur'] for d in erp_data.values()):,.2f} €")
     print(f"SAS 2026: {sas_u_2026:,.2f} u | {sas_eur_2026:,.2f} €")
 
     # 2. Cargar Presupuesto 2026 en Unidades (Presupuesto_Ventas_2027_Definitivo.xlsx)
@@ -118,6 +161,34 @@ def build_data():
             'sd_u': sd_u,
             'tot_u': ea_u + sd_u
         }
+
+    # Cargar Previsión Matriz Horizontal para extraer las últimas previsiones comerciales (Noviembre y Diciembre 2026)
+    import unicodedata
+    def norm_cli(s):
+        if not isinstance(s, str): return ''
+        n = ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn').upper()
+        return n.replace('(ATC)', '').strip().rstrip('.').strip()
+
+    ws_matriz = wb_ppto['Previsión Matriz Horizontal']
+    prev_by_cli_u = defaultdict(float)
+    prev_by_cli_eur = defaultdict(float)
+
+    for r in range(2, ws_matriz.max_row + 1):
+        com_cell = str(ws_matriz.cell(r, 1).value or '').strip()
+        if not com_cell or 'TOTAL GENERAL' in com_cell.upper():
+            continue
+        cli_cell = str(ws_matriz.cell(r, 3).value or '').strip()
+        if not cli_cell:
+            continue
+
+        nov_u = float(ws_matriz.cell(r, 30).value or 0)
+        nov_eur = float(ws_matriz.cell(r, 31).value or 0)
+        dic_u = float(ws_matriz.cell(r, 32).value or 0)
+        dic_eur = float(ws_matriz.cell(r, 33).value or 0)
+
+        c_key = norm_cli(cli_cell)
+        prev_by_cli_u[c_key] += (nov_u + dic_u)
+        prev_by_cli_eur[c_key] += (nov_eur + dic_eur)
 
     # 3. Cargar plantilla base de Marta (Ventas_2025_vs_2026_vs_Estimacion_por_Cliente MArta.xlsx)
     src_file = "Ventas_2025_vs_2026_vs_Estimacion_por_Cliente MArta.xlsx"
@@ -162,20 +233,31 @@ def build_data():
         else:
             cl_erp = cl_up
 
+        # Previsión Nov-Dic comercial
+        c_norm = norm_cli(cl_raw)
+        prev_u = round(prev_by_cli_u.get(c_norm, 0.0), 2)
+        prev_eur = round(prev_by_cli_eur.get(c_norm, 0.0), 2)
+
         # --- Datos Unidades ---
-        d_erp = erp_u.get(cl_erp, {'2025_tot': 0.0, '2025_sep': 0.0, '2025_oct': 0.0, '2026_sep': 0.0})
+        d_erp = erp_data.get(cl_erp, {
+            '2025_tot_u': 0.0, '2025_cum_u': 0.0, '2025_rem_u': 0.0, '2026_cum_u': 0.0,
+            '2025_tot_eur': 0.0, '2025_cum_eur': 0.0, '2025_rem_eur': 0.0, '2026_cum_eur': 0.0
+        })
         p_info = ppto_u.get(cl_up, {'ea_u': 0.0, 'sd_u': 0.0, 'tot_u': 0.0})
 
-        v25_u_tot = d_erp['2025_tot']
-        v25_u_sep = d_erp['2025_sep']
-        v25_u_oct = d_erp['2025_oct']
-        v26_u_sep = d_erp['2026_sep']
+        v25_u_tot = d_erp['2025_tot_u']
+        v25_u_sep = d_erp['2025_cum_u']
+        v25_u_oct = d_erp['2025_rem_u']
+        v26_u_sep = d_erp['2026_cum_u']
         est26_u = p_info['tot_u']
 
         pend_u = est26_u - v26_u_sep
         pct_vend_u = (v26_u_sep / est26_u * 100.0) if est26_u > 0 else None
         crec_real_sep_u = ((v26_u_sep / v25_u_sep) - 1.0) * 100.0 if v25_u_sep > 0 else None
         crec_nec_oct_u = ((pend_u / v25_u_oct) - 1.0) * 100.0 if v25_u_oct > 0 else None
+
+        cierre_con_prev_u = round(v26_u_sep + prev_u, 2)
+        pct_cierre_con_prev_u = round((cierre_con_prev_u / est26_u * 100.0), 1) if est26_u > 0 else None
 
         if est26_u == 0:
             val_u = "Sin estimación"
@@ -209,7 +291,16 @@ def build_data():
             "pct_vendido": round(pct_vend_u, 1) if pct_vend_u is not None else None,
             "crec_real_sep_pct": round(crec_real_sep_u, 1) if crec_real_sep_u is not None else None,
             "crec_nec_oct_pct": round(crec_nec_oct_u, 1) if crec_nec_oct_u is not None else None,
-            "valoracion": val_u
+            "valoracion": val_u,
+            "ventas_2025_comparativa": v25_u_sep,
+            "ventas_2025_resto": v25_u_oct,
+            "ventas_2026_real": v26_u_sep,
+            "pendiente_cierre": pend_u,
+            "corte_periodo": cutoff_period,
+            "corte_mes": cutoff_month,
+            "prevision_nov_dic": prev_u,
+            "cierre_con_prevision": cierre_con_prev_u,
+            "pct_cierre_con_prevision": pct_cierre_con_prev_u
         })
 
         by_com_u[com]['comercial'] = com
@@ -220,36 +311,37 @@ def build_data():
         by_com_u[com]['v26_u_sep'] += v26_u_sep
         by_com_u[com]['est26_u'] += est26_u
 
-        # --- Datos Euros (Directos de la hoja de Marta) ---
-        v25_eur_tot = float(ws_mc.cell(r, 5).value or 0)
-        v25_eur_sep = float(ws_mc.cell(r, 6).value or 0)
-        v25_eur_oct = float(ws_mc.cell(r, 7).value or 0)
-        v26_eur_sep = float(ws_mc.cell(r, 8).value or 0)
+        # --- Datos Euros (ERP DATOS para reales y comparativa 2025; Marta para estimación anual) ---
+        v25_eur_tot = d_erp['2025_tot_eur']
+        v25_eur_sep = d_erp['2025_cum_eur']
+        v25_eur_oct = d_erp['2025_rem_eur']
+        v26_eur_sep = d_erp['2026_cum_eur']
         est26_eur = float(ws_mc.cell(r, 9).value or 0)
         pend_eur = est26_eur - v26_eur_sep
 
-        pct_raw = ws_mc.cell(r, 14).value
-        if pct_raw not in [None, 'n/a', '']:
-            try: pct_vend_eur = float(pct_raw) * 100.0 if float(pct_raw) <= 5.0 else float(pct_raw)
-            except: pct_vend_eur = (v26_eur_sep / est26_eur * 100.0) if est26_eur > 0 else None
-        else:
-            pct_vend_eur = (v26_eur_sep / est26_eur * 100.0) if est26_eur > 0 else None
+        pct_vend_eur = (v26_eur_sep / est26_eur * 100.0) if est26_eur > 0 else None
+        crec_real_sep_eur = ((v26_eur_sep / v25_eur_sep) - 1.0) * 100.0 if v25_eur_sep > 0 else None
+        crec_nec_oct_eur = ((pend_eur / v25_eur_oct) - 1.0) * 100.0 if v25_eur_oct > 0 else None
 
-        crec_sep_raw = ws_mc.cell(r, 10).value
-        if crec_sep_raw not in [None, 'n/a', '']:
-            try: crec_real_sep_eur = float(crec_sep_raw) * 100.0 if abs(float(crec_sep_raw)) <= 10.0 else float(crec_sep_raw)
-            except: crec_real_sep_eur = ((v26_eur_sep / v25_eur_sep) - 1.0) * 100.0 if v25_eur_sep > 0 else None
-        else:
-            crec_real_sep_eur = ((v26_eur_sep / v25_eur_sep) - 1.0) * 100.0 if v25_eur_sep > 0 else None
+        cierre_con_prev_eur = round(v26_eur_sep + prev_eur, 2)
+        pct_cierre_con_prev_eur = round((cierre_con_prev_eur / est26_eur * 100.0), 1) if est26_eur > 0 else None
 
-        crec_oct_raw = ws_mc.cell(r, 13).value
-        if crec_oct_raw not in [None, 'n/a', '']:
-            try: crec_nec_oct_eur = float(crec_oct_raw) * 100.0 if abs(float(crec_oct_raw)) <= 20.0 else float(crec_oct_raw)
-            except: crec_nec_oct_eur = ((pend_eur / v25_eur_oct) - 1.0) * 100.0 if v25_eur_oct > 0 else None
+        if est26_eur == 0:
+            val_eur = "Sin estimación"
+        elif pend_eur <= 0:
+            val_eur = "Ya cumplido"
+        elif v25_eur_oct == 0:
+            val_eur = "Sin base 2025"
+        elif crec_nec_oct_eur is not None:
+            if crec_nec_oct_eur <= 15.0:
+                val_eur = "Alcanzable"
+            elif crec_nec_oct_eur <= 40.0:
+                val_eur = "Exigente"
+            else:
+                val_eur = "Poco realista"
         else:
-            crec_nec_oct_eur = ((pend_eur / v25_eur_oct) - 1.0) * 100.0 if v25_eur_oct > 0 else None
+            val_eur = "Sin base 2025"
 
-        val_eur = str(ws_mc.cell(r, 15).value or 'Sin estimación').strip()
         conteos_val_eur[val_eur] = conteos_val_eur.get(val_eur, 0) + 1
 
         clientes_eur.append({
@@ -266,7 +358,16 @@ def build_data():
             "pct_vendido": round(pct_vend_eur, 1) if pct_vend_eur is not None else None,
             "crec_real_sep_pct": round(crec_real_sep_eur, 1) if crec_real_sep_eur is not None else None,
             "crec_nec_oct_pct": round(crec_nec_oct_eur, 1) if crec_nec_oct_eur is not None else None,
-            "valoracion": val_eur
+            "valoracion": val_eur,
+            "ventas_2025_comparativa": v25_eur_sep,
+            "ventas_2025_resto": v25_eur_oct,
+            "ventas_2026_real": v26_eur_sep,
+            "pendiente_cierre": pend_eur,
+            "corte_periodo": cutoff_period,
+            "corte_mes": cutoff_month,
+            "prevision_nov_dic": prev_eur,
+            "cierre_con_prevision": cierre_con_prev_eur,
+            "pct_cierre_con_prevision": pct_cierre_con_prev_eur
         })
 
         by_com_eur[com]['comercial'] = com
@@ -298,6 +399,10 @@ def build_data():
         round_conserving_sum(clientes_u, k_f, tgt_v, 2)
     for c_item in clientes_u:
         c_item["pendiente_oct_dic"] = round(c_item["estimacion_2026"] - c_item["ventas_2026_sep"], 2)
+        c_item["ventas_2025_comparativa"] = c_item["ventas_2025_sep"]
+        c_item["ventas_2025_resto"] = c_item["ventas_2025_oct"]
+        c_item["ventas_2026_real"] = c_item["ventas_2026_sep"]
+        c_item["pendiente_cierre"] = c_item["pendiente_oct_dic"]
 
     for com in sorted(by_com_u.keys()):
         c_rows = [c for c in clientes_u if c["comercial"] == com]
@@ -321,15 +426,27 @@ def build_data():
             "pendiente_oct_dic": p_u,
             "pct_vendido": round(pct_u, 1) if pct_u is not None else None,
             "crec_real_sep_pct": round(c_sep_u, 1) if c_sep_u is not None else None,
-            "crec_nec_oct_pct": round(c_oct_u, 1) if c_oct_u is not None else None
+            "crec_nec_oct_pct": round(c_oct_u, 1) if c_oct_u is not None else None,
+            "ventas_2025_comparativa": v25_s,
+            "ventas_2025_resto": v25_o,
+            "ventas_2026_real": v26_s,
+            "pendiente_cierre": p_u,
+            "prevision_nov_dic": round(sum(c.get("prevision_nov_dic", 0) for c in c_rows), 2),
+            "cierre_con_prevision": round(v26_s + sum(c.get("prevision_nov_dic", 0) for c in c_rows), 2),
+            "pct_cierre_con_prevision": round((v26_s + sum(c.get("prevision_nov_dic", 0) for c in c_rows)) / est_26 * 100, 1) if est_26 > 0 else None
         })
 
     data_unidades = {
         "metadata": {
-            "titulo": "Cierre 2026 & Termómetro Q4 (Unidades)",
+            "titulo": f"Cierre 2026 & Termómetro Q4 (Unidades)",
             "unidad_medida": "u",
             "unidad_simbolo": "u",
-            "fecha_corte": "30/09/2026",
+            "fecha_corte": cutoff_date,
+            "corte_periodo": cutoff_period,
+            "corte_mes": cutoff_month,
+            "corte_nombre": cutoff_name,
+            "periodo_pendiente": pending_name,
+            "periodo_pendiente_corto": pending_short,
             "totales": {
                 "num_clientes": len(clientes_u),
                 "ventas_2025_tot": tot_v25_u,
@@ -339,14 +456,17 @@ def build_data():
                 "estimacion_2026": tot_est26_u,
                 "pendiente_oct_dic": tot_pend_u,
                 "pct_vendido": round(tot_pct_vend_u, 1),
-                "crec_nec_oct_pct": round(tot_crec_oct_u, 1)
+                "crec_nec_oct_pct": round(tot_crec_oct_u, 1),
+                "prevision_nov_dic": round(sum(c.get("prevision_nov_dic", 0) for c in clientes_u), 2),
+                "cierre_con_prevision": round(tot_v26_sep_u + sum(c.get("prevision_nov_dic", 0) for c in clientes_u), 2),
+                "pct_cierre_con_prevision": round((tot_v26_sep_u + sum(c.get("prevision_nov_dic", 0) for c in clientes_u)) / tot_est26_u * 100, 1) if tot_est26_u > 0 else 0.0
             },
             "conteos_valoracion": conteos_val_u,
             "sas_info": {
                 "cliente": "SUSTAINABLE AGRO SOLUTIONS SAU",
                 "codigo": "430000427",
                 "unidades_2026": round(sas_u_2026, 2),
-                "descripcion": "Servicios de formulación y envasado de maquila SAS en unidades"
+                "descripcion": f"Servicios de formulación y envasado de maquila SAS en unidades (Ene-{cutoff_month[:3]})"
             }
         },
         "comerciales": comerciales_u,
@@ -374,6 +494,10 @@ def build_data():
         round_conserving_sum(clientes_eur, k_f, tgt_v, 2)
     for c_item in clientes_eur:
         c_item["pendiente_oct_dic"] = round(c_item["estimacion_2026"] - c_item["ventas_2026_sep"], 2)
+        c_item["ventas_2025_comparativa"] = c_item["ventas_2025_sep"]
+        c_item["ventas_2025_resto"] = c_item["ventas_2025_oct"]
+        c_item["ventas_2026_real"] = c_item["ventas_2026_sep"]
+        c_item["pendiente_cierre"] = c_item["pendiente_oct_dic"]
 
     for com in sorted(by_com_eur.keys()):
         c_rows = [c for c in clientes_eur if c["comercial"] == com]
@@ -397,15 +521,27 @@ def build_data():
             "pendiente_oct_dic": p_eur,
             "pct_vendido": round(pct_eur, 1) if pct_eur is not None else None,
             "crec_real_sep_pct": round(c_sep_eur, 1) if c_sep_eur is not None else None,
-            "crec_nec_oct_pct": round(c_oct_eur, 1) if c_oct_eur is not None else None
+            "crec_nec_oct_pct": round(c_oct_eur, 1) if c_oct_eur is not None else None,
+            "ventas_2025_comparativa": v25_s,
+            "ventas_2025_resto": v25_o,
+            "ventas_2026_real": v26_s,
+            "pendiente_cierre": p_eur,
+            "prevision_nov_dic": round(sum(c.get("prevision_nov_dic", 0) for c in c_rows), 2),
+            "cierre_con_prevision": round(v26_s + sum(c.get("prevision_nov_dic", 0) for c in c_rows), 2),
+            "pct_cierre_con_prevision": round((v26_s + sum(c.get("prevision_nov_dic", 0) for c in c_rows)) / est_26 * 100, 1) if est_26 > 0 else None
         })
 
     data_euros = {
         "metadata": {
-            "titulo": "Cierre 2026 & Termómetro Q4 (Euros)",
+            "titulo": f"Cierre 2026 & Termómetro Q4 (Euros)",
             "unidad_medida": "€",
             "unidad_simbolo": "€",
-            "fecha_corte": "30/09/2026",
+            "fecha_corte": cutoff_date,
+            "corte_periodo": cutoff_period,
+            "corte_mes": cutoff_month,
+            "corte_nombre": cutoff_name,
+            "periodo_pendiente": pending_name,
+            "periodo_pendiente_corto": pending_short,
             "totales": {
                 "num_clientes": len(clientes_eur),
                 "ventas_2025_tot": round(tot_v25_eur, 2),
@@ -415,14 +551,17 @@ def build_data():
                 "estimacion_2026": round(tot_est26_eur, 2),
                 "pendiente_oct_dic": round(tot_pend_eur, 2),
                 "pct_vendido": round(tot_pct_vend_eur, 1),
-                "crec_nec_oct_pct": round(tot_crec_oct_eur, 1)
+                "crec_nec_oct_pct": round(tot_crec_oct_eur, 1),
+                "prevision_nov_dic": round(sum(c.get("prevision_nov_dic", 0) for c in clientes_eur), 2),
+                "cierre_con_prevision": round(tot_v26_sep_eur + sum(c.get("prevision_nov_dic", 0) for c in clientes_eur), 2),
+                "pct_cierre_con_prevision": round((tot_v26_sep_eur + sum(c.get("prevision_nov_dic", 0) for c in clientes_eur)) / tot_est26_eur * 100, 1) if tot_est26_eur > 0 else 0.0
             },
             "conteos_valoracion": conteos_val_eur,
             "sas_info": {
                 "cliente": "SUSTAINABLE AGRO SOLUTIONS SAU",
                 "codigo": "430000427",
                 "euros_2026": round(sas_eur_2026, 2),
-                "descripcion": "Servicios de formulación y envasado de maquila SAS en euros"
+                "descripcion": f"Servicios de formulación y envasado de maquila SAS en euros (Ene-{cutoff_month[:3]})"
             }
         },
         "comerciales": comerciales_eur,
@@ -456,9 +595,9 @@ def build_data():
             json.dump(output_combined, f, ensure_ascii=False, indent=2)
             f.write(";\n")
 
-    print("\nGeneración completada con éxito en UNIDADES y EUROS:")
-    print(f"  * UNIDADES: Est {tot_est26_u:,.0f} u | Real Sep {tot_v26_sep_u:,.0f} u ({tot_pct_vend_u:.1f}%) | SAS: {sas_u_2026:,.0f} u")
-    print(f"  * EUROS:    Est {tot_est26_eur:,.2f} € | Real Sep {tot_v26_sep_eur:,.2f} € ({tot_pct_vend_eur:.1f}%) | SAS: {sas_eur_2026:,.2f} €")
+    print(f"\nGeneración completada con éxito en UNIDADES y EUROS (Corte: {cutoff_name}):")
+    print(f"  * UNIDADES: Est {tot_est26_u:,.0f} u | Real Ene-{cutoff_month[:3]} {tot_v26_sep_u:,.0f} u ({tot_pct_vend_u:.1f}%) | SAS: {sas_u_2026:,.0f} u")
+    print(f"  * EUROS:    Est {tot_est26_eur:,.2f} € | Real Ene-{cutoff_month[:3]} {tot_v26_sep_eur:,.2f} € ({tot_pct_vend_eur:.1f}%) | SAS: {sas_eur_2026:,.2f} €")
 
 if __name__ == '__main__':
     build_data()

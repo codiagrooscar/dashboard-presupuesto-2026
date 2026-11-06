@@ -4324,21 +4324,21 @@
     "prioridad_1_churn": {
       "disponible": true,
       "cuentas_count": 15,
-      "total_en_riesgo_count": 24,
-      "impacto_eur": -516205.78,
+      "total_en_riesgo_count": 27,
+      "impacto_eur": -565157.6,
       "formula": "Suma de pérdidas en ventas de las 15 cuentas con caída > 25% vs 2025",
       "top_cuentas": [
         {
           "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
-          "caida_eur": 96408.06
+          "caida_eur": 102462.26
+        },
+        {
+          "cliente": "CAMPO ABIERTO, S.A.S.",
+          "caida_eur": 89551.68
         },
         {
           "cliente": "EURL BOUAZZA FILAHA",
           "caida_eur": 67970.96
-        },
-        {
-          "cliente": "CAMPO ABIERTO, S.A.S.",
-          "caida_eur": 62901.28
         }
       ],
       "detalle_metodologia": "Caída > 25% frente a 2025 en cuentas comerciales activas. DOGA TARIM excluida por situación concursal."

@@ -471,33 +471,67 @@ def get_packaging_format(env_val, desc="", sku="", fam=None):
         else:
             return f"Botellas {l_val}L"
 
-# Catálogo Auditado de Regalos Técnicos Verificados (Stock real excedentario en almacén)
+# Catálogo Auditado de Regalos Técnicos Verificados (Stock real excedentario en almacén, garantizando 0 colisiones con ventas)
 CATALOGO_REGALOS = {
-    'BIO0005': {'sku': 'BIO0005', 'desc': 'BIORAD-20, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 0.7328, 'stock_disponible': 1840.0, 'sinergia': 'Enraizamiento y Asimilación'},
-    'AN0005': {'sku': 'AN0005', 'desc': 'ALCAPLANT NEW, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'coste_unit': 0.2191, 'stock_disponible': 1660.0, 'sinergia': 'Corrección de Calcio en Suelo'},
-    'AGFEL0001': {'sku': 'AGFEL0001', 'desc': 'AGROXILATO-FE-L, 1 L', 'formato': 'Botellas 1L', 'envase_l': 1.0, 'coste_unit': 1.6931, 'stock_disponible': 732.0, 'sinergia': 'Corrección Rápida Clorosis Férrica'},
-    'AGRMG0005': {'sku': 'AGRMG0005', 'desc': 'AGROXIGREEN-MG, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.2216, 'stock_disponible': 775.0, 'sinergia': 'Activación Fotosintética Magnesio'},
+    'ANAE0005': {'sku': 'ANAE0005', 'desc': 'ALCAPLANT NEW AE, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'coste_unit': 0.2191, 'stock_disponible': 8420.0, 'sinergia': 'Corrección de Calcio en Suelo'},
     'BROTA0005': {'sku': 'BROTA0005', 'desc': 'BROTAMEC, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.2668, 'stock_disponible': 1100.0, 'sinergia': 'Brotación y Crecimiento Vegetativo'},
-    'BR-590005': {'sku': 'BR-590005', 'desc': 'BR-59, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'coste_unit': 0.5247, 'stock_disponible': 1760.0, 'sinergia': 'Desbloqueo Salino y Fertilidad'},
-    'AQUOM0005': {'sku': 'AQUOM0005', 'desc': 'AQUOM, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 2.3703, 'stock_disponible': 850.0, 'sinergia': 'Regulación Infiltración Hídrica'},
     'PT0005': {'sku': 'PT0005', 'desc': 'AGROPOTASION, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.1395, 'stock_disponible': 880.0, 'sinergia': 'Potasio Puro para Maduración'},
-    'B0005': {'sku': 'B0005', 'desc': 'BOROCAL, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 0.9928, 'stock_disponible': 475.0, 'sinergia': 'Floración, Cuajado y Movilidad Boro'},
+    'A-50(2)0005': {'sku': 'A-50(2)0005', 'desc': 'CODIORGAN-A50, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'coste_unit': 0.5247, 'stock_disponible': 1120.0, 'sinergia': 'Desbloqueo Salino y Materia Orgánica'},
+    'AVAN0005': {'sku': 'AVAN0005', 'desc': 'FLORAMEC AVANCE, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.4500, 'stock_disponible': 2640.0, 'sinergia': 'Floración, Cuajado y Movilidad Boro'},
+    'AGZNP0005': {'sku': 'AGZNP0005', 'desc': 'AGROXILATO ZN PLUS, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'coste_unit': 1.6000, 'stock_disponible': 955.0, 'sinergia': 'Corrección Rápida Zinc-Manganeso'},
+    'C-CU0005': {'sku': 'C-CU0005', 'desc': 'CODICOBRE, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.8500, 'stock_disponible': 1900.0, 'sinergia': 'Protección Sistémica y Cobre Complejado'},
     'FU0001': {'sku': 'FU0001', 'desc': 'FULVIGIN, 1 L', 'formato': 'Botellas 1L', 'envase_l': 1.0, 'coste_unit': 1.4470, 'stock_disponible': 588.0, 'sinergia': 'Ácidos Fúlvicos y Complejación'}
 }
 
 def _get_verified_gift(b_sku, desc, g_code):
     text = f"{b_sku} {desc} {g_code or ''}".upper()
     if any(k in text for k in ['ALCAPLANT', 'SAL-WAX', 'SALWAX', 'CALCI', 'BITTER', 'SS']):
-        return CATALOGO_REGALOS['BIO0005']
-    if any(k in text for k in ['RADISOL', 'START', 'PGR', 'FLORAMEC', 'AVANCE', 'SPRINTENE', 'CODIBROT']):
-        return CATALOGO_REGALOS['B0005']
+        return CATALOGO_REGALOS['A-50(2)0005']
+    if any(k in text for k in ['RADISOL', 'START', 'PGR', 'SPRINTENE', 'CODIBROT']):
+        return CATALOGO_REGALOS['AVAN0005']
     if any(k in text for k in ['AGROXILATO', 'CODIFOL', 'FERRO', 'FE-L', 'ZINC', 'MN', 'C-M-P']):
-        return CATALOGO_REGALOS['AN0005']
+        return CATALOGO_REGALOS['ANAE0005']
     if any(k in text for k in ['AGROWHITE', 'FROST', 'STRESS', 'AQUOM', 'FITOKONTROL']):
-        return CATALOGO_REGALOS['BR-590005']
+        return CATALOGO_REGALOS['C-CU0005']
     if any(k in text for k in ['POTAS', 'PT', 'K', 'MADUR']):
-        return CATALOGO_REGALOS['AGRMG0005']
+        return CATALOGO_REGALOS['PT0005']
+    if any(k in text for k in ['FLOR', 'AVANCE', 'BORO', 'BOROCAL', 'B0005']):
+        return CATALOGO_REGALOS['AVAN0005']
     return CATALOGO_REGALOS['BROTA0005']
+
+def _select_dynamic_gift(b_sku, desc, g_code, units_needed, stock_reservado, free_stock_map):
+    pref = _get_verified_gift(b_sku, desc, g_code)
+    pref_sku = pref['sku']
+    cands = [pref_sku] + [k for k in CATALOGO_REGALOS if k != pref_sku]
+    for c_sku in cands:
+        if c_sku == b_sku:
+            continue
+        item = CATALOGO_REGALOS[c_sku]
+        env_l = item['envase_l']
+        q_need = units_needed * env_l
+        fs = free_stock_map.get(c_sku, item['stock_disponible'])
+        res = stock_reservado.get(c_sku, {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0})
+        used = res['ventas'] + res['regalos'] + res['reprocesado']
+        if (fs - used) >= q_need:
+            if c_sku not in stock_reservado:
+                stock_reservado[c_sku] = {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0}
+            stock_reservado[c_sku]['regalos'] += q_need
+            return item, units_needed
+    # Si no alcanza para todas las unidades, intentar con 1 unidad
+    for c_sku in cands:
+        if c_sku == b_sku:
+            continue
+        item = CATALOGO_REGALOS[c_sku]
+        env_l = item['envase_l']
+        fs = free_stock_map.get(c_sku, item['stock_disponible'])
+        res = stock_reservado.get(c_sku, {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0})
+        used = res['ventas'] + res['regalos'] + res['reprocesado']
+        if (fs - used) >= env_l:
+            if c_sku not in stock_reservado:
+                stock_reservado[c_sku] = {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0}
+            stock_reservado[c_sku]['regalos'] += env_l
+            return item, 1
+    return CATALOGO_REGALOS['BROTA0005'], 0
 
 def _get_complementary_product(b_sku, desc, g_code):
     g = _get_verified_gift(b_sku, desc, g_code)
@@ -926,6 +960,10 @@ def build_scenario_production_data(scenario_name='revisado'):
         return res
 
     suggestions_items = []
+    # Live physical inventory reservation tracker: sku -> {'ventas': float, 'regalos': float, 'reprocesado': float}
+    free_stock_map = {b_sku: float(b.get('stock_libre_disponible', 0.0) or 0.0) for b_sku, b in base_skus_dict.items()}
+    stock_reservado = {b_sku: {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0} for b_sku in base_skus_dict}
+
     for b_sku, b in base_skus_dict.items():
         stock_libre = b.get('stock_libre_disponible', 0.0)
         nm_q = float(b.get('no_mover_qty', 0) or 0)
@@ -933,15 +971,22 @@ def build_scenario_production_data(scenario_name='revisado'):
         if nm_q <= 0 and sm_q <= 0: continue
         if stock_libre <= 0: continue
 
+        already_reg = stock_reservado.get(b_sku, {}).get('regalos', 0.0)
+        disp_fisico = max(0.0, stock_libre - already_reg)
+        if disp_fisico <= 0: continue
+
         desc = b['desc']
         fmt = b['formato_label']
         env_l = float(b.get('envase_litros', 1) or 1)
         cost = float(b.get('precio_unitario', 0) or 0)
         g_code = b.get('granel_code')
-        nm_eur = float(b.get('no_mover_eur', 0) or 0)
-        sm_eur = float(b.get('slow_mover_eur', 0) or 0)
-        tot_ex_qty = round(nm_q + sm_q, 2)
-        tot_ex_eur = round(nm_eur + sm_eur, 2)
+
+        tot_ex_qty = round(min(nm_q + sm_q, disp_fisico), 2)
+        nm_q = round(min(nm_q, tot_ex_qty), 2)
+        sm_q = round(tot_ex_qty - nm_q, 2)
+        nm_eur = round(nm_q * cost, 2)
+        sm_eur = round(sm_q * cost, 2)
+        tot_ex_eur = round(tot_ex_qty * cost, 2)
 
         exp_6m = sum(float(b.get('monthly_forecast_export', {}).get(m, 0) or 0) for m in presets['N5'])
         nac_6m = float(b.get('demanda_nac_6m', 0) or 0)
@@ -1108,12 +1153,18 @@ def build_scenario_production_data(scenario_name='revisado'):
             c_dto_eur = round(max(0.0, (alloc_q * c_pvp_ref) - c_facturacion), 2)
             c_rappel_eur = round(c_facturacion * 0.05, 2) if c_plan_id == "PLAN 3" else 0.0
 
-            gift_units = max(1, min(5, int(alloc_q / (200.0 if env_l <= 5 else 400.0)) + 1))
-            c_gift_cost = round(gift_units * gift_info['coste_unit'] * gift_info['envase_l'], 2)
+            gift_units_req = max(1, min(5, int(alloc_q / (200.0 if env_l <= 5 else 400.0)) + 1))
+            c_gift_info, c_gift_uds = _select_dynamic_gift(b_sku, desc, g_code, gift_units_req, stock_reservado, free_stock_map)
+            c_gift_cost = round(c_gift_uds * c_gift_info['coste_unit'] * c_gift_info['envase_l'], 2)
             c_merch_eur = round(c_gift_cost + (alloc_q * 0.04), 2)
             c_fin_eur = round(c_facturacion * TASA_FINANCIERA_ANUAL * (c_dias_extra / 365.0), 2)
             c_margen_est = round(c_facturacion - c_cogs - c_rappel_eur - c_merch_eur - c_fin_eur, 2)
             c_margen_pct = round((c_margen_est / c_facturacion) * 100, 1) if c_facturacion > 0 else 0.0
+            c_dso_impact = round((c_facturacion * c_dias_extra) / VENTAS_NETAS_LTM_EUR, 6)
+            c_dio_saving = round(c_cogs / COGS_DIARIO_TOTAL, 5)
+
+            # Reserva física de la venta
+            stock_reservado[b_sku]['ventas'] += alloc_q
 
             if c_plan_id in ["PLAN 1", "PLAN 2"]:
                 c_caja_0_30 = 0.0
@@ -1159,41 +1210,88 @@ def build_scenario_production_data(scenario_name='revisado'):
                 'coste_fin_eur': c_fin_eur,
                 'margen_estimado_eur': c_margen_est,
                 'margen_estimado_pct': c_margen_pct,
-                'regalo_sku': gift_info['sku'],
-                'regalo_desc': gift_info['desc'],
-                'regalo_uds': gift_units,
+                'regalo_sku': c_gift_info['sku'] if c_gift_uds > 0 else "-",
+                'regalo_desc': c_gift_info['desc'] if c_gift_uds > 0 else "Sin obsequio",
+                'regalo_uds': c_gift_uds,
                 'regalo_coste_eur': c_gift_cost,
-                'regalo_sinergia': gift_info['sinergia'],
+                'regalo_sinergia': c_gift_info['sinergia'] if c_gift_uds > 0 else "",
                 'plazo_pago': c_pago_label,
                 'caja_0_30d_eur': c_caja_0_30,
                 'caja_31_60d_eur': c_caja_31_60,
                 'caja_61_90d_eur': c_caja_61_90,
-                'caja_90d_plus_eur': c_caja_90_plus
+                'caja_90d_plus_eur': c_caja_90_plus,
+                'dias_extra': c_dias_extra,
+                'dso_impact_days': c_dso_impact,
+                'dio_saving_days': c_dio_saving,
+                'es_reprocesado_interno': False,
+                'compras_materia_prima_evitadas_eur': 0.0,
+                'coste_tecnico_reprocesado_eur': 0.0
             })
             rem_stock = round(rem_stock - alloc_q, 1)
 
         # Si queda excedente no absorbido, asignar a Plan 5 (Re-work reactor / Outlet)
         if rem_stock > 0:
-            c_plan_id = "PLAN 5"
-            c_plan_name = "P5: Re-work en Reactor / Liquidación Outlet"
-            c_dto_pct = 35.0
-            c_pvp_oferta = round(max(cost * 1.15, pvp_ref * (1.0 - 0.35)), 2)
-            c_facturacion = round(rem_stock * c_pvp_oferta, 2)
-            c_cogs = round(rem_stock * cost, 2)
-            c_dto_eur = round(max(0.0, (rem_stock * pvp_ref) - c_facturacion), 2)
-            c_rappel_eur = 0.0
-            c_merch_eur = round(rem_stock * 0.06, 2)
-            c_fin_eur = 0.0
-            c_margen_est = round(c_facturacion - c_cogs - c_merch_eur, 2)
-            c_margen_pct = round((c_margen_est / c_facturacion) * 100, 1) if c_facturacion > 0 else 0.0
-            c_caja_0_30 = round(c_facturacion * 0.70, 2)
-            c_caja_31_60 = round(c_facturacion - c_caja_0_30, 2)
+            is_internal_rework = bool(g_code)
+            if is_internal_rework:
+                c_plan_id = "PLAN 5"
+                c_plan_name = "P5: Re-work en Reactor Nodriza (Transferencia Interna)"
+                c_pvp_ref_rem = 0.0
+                c_pvp_oferta = 0.0
+                c_dto_pct = 0.0
+                c_facturacion = 0.0
+                c_cogs = round(rem_stock * cost, 2)
+                c_dto_eur = 0.0
+                c_rappel_eur = 0.0
+                c_coste_tecnico = round(rem_stock * 0.04, 2)
+                c_merch_eur = c_coste_tecnico
+                c_fin_eur = 0.0
+                c_dias_extra = 0
+                c_compras_evitadas = round(rem_stock * cost * 0.90, 2)
+                c_margen_est = round(c_compras_evitadas - c_cogs - c_coste_tecnico, 2)
+                c_margen_pct = round((c_margen_est / c_cogs) * 100, 1) if c_cogs > 0 else 0.0
+                c_caja_0_30 = 0.0
+                c_caja_31_60 = 0.0
+                c_caja_61_90 = 0.0
+                c_caja_90_plus = 0.0
+                c_plazo_pago = "Transferencia Interna Planta (Sin cobro externo)"
+                c_cliente = f"Almacén Planta / Reactor Nodriza ({g_code})"
+                c_tipo_rel = "Transferencia Interna (Reactor Nodriza)"
+                c_dso_impact = 0.0
+                c_dio_saving = 0.0  # El material permanece en planta, cambia a granel/MP
+                stock_reservado[b_sku]['reprocesado'] += rem_stock
+            else:
+                c_plan_id = "PLAN 5"
+                c_plan_name = "P5: Liquidación Comercial Outlet Fin de Año"
+                c_pvp_ref_rem = pvp_ref
+                c_dto_pct = 35.0
+                c_pvp_oferta = round(max(cost * 1.15, pvp_ref * 0.65), 2)
+                c_facturacion = round(rem_stock * c_pvp_oferta, 2)
+                c_cogs = round(rem_stock * cost, 2)
+                c_dto_eur = round(max(0.0, (rem_stock * pvp_ref) - c_facturacion), 2)
+                c_rappel_eur = 0.0
+                c_coste_tecnico = 0.0
+                c_compras_evitadas = 0.0
+                c_merch_eur = round(rem_stock * 0.04, 2)
+                c_fin_eur = 0.0
+                c_dias_extra = 30
+                c_margen_est = round(c_facturacion - c_cogs - c_merch_eur, 2)
+                c_margen_pct = round((c_margen_est / c_facturacion) * 100, 1) if c_facturacion > 0 else 0.0
+                c_caja_0_30 = round(c_facturacion * 0.70, 2)
+                c_caja_31_60 = round(c_facturacion - c_caja_0_30, 2)
+                c_caja_61_90 = 0.0
+                c_caja_90_plus = 0.0
+                c_plazo_pago = "Liquidación Contado -5% / 60 días"
+                c_cliente = "Lote Outlet Liquidación Fin de Año"
+                c_tipo_rel = "Venta Outlet Comercial"
+                c_dso_impact = round((c_facturacion * c_dias_extra) / VENTAS_NETAS_LTM_EUR, 6)
+                c_dio_saving = round(c_cogs / COGS_DIARIO_TOTAL, 5)
+                stock_reservado[b_sku]['ventas'] += rem_stock
 
             ofertas_clientes.append({
-                'cliente': f"Almacén Planta / Reactor Nodriza ({g_code or 'Base'})" if g_code else "Lote Outlet Liquidación Fin de Año",
+                'cliente': c_cliente,
                 'pais': "ESPAÑA",
                 'comercial': "Dirección Técnica / Operaciones",
-                'tipo_relacion': "Reincorporación Formulación / Outlet",
+                'tipo_relacion': c_tipo_rel,
                 'es_comprador_real': False,
                 'vol_historico_o_prev': 0.0,
                 'capacidad_absorcion': rem_stock,
@@ -1201,9 +1299,9 @@ def build_scenario_production_data(scenario_name='revisado'):
                 'envases_asignados': round(rem_stock / env_l, 1) if env_l > 0 else rem_stock,
                 'plan_id': c_plan_id,
                 'plan_name': c_plan_name,
-                'pvp_tarifa_ref': round(pvp_ref, 2),
+                'pvp_tarifa_ref': round(c_pvp_ref_rem, 2),
                 'pvp_oferta': round(c_pvp_oferta, 2),
-                'dto_pct': 35.0,
+                'dto_pct': c_dto_pct,
                 'facturacion_neta_eur': c_facturacion,
                 'cogs_eur': c_cogs,
                 'coste_dto_eur': c_dto_eur,
@@ -1213,15 +1311,21 @@ def build_scenario_production_data(scenario_name='revisado'):
                 'margen_estimado_eur': c_margen_est,
                 'margen_estimado_pct': c_margen_pct,
                 'regalo_sku': "-",
-                'regalo_desc': "Vaciado a tanque nodriza / Sin obsequio",
+                'regalo_desc': "Sin obsequio (Re-work / Outlet)",
                 'regalo_uds': 0,
                 'regalo_coste_eur': 0.0,
-                'regalo_sinergia': "Recuperación de principio activo",
-                'plazo_pago': "Contado -5% o Inmediato en Reactor",
+                'regalo_sinergia': "Recuperación de principio activo" if is_internal_rework else "",
+                'plazo_pago': c_plazo_pago,
                 'caja_0_30d_eur': c_caja_0_30,
                 'caja_31_60d_eur': c_caja_31_60,
-                'caja_61_90d_eur': 0.0,
-                'caja_90d_plus_eur': 0.0
+                'caja_61_90d_eur': c_caja_61_90,
+                'caja_90d_plus_eur': c_caja_90_plus,
+                'dias_extra': c_dias_extra,
+                'dso_impact_days': c_dso_impact,
+                'dio_saving_days': c_dio_saving,
+                'es_reprocesado_interno': is_internal_rework,
+                'compras_materia_prima_evitadas_eur': c_compras_evitadas,
+                'coste_tecnico_reprocesado_eur': c_coste_tecnico
             })
             rem_stock = 0.0
 
@@ -1234,18 +1338,21 @@ def build_scenario_production_data(scenario_name='revisado'):
         coste_comercial_total_eur = round(coste_dto_eur + coste_rappel_eur + coste_merch_eur + coste_fin_pago_eur, 2)
         margen_bruto_eur = round(ingreso_tot - tot_ex_eur, 2)
         margen_neto_real_eur = round(sum(o['margen_estimado_eur'] for o in ofertas_clientes), 2)
-        margen_neto_real_pct = round((margen_neto_real_eur / ingreso_tot) * 100, 1) if ingreso_tot > 0 else 0.0
+        margen_neto_real_pct = round((margen_neto_real_eur / ingreso_tot) * 100, 1) if ingreso_tot > 0 else (
+            round((margen_neto_real_eur / tot_ex_eur) * 100, 1) if tot_ex_eur > 0 else 0.0
+        )
 
         caja_0_30d_eur = round(sum(o['caja_0_30d_eur'] for o in ofertas_clientes), 2)
         caja_31_60d_eur = round(sum(o['caja_31_60d_eur'] for o in ofertas_clientes), 2)
         caja_61_90d_eur = round(sum(o['caja_61_90d_eur'] for o in ofertas_clientes), 2)
         caja_90d_plus_eur = round(sum(o['caja_90d_plus_eur'] for o in ofertas_clientes), 2)
 
-        dio_saving_empresa_days = round(tot_ex_eur / COGS_DIARIO_TOTAL, 3)
-        dio_nm_empresa_days = round(nm_eur / COGS_DIARIO_TOTAL, 3)
+        dio_saving_empresa_days = round(sum(o['dio_saving_days'] for o in ofertas_clientes), 3)
+        dio_nm_empresa_days = round(min(nm_eur / COGS_DIARIO_TOTAL, dio_saving_empresa_days), 3)
         dio_tot_pt = round(tot_ex_eur / COGS_DIARIO_PT_NAC, 2)
 
-        dso_impact_empresa_days = round((ingreso_tot * dias_extra) / VENTAS_NETAS_LTM_EUR, 4)
+        # Recálculo exacto de DSO a nivel de SKU desde las ofertas individuales
+        dso_impact_empresa_days = round(sum(o['dso_impact_days'] for o in ofertas_clientes), 5)
         ccc_net_impact_days = round(-dio_saving_empresa_days + dso_impact_empresa_days, 3)
 
         # Horizonte de rotación dinámico según velocidad del SKU
@@ -1317,6 +1424,13 @@ def build_scenario_production_data(scenario_name='revisado'):
         })
 
     suggestions_items.sort(key=lambda x: (0 if x['is_nomover'] else 1, -x['no_mover_eur'], -x['exceso_total_eur']))
+
+    # Control de integridad física: validar que ninguna referencia exceda su stock libre
+    for sku_k, res_k in stock_reservado.items():
+        tot_salidas = round(res_k['ventas'] + res_k['regalos'] + res_k['reprocesado'], 2)
+        fl_k = round(free_stock_map.get(sku_k, 0.0), 2)
+        if tot_salidas > fl_k + 0.01:
+            raise ValueError(f"CRITICAL: SKU {sku_k} over-committed: salidas {tot_salidas} > stock libre {fl_k}!")
 
     plan_meta_defs = {
         "PLAN 1": {

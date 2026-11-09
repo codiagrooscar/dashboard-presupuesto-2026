@@ -40,14 +40,14 @@
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
-  <script src="dashboard_i18n.js?v=20261104_0815"></script>
-  <script src="dashboard_data.js?v=20261104_0815"></script>
-  <script src="production_planning_data.js?v=20261104_0815"></script>
-  <script src="treasury_data.js?v=20261104_0815"></script>
-  <script src="profitability_data.js?v=20261104_0815"></script>
-  <script src="fullcost_data.js?v=20261104_0815"></script>
-  <script src="profitability_logic.js?v=20261104_0815"></script>
-  <script src="bi_intelligence_data.js?v=20261104_0815"></script>
+  <script src="dashboard_i18n.js?v=20261109_1430"></script>
+  <script src="dashboard_data.js?v=20261109_1430"></script>
+  <script src="production_planning_data.js?v=20261109_1430"></script>
+  <script src="treasury_data.js?v=20261109_1430"></script>
+  <script src="profitability_data.js?v=20261109_1430"></script>
+  <script src="fullcost_data.js?v=20261109_1430"></script>
+  <script src="profitability_logic.js?v=20261109_1430"></script>
+  <script src="bi_intelligence_data.js?v=20261109_1430"></script>
   <script src="cockpit_inicio_logic.js?v=20261104_0815"></script>
   <script src="bi_intelligence_logic.js?v=20261104_0815"></script>
   <link rel="stylesheet" href="marta_tracking.css?v=20261104_0815">
@@ -6271,34 +6271,46 @@
                               ${fmtNum(o.envases_asignados)} env.
                             </td>
                             <td style="padding:0.45rem 0.5rem;text-align:right;color:#94a3b8;text-decoration:${o.dto_pct > 0 ? 'line-through' : 'none'};">
-                              ${o.pvp_tarifa_ref.toFixed(2)} €
+                              ${o.es_reprocesado_interno ? '<span style="color:#64748b;">—</span>' : `${o.pvp_tarifa_ref.toFixed(2)} €`}
                             </td>
                             <td style="padding:0.45rem 0.5rem;text-align:right;font-weight:700;color:#fbbf24;">
-                              ${o.pvp_oferta.toFixed(2)} €
-                              ${o.dto_pct > 0 ? `<div style="font-size:0.63rem;color:#fbbf24;">(-${o.dto_pct.toFixed(0)}%)</div>` : ''}
+                              ${o.es_reprocesado_interno ? '<span style="color:#94a3b8;font-size:0.68rem;">0,00 € (Interno)</span>' : `${o.pvp_oferta.toFixed(2)} €`}
+                              ${!o.es_reprocesado_interno && o.dto_pct > 0 ? `<div style="font-size:0.63rem;color:#fbbf24;">(-${o.dto_pct.toFixed(0)}%)</div>` : ''}
                             </td>
                             <td style="padding:0.45rem 0.5rem;">
-                              ${o.regalo_sku !== '-' ? `
+                              ${o.es_reprocesado_interno ? `
+                                <div style="font-weight:700;color:#94a3b8;font-size:0.68rem;">🏭 Transferencia a Reactor</div>
+                                <div style="font-size:0.63rem;color:#64748b;">Reincorporación a tanque nodriza</div>
+                              ` : (o.regalo_sku !== '-' ? `
                                 <div style="font-weight:700;color:#c084fc;">🎁 ${o.regalo_uds}x ${o.regalo_desc}</div>
                                 <div style="font-size:0.63rem;color:#a855f7;">SKU: ${o.regalo_sku} (${fmtCurr(o.regalo_coste_eur)}) &bull; ${o.regalo_sinergia || ''}</div>
-                              ` : `<span style="color:#64748b;">${o.regalo_desc || 'Sin obsequio'}</span>`}
+                              ` : `<span style="color:#64748b;">${o.regalo_desc || 'Sin obsequio'}</span>`)}
                             </td>
-                            <td style="padding:0.45rem 0.5rem;text-align:right;font-weight:800;color:#38bdf8;">
+                            <td style="padding:0.45rem 0.5rem;text-align:right;font-weight:800;color:${o.es_reprocesado_interno ? '#94a3b8' : '#38bdf8'};">
                               ${fmtCurr(o.facturacion_neta_eur)}
                             </td>
                             <td style="padding:0.45rem 0.5rem;text-align:right;color:#f87171;font-size:0.67rem;line-height:1.2;">
-                              <div>COGS: -${fmtCurr(o.cogs_eur)}</div>
-                              ${(o.coste_rappel_eur || 0) > 0 ? `<div style="color:#f472b6;">Rappel: -${fmtCurr(o.coste_rappel_eur)}</div>` : ''}
-                              <div>Merch: -${fmtCurr(o.coste_merch_eur)}</div>
-                              <div>Fin: -${fmtCurr(o.coste_fin_eur)}</div>
+                              ${o.es_reprocesado_interno ? `
+                                <div>COGS: -${fmtCurr(o.cogs_eur)}</div>
+                                <div style="color:#34d399;">Ahorro MP: +${fmtCurr(o.compras_materia_prima_evitadas_eur || 0)}</div>
+                                <div style="color:#fbbf24;">Bombeo: -${fmtCurr(o.coste_tecnico_reprocesado_eur || 0)}</div>
+                              ` : `
+                                <div>COGS: -${fmtCurr(o.cogs_eur)}</div>
+                                ${(o.coste_rappel_eur || 0) > 0 ? `<div style="color:#f472b6;">Rappel: -${fmtCurr(o.coste_rappel_eur)}</div>` : ''}
+                                <div>Merch: -${fmtCurr(o.coste_merch_eur)}</div>
+                                <div>Fin: -${fmtCurr(o.coste_fin_eur)}</div>
+                              `}
                             </td>
-                            <td style="padding:0.45rem 0.5rem;text-align:right;font-weight:800;color:#34d399;">
-                              +${fmtCurr(o.margen_estimado_eur)}
-                              <div style="font-size:0.64rem;color:#6ee7b7;font-weight:600;">${o.margen_estimado_pct.toFixed(1)}% margen</div>
+                            <td style="padding:0.45rem 0.5rem;text-align:right;font-weight:800;color:${o.margen_estimado_eur >= 0 ? '#34d399' : '#f87171'};">
+                              ${o.margen_estimado_eur >= 0 ? '+' : ''}${fmtCurr(o.margen_estimado_eur)}
+                              <div style="font-size:0.64rem;color:${o.margen_estimado_eur >= 0 ? '#6ee7b7' : '#fca5a5'};font-weight:600;">
+                                ${o.es_reprocesado_interno ? 'Recuperación MP neta' : `${o.margen_estimado_pct.toFixed(1)}% margen`}
+                              </div>
                             </td>
                             <td style="padding:0.45rem 0.5rem;font-size:0.67rem;">
                               <div style="font-weight:700;color:#c084fc;">💳 ${o.plazo_pago}</div>
                               <div style="font-size:0.63rem;color:#94a3b8;margin-top:0.15rem;display:flex;gap:0.35rem;flex-wrap:wrap;">
+                                ${o.es_reprocesado_interno ? '<span style="color:#94a3b8;">Sin cobro externo (Operativa interna)</span>' : ''}
                                 ${o.caja_0_30d_eur > 0 ? `<span style="color:#34d399;">≤30d: ${fmtCurr(o.caja_0_30d_eur)}</span>` : ''}
                                 ${o.caja_31_60d_eur > 0 ? `<span style="color:#38bdf8;">60d: ${fmtCurr(o.caja_31_60d_eur)}</span>` : ''}
                                 ${o.caja_61_90d_eur > 0 ? `<span style="color:#c084fc;">90d: ${fmtCurr(o.caja_61_90d_eur)}</span>` : ''}

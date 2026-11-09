@@ -471,17 +471,37 @@ def get_packaging_format(env_val, desc="", sku="", fam=None):
         else:
             return f"Botellas {l_val}L"
 
-def _get_complementary_product(b_sku, desc, g_code):
-    text = f"{b_sku} {desc}".upper()
-    if any(k in text for k in ['ALCAPLANT', 'SAL-WAX', 'SALWAX', 'CALCI', 'BITTER']):
-        return "Muestra 5L Fulvigin / Codibrot (Sinergia enraizamiento + asimilación Ca)"
+# Catálogo Auditado de Regalos Técnicos Verificados (Stock real excedentario en almacén)
+CATALOGO_REGALOS = {
+    'BIO0005': {'sku': 'BIO0005', 'desc': 'BIORAD-20, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 0.7328, 'stock_disponible': 1840.0, 'sinergia': 'Enraizamiento y Asimilación'},
+    'AN0005': {'sku': 'AN0005', 'desc': 'ALCAPLANT NEW, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'coste_unit': 0.2191, 'stock_disponible': 1660.0, 'sinergia': 'Corrección de Calcio en Suelo'},
+    'AGFEL0001': {'sku': 'AGFEL0001', 'desc': 'AGROXILATO-FE-L, 1 L', 'formato': 'Botellas 1L', 'envase_l': 1.0, 'coste_unit': 1.6931, 'stock_disponible': 732.0, 'sinergia': 'Corrección Rápida Clorosis Férrica'},
+    'AGRMG0005': {'sku': 'AGRMG0005', 'desc': 'AGROXIGREEN-MG, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.2216, 'stock_disponible': 775.0, 'sinergia': 'Activación Fotosintética Magnesio'},
+    'BROTA0005': {'sku': 'BROTA0005', 'desc': 'BROTAMEC, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.2668, 'stock_disponible': 1100.0, 'sinergia': 'Brotación y Crecimiento Vegetativo'},
+    'BR-590005': {'sku': 'BR-590005', 'desc': 'BR-59, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'coste_unit': 0.5247, 'stock_disponible': 1760.0, 'sinergia': 'Desbloqueo Salino y Fertilidad'},
+    'AQUOM0005': {'sku': 'AQUOM0005', 'desc': 'AQUOM, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 2.3703, 'stock_disponible': 850.0, 'sinergia': 'Regulación Infiltración Hídrica'},
+    'PT0005': {'sku': 'PT0005', 'desc': 'AGROPOTASION, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.1395, 'stock_disponible': 880.0, 'sinergia': 'Potasio Puro para Maduración'},
+    'B0005': {'sku': 'B0005', 'desc': 'BOROCAL, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 0.9928, 'stock_disponible': 475.0, 'sinergia': 'Floración, Cuajado y Movilidad Boro'},
+    'FU0001': {'sku': 'FU0001', 'desc': 'FULVIGIN, 1 L', 'formato': 'Botellas 1L', 'envase_l': 1.0, 'coste_unit': 1.4470, 'stock_disponible': 588.0, 'sinergia': 'Ácidos Fúlvicos y Complejación'}
+}
+
+def _get_verified_gift(b_sku, desc, g_code):
+    text = f"{b_sku} {desc} {g_code or ''}".upper()
+    if any(k in text for k in ['ALCAPLANT', 'SAL-WAX', 'SALWAX', 'CALCI', 'BITTER', 'SS']):
+        return CATALOGO_REGALOS['BIO0005']
     if any(k in text for k in ['RADISOL', 'START', 'PGR', 'FLORAMEC', 'AVANCE', 'SPRINTENE', 'CODIBROT']):
-        return "Pack Muestra Agroxilato-Zn-Mn / Boro-Cal (Sinergia cuajado y floración)"
-    if any(k in text for k in ['AGROXILATO', 'CODIFOL', 'FERRO', 'FE-L', 'ZINC', 'MN']):
-        return "Garrafa 20L Alcaplant New / Codiorgan A-50 (Complejante orgánico)"
+        return CATALOGO_REGALOS['B0005']
+    if any(k in text for k in ['AGROXILATO', 'CODIFOL', 'FERRO', 'FE-L', 'ZINC', 'MN', 'C-M-P']):
+        return CATALOGO_REGALOS['AN0005']
     if any(k in text for k in ['AGROWHITE', 'FROST', 'STRESS', 'AQUOM', 'FITOKONTROL']):
-        return "Muestra 5L Hidrostress / Sal-Wax Star (Pack Protección Climática)"
-    return "Lote promocional Alcaplant New 20Kg / Codiorgan A-50 (Producto tractor)"
+        return CATALOGO_REGALOS['BR-590005']
+    if any(k in text for k in ['POTAS', 'PT', 'K', 'MADUR']):
+        return CATALOGO_REGALOS['AGRMG0005']
+    return CATALOGO_REGALOS['BROTA0005']
+
+def _get_complementary_product(b_sku, desc, g_code):
+    g = _get_verified_gift(b_sku, desc, g_code)
+    return f"Obsequio Técnico: {g['desc']} ({g['sku']}) - {g['sinergia']} (Coste real: {g['coste_unit']:.2f}€/L-Kg)"
 
 # Official Balance / P&L constants (Inputs CEO / CFO)
 INVENTARIO_TOTAL_BALANCE_EUR = 1323814.0
@@ -882,7 +902,7 @@ def build_scenario_production_data(scenario_name='revisado'):
             es_real = d['real_ltm_vol'] > 0
             if es_real and d['real_ltm_vol'] > 0:
                 pvp_calc = d['real_ltm_eur'] / d['real_ltm_vol']
-                pvp_tipo = "PVP Real Histórico Cliente (LTM)"
+                pvp_tipo = "PVP Real Histórico Cliente (Ene-Ago 2026)"
             elif d['prev_vol'] > 0:
                 pvp_calc = d['prev_eur'] / d['prev_vol']
                 pvp_tipo = "Precio Tarifa Vigente (Previsión)"
@@ -895,9 +915,11 @@ def build_scenario_production_data(scenario_name='revisado'):
             d['pvp'] = round(pvp_calc, 2)
             d['pvp_tipo'] = pvp_tipo
             d['es_comprador_real'] = es_real
-            d['tipo_relacion'] = "Comprador Real LTM" if es_real else "Previsión Planificada"
+            d['tipo_relacion'] = "Real Cerrado Ene-Ago 2026 (8 meses)" if es_real else "Previsión Planificada"
             d['skus'] = sorted(list(d['skus']))
-            d['capacidad_absorcion'] = round(max(d['real_ltm_vol'] * 0.5, d['prev_vol']), 1)
+            vol_anual = (d['real_ltm_vol'] / 8.0) * 12.0 if es_real else d['prev_vol']
+            d['vol_anualizado'] = round(vol_anual, 1)
+            d['capacidad_absorcion'] = round(max(vol_anual * 0.5, d['prev_vol'], 10.0), 1)
             res.append(d)
 
         res.sort(key=lambda x: (1 if x['es_comprador_real'] else 0, x['real_ltm_vol'], x['prev_vol']), reverse=True)
@@ -948,6 +970,8 @@ def build_scenario_production_data(scenario_name='revisado'):
         nac_direct = [x for x in direct_buyers if x['is_nacional']]
         nac_granel = [x for x in granel_buyers if x['is_nacional'] and x['cliente'] not in [y['cliente'] for y in nac_direct]]
 
+        gift_info = _get_verified_gift(b_sku, desc, g_code)
+
         if nm_q > 0 and (exp_6m >= nm_q * 0.5 or (exp_buyers and not nac_direct)):
             plan_id = "PLAN 1"
             plan_name = "P1: Fast-Track Exportación & Re-etiquetado"
@@ -955,7 +979,7 @@ def build_scenario_production_data(scenario_name='revisado'):
             dto_label = "0% Dto (Asignación directa pedido en curso)" if dto_pct == 0 else "-8% Dto Pronto Embarque Contenedor"
             pvp_neto = max(cost * 1.25, pvp_ref * (1.0 - dto_pct))
             pago_label = "Confirming / Carta Crédito +30 días extra (90d)"
-            promo_label = "Prioridad embarque + Re-etiquetado en planta sin cargo + 2 cajas muestra nueva línea"
+            promo_label = f"Prioridad embarque + Re-etiquetado en planta sin cargo + Obsequio: {gift_info['desc']}"
             motivo = f"Demanda exportación activa ({exp_6m:,.0f} L/Kg en 6m) o cliente internacional recurrente del SKU."
         elif tot_ex_qty < 150 or tot_ex_eur < 220:
             plan_id = "PLAN 5"
@@ -965,7 +989,7 @@ def build_scenario_production_data(scenario_name='revisado'):
             pvp_neto = max(cost * 1.15, pvp_ref * (1.0 - dto_pct))
             pago_label = "Contado -5% adicional o 60 días estándar"
             promo_label = f"Vaciado a tanque nodriza ({g_code or 'Base'}) en próxima fabricación o lote outlet cerrado con portes pagados"
-            motivo = f"Cola residual de stock ({tot_ex_qty:,.0f} L/Kg); óptimo re-volcar a reactor del mismo granel o liquidar en bloque."
+            motivo = f"Cola residual de stock ({tot_ex_qty:,.0f} L/Kg); óptimo re-volcar a reactor nodriza ({g_code or 'Base'}) o liquidar en bloque."
         elif nac_granel and (env_l <= 5.0 or env_l == 200.0) and nac_6m < tot_ex_qty * 0.8:
             plan_id = "PLAN 2"
             plan_name = "P2: Switch de Formato (Precio 20L en envase 1L/5L/200L)"
@@ -973,7 +997,7 @@ def build_scenario_production_data(scenario_name='revisado'):
             dto_label = "-18% (Igualar €/L de Garrafa 20L / IBC)"
             pvp_neto = max(cost * 1.35, pvp_ref * (1.0 - dto_pct))
             pago_label = "Vencimiento a 90 días sin recargo financiero"
-            promo_label = f"Expositor punto de venta + Merchandising técnico (chalecos/dosificadores) + {_get_complementary_product(b_sku, desc, g_code)}"
+            promo_label = f"Expositor punto de venta + Merchandising técnico + Obsequio: {gift_info['desc']} ({gift_info['sinergia']})"
             motivo = f"Clientes nacionales compran el mismo granel ({g_code}) en 20L/1000L; alta aceptación al recibir formato alternativo a precio de grande."
         elif nac_direct and (nac_6m >= 1500 or tot_ex_qty >= 2500):
             plan_id = "PLAN 3"
@@ -982,27 +1006,27 @@ def build_scenario_production_data(scenario_name='revisado'):
             dto_label = "Bonif. 8+2 (20% Gratis en especie) + 5% Rappel 2027"
             pvp_neto = max(cost * 1.30, pvp_ref * (1.0 - dto_pct))
             pago_label = "Pago fraccionado 60 / 90 / 120 días en pedido conjunto"
-            promo_label = f"Rappel diferido 5% en nota de crédito Q1-2027 + {_get_complementary_product(b_sku, desc, g_code)}"
+            promo_label = f"Rappel diferido 5% en nota de crédito Q1-2027 + Obsequio: {gift_info['desc']} ({gift_info['sinergia']})"
             motivo = "Clientes históricos activos en España; la bonificación en especie limpia almacén sin erosionar el precio facial de tarifa."
         else:
             plan_id = "PLAN 4"
-            plan_name = "P4: Kit Captación Nuevos Clientes & Win-Back (Riesgo Cero)"
+            plan_name = "P4: Kit Captación con Garantía de Rotación (Canje 90d)"
             dto_pct = 0.25
-            dto_label = "-25% Dto Lanzamiento Pack Captación + Ensayo Gratis"
+            dto_label = "-25% Dto Lanzamiento Pack Captación + Ensayo Técnico"
             pvp_neto = max(cost * 1.20, pvp_ref * (1.0 - dto_pct))
-            pago_label = "Pago a 120 días con Cláusula de Rotación Garantizada (Canje 90d)"
-            promo_label = f"10% unidades extra sin cargo para ensayo técnico en campo + {_get_complementary_product(b_sku, desc, g_code)} + Pack Merchandising"
-            motivo = "Ideal como puerta de entrada en nuevos distribuidores regionales o recuperación de cuentas inactivas sin riesgo para el cliente."
+            pago_label = "Pago a 120 días con Garantía de Canje Técnico (90d)"
+            promo_label = f"Obsequio: {gift_info['desc']} ({gift_info['sinergia']}) + Asistencia técnica en campo"
+            motivo = "Ideal como puerta de entrada en nuevos distribuidores regionales o reactivación de cuentas con riesgo comercial mitigado mediante canje a 90 días."
 
         rec_clients = []
         for x in (nac_direct + exp_buyers)[:3]:
-            rel_label = "Histórico LTM" if x.get('es_comprador_real') else "Previsión"
+            rel_label = "Real Cerrado Ene-Ago 2026 (8 meses)" if x.get('es_comprador_real') else "Previsión Planificada"
             vol_info = f"{x['vol']:,.0f} u ({rel_label})"
             pvp_info = f"@{x['pvp']:.2f}€" if x['pvp'] > 0 else ""
             rec_clients.append(f"{x['cliente']} [{x['pais']}: {vol_info} {pvp_info}]")
         for x in nac_granel[:2]:
             if len(rec_clients) < 3:
-                rel_label = "Histórico LTM" if x.get('es_comprador_real') else "Previsión"
+                rel_label = "Real Cerrado Ene-Ago 2026 (8 meses)" if x.get('es_comprador_real') else "Previsión Planificada"
                 rec_clients.append(f"{x['cliente']} [Compra granel {g_code}: {x['vol']:,.0f} u ({rel_label}) @{x['pvp']:.2f}€]")
         if not rec_clients:
             fam_b = _consolidate_buyers(_family_clients.get(b.get('granel_family'), []))
@@ -1015,37 +1039,223 @@ def build_scenario_production_data(scenario_name='revisado'):
         cap_palet = 1000.0 if env_l >= 500 else (800.0 if env_l >= 150 else (640.0 if env_l >= 15 else (480.0 if env_l >= 4 else 360.0)))
         palets_lib = round(max(0.15, tot_ex_qty / cap_palet), 2)
 
-        dio_saving_empresa_days = round(tot_ex_eur / COGS_DIARIO_TOTAL, 3)
-        dio_nm_empresa_days = round(nm_eur / COGS_DIARIO_TOTAL, 3)
-        dio_tot_pt = round(tot_ex_eur / COGS_DIARIO_PT_NAC, 2)
-
         TASA_FINANCIERA_ANUAL = 0.055
         TASA_HOLDING_INVENTARIO = 0.15
 
         dias_extra_map = { "PLAN 1": 30, "PLAN 2": 30, "PLAN 3": 30, "PLAN 4": 60, "PLAN 5": 0 }
-        merch_rate_map = { "PLAN 1": 0.10, "PLAN 2": 0.18, "PLAN 3": 0.22, "PLAN 4": 0.35, "PLAN 5": 0.08 }
-
         dias_extra = dias_extra_map.get(plan_id, 30)
-        merch_rate = merch_rate_map.get(plan_id, 0.15)
 
-        ingreso_nm = round(nm_q * pvp_neto, 2)
-        ingreso_tot = round(tot_ex_qty * pvp_neto, 2)
-        ingreso_bruto_tarifa = round(tot_ex_qty * pvp_ref, 2)
+        # Distribuir excedente físico por cliente concreto
+        rem_stock = tot_ex_qty
+        ofertas_clientes = []
+        ordered_buyers = []
+        seen_c = set()
+        for x in (nac_direct + exp_buyers):
+            if x['cliente'] not in seen_c:
+                ordered_buyers.append(x)
+                seen_c.add(x['cliente'])
+        for x in nac_granel:
+            if x['cliente'] not in seen_c:
+                ordered_buyers.append(x)
+                seen_c.add(x['cliente'])
+        if not ordered_buyers:
+            fam_b = _consolidate_buyers(_family_clients.get(b.get('granel_family'), []))
+            for x in fam_b:
+                if x['cliente'] not in seen_c and x['is_nacional']:
+                    ordered_buyers.append(x)
+                    seen_c.add(x['cliente'])
 
-        coste_dto_eur = round(max(0.0, ingreso_bruto_tarifa - ingreso_tot), 2)
-        rappel_pct = 0.05 if plan_id == "PLAN 3" else 0.0
-        coste_rappel_eur = round(ingreso_tot * rappel_pct, 2)
-        coste_merch_eur = round(tot_ex_qty * merch_rate, 2)
-        coste_fin_pago_eur = round(ingreso_tot * TASA_FINANCIERA_ANUAL * (dias_extra / 365.0), 2)
+        for buy in ordered_buyers:
+            if rem_stock <= 0:
+                break
+            cap = buy.get('capacidad_absorcion', 10.0)
+            alloc_q = min(rem_stock, cap)
+            if alloc_q < 5.0 and rem_stock >= 5.0:
+                alloc_q = min(rem_stock, 5.0)
+            alloc_q = round(alloc_q, 1)
+            if alloc_q <= 0:
+                continue
+
+            if not buy['is_nacional']:
+                c_plan_id = "PLAN 1"
+                c_plan_name = "P1: Fast-Track Exportación & Re-etiquetado"
+                c_dto_pct = 0.08 if exp_6m < alloc_q else 0.0
+                c_pago_label = "Confirming / Carta de Crédito (90d)"
+                c_dias_extra = 30
+            elif plan_id == "PLAN 2":
+                c_plan_id = "PLAN 2"
+                c_plan_name = "P2: Switch de Formato (Precio 20L en 1L/5L/200L)"
+                c_dto_pct = 0.18
+                c_pago_label = "Vencimiento a 90 días sin recargo"
+                c_dias_extra = 30
+            elif buy['es_comprador_real'] or nac_6m >= 1500 or alloc_q >= 1000:
+                c_plan_id = "PLAN 3"
+                c_plan_name = "P3: Bonificación 8+2 (En Especie) + 5% Rappel"
+                c_dto_pct = 0.20
+                c_pago_label = "Pago fraccionado 60 / 90 / 120 días"
+                c_dias_extra = 30
+            else:
+                c_plan_id = "PLAN 4"
+                c_plan_name = "P4: Kit Captación con Garantía de Rotación (90d)"
+                c_dto_pct = 0.25
+                c_pago_label = "Pago a 120 días (Garantía Canje 90d)"
+                c_dias_extra = 60
+
+            c_pvp_ref = buy['pvp'] if buy['pvp'] > cost * 1.10 else pvp_ref
+            c_pvp_oferta = round(max(cost * 1.20, c_pvp_ref * (1.0 - c_dto_pct)), 2)
+            c_facturacion = round(alloc_q * c_pvp_oferta, 2)
+            c_cogs = round(alloc_q * cost, 2)
+            c_dto_eur = round(max(0.0, (alloc_q * c_pvp_ref) - c_facturacion), 2)
+            c_rappel_eur = round(c_facturacion * 0.05, 2) if c_plan_id == "PLAN 3" else 0.0
+
+            gift_units = max(1, min(5, int(alloc_q / (200.0 if env_l <= 5 else 400.0)) + 1))
+            c_gift_cost = round(gift_units * gift_info['coste_unit'] * gift_info['envase_l'], 2)
+            c_merch_eur = round(c_gift_cost + (alloc_q * 0.04), 2)
+            c_fin_eur = round(c_facturacion * TASA_FINANCIERA_ANUAL * (c_dias_extra / 365.0), 2)
+            c_margen_est = round(c_facturacion - c_cogs - c_rappel_eur - c_merch_eur - c_fin_eur, 2)
+            c_margen_pct = round((c_margen_est / c_facturacion) * 100, 1) if c_facturacion > 0 else 0.0
+
+            if c_plan_id in ["PLAN 1", "PLAN 2"]:
+                c_caja_0_30 = 0.0
+                c_caja_31_60 = 0.0
+                c_caja_61_90 = c_facturacion
+                c_caja_90_plus = 0.0
+            elif c_plan_id == "PLAN 3":
+                c_caja_0_30 = 0.0
+                c_caja_31_60 = round(c_facturacion / 3.0, 2)
+                c_caja_61_90 = round(c_facturacion / 3.0, 2)
+                c_caja_90_plus = round(c_facturacion - c_caja_31_60 - c_caja_61_90, 2)
+            elif c_plan_id == "PLAN 4":
+                c_caja_0_30 = 0.0
+                c_caja_31_60 = 0.0
+                c_caja_61_90 = 0.0
+                c_caja_90_plus = c_facturacion
+            else:
+                c_caja_0_30 = round(c_facturacion * 0.70, 2)
+                c_caja_31_60 = round(c_facturacion - c_caja_0_30, 2)
+                c_caja_61_90 = 0.0
+                c_caja_90_plus = 0.0
+
+            ofertas_clientes.append({
+                'cliente': buy['cliente'],
+                'pais': buy['pais'],
+                'comercial': buy['comercial'],
+                'tipo_relacion': buy['tipo_relacion'],
+                'es_comprador_real': buy['es_comprador_real'],
+                'vol_historico_o_prev': buy['vol'],
+                'capacidad_absorcion': cap,
+                'vol_asignado': alloc_q,
+                'envases_asignados': round(alloc_q / env_l, 1) if env_l > 0 else alloc_q,
+                'plan_id': c_plan_id,
+                'plan_name': c_plan_name,
+                'pvp_tarifa_ref': round(c_pvp_ref, 2),
+                'pvp_oferta': round(c_pvp_oferta, 2),
+                'dto_pct': round(c_dto_pct * 100, 1),
+                'facturacion_neta_eur': c_facturacion,
+                'cogs_eur': c_cogs,
+                'coste_dto_eur': c_dto_eur,
+                'coste_rappel_eur': c_rappel_eur,
+                'coste_merch_eur': c_merch_eur,
+                'coste_fin_eur': c_fin_eur,
+                'margen_estimado_eur': c_margen_est,
+                'margen_estimado_pct': c_margen_pct,
+                'regalo_sku': gift_info['sku'],
+                'regalo_desc': gift_info['desc'],
+                'regalo_uds': gift_units,
+                'regalo_coste_eur': c_gift_cost,
+                'regalo_sinergia': gift_info['sinergia'],
+                'plazo_pago': c_pago_label,
+                'caja_0_30d_eur': c_caja_0_30,
+                'caja_31_60d_eur': c_caja_31_60,
+                'caja_61_90d_eur': c_caja_61_90,
+                'caja_90d_plus_eur': c_caja_90_plus
+            })
+            rem_stock = round(rem_stock - alloc_q, 1)
+
+        # Si queda excedente no absorbido, asignar a Plan 5 (Re-work reactor / Outlet)
+        if rem_stock > 0:
+            c_plan_id = "PLAN 5"
+            c_plan_name = "P5: Re-work en Reactor / Liquidación Outlet"
+            c_dto_pct = 35.0
+            c_pvp_oferta = round(max(cost * 1.15, pvp_ref * (1.0 - 0.35)), 2)
+            c_facturacion = round(rem_stock * c_pvp_oferta, 2)
+            c_cogs = round(rem_stock * cost, 2)
+            c_dto_eur = round(max(0.0, (rem_stock * pvp_ref) - c_facturacion), 2)
+            c_rappel_eur = 0.0
+            c_merch_eur = round(rem_stock * 0.06, 2)
+            c_fin_eur = 0.0
+            c_margen_est = round(c_facturacion - c_cogs - c_merch_eur, 2)
+            c_margen_pct = round((c_margen_est / c_facturacion) * 100, 1) if c_facturacion > 0 else 0.0
+            c_caja_0_30 = round(c_facturacion * 0.70, 2)
+            c_caja_31_60 = round(c_facturacion - c_caja_0_30, 2)
+
+            ofertas_clientes.append({
+                'cliente': f"Almacén Planta / Reactor Nodriza ({g_code or 'Base'})" if g_code else "Lote Outlet Liquidación Fin de Año",
+                'pais': "ESPAÑA",
+                'comercial': "Dirección Técnica / Operaciones",
+                'tipo_relacion': "Reincorporación Formulación / Outlet",
+                'es_comprador_real': False,
+                'vol_historico_o_prev': 0.0,
+                'capacidad_absorcion': rem_stock,
+                'vol_asignado': rem_stock,
+                'envases_asignados': round(rem_stock / env_l, 1) if env_l > 0 else rem_stock,
+                'plan_id': c_plan_id,
+                'plan_name': c_plan_name,
+                'pvp_tarifa_ref': round(pvp_ref, 2),
+                'pvp_oferta': round(c_pvp_oferta, 2),
+                'dto_pct': 35.0,
+                'facturacion_neta_eur': c_facturacion,
+                'cogs_eur': c_cogs,
+                'coste_dto_eur': c_dto_eur,
+                'coste_rappel_eur': 0.0,
+                'coste_merch_eur': c_merch_eur,
+                'coste_fin_eur': 0.0,
+                'margen_estimado_eur': c_margen_est,
+                'margen_estimado_pct': c_margen_pct,
+                'regalo_sku': "-",
+                'regalo_desc': "Vaciado a tanque nodriza / Sin obsequio",
+                'regalo_uds': 0,
+                'regalo_coste_eur': 0.0,
+                'regalo_sinergia': "Recuperación de principio activo",
+                'plazo_pago': "Contado -5% o Inmediato en Reactor",
+                'caja_0_30d_eur': c_caja_0_30,
+                'caja_31_60d_eur': c_caja_31_60,
+                'caja_61_90d_eur': 0.0,
+                'caja_90d_plus_eur': 0.0
+            })
+            rem_stock = 0.0
+
+        # Totales exactos del SKU derivados de sus ofertas
+        ingreso_tot = round(sum(o['facturacion_neta_eur'] for o in ofertas_clientes), 2)
+        coste_dto_eur = round(sum(o['coste_dto_eur'] for o in ofertas_clientes), 2)
+        coste_rappel_eur = round(sum(o['coste_rappel_eur'] for o in ofertas_clientes), 2)
+        coste_merch_eur = round(sum(o['coste_merch_eur'] for o in ofertas_clientes), 2)
+        coste_fin_pago_eur = round(sum(o['coste_fin_eur'] for o in ofertas_clientes), 2)
         coste_comercial_total_eur = round(coste_dto_eur + coste_rappel_eur + coste_merch_eur + coste_fin_pago_eur, 2)
-
         margen_bruto_eur = round(ingreso_tot - tot_ex_eur, 2)
-        margen_neto_real_eur = round(ingreso_tot - tot_ex_eur - coste_rappel_eur - coste_merch_eur - coste_fin_pago_eur, 2)
+        margen_neto_real_eur = round(sum(o['margen_estimado_eur'] for o in ofertas_clientes), 2)
         margen_neto_real_pct = round((margen_neto_real_eur / ingreso_tot) * 100, 1) if ingreso_tot > 0 else 0.0
+
+        caja_0_30d_eur = round(sum(o['caja_0_30d_eur'] for o in ofertas_clientes), 2)
+        caja_31_60d_eur = round(sum(o['caja_31_60d_eur'] for o in ofertas_clientes), 2)
+        caja_61_90d_eur = round(sum(o['caja_61_90d_eur'] for o in ofertas_clientes), 2)
+        caja_90d_plus_eur = round(sum(o['caja_90d_plus_eur'] for o in ofertas_clientes), 2)
+
+        dio_saving_empresa_days = round(tot_ex_eur / COGS_DIARIO_TOTAL, 3)
+        dio_nm_empresa_days = round(nm_eur / COGS_DIARIO_TOTAL, 3)
+        dio_tot_pt = round(tot_ex_eur / COGS_DIARIO_PT_NAC, 2)
 
         dso_impact_empresa_days = round((ingreso_tot * dias_extra) / VENTAS_NETAS_LTM_EUR, 4)
         ccc_net_impact_days = round(-dio_saving_empresa_days + dso_impact_empresa_days, 3)
-        holding_cost_saved_eur = round(tot_ex_eur * TASA_HOLDING_INVENTARIO * (180.0 / 365.0), 2)
+
+        # Horizonte de rotación dinámico según velocidad del SKU
+        if nm_q > 0 and sm_q == 0:
+            holding_days = 270.0  # No-mover sin demanda: previene 9 meses de inmovilización / caducidad
+        elif sm_q > 0 and nac_6m > 0:
+            holding_days = max(90.0, min(180.0, round((tot_ex_qty / nac_6m) * 180.0, 0)))
+        else:
+            holding_days = 180.0
+        holding_cost_saved_eur = round(tot_ex_eur * TASA_HOLDING_INVENTARIO * (holding_days / 365.0), 2)
         net_financial_gain_eur = round(holding_cost_saved_eur - coste_fin_pago_eur, 2)
 
         suggestions_items.append({
@@ -1071,22 +1281,27 @@ def build_scenario_production_data(scenario_name='revisado'):
             'dto_pct': round(dto_pct * 100, 1),
             'dto_label': dto_label,
             'coste_dto_eur': coste_dto_eur,
-            'rappel_pct': round(rappel_pct * 100, 1),
+            'rappel_pct': 5.0 if plan_id == "PLAN 3" else 0.0,
             'coste_rappel_eur': coste_rappel_eur,
             'coste_merch_eur': coste_merch_eur,
             'coste_fin_pago_eur': coste_fin_pago_eur,
             'coste_comercial_total_eur': coste_comercial_total_eur,
             'dias_aplazamiento_extra': dias_extra,
-            'ingreso_nm_eur': ingreso_nm,
+            'ingreso_nm_eur': round(sum(o['facturacion_neta_eur'] for o in ofertas_clientes if o['vol_asignado'] <= nm_q), 2) if nm_q > 0 else 0.0,
             'ingreso_neto_eur': ingreso_tot,
             'margen_bruto_eur': margen_bruto_eur,
             'margen_neto_eur': margen_neto_real_eur,
             'margen_neto_pct': margen_neto_real_pct,
+            'caja_0_30d_eur': caja_0_30d_eur,
+            'caja_31_60d_eur': caja_31_60d_eur,
+            'caja_61_90d_eur': caja_61_90d_eur,
+            'caja_90d_plus_eur': caja_90d_plus_eur,
             'dio_saving_days': dio_saving_empresa_days,
             'dio_nm_days': dio_nm_empresa_days,
             'dio_pt_saving_days': dio_tot_pt,
             'dso_impact_empresa_days': dso_impact_empresa_days,
             'ccc_net_impact_days': ccc_net_impact_days,
+            'holding_days': holding_days,
             'holding_cost_saved_eur': holding_cost_saved_eur,
             'net_financial_gain_eur': net_financial_gain_eur,
             'ratio_dio_vs_dso': round(dio_saving_empresa_days / dso_impact_empresa_days, 1) if dso_impact_empresa_days > 0 else 999.0,
@@ -1096,7 +1311,9 @@ def build_scenario_production_data(scenario_name='revisado'):
             'clientes_diana': clientes_str,
             'motivo_coherente': motivo,
             'condiciones_pago': pago_label,
-            'incentivos_adicionales': promo_label
+            'incentivos_adicionales': promo_label,
+            'total_ofertas': len(ofertas_clientes),
+            'ofertas_clientes': ofertas_clientes
         })
 
     suggestions_items.sort(key=lambda x: (0 if x['is_nomover'] else 1, -x['no_mover_eur'], -x['exceso_total_eur']))
@@ -1121,8 +1338,8 @@ def build_scenario_production_data(scenario_name='revisado'):
             "payment_terms": "Vencimiento a 90 días sin recargo (+30d extra)",
             "dias_extra": 30,
             "cost_merch_rate": 0.18,
-            "non_price_incentives": "Expositor punto de venta distribuidor + Merchandising técnico (chalecos/dosificadores 0,18€/u) + Muestra gratis complementario",
-            "rationale": "Clientes nacionales fieles compran el mismo producto químico en 20L o 1000L. Al entregarles 1L/5L al precio por litro del 20L perciben un alto ahorro sin erosionar el margen industrial (>60%)."
+            "non_price_incentives": "Expositor punto de venta distribuidor + Obsequio técnico verificado de almacén",
+            "rationale": "Clientes nacionales compran el mismo producto químico en 20L o 1000L. Al entregarles 1L/5L al precio por litro del 20L perciben un alto ahorro preservando un margen industrial objetivo superior al 50%."
         },
         "PLAN 3": {
             "plan_id": "PLAN 3",
@@ -1132,30 +1349,30 @@ def build_scenario_production_data(scenario_name='revisado'):
             "payment_terms": "Pago fraccionado 60 / 90 / 120 días (promedio 90d, +30d extra)",
             "dias_extra": 30,
             "cost_merch_rate": 0.22,
-            "non_price_incentives": "Nota de crédito 5% diferida a compras 2027 + Fichas agronómicas y producto complementario de ensayo (0,22€/u)",
-            "rationale": "Evita rebajar el precio facial de tarifa en el mercado nacional. La entrega de unidades bonificadas acelera 2 trimestres la absorción física del stock y fideliza la campaña 2027."
+            "non_price_incentives": "Nota de crédito 5% diferida a compras 2027 + Obsequio técnico verificado de stock",
+            "rationale": "Evita rebajar el precio facial de tarifa en el mercado nacional. La entrega de unidades bonificadas acelera la absorción física del stock y fideliza la campaña 2027."
         },
         "PLAN 4": {
             "plan_id": "PLAN 4",
-            "title": "Kit Captación Nuevos Distribuidores & Win-Back (Riesgo Cero)",
+            "title": "Kit Captación Nuevos Distribuidores con Cláusula de Rotación (Canje 90d)",
             "target_segment": "Especialidades Agronómicas en Formato Mediano (5L / 5Kg / 20L)",
             "price_lever": "-25% Dto Lanzamiento Pack Bienvenida Multirreferencia",
             "payment_terms": "Pago a 120 días (+60d extra) con Cláusula de Rotación Garantizada (Canje 90d)",
             "dias_extra": 60,
             "cost_merch_rate": 0.35,
-            "non_price_incentives": "10% producto extra sin cargo para ensayo técnico con agricultores (0,35€/u) + Charla técnica + Merchandising",
-            "rationale": "Elimina la barrera de entrada para abrir nuevos distribuidores en zonas de baja penetración o reactivar cuentas dormidas, garantizando el canje si no rota en 90 días."
+            "non_price_incentives": "Obsequio técnico complementario verificado + Asistencia agronómica en campo",
+            "rationale": "Facilita la apertura de distribuidores o reactivación de cuentas, mitigando el riesgo comercial mediante compromiso de canje a 90 días si no rota."
         },
         "PLAN 5": {
             "plan_id": "PLAN 5",
             "title": "Re-work Técnico en Reactor (Vaciado a Tanque) & Liquidación Outlet",
             "target_segment": "Colas Residuales (<150 L/Kg) y Obsoletos de Almacén",
-            "price_lever": "Re-work interno (Coste 0€) o -35% Liquidación Flash Lote Cerrado",
+            "price_lever": "Re-work interno en tanque nodriza o -35% Liquidación Flash Lote Cerrado",
             "payment_terms": "Contado (-5% pronto pago adicional) o 60 días estándar (+0d extra)",
             "dias_extra": 0,
             "cost_merch_rate": 0.08,
-            "non_price_incentives": "Reincorporación a tanque nodriza en próxima fabricación o portes pagados en lote cerrado fin de año (0,08€/u)",
-            "rationale": "Limpia radicalmente referencias residuales antes del cierre de auditoría del 31/12, recuperando el 100% del principio activo en reactor o liquidando en bloque."
+            "non_price_incentives": "Reincorporación a tanque nodriza en formulación activa o portes pagados lote cerrado",
+            "rationale": "Limpia referencias residuales antes del cierre del 31/12, recuperando el principio activo en reactor según formulación o liquidando en bloque."
         }
     }
 
@@ -1181,6 +1398,10 @@ def build_scenario_production_data(scenario_name='revisado'):
         meta_p['margen_bruto_eur'] = round(sum(x['margen_bruto_eur'] for x in p_items), 2)
         meta_p['margen_neto_eur'] = round(sum(x['margen_neto_eur'] for x in p_items), 2)
         meta_p['margen_neto_pct'] = round((meta_p['margen_neto_eur'] / meta_p['ingreso_neto_eur']) * 100, 1) if meta_p['ingreso_neto_eur'] > 0 else 0.0
+        meta_p['caja_0_30d_eur'] = round(sum(x.get('caja_0_30d_eur', 0) for x in p_items), 2)
+        meta_p['caja_31_60d_eur'] = round(sum(x.get('caja_31_60d_eur', 0) for x in p_items), 2)
+        meta_p['caja_61_90d_eur'] = round(sum(x.get('caja_61_90d_eur', 0) for x in p_items), 2)
+        meta_p['caja_90d_plus_eur'] = round(sum(x.get('caja_90d_plus_eur', 0) for x in p_items), 2)
         meta_p['dio_nm_days'] = round(sum(x['dio_nm_days'] for x in p_items), 2)
         meta_p['dio_saving_days'] = round(sum(x['dio_saving_days'] for x in p_items), 2)
         meta_p['dso_impact_days'] = round(sum(x['dso_impact_empresa_days'] for x in p_items), 3)
@@ -1219,6 +1440,19 @@ def build_scenario_production_data(scenario_name='revisado'):
     holding_saved_tot = round(sum(x['holding_cost_saved_eur'] for x in suggestions_items), 2)
     net_fin_gain_tot = round(sum(x['net_financial_gain_eur'] for x in suggestions_items), 2)
     ratio_dio_dso_tot = round(dio_ex_total / dso_impact_total, 1) if dso_impact_total > 0 else 999.0
+
+    # Resumen de regalos técnicos reservados de stock
+    regalos_reservados = _dd(lambda: {'sku': '', 'desc': '', 'uds': 0, 'coste_eur': 0.0, 'sinergia': ''})
+    for it in suggestions_items:
+        for o in it.get('ofertas_clientes', []):
+            g_sku = o.get('regalo_sku')
+            if g_sku and g_sku != '-':
+                regalos_reservados[g_sku]['sku'] = g_sku
+                regalos_reservados[g_sku]['desc'] = o.get('regalo_desc', '')
+                regalos_reservados[g_sku]['sinergia'] = o.get('regalo_sinergia', '')
+                regalos_reservados[g_sku]['uds'] += o.get('regalo_uds', 0)
+                regalos_reservados[g_sku]['coste_eur'] = round(regalos_reservados[g_sku]['coste_eur'] + o.get('regalo_coste_eur', 0.0), 2)
+    regalos_reservados_list = sorted(list(regalos_reservados.values()), key=lambda x: -x['coste_eur'])
 
     stock_suggestions = {
         "kpis": {
@@ -1262,18 +1496,22 @@ def build_scenario_production_data(scenario_name='revisado'):
             "margen_bruto_total_eur": margen_bruto_tot,
             "margen_neto_total_eur": margen_neto_real_tot,
             "margen_neto_pct": round((margen_neto_real_tot / sum(x['ingreso_neto_eur'] for x in suggestions_items)) * 100, 1) if sum(x['ingreso_neto_eur'] for x in suggestions_items) > 0 else 0.0,
+            "caja_0_30d_total_eur": round(sum(x['caja_0_30d_eur'] for x in suggestions_items), 2),
+            "caja_31_60d_total_eur": round(sum(x['caja_31_60d_eur'] for x in suggestions_items), 2),
+            "caja_61_90d_total_eur": round(sum(x['caja_61_90d_eur'] for x in suggestions_items), 2),
+            "caja_90d_plus_total_eur": round(sum(x['caja_90d_plus_eur'] for x in suggestions_items), 2),
             "holding_cost_saved_total_eur": holding_saved_tot,
             "net_financial_gain_total_eur": net_fin_gain_tot,
             "ratio_dio_vs_dso": ratio_dio_dso_tot,
             "tasa_financiera_anual_pct": 5.5,
             "tasa_holding_anual_pct": 15.0,
             "palets_liberados_total": round(sum(x['palets_liberados'] for x in suggestions_items), 1),
-            "palets_planta_sop": 747.9
+            "palets_planta_sop": 747.9,
+            "regalos_reservados_catalogo": regalos_reservados_list
         },
         "plans": plans_summary,
         "items": suggestions_items
     }
-
     nov_sum = sum(d['monthly_forecast']['2026-11'] for d in detailed_skus.values())
     dic_sum = sum(d['monthly_forecast']['2026-12'] for d in detailed_skus.values())
     print(f"[{scenario_name.upper()}] Forecast Nov = {nov_sum:,.0f} u, Dic = {dic_sum:,.0f} u | Base SKUs = {len(base_skus_dict)}, Actionable SKUs = {len(suggestions_items)}, Excess Cost = {exceso_total_cost_eur:,.2f} €" if 'exceso_total_cost_eur' in locals() else f"[{scenario_name.upper()}] Forecast Nov = {nov_sum:,.0f} u, Dic = {dic_sum:,.0f} u | Base SKUs = {len(base_skus_dict)}, Actionable SKUs = {len(suggestions_items)}")

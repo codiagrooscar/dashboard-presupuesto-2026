@@ -1750,6 +1750,20 @@
             </button>
           </div>
 
+          <!-- SCENARIO SWITCHER (Previsiones Revisadas Q4 vs Presupuesto Oficial) -->
+          <div class="period-switcher" id="scenarioSwitcher" style="margin-right:0.25rem;">
+            <button class="period-btn active" id="btnScenarioRevisado" onclick="switchScenario('revisado')" title="Previsiones Q4 actualizadas por los comerciales (324.729 u en Nov / 1.095.819 u en Q4)">
+              <span class="period-dot active"></span>
+              <span id="txtScenarioRevisado">🎯 Prev. Revisadas Q4</span>
+              <span class="tab-badge badge-success" style="font-size:0.65rem">324.729 u</span>
+            </button>
+            <button class="period-btn" id="btnScenarioOficial" onclick="switchScenario('oficial')" title="Presupuesto Anual Oficial Codiagro 2026 (15,18M€, 356.263 u en Nov)">
+              <span class="period-dot"></span>
+              <span id="txtScenarioOficial">🏢 Presupuesto Oficial 15,18M€</span>
+              <span class="tab-badge badge-info" style="font-size:0.65rem">356.263 u</span>
+            </button>
+          </div>
+
           <!-- LANGUAGE SWITCHER (ES / EN) -->
           <div class="lang-switcher" id="langSwitcher" title="Idioma / Language">
             <button class="lang-btn active" id="lbtn-es" onclick="setLanguage('es')">
@@ -3096,7 +3110,20 @@
         } else if (!currentPeriod || !allPeriodsData.periods[currentPeriod]) {
           currentPeriod = Object.keys(allPeriodsData.periods)[0];
         }
-        appData = allPeriodsData.periods[currentPeriod];
+
+        let savedSc = 'revisado';
+        try {
+          const s = sessionStorage.getItem('codiagro_selected_scenario');
+          if (s === 'oficial' || s === 'revisado') savedSc = s;
+        } catch (e) {}
+        currentScenario = savedSc;
+        appData = getEffectivePeriodData(currentPeriod, currentScenario);
+
+        // Actualizar UI del selector de escenario
+        const btnRevInit = document.getElementById('btnScenarioRevisado');
+        const btnOfiInit = document.getElementById('btnScenarioOficial');
+        if (btnRevInit) btnRevInit.classList.toggle('active', currentScenario === 'revisado');
+        if (btnOfiInit) btnOfiInit.classList.toggle('active', currentScenario === 'oficial');
 
         updateLanguageButtonsUI();
         updateLanguageStaticUI();
@@ -3151,11 +3178,63 @@
       }
     }
 
+    let currentScenario = 'revisado';
+    try {
+      const savedSc = sessionStorage.getItem('codiagro_selected_scenario');
+      if (savedSc === 'oficial' || savedSc === 'revisado') currentScenario = savedSc;
+    } catch (e) {}
+
+    function getEffectivePeriodData(periodId, scenarioKey) {
+      if (!allPeriodsData || !allPeriodsData.periods) return null;
+      const p = allPeriodsData.periods[periodId];
+      if (!p) return null;
+      if (p.scenarios && p.scenarios[scenarioKey]) {
+        return p.scenarios[scenarioKey];
+      }
+      return p;
+    }
+
+    function switchScenario(scenarioKey) {
+      currentScenario = scenarioKey;
+      try { sessionStorage.setItem('codiagro_selected_scenario', scenarioKey); } catch (e) {}
+
+      const btnRev = document.getElementById('btnScenarioRevisado');
+      const btnOfi = document.getElementById('btnScenarioOficial');
+      if (btnRev) {
+        btnRev.classList.toggle('active', scenarioKey === 'revisado');
+        const d = btnRev.querySelector('.period-dot');
+        if (d) d.classList.toggle('active', scenarioKey === 'revisado');
+      }
+      if (btnOfi) {
+        btnOfi.classList.toggle('active', scenarioKey === 'oficial');
+        const d = btnOfi.querySelector('.period-dot');
+        if (d) d.classList.toggle('active', scenarioKey === 'oficial');
+      }
+
+      const eff = getEffectivePeriodData(currentPeriod, currentScenario);
+      if (eff) {
+        appData = eff;
+      }
+
+      if (rawProductionPlanningData) {
+        applyProductionScenario(scenarioKey);
+      }
+
+      updateHeaderInfo();
+      updateNavBadges();
+      renderCurrentTab();
+
+      const modalOverlay = document.getElementById('kpiModalOverlay');
+      if (modalOverlay && modalOverlay.classList.contains('active')) {
+        renderModalContent();
+      }
+    }
+
     function switchPeriod(periodId) {
       if (!allPeriodsData || !allPeriodsData.periods[periodId]) return;
       currentPeriod = periodId;
       try { sessionStorage.setItem('codiagro_selected_period', periodId); } catch (e) {}
-      appData = allPeriodsData.periods[periodId];
+      appData = getEffectivePeriodData(periodId, currentScenario);
       updatePeriodSwitcherUI();
       updateScopeSwitcherUI();
       updateHeaderInfo();
@@ -3292,8 +3371,30 @@
       renderCurrentTab();
     }
 
+    let rawProductionPlanningData = null;
+
+    function applyProductionScenario(scenarioKey) {
+      if (!rawProductionPlanningData) return;
+      const key = scenarioKey || currentScenario || 'revisado';
+      if (rawProductionPlanningData.scenarios && rawProductionPlanningData.scenarios[key]) {
+        const sc = rawProductionPlanningData.scenarios[key];
+        productionData = {
+          metadata: rawProductionPlanningData.metadata,
+          graneles: sc.graneles,
+          base_skus: sc.base_skus,
+          detailed_skus: sc.detailed_skus,
+          stock_suggestions: sc.stock_suggestions
+        };
+      } else {
+        productionData = rawProductionPlanningData;
+      }
+    }
+
     async function loadProductionData() {
-      if (productionData) return productionData;
+      if (productionData && rawProductionPlanningData) {
+        applyProductionScenario(currentScenario);
+        return productionData;
+      }
       let fetched = null;
       try {
         const resp = await fetch('production_planning_data.json?t=' + Date.now());
@@ -3303,7 +3404,8 @@
       if (!fetched && window.PRODUCTION_PLANNING_DATA) {
         fetched = window.PRODUCTION_PLANNING_DATA;
       }
-      productionData = fetched;
+      rawProductionPlanningData = fetched;
+      applyProductionScenario(currentScenario);
       return productionData;
     }
 

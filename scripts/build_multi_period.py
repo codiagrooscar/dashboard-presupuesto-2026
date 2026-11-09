@@ -122,17 +122,9 @@ def load_data_sources():
     # Presupuesto_Ventas_2027_Definitivo.xlsx es el documento oficial definitivo de demanda.
     # No se aplican transformaciones artificiales de factor ni condiciones sobre decimales.
 
-    # Mehmet: al no haber rellenado la actualización de previsión Q4, sus previsiones de Octubre y Noviembre figuraban a 0.
-    # Se recupera su primera previsión registrada (en Dic-26 / Q4 inicial) para que figure en la webapp.
-    mehmet_mask = (df_bud['Comercial'] == 'Mehmet')
-    if df_bud.loc[mehmet_mask, 'Oct-26 (u)'].sum() == 0:
-        df_bud.loc[mehmet_mask, 'Oct-26 (u)'] = df_bud.loc[mehmet_mask, 'Dic-26 (u)']
-        if 'Oct-26 (€)' in df_bud.columns and 'Dic-26 (€)' in df_bud.columns:
-            df_bud.loc[mehmet_mask, 'Oct-26 (€)'] = df_bud.loc[mehmet_mask, 'Dic-26 (€)']
-    if df_bud.loc[mehmet_mask, 'Nov-26 (u)'].sum() == 0:
-        df_bud.loc[mehmet_mask, 'Nov-26 (u)'] = df_bud.loc[mehmet_mask, 'Dic-26 (u)']
-        if 'Nov-26 (€)' in df_bud.columns and 'Dic-26 (€)' in df_bud.columns:
-            df_bud.loc[mehmet_mask, 'Nov-26 (€)'] = df_bud.loc[mehmet_mask, 'Dic-26 (€)']
+    # Presupuesto Oficial Definitivo 15,18M€:
+    # Mehmet no reportó demanda en Octubre ni Noviembre (su campaña export se concentra en Diciembre con 89.845 u en oficial y 103.520 u en revisado).
+    # Se respeta estrictamente la matriz sin duplicaciones artificiales en Noviembre.
 
     df_bud['Cliente'] = df_bud['Cliente'].apply(map_client_name)
     df_bud['CLIENTE_NORM'] = df_bud['Cliente'].apply(norm)
@@ -700,6 +692,51 @@ def build_accumulated_dataset(*datasets, fecha_corte='03/11/2026'):
         'comerciales': comerciales_data
     }
 
+def load_revised_q4_forecast():
+    candidates = [
+        'Revision_Previsiones_Q4_2026_CONSOLIDADO.xlsx',
+        os.path.join('RevQ4Noviembre', 'Revision_Previsiones_Q4_2026_CONSOLIDADO.xlsx'),
+        os.path.join('antiguos', 'Revision_Previsiones_Q4_2026', 'Revision_Previsiones_Q4_2026_CONSOLIDADO.xlsx')
+    ]
+    f_path = next((f for f in candidates if os.path.exists(f)), None)
+    if not f_path:
+        return None
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(f_path, data_only=True)
+        rows = []
+        for com in ['Alfonso', 'García', 'Irene', 'Javier', 'Mehmet', 'Pedro', 'Ricardo']:
+            if com not in wb.sheetnames: continue
+            ws = wb[com]
+            for r in range(10, ws.max_row):
+                pais = str(ws.cell(r, 2).value or '').strip()
+                cli = str(ws.cell(r, 3).value or '').strip()
+                sku = str(ws.cell(r, 4).value or '').strip().upper()
+                desc = str(ws.cell(r, 5).value or '').strip()
+                oct_u = float(ws.cell(r, 6).value or 0)
+                nov_u = float(ws.cell(r, 12).value or 0)
+                dic_u = float(ws.cell(r, 14).value or 0)
+                if not cli or not sku: continue
+                m_base = re.match(r'^([A-Z0-9\-\(\)]+?\d{4})([A-Z]{2})$', sku)
+                clean_sku = m_base.group(1) if (m_base and pais.upper() != 'ESPAÑA') else sku
+                rows.append({
+                    'Comercial': com,
+                    'País': pais or 'ESPAÑA',
+                    'Cliente': map_client_name(cli),
+                    'Código Artículo': sku,
+                    'SKU_CLEAN': clean_sku,
+                    'Descripción Artículo': desc,
+                    'Oct-26 (u)': oct_u,
+                    'Nov-26 (u)': nov_u,
+                    'Dic-26 (u)': dic_u
+                })
+        df_rev = pd.DataFrame(rows)
+        df_rev['CLIENTE_NORM'] = df_rev['Cliente'].apply(norm)
+        return df_rev
+    except Exception as e:
+        print(f"Aviso al cargar previsiones revisadas Q4: {e}")
+        return None
+
 def build_all():
     df_ped_sep, df_ped_oct, df_ped_nov, df_bud, sep_file, oct_file, nov_file = load_data_sources()
 
@@ -731,28 +768,79 @@ def build_all():
         is_active=False
     )
 
-    # Período Noviembre 2026 (En Curso a 03/11/2026)
+    # Período Noviembre 2026 (En Curso)
     m_nov = re.search(r'(\d{1,2})\.(\d{1,2})', nov_file) if nov_file else None
-    nov_corte = f"{m_nov.group(1).zfill(2)}/{m_nov.group(2).zfill(2)}/2026" if m_nov else "03/11/2026"
+    nov_corte = f"{m_nov.group(1).zfill(2)}/{m_nov.group(2).zfill(2)}/2026" if m_nov else "09/11/2026"
 
-    d_nov = build_month_dataset(
+    # 1. Escenario Presupuesto Oficial (15,18M€, 356.263 u en nov)
+    d_nov_oficial = build_month_dataset(
         df_ped=df_ped_nov,
         df_bud=df_bud,
         month_col='Nov-26 (u)',
         period_id='2026-11',
         period_name='Noviembre 2026',
-        period_subtitle=f'En Curso (Corte a {nov_corte})',
+        period_subtitle=f'Presupuesto Oficial 15,18M€ (Corte a {nov_corte})',
         period_status='En Curso',
         badge_class='badge-success',
         fecha_corte=nov_corte,
         is_active=True
     )
 
-    # Período Acumulado Campaña (Sep + Oct + Nov)
-    d_acum = build_accumulated_dataset([d_sep, d_oct, d_nov], fecha_corte=nov_corte)
+    # 2. Escenario Previsiones Revisadas Q4 Comerciales (324.729 u en nov)
+    df_bud_rev = load_revised_q4_forecast()
+    if df_bud_rev is not None and len(df_bud_rev) > 0:
+        d_nov_revisado = build_month_dataset(
+            df_ped=df_ped_nov,
+            df_bud=df_bud_rev,
+            month_col='Nov-26 (u)',
+            period_id='2026-11',
+            period_name='Noviembre 2026',
+            period_subtitle=f'Previsiones Revisadas Q4 Comerciales (Corte a {nov_corte})',
+            period_status='En Curso',
+            badge_class='badge-success',
+            fecha_corte=nov_corte,
+            is_active=True
+        )
+    else:
+        d_nov_revisado = d_nov_oficial
+
+    # Estructura dual completa para el selector de escenario
+    d_nov = dict(d_nov_revisado)
+    d_nov['scenarios'] = {
+        'revisado': d_nov_revisado,
+        'oficial': d_nov_oficial
+    }
+    d_nov['active_scenario'] = 'revisado'
+
+    # Período Acumulado Campaña (Sep + Oct + Nov) bajo ambos escenarios
+    d_acum_rev = build_accumulated_dataset([d_sep, d_oct, d_nov_revisado], fecha_corte=nov_corte)
+    d_acum_ofi = build_accumulated_dataset([d_sep, d_oct, d_nov_oficial], fecha_corte=nov_corte)
+    d_acum = dict(d_acum_rev)
+    d_acum['scenarios'] = {
+        'revisado': d_acum_rev,
+        'oficial': d_acum_ofi
+    }
+    d_acum['active_scenario'] = 'revisado'
 
     periods_data = {
         'default_period': '2026-11',
+        'active_scenario': 'revisado',
+        'scenarios_metadata': {
+            'revisado': {
+                'id': 'revisado',
+                'label': 'Previsiones Revisadas Q4 Comerciales',
+                'short_label': '🎯 Previsiones Revisadas Q4',
+                'badge': '324.729 u Noviembre | 1.095.819 u Q4',
+                'description': 'Estimación operativa actualizada por los 7 delegados comerciales en Noviembre 2026.'
+            },
+            'oficial': {
+                'id': 'oficial',
+                'label': 'Presupuesto Oficial (15,18M€)',
+                'short_label': '🏢 Presupuesto Oficial',
+                'badge': '356.263 u Noviembre | 1.179.127 u Q4',
+                'description': 'Objetivo anual corporativo aprobado (5.845.038 uds / 15.180.000 €).'
+            }
+        },
         'periods': {
             '2026-11': d_nov,
             '2026-10': d_oct,

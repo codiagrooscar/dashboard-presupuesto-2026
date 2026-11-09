@@ -97,7 +97,7 @@ def generar_excel_orden_fabricacion(
     json_path="web_dashboard/production_planning_data.json",
     output_path="Orden_Fabricacion_MRP_Codiagro.xlsx",
     scope="ALL",
-    horizon_preset="N2",
+    horizon_preset="REST_2026",
     batch_size=0,
     format_filter="ALL"
 ):
@@ -110,7 +110,7 @@ def generar_excel_orden_fabricacion(
 
     meta = data.get("metadata", {})
     presets = meta.get("presets", {})
-    selected_months = presets.get(horizon_preset, presets.get("N2", ["2026-10", "2026-11", "2026-12"]))
+    selected_months = presets.get(horizon_preset, presets.get("REST_2026", ["2026-11", "2026-12"]))
     
     months_dict = {m["key"]: m.get("label_es", m["key"]) for m in meta.get("months", [])}
     horizon_label = " + ".join([months_dict.get(m, m) for m in selected_months])
@@ -202,8 +202,8 @@ def generar_excel_orden_fabricacion(
     ws_main.title = "Orden de Fabricación"
     ws_main.views.sheetView[0].showGridLines = True
 
-    # Banner Superior (A1:Q2)
-    ws_main.merge_cells("A1:Q1")
+    # Banner Superior (A1:P2)
+    ws_main.merge_cells("A1:P1")
     c_title = ws_main["A1"]
     c_title.value = "  CODIAGRO S.L.  |  ORDEN DE FABRICACIÓN Y ENVASADO MRP (DESGLOSE POR PAÍS Y FORMATO)"
     c_title.font = font_main_title
@@ -211,9 +211,9 @@ def generar_excel_orden_fabricacion(
     c_title.alignment = Alignment(vertical="center", horizontal="left")
     ws_main.row_dimensions[1].height = 28
 
-    ws_main.merge_cells("A2:Q2")
+    ws_main.merge_cells("A2:P2")
     c_sub = ws_main["A2"]
-    c_sub.value = f"  Horizonte: {horizon_label} ({len(selected_months)} meses)  |  Ámbito: {scope_str}  |  Exportación: Siempre Sobre Pedido  |  Fecha Emisión: {now_str}"
+    c_sub.value = f"  Horizonte: {horizon_label} ({len(selected_months)} meses)  |  Ámbito: {scope_str}  |  Criterio Producción: Descuento stock inicial en Nacional  |  Fecha Emisión: {now_str}"
     c_sub.font = font_sub_title
     c_sub.fill = PatternFill(start_color=COLOR_HEADER_BG, end_color=COLOR_HEADER_BG, fill_type="solid")
     c_sub.alignment = Alignment(vertical="center", horizontal="left")
@@ -276,19 +276,24 @@ def generar_excel_orden_fabricacion(
         if not active_destinos and stock_total_b > 0:
             active_destinos = [destinos[0]]
 
-        # Asignación secuencial de stock disponible a los destinos
+        # PRIORIDAD PRODUCCIÓN (Criterio S&OP):
+        # El mercado Nacional absorbe primero el stock inicial disponible para evitar sobreproducción.
+        active_destinos.sort(key=lambda x: 0 if (x.get("is_nacional") or x.get("pais", "").upper() in ["ESPAÑA", "ESP", ""]) else 1)
+
         rem_stock = stock_total_b
         tot_stock_envasado += stock_total_b
 
         for d in active_destinos:
             # Los valores en el JSON ya son UNIDADES FÍSICAS (u)
             p_u = float(d.get("pendientes_uds", 0) or 0)
-            oct_u = float(d.get("monthly_forecast", {}).get("2026-10", 0) or 0)
             nov_u = float(d.get("monthly_forecast", {}).get("2026-11", 0) or 0)
             dic_u = float(d.get("monthly_forecast", {}).get("2026-12", 0) or 0)
             
             dem_period_u = sum(float(d.get("monthly_forecast", {}).get(m, 0) or 0) for m in selected_months)
-            total_dem_u = p_u + dem_period_u
+            
+            # Criterio S&OP: Si hay previsión en el horizonte (Nov-Dic), esa es la demanda planificada.
+            # Si un artículo no tiene previsión futura pero tiene cartera pendiente inmediata, se toma la cartera.
+            total_dem_u = dem_period_u if dem_period_u > 0 else p_u
 
             # Stock asignado
             allocated_stock_u = min(rem_stock, total_dem_u)
@@ -356,7 +361,6 @@ def generar_excel_orden_fabricacion(
                 "tipo_fab": tipo_fab,
                 "stock_asignado": allocated_stock_u,
                 "pending": p_u,
-                "oct_u": oct_u,
                 "nov_u": nov_u,
                 "dic_u": dic_u,
                 "demand_u": total_dem_u,
@@ -373,12 +377,12 @@ def generar_excel_orden_fabricacion(
 
     # Tarjetas KPI (Filas 4 y 5)
     kpis = [
-        ("A4", "B4", "A5", "B5", "TOTAL A FABRICAR (L/Kg)", f"{tot_litros_fabricar:,.0f} L".replace(",", "."), font_kpi_val_red),
-        ("C4", "D4", "C5", "D5", "TOTAL UNIDADES (u)", f"{tot_unidades_fabricar:,.0f} u".replace(",", "."), font_kpi_val_red),
+        ("A4", "B4", "A5", "B5", "TOTAL A ENVASAR (L/Kg)", f"{tot_litros_fabricar:,.0f} L".replace(",", "."), font_kpi_val_red),
+        ("C4", "D4", "C5", "D5", "TOTAL UNIDADES A ENVASAR", f"{tot_unidades_fabricar:,.0f} u".replace(",", "."), font_kpi_val_red),
         ("E4", "F4", "E5", "F5", "DÉFICIT QUÍMICO URGENTE", f"{count_critical} Artículos", font_kpi_val_red),
         ("G4", "H4", "G5", "H5", "SOLO ENVASAR / SOBRE PEDIDO", f"{count_warning} Artículos", font_kpi_val_amber),
-        ("I4", "L4", "I5", "L5", "PEDIDOS CARTERA INMEDIATOS", f"{tot_pedidos_cartera:,.0f} u".replace(",", "."), font_kpi_val),
-        ("M4", "Q4", "M5", "Q5", "STOCK ENVASADO ALMACÉN", f"{tot_stock_envasado:,.0f} u".replace(",", "."), font_kpi_val_green)
+        ("I4", "K4", "I5", "K5", "PEDIDOS CARTERA INMEDIATOS", f"{tot_pedidos_cartera:,.0f} u".replace(",", "."), font_kpi_val),
+        ("L4", "P4", "L5", "P5", "STOCK ENVASADO ALMACÉN", f"{tot_stock_envasado:,.0f} u".replace(",", "."), font_kpi_val_green)
     ]
 
     fill_kpi = PatternFill(start_color=COLOR_KPI_BG, end_color=COLOR_KPI_BG, fill_type="solid")
@@ -419,15 +423,15 @@ def generar_excel_orden_fabricacion(
     c_grp1.fill = PatternFill(start_color=COLOR_GRP_ID, end_color=COLOR_GRP_ID, fill_type="solid")
     c_grp1.alignment = Alignment(horizontal="center", vertical="center")
 
-    ws_main.merge_cells("H7:M7")
+    ws_main.merge_cells("H7:L7")
     c_grp2 = ws_main["H7"]
     c_grp2.value = "2. DISPONIBILIDAD Y DEMANDA HORIZONTE (UNIDADES FÍSICAS)"
     c_grp2.font = font_grp_header
     c_grp2.fill = PatternFill(start_color=COLOR_GRP_DEMAND, end_color=COLOR_GRP_DEMAND, fill_type="solid")
     c_grp2.alignment = Alignment(horizontal="center", vertical="center")
 
-    ws_main.merge_cells("N7:Q7")
-    c_grp3 = ws_main["N7"]
+    ws_main.merge_cells("M7:P7")
+    c_grp3 = ws_main["M7"]
     c_grp3.value = "3. PLANIFICACIÓN DE PRODUCCIÓN Y ENVASADO"
     c_grp3.font = font_grp_header
     c_grp3.fill = PatternFill(start_color=COLOR_GRP_PLAN, end_color=COLOR_GRP_PLAN, fill_type="solid")
@@ -447,15 +451,14 @@ def generar_excel_orden_fabricacion(
         
         ("H", "Stock Asignado (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
         ("I", "Cartera Inmediata (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("J", "Oct-26 (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("K", "Nov-26 (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("L", "Dic-26 (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("M", "Demanda Total (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("J", "Nov-26 (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("K", "Dic-26 (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("L", "Demanda Total (u)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
         
-        ("N", "Demanda Total (L/Kg)", COLOR_GRP_PLAN, Alignment(horizontal="right")),
-        ("O", "A Fabricar (u)", COLOR_GRP_PLAN, Alignment(horizontal="right")),
-        ("P", "A Fabricar (L/Kg)", COLOR_GRP_PLAN, Alignment(horizontal="right")),
-        ("Q", "Prioridad / Acción", COLOR_GRP_PLAN, Alignment(horizontal="center"))
+        ("M", "Demanda Total (L/Kg)", COLOR_GRP_PLAN, Alignment(horizontal="right")),
+        ("N", "A Envasar (u)", COLOR_GRP_PLAN, Alignment(horizontal="right")),
+        ("O", "A Envasar (L/Kg)", COLOR_GRP_PLAN, Alignment(horizontal="right")),
+        ("P", "Prioridad / Acción", COLOR_GRP_PLAN, Alignment(horizontal="center"))
     ]
 
     for col_l, text, bg_color, align in col_headers:
@@ -499,30 +502,29 @@ def generar_excel_orden_fabricacion(
         c_tf.font = font_info if "Sobre Pedido" in r["tipo_fab"] else font_data
         c_tf.alignment = Alignment(horizontal="center")
 
-        # Numéricos
+        # Numéricos (Cols 8 a 15)
         nums = [
             (8, r["stock_asignado"]),
             (9, r["pending"]),
-            (10, r["oct_u"]),
-            (11, r["nov_u"]),
-            (12, r["dic_u"]),
-            (13, r["demand_u"]),
-            (14, r["demand_l"]),
-            (15, r["sug_u"]),
-            (16, r["sug_l"])
+            (10, r["nov_u"]),
+            (11, r["dic_u"]),
+            (12, r["demand_u"]),
+            (13, r["demand_l"]),
+            (14, r["sug_u"]),
+            (15, r["sug_l"])
         ]
 
         for col_i, val_n in nums:
             c_num = ws_main.cell(cur_row, col_i, val_n)
             c_num.number_format = '#,##0'
             c_num.alignment = Alignment(horizontal="right")
-            if col_i in [13, 14, 15, 16]:
+            if col_i in [12, 13, 14, 15]:
                 c_num.font = font_data_bold
             else:
                 c_num.font = font_data
 
-        # Acción / Estado
-        c_act = ws_main.cell(cur_row, 17, r["action"])
+        # Acción / Estado (Col 16)
+        c_act = ws_main.cell(cur_row, 16, r["action"])
         c_act.alignment = Alignment(horizontal="center")
         if r["status"] == "CRITICAL":
             c_act.fill = fill_crit
@@ -534,11 +536,11 @@ def generar_excel_orden_fabricacion(
             c_act.fill = fill_cov
             c_act.font = font_cov
 
-        for col_idx in range(1, 17):
+        for col_idx in range(1, 16):
             cell_x = ws_main.cell(cur_row, col_idx)
             cell_x.fill = fill_row
             cell_x.border = border_thin
-        ws_main.cell(cur_row, 17).border = border_thin
+        ws_main.cell(cur_row, 16).border = border_thin
 
         ws_main.row_dimensions[cur_row].height = 19
         cur_row += 1
@@ -553,7 +555,7 @@ def generar_excel_orden_fabricacion(
 
     sum_cols = [
         (8, "H"), (9, "I"), (10, "J"), (11, "K"),
-        (12, "L"), (13, "M"), (14, "N"), (15, "O"), (16, "P")
+        (12, "L"), (13, "M"), (14, "N"), (15, "O")
     ]
     for c_idx, letter in sum_cols:
         cell_s = ws_main.cell(tot_row, c_idx)
@@ -562,9 +564,9 @@ def generar_excel_orden_fabricacion(
         cell_s.font = font_total
         cell_s.alignment = Alignment(horizontal="right", vertical="center")
 
-    ws_main.cell(tot_row, 17, "").alignment = Alignment(horizontal="center")
+    ws_main.cell(tot_row, 16, "").alignment = Alignment(horizontal="center")
 
-    for col_idx in range(1, 18):
+    for col_idx in range(1, 17):
         cell_t = ws_main.cell(tot_row, col_idx)
         cell_t.fill = fill_total
         cell_t.border = border_total
@@ -582,20 +584,19 @@ def generar_excel_orden_fabricacion(
         'G': 22,   # Tipo Fabricación
         'H': 17,   # Stock Asignado (u)
         'I': 17,   # Cartera Inmediata (u)
-        'J': 14,   # Oct-26 (u)
-        'K': 14,   # Nov-26 (u)
-        'L': 14,   # Dic-26 (u)
-        'M': 18,   # Demanda Total (u)
-        'N': 20,   # Demanda Total (L/Kg)
-        'O': 17,   # A Fabricar (u)
-        'P': 20,   # A Fabricar (L/Kg)
-        'Q': 22    # Prioridad / Acción
+        'J': 14,   # Nov-26 (u)
+        'K': 14,   # Dic-26 (u)
+        'L': 18,   # Demanda Total (u)
+        'M': 20,   # Demanda Total (L/Kg)
+        'N': 17,   # A Envasar (u)
+        'O': 20,   # A Envasar (L/Kg)
+        'P': 22    # Prioridad / Acción
     }
     for col_l, width in col_widths_main.items():
         ws_main.column_dimensions[col_l].width = width
 
     ws_main.freeze_panes = "A9"
-    ws_main.auto_filter.ref = f"A8:Q{tot_row - 1}"
+    ws_main.auto_filter.ref = f"A8:P{tot_row - 1}"
 
     # =========================================================================
     # HOJA 2: PLAN GRANELES POR MES (Graneles en Filas, Meses en Columnas)
@@ -604,7 +605,7 @@ def generar_excel_orden_fabricacion(
     ws_granel.views.sheetView[0].showGridLines = True
 
     # Banner Superior Hoja 2
-    ws_granel.merge_cells("A1:M1")
+    ws_granel.merge_cells("A1:L1")
     c_g_title = ws_granel["A1"]
     c_g_title.value = "  CODIAGRO S.L.  |  PLAN MAESTRO DE PRODUCCIÓN DE GRANELES (NECESIDAD EN LITROS / KG POR MES)"
     c_g_title.font = font_main_title
@@ -612,9 +613,9 @@ def generar_excel_orden_fabricacion(
     c_g_title.alignment = Alignment(vertical="center", horizontal="left")
     ws_granel.row_dimensions[1].height = 28
 
-    ws_granel.merge_cells("A2:M2")
+    ws_granel.merge_cells("A2:L2")
     c_g_sub = ws_granel["A2"]
-    c_g_sub.value = f"  Horizonte: Octubre 2026 - Diciembre 2026  |  Total Graneles Químicos a Fabricar en Planta  |  Fecha Emisión: {now_str}"
+    c_g_sub.value = f"  Horizonte: Noviembre 2026 - Diciembre 2026 (2 meses)  |  Criterio Producción: Demanda neta reactores tras tanques  |  Fecha Emisión: {now_str}"
     c_g_sub.font = font_sub_title
     c_g_sub.fill = PatternFill(start_color=COLOR_HEADER_BG, end_color=COLOR_HEADER_BG, fill_type="solid")
     c_g_sub.alignment = Alignment(vertical="center", horizontal="left")
@@ -635,15 +636,15 @@ def generar_excel_orden_fabricacion(
     c_g_g2.fill = PatternFill(start_color=COLOR_GRP_DEMAND, end_color=COLOR_GRP_DEMAND, fill_type="solid")
     c_g_g2.alignment = Alignment(horizontal="center", vertical="center")
 
-    ws_granel.merge_cells("F4:J4")
+    ws_granel.merge_cells("F4:I4")
     c_g_g3 = ws_granel["F4"]
-    c_g_g3.value = "3. DEMANDA Y PREVISIÓN MENSUAL DE GRANEL (L/KG)"
+    c_g_g3.value = "3. DEMANDA HORIZONTE NOV-DIC (L/KG)"
     c_g_g3.font = font_grp_header
     c_g_g3.fill = PatternFill(start_color=COLOR_GRP_DEMAND, end_color=COLOR_GRP_DEMAND, fill_type="solid")
     c_g_g3.alignment = Alignment(horizontal="center", vertical="center")
 
-    ws_granel.merge_cells("K4:M4")
-    c_g_g4 = ws_granel["K4"]
+    ws_granel.merge_cells("J4:L4")
+    c_g_g4 = ws_granel["J4"]
     c_g_g4.value = "4. NECESIDAD NETA FABRICACIÓN REACTORES"
     c_g_g4.font = font_grp_header
     c_g_g4.fill = PatternFill(start_color=COLOR_GRP_PLAN, end_color=COLOR_GRP_PLAN, fill_type="solid")
@@ -660,14 +661,13 @@ def generar_excel_orden_fabricacion(
         ("E", "Stock Total (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
         
         ("F", "Cartera Inmediata (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("G", "Oct-26 (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("H", "Nov-26 (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("I", "Dic-26 (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
-        ("J", "Demanda Total (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("G", "Nov-26 (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("H", "Dic-26 (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
+        ("I", "Demanda Total (L/Kg)", COLOR_GRP_DEMAND, Alignment(horizontal="right")),
         
-        ("K", "Balance Neto (L/Kg)", COLOR_GRP_PLAN, Alignment(horizontal="right")),
-        ("L", "FALTA FABRICAR (L/Kg)", COLOR_GRP_PLAN, Alignment(horizontal="right")),
-        ("M", "Prioridad Reactor", COLOR_GRP_PLAN, Alignment(horizontal="center"))
+        ("J", "Balance Neto (L/Kg)", COLOR_GRP_PLAN, Alignment(horizontal="right")),
+        ("K", "FALTA FABRICAR (L/Kg)", COLOR_GRP_PLAN, Alignment(horizontal="right")),
+        ("L", "Prioridad Reactor", COLOR_GRP_PLAN, Alignment(horizontal="center"))
     ]
 
     for col_l, text, bg_color, align in granel_headers:
@@ -689,7 +689,6 @@ def generar_excel_orden_fabricacion(
             "stock_tanque": float(g.get("granel_stock", 0) or 0),
             "stock_envasado_l": 0.0,
             "cartera_l": 0.0,
-            "oct_l": 0.0,
             "nov_l": 0.0,
             "dic_l": 0.0
         }
@@ -705,7 +704,6 @@ def generar_excel_orden_fabricacion(
                 "stock_tanque": float(b.get("granel_stock", 0) or 0),
                 "stock_envasado_l": 0.0,
                 "cartera_l": 0.0,
-                "oct_l": 0.0,
                 "nov_l": 0.0,
                 "dic_l": 0.0
             }
@@ -713,23 +711,21 @@ def generar_excel_orden_fabricacion(
         env_l = parse_envase_litros(b.get("envase"), b.get("desc"))
         st_u = float(b.get("stock_actual", 0) or 0)
         pe_u = float(b.get("pedidos_pendientes", 0) or 0)
-        oct_u = float(b.get("monthly_forecast", {}).get("2026-10", 0) or 0)
         nov_u = float(b.get("monthly_forecast", {}).get("2026-11", 0) or 0)
         dic_u = float(b.get("monthly_forecast", {}).get("2026-12", 0) or 0)
         
         # En graneles la demanda y el stock ya están expresados en Litros o Kilos (L/Kg)
         graneles_map[g_code]["stock_envasado_l"] += round(st_u, 2)
         graneles_map[g_code]["cartera_l"] += round(pe_u, 2)
-        graneles_map[g_code]["oct_l"] += round(oct_u, 2)
         graneles_map[g_code]["nov_l"] += round(nov_u, 2)
         graneles_map[g_code]["dic_l"] += round(dic_u, 2)
 
     graneles_list = list(graneles_map.values())
     for g in graneles_list:
-        g["dem_tot_l"] = g["cartera_l"] + g["oct_l"] + g["nov_l"] + g["dic_l"]
+        g["dem_tot_l"] = g["nov_l"] + g["dic_l"]
         g["stock_tot_l"] = g["stock_tanque"] + g["stock_envasado_l"]
         g["balance_l"] = g["stock_tot_l"] - g["dem_tot_l"]
-        g["falta_fabricar_l"] = max(0.0, -g["balance_l"])
+        g["falta_fabricar_l"] = max(0.0, g["dem_tot_l"] - g["stock_tanque"])
 
     graneles_list.sort(key=lambda x: (-x["falta_fabricar_l"], -x["dem_tot_l"]))
 
@@ -753,25 +749,24 @@ def generar_excel_orden_fabricacion(
             (4, g["stock_envasado_l"]),
             (5, g["stock_tot_l"]),
             (6, g["cartera_l"]),
-            (7, g["oct_l"]),
-            (8, g["nov_l"]),
-            (9, g["dic_l"]),
-            (10, g["dem_tot_l"]),
-            (11, g["balance_l"]),
-            (12, g["falta_fabricar_l"])
+            (7, g["nov_l"]),
+            (8, g["dic_l"]),
+            (9, g["dem_tot_l"]),
+            (10, g["balance_l"]),
+            (11, g["falta_fabricar_l"])
         ]
 
         for col_i, val_n in g_nums:
             c_g = ws_granel.cell(cur_g_row, col_i, val_n)
             c_g.number_format = '#,##0'
             c_g.alignment = Alignment(horizontal="right")
-            if col_i in [5, 10, 12]:
+            if col_i in [5, 9, 11]:
                 c_g.font = font_data_bold
             else:
                 c_g.font = font_data
 
-        # Prioridad Reactor
-        c_prio = ws_granel.cell(cur_g_row, 13)
+        # Prioridad Reactor (Col 12)
+        c_prio = ws_granel.cell(cur_g_row, 12)
         c_prio.alignment = Alignment(horizontal="center")
         if g["falta_fabricar_l"] > 0:
             c_prio.value = "FABRICAR GRANEL"
@@ -782,11 +777,11 @@ def generar_excel_orden_fabricacion(
             c_prio.fill = fill_cov
             c_prio.font = font_cov
 
-        for col_idx in range(1, 13):
+        for col_idx in range(1, 12):
             cell_x = ws_granel.cell(cur_g_row, col_idx)
             cell_x.fill = fill_row
             cell_x.border = border_thin
-        ws_granel.cell(cur_g_row, 13).border = border_thin
+        ws_granel.cell(cur_g_row, 12).border = border_thin
 
         ws_granel.row_dimensions[cur_g_row].height = 20
         cur_g_row += 1
@@ -802,7 +797,7 @@ def generar_excel_orden_fabricacion(
     sum_g_cols = [
         (3, "C"), (4, "D"), (5, "E"), (6, "F"),
         (7, "G"), (8, "H"), (9, "I"), (10, "J"),
-        (11, "K"), (12, "L")
+        (11, "K")
     ]
     for c_idx, letter in sum_g_cols:
         cell_s = ws_granel.cell(tot_g_row, c_idx)
@@ -811,9 +806,9 @@ def generar_excel_orden_fabricacion(
         cell_s.font = font_total
         cell_s.alignment = Alignment(horizontal="right", vertical="center")
 
-    ws_granel.cell(tot_g_row, 13, "").alignment = Alignment(horizontal="center")
+    ws_granel.cell(tot_g_row, 12, "").alignment = Alignment(horizontal="center")
 
-    for col_idx in range(1, 14):
+    for col_idx in range(1, 13):
         cell_t = ws_granel.cell(tot_g_row, col_idx)
         cell_t.fill = fill_total
         cell_t.border = border_total
@@ -828,19 +823,18 @@ def generar_excel_orden_fabricacion(
         'D': 22,   # Stock Envasado (L/Kg)
         'E': 20,   # Stock Total (L/Kg)
         'F': 22,   # Cartera Inmediata (L/Kg)
-        'G': 18,   # Oct-26 (L/Kg)
-        'H': 18,   # Nov-26 (L/Kg)
-        'I': 18,   # Dic-26 (L/Kg)
-        'J': 22,   # Demanda Total (L/Kg)
-        'K': 20,   # Balance Neto (L/Kg)
-        'L': 24,   # FALTA FABRICAR (L/Kg)
-        'M': 20    # Prioridad Reactor
+        'G': 18,   # Nov-26 (L/Kg)
+        'H': 18,   # Dic-26 (L/Kg)
+        'I': 22,   # Demanda Total (L/Kg)
+        'J': 20,   # Balance Neto (L/Kg)
+        'K': 24,   # FALTA FABRICAR (L/Kg)
+        'L': 20    # Prioridad Reactor
     }
     for col_l, width in col_widths_granel.items():
         ws_granel.column_dimensions[col_l].width = width
 
     ws_granel.freeze_panes = "A6"
-    ws_granel.auto_filter.ref = f"A5:M{tot_g_row - 1}"
+    ws_granel.auto_filter.ref = f"A5:L{tot_g_row - 1}"
 
     # =========================================================================
     # HOJA 3: RESUMEN POR LÍNEA DE ENVASADO
@@ -848,7 +842,7 @@ def generar_excel_orden_fabricacion(
     ws_env = wb.create_sheet(title="Resumen por Envase")
     ws_env.views.sheetView[0].showGridLines = True
     
-    ws_env.merge_cells("A1:I1")
+    ws_env.merge_cells("A1:H1")
     c_env_title = ws_env["A1"]
     c_env_title.value = "  CODIAGRO S.L.  |  RESUMEN DE NECESIDADES POR LÍNEA DE ENVASADO Y FORMATO (UNIDADES FÍSICAS)"
     c_env_title.font = font_main_title
@@ -861,11 +855,10 @@ def generar_excel_orden_fabricacion(
         ("B", "Nº Registros", 14, Alignment(horizontal="center")),
         ("C", "Stock Envasado (u)", 18, Alignment(horizontal="right")),
         ("D", "Cartera Inmediata (u)", 18, Alignment(horizontal="right")),
-        ("E", "Oct-26 (u)", 16, Alignment(horizontal="right")),
-        ("F", "Nov-26 (u)", 16, Alignment(horizontal="right")),
-        ("G", "Dic-26 (u)", 16, Alignment(horizontal="right")),
-        ("H", "Demanda Total (u)", 18, Alignment(horizontal="right")),
-        ("I", "A Fabricar Sugerido (u)", 22, Alignment(horizontal="right"))
+        ("E", "Nov-26 (u)", 16, Alignment(horizontal="right")),
+        ("F", "Dic-26 (u)", 16, Alignment(horizontal="right")),
+        ("G", "Demanda Total (u)", 18, Alignment(horizontal="right")),
+        ("H", "A Envasar Sugerido (u)", 22, Alignment(horizontal="right"))
     ]
 
     for col_l, text, width, align in env_headers:
@@ -879,13 +872,12 @@ def generar_excel_orden_fabricacion(
     ws_env.row_dimensions[3].height = 24
 
     from collections import defaultdict
-    format_agg = defaultdict(lambda: {"count": 0, "stock": 0, "pending": 0, "oct": 0, "nov": 0, "dic": 0, "demand": 0, "sug": 0})
+    format_agg = defaultdict(lambda: {"count": 0, "stock": 0, "pending": 0, "nov": 0, "dic": 0, "demand": 0, "sug": 0})
     for r in rows_data:
         fmt = r["formato"]
         format_agg[fmt]["count"] += 1
         format_agg[fmt]["stock"] += r["stock_asignado"]
         format_agg[fmt]["pending"] += r["pending"]
-        format_agg[fmt]["oct"] += r["oct_u"]
         format_agg[fmt]["nov"] += r["nov_u"]
         format_agg[fmt]["dic"] += r["dic_u"]
         format_agg[fmt]["demand"] += r["demand_u"]
@@ -919,20 +911,19 @@ def generar_excel_orden_fabricacion(
         vals_env = [
             (3, agg["stock"]),
             (4, agg["pending"]),
-            (5, agg["oct"]),
-            (6, agg["nov"]),
-            (7, agg["dic"]),
-            (8, agg["demand"]),
-            (9, agg["sug"])
+            (5, agg["nov"]),
+            (6, agg["dic"]),
+            (7, agg["demand"]),
+            (8, agg["sug"])
         ]
 
         for c_i, val_n in vals_env:
             c_val = ws_env.cell(cur_env_row, c_i, val_n)
             c_val.number_format = '#,##0'
-            c_val.font = font_data_bold if c_i in [8, 9] else font_data
+            c_val.font = font_data_bold if c_i in [7, 8] else font_data
             c_val.alignment = Alignment(horizontal="right")
 
-        for col_i in range(1, 10):
+        for col_i in range(1, 9):
             ws_env.cell(cur_env_row, col_i).border = border_thin
             ws_env.cell(cur_env_row, col_i).fill = fill_alt if (cur_env_row % 2 == 0) else fill_white
 
@@ -944,13 +935,13 @@ def generar_excel_orden_fabricacion(
     ws_env.cell(cur_env_row, 2, f"=SUM(B{start_env_row}:B{cur_env_row - 1})").font = font_total
     ws_env.cell(cur_env_row, 2).alignment = Alignment(horizontal="center")
     
-    for c_i, letter in [(3, "C"), (4, "D"), (5, "E"), (6, "F"), (7, "G"), (8, "H"), (9, "I")]:
+    for c_i, letter in [(3, "C"), (4, "D"), (5, "E"), (6, "F"), (7, "G"), (8, "H")]:
         c_val = ws_env.cell(cur_env_row, c_i, f"=SUM({letter}{start_env_row}:{letter}{cur_env_row - 1})")
         c_val.number_format = '#,##0'
         c_val.font = font_total
         c_val.alignment = Alignment(horizontal="right")
 
-    for col_i in range(1, 10):
+    for col_i in range(1, 9):
         ws_env.cell(cur_env_row, col_i).fill = fill_total
         ws_env.cell(cur_env_row, col_i).border = border_total
     ws_env.row_dimensions[cur_env_row].height = 24
@@ -972,7 +963,7 @@ def generar_excel_orden_fabricacion(
 
     ws_rot.merge_cells("A2:P2")
     c_rot_sub = ws_rot["A2"]
-    c_rot_sub.value = f"  Premisa de Gestión: Previsiones exclusivamente del Mercado Nacional (España). La exportación se fabricará siempre sobre pedido.  |  Fecha: {now_str}"
+    c_rot_sub.value = f"  Premisa de Gestión: Previsiones exclusivamente del Mercado Nacional (España). Horizonte: Nov-Dic 2026 + Q1-2027. La exportación se fabrica sobre pedido.  |  Fecha: {now_str}"
     c_rot_sub.font = font_sub_title
     c_rot_sub.fill = PatternFill(start_color=COLOR_HEADER_BG, end_color=COLOR_HEADER_BG, fill_type="solid")
     c_rot_sub.alignment = Alignment(vertical="center", horizontal="left")
@@ -1303,6 +1294,481 @@ def generar_excel_orden_fabricacion(
     ws_rot.freeze_panes = "A9"
     ws_rot.auto_filter.ref = f"A8:O{tot_rot_row - 1}"
 
+    # =========================================================================
+    # HOJA 5: SUGERENCIAS STOCK (PLAN EJECUTIVO CEO: DIO & LIQUIDACIÓN)
+    # =========================================================================
+    sug_data = data.get("stock_suggestions", {})
+    if sug_data:
+        ws_sug = wb.create_sheet(title="Sugerencias Stock")
+        ws_sug.views.sheetView[0].showGridLines = True
+
+        sug_kpis = sug_data.get("kpis", {})
+        sug_plans = sug_data.get("plans", [])
+        sug_items = sug_data.get("items", [])
+
+        font_title = font_main_title
+        font_subtitle = font_sub_title
+        font_kpi_lbl = font_kpi_label
+        font_grp = font_grp_header
+        font_th = font_col_header
+        fill_header_dark = PatternFill(start_color=COLOR_HEADER_BG, end_color=COLOR_HEADER_BG, fill_type="solid")
+        fill_grp_id = PatternFill(start_color=COLOR_GRP_ID, end_color=COLOR_GRP_ID, fill_type="solid")
+        fill_grp_demand = PatternFill(start_color=COLOR_GRP_DEMAND, end_color=COLOR_GRP_DEMAND, fill_type="solid")
+        fill_grp_plan = PatternFill(start_color=COLOR_GRP_PLAN, end_color=COLOR_GRP_PLAN, fill_type="solid")
+        fill_kpi_box = PatternFill(start_color=COLOR_KPI_BG, end_color=COLOR_KPI_BG, fill_type="solid")
+        fill_row_alt = fill_alt
+        fill_row_white = fill_white
+        C_CRIT_FG = COLOR_CRITICAL_FG
+        C_WARN_FG = COLOR_WARNING_FG
+        C_COV_FG = COLOR_COVERED_FG
+        C_DARK_NAVY = "0F172A"
+
+        # 1. Banner Superior Corporativo
+        ws_sug.merge_cells("A1:V1")
+        c_st = ws_sug["A1"]
+        c_st.value = "  CODIAGRO S.L.  |  SUGERENCIAS STOCK: PLAN EJECUTIVO DE OPTIMIZACIÓN DE DIO Y SALIDA DE EXCEDENTES (CEO PLAYBOOK)"
+        c_st.font = font_title
+        c_st.fill = fill_header_dark
+        c_st.alignment = Alignment(vertical="center", horizontal="left")
+        ws_sug.row_dimensions[1].height = 28
+
+        ws_sug.merge_cells("A2:V2")
+        c_ss = ws_sug["A2"]
+        c_ss.value = (
+            f"  S&OP Noviembre 2026 | Balance Oficial: DIO Base {sug_kpis.get('dio_base_total_days', 97.9):.1f}d (Inventario Total 1.323.814 € / COGS LTM 4.935.072 €) | "
+            f"Ahorro DIO Empresa: -{sug_kpis.get('dio_saving_total_days', 5.77):.2f}d (Post: {sug_kpis.get('dio_post_total_days', 92.1):.1f}d) | "
+            f"DSO Global: +{sug_kpis.get('dso_impact_total_days', 0.56):.2f}d (Post: {sug_kpis.get('dso_post_total_days', 104.1):.1f}d | Ratio Arbitraje: {sug_kpis.get('ratio_dio_vs_dso', 10.3):.1f}x) | "
+            f"Ciclo Neto CCC: {sug_kpis.get('ccc_net_impact_days', -5.21):.2f}d (Post: {sug_kpis.get('ccc_post_total_days', 131.8):.1f}d) | "
+            f"Ganancia Fin. Neta: +{sug_kpis.get('net_financial_gain_total_eur', 4607.76):,.2f} € | "
+            f"Palets Liberados: {sug_kpis.get('palets_liberados_total', 201.8):.1f} | Emisión: {now_str}"
+        )
+        c_ss.font = font_subtitle
+        c_ss.fill = fill_header_dark
+        c_ss.alignment = Alignment(vertical="center", horizontal="left")
+        ws_sug.row_dimensions[2].height = 18
+        ws_sug.row_dimensions[3].height = 8
+
+        # 2. Tarjetas KPI Ejecutivas (Filas 4 y 5)
+        kpis_sug_cards = [
+            ("A4:C4", "A5:C5", "COSTE NOMOVERS (>6M SIN ROTACIÓN)", f"{sug_kpis.get('nomover_cost_eur', 0):,.2f} € ({sug_kpis.get('nomover_skus', 42)} SKUs)", C_CRIT_FG),
+            ("D4:F4", "D5:F5", "ARBITRAJE WORKING CAPITAL", f"DIO -{sug_kpis.get('dio_saving_total_days', 5.77):.2f}d vs DSO +{sug_kpis.get('dso_impact_total_days', 0.56):.2f}d ({sug_kpis.get('ratio_dio_vs_dso', 10.3):.1f}x)", C_COV_FG),
+            ("G4:I4", "G5:I5", "DESGLOSE COSTES COMERCIALES", f"Dto: -{sug_kpis.get('coste_descuentos_total_eur', 0):,.0f}€ | Merch: -{sug_kpis.get('coste_merchandising_total_eur', 0):,.0f}€ | Fin: -{sug_kpis.get('coste_financiero_aplazamiento_total_eur', 0):,.0f}€", C_WARN_FG),
+            ("J4:L4", "J5:L5", "CAJA NETA A RECUPERAR (CASH-IN)", f"{sug_kpis.get('ingreso_neto_total_eur', 0):,.2f} € (NM: {sug_kpis.get('ingreso_nm_eur', 0):,.0f} €)", C_DARK_NAVY),
+            ("M4:P4", "M5:P5", "MARGEN NETO REAL POST-COSTES", f"+{sug_kpis.get('margen_neto_total_eur', 0):,.2f} € ({sug_kpis.get('margen_neto_pct', 60.5):.1f}% Real)", C_COV_FG),
+            ("Q4:V4", "Q5:V5", "GANANCIA FINANCIERA & ESPACIO", f"+{sug_kpis.get('net_financial_gain_total_eur', 0):,.2f} € Neta (Holding vs Fin) | {sug_kpis.get('palets_liberados_total', 0):.1f} Palets", C_COV_FG),
+        ]
+        for top_r, bot_r, lbl, val, col_hex in kpis_sug_cards:
+            ws_sug.merge_cells(top_r)
+            ws_sug.merge_cells(bot_r)
+            top_c = top_r.split(":")[0]
+            bot_c = bot_r.split(":")[0]
+            ws_sug[top_c].value = lbl
+            ws_sug[top_c].font = font_kpi_lbl
+            ws_sug[top_c].alignment = Alignment(horizontal="center", vertical="center")
+            ws_sug[bot_c].value = val
+            ws_sug[bot_c].font = Font(name="Calibri", size=10, bold=True, color=col_hex)
+            ws_sug[bot_c].alignment = Alignment(horizontal="center", vertical="center")
+            s_row, s_col = openpyxl.utils.coordinate_to_tuple(top_c)
+            e_row, e_col = openpyxl.utils.coordinate_to_tuple(bot_r.split(":")[1])
+            for r_i in range(s_row, e_row + 1):
+                for c_i in range(s_col, e_col + 1):
+                    cell = ws_sug.cell(row=r_i, column=c_i)
+                    cell.fill = fill_kpi_box
+                    cell.border = border_kpi
+
+        ws_sug.row_dimensions[4].height = 16
+        ws_sug.row_dimensions[5].height = 24
+        ws_sug.row_dimensions[6].height = 10
+
+        # 3. TABLA I: RESUMEN EJECUTIVO DE LOS 5 PLANES ESTRATÉGICOS (PLAYBOOKS CEO)
+        ws_sug.merge_cells("A7:V7")
+        ws_sug["A7"].value = "  I. RESUMEN EJECUTIVO DE LOS 5 PLANES DE CHOQUE (PLAYBOOKS COMERCIALES, FINANCIEROS Y TÉCNICOS)"
+        ws_sug["A7"].font = font_grp
+        ws_sug["A7"].fill = fill_grp_id
+        ws_sug["A7"].alignment = Alignment(horizontal="left", vertical="center")
+        ws_sug.row_dimensions[7].height = 22
+
+        plan_headers = [
+            (1, "Cód. Plan", fill_grp_id),
+            (2, "Playbook Estratégico / Línea de Acción", fill_grp_id),
+            (3, "Target / Enfoque", fill_grp_id),
+            (4, "Nº SKUs", fill_grp_demand),
+            (5, "SKUs NM", fill_grp_demand),
+            (6, "Vol. Total (L/Kg)", fill_grp_demand),
+            (7, "Coste Total (€)", fill_grp_demand),
+            (8, "Ahorro DIO (d)", fill_grp_plan),
+            (9, "DSO Global (d)", fill_grp_plan),
+            (10, "Ratio DIO/DSO", fill_grp_plan),
+            (11, "Palets Lib.", fill_grp_plan),
+            (12, "Ingreso Neto (€)", fill_grp_plan),
+            (13, "Coste Dto (€)", fill_grp_plan),
+            (14, "Coste Merch (€)", fill_grp_plan),
+            (15, "Coste Fin (€)", fill_grp_plan),
+            (16, "Margen Real (€)", fill_grp_plan),
+            (17, "Margen Real (%)", fill_grp_plan),
+            (18, "Plazo Pago", fill_grp_id),
+            (19, "Palanca Precio", fill_grp_id),
+        ]
+        for c_i, h_t, fl in plan_headers:
+            c = ws_sug.cell(row=8, column=c_i, value=h_t)
+            c.font = font_th
+            c.fill = fl
+            c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            c.border = border_thin
+        ws_sug.merge_cells("T8:V8")
+        ws_sug["T8"].value = "Incentivos No-Precio (Merchandising, Muestras Gratis, Rappel) & Racional"
+        ws_sug["T8"].font = font_th
+        ws_sug["T8"].fill = fill_grp_id
+        ws_sug["T8"].alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        for c_i in range(20, 23):
+            ws_sug.cell(row=8, column=c_i).border = border_thin
+            ws_sug.cell(row=8, column=c_i).fill = fill_grp_id
+        ws_sug.row_dimensions[8].height = 24
+
+        cur_p_row = 9
+        start_p_row = cur_p_row
+        for p in sug_plans:
+            fill_r = fill_row_alt if (cur_p_row % 2 == 0) else fill_row_white
+            ws_sug.cell(cur_p_row, 1, p.get("plan_id", "")).alignment = Alignment(horizontal="center", vertical="center")
+            ws_sug.cell(cur_p_row, 1).font = font_data_bold
+            ws_sug.cell(cur_p_row, 2, p.get("title", "")).alignment = Alignment(horizontal="left", vertical="center")
+            ws_sug.cell(cur_p_row, 2).font = font_data_bold
+            ws_sug.cell(cur_p_row, 3, p.get("target_segment", "")).alignment = Alignment(horizontal="left", vertical="center")
+            ws_sug.cell(cur_p_row, 3).font = font_data
+
+            c4 = ws_sug.cell(cur_p_row, 4, p.get("skus_count", 0))
+            c4.number_format = '#,##0'
+            c4.alignment = Alignment(horizontal="center", vertical="center")
+            c4.font = font_data_bold
+
+            c5 = ws_sug.cell(cur_p_row, 5, p.get("nomover_skus_count", 0))
+            c5.number_format = '#,##0'
+            c5.alignment = Alignment(horizontal="center", vertical="center")
+            c5.font = font_crit
+
+            c6 = ws_sug.cell(cur_p_row, 6, p.get("total_qty", 0))
+            c6.number_format = '#,##0'
+            c6.alignment = Alignment(horizontal="right", vertical="center")
+            c6.font = font_data_bold
+
+            c7 = ws_sug.cell(cur_p_row, 7, p.get("total_cost_eur", 0))
+            c7.number_format = '#,##0.00 €'
+            c7.alignment = Alignment(horizontal="right", vertical="center")
+            c7.font = font_data_bold
+
+            c8 = ws_sug.cell(cur_p_row, 8, -abs(p.get("dio_saving_days", 0)))
+            c8.number_format = '+0.00;-0.00;0.00'
+            c8.alignment = Alignment(horizontal="right", vertical="center")
+            c8.font = font_cov
+
+            c9 = ws_sug.cell(cur_p_row, 9, p.get("dso_impact_days", 0))
+            c9.number_format = '+0.00;-0.00;0.00'
+            c9.alignment = Alignment(horizontal="right", vertical="center")
+            c9.font = font_warn
+
+            c10 = ws_sug.cell(cur_p_row, 10, p.get("ratio_dio_vs_dso", 0))
+            c10.number_format = '0.0"x"'
+            c10.alignment = Alignment(horizontal="right", vertical="center")
+            c10.font = font_cov
+
+            c11 = ws_sug.cell(cur_p_row, 11, p.get("palets_liberados", 0))
+            c11.number_format = '#,##0.0'
+            c11.alignment = Alignment(horizontal="right", vertical="center")
+            c11.font = font_data_bold
+
+            c12 = ws_sug.cell(cur_p_row, 12, p.get("ingreso_neto_eur", 0))
+            c12.number_format = '#,##0.00 €'
+            c12.alignment = Alignment(horizontal="right", vertical="center")
+            c12.font = font_data_bold
+
+            c13 = ws_sug.cell(cur_p_row, 13, -abs(p.get("coste_dto_eur", 0)))
+            c13.number_format = '#,##0.00 €'
+            c13.alignment = Alignment(horizontal="right", vertical="center")
+            c13.font = font_warn
+
+            c14 = ws_sug.cell(cur_p_row, 14, -abs(p.get("coste_merch_eur", 0)))
+            c14.number_format = '#,##0.00 €'
+            c14.alignment = Alignment(horizontal="right", vertical="center")
+            c14.font = font_warn
+
+            c15 = ws_sug.cell(cur_p_row, 15, -abs(p.get("coste_fin_pago_eur", 0)))
+            c15.number_format = '#,##0.00 €'
+            c15.alignment = Alignment(horizontal="right", vertical="center")
+            c15.font = font_warn
+
+            c16 = ws_sug.cell(cur_p_row, 16, p.get("margen_neto_eur", 0))
+            c16.number_format = '#,##0.00 €'
+            c16.alignment = Alignment(horizontal="right", vertical="center")
+            c16.font = font_cov
+
+            c17 = ws_sug.cell(cur_p_row, 17, p.get("margen_neto_pct", 0) / 100.0)
+            c17.number_format = '0.0%'
+            c17.alignment = Alignment(horizontal="right", vertical="center")
+            c17.font = font_cov
+
+            c18 = ws_sug.cell(cur_p_row, 18, p.get("payment_terms", ""))
+            c18.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+            c18.font = font_data
+
+            c19 = ws_sug.cell(cur_p_row, 19, p.get("price_lever", ""))
+            c19.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+            c19.font = font_data
+
+            ws_sug.merge_cells(f"T{cur_p_row}:V{cur_p_row}")
+            c20 = ws_sug.cell(cur_p_row, 20, f"{p.get('non_price_incentives', '')} — {p.get('rationale', '')}")
+            c20.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+            c20.font = font_data
+
+            for c_i in range(1, 23):
+                cell_p = ws_sug.cell(cur_p_row, c_i)
+                cell_p.fill = fill_r
+                cell_p.border = border_thin
+
+            ws_sug.row_dimensions[cur_p_row].height = 28
+            cur_p_row += 1
+
+        # Fila Totales Tabla I
+        tot_p_row = cur_p_row
+        ws_sug.merge_cells(f"A{tot_p_row}:C{tot_p_row}")
+        ws_sug[f"A{tot_p_row}"].value = "TOTAL CONSOLIDADO 5 PLAYBOOKS ESTRATÉGICOS"
+        ws_sug[f"A{tot_p_row}"].font = font_total
+        ws_sug[f"A{tot_p_row}"].alignment = Alignment(horizontal="right", vertical="center")
+
+        sum_p_cols = [
+            (4, "D", '#,##0'), (5, "E", '#,##0'), (6, "F", '#,##0'), (7, "G", '#,##0.00 €'),
+            (8, "H", '+0.00;-0.00;0.00'), (9, "I", '+0.00;-0.00;0.00'), (11, "K", '#,##0.0'),
+            (12, "L", '#,##0.00 €'), (13, "M", '#,##0.00 €'), (14, "N", '#,##0.00 €'), (15, "O", '#,##0.00 €'),
+            (16, "P", '#,##0.00 €')
+        ]
+        for c_idx, letter, n_fmt in sum_p_cols:
+            c_s = ws_sug.cell(tot_p_row, c_idx, f"=SUM({letter}{start_p_row}:{letter}{tot_p_row - 1})")
+            c_s.number_format = n_fmt
+            c_s.font = font_total
+            c_s.alignment = Alignment(horizontal="right", vertical="center")
+
+        # Ratio total
+        c_rat_tot = ws_sug.cell(tot_p_row, 10, f"=IF(I{tot_p_row}>0, ABS(H{tot_p_row})/I{tot_p_row}, 0)")
+        c_rat_tot.number_format = '0.0"x"'
+        c_rat_tot.font = font_total
+        c_rat_tot.alignment = Alignment(horizontal="right", vertical="center")
+
+        c_mb_tot = ws_sug.cell(tot_p_row, 17, f"=IF(L{tot_p_row}>0, P{tot_p_row}/L{tot_p_row}, 0)")
+        c_mb_tot.number_format = '0.0%'
+        c_mb_tot.font = font_total
+        c_mb_tot.alignment = Alignment(horizontal="right", vertical="center")
+
+        for c_i in range(1, 23):
+            c_t = ws_sug.cell(tot_p_row, c_i)
+            c_t.fill = fill_total
+            c_t.border = border_total
+        ws_sug.row_dimensions[tot_p_row].height = 25
+
+        # 4. TABLA II: CATÁLOGO OPERATIVO DETALLADO SKU POR SKU (89 SKUs CON CLIENTES DIANA Y PROPUESTA COMERCIAL)
+        sep_row = tot_p_row + 2
+        ws_sug.merge_cells(f"A{sep_row}:V{sep_row}")
+        ws_sug[f"A{sep_row}"].value = "  II. MATRIZ OPERATIVA SKU POR SKU: CLIENTES DIANA (CON HISTÓRICO), PRECIOS OBJETIVO, PLAZOS DE PAGO Y OFERTAS COMPLEMENTARIAS"
+        ws_sug[f"A{sep_row}"].font = font_grp
+        ws_sug[f"A{sep_row}"].fill = fill_grp_plan
+        ws_sug[f"A{sep_row}"].alignment = Alignment(horizontal="left", vertical="center")
+        ws_sug.row_dimensions[sep_row].height = 22
+
+        hdr_sku_row = sep_row + 1
+        sku_headers = [
+            (1, "Prioridad", fill_grp_id),
+            (2, "Plan Asignado", fill_grp_id),
+            (3, "Cód. Base SKU", fill_grp_id),
+            (4, "Producto / Descripción", fill_grp_id),
+            (5, "Línea / Formato", fill_grp_id),
+            (6, "Segmento Rotación", fill_grp_id),
+            (7, "Stock Actual (L/Kg)", fill_grp_demand),
+            (8, "Exceso NoMover (L/Kg)", fill_grp_demand),
+            (9, "Exceso SlowMover (L/Kg)", fill_grp_demand),
+            (10, "Total Sobrante (L/Kg)", fill_grp_demand),
+            (11, "Coste Unit. (€)", fill_grp_demand),
+            (12, "Inmov. NoMover (€)", fill_grp_demand),
+            (13, "Coste Total Sobrante (€)", fill_grp_demand),
+            (14, "Ahorro DIO (días)", fill_grp_plan),
+            (15, "Palets Liberados", fill_grp_plan),
+            (16, "PVP Histórico (€)", fill_grp_plan),
+            (17, "PVP Oferta Sugerido (€)", fill_grp_plan),
+            (18, "Palanca Precio / Dto.", fill_grp_plan),
+            (19, "Ingreso Neto Est. (€)", fill_grp_plan),
+            (20, "Margen Neto Est. (€)", fill_grp_plan),
+            (21, "Clientes Diana Recomendados (Histórico Real y Afinidad)", fill_grp_id),
+            (22, "Facilidades de Pago + Incentivos (Merchandising / Muestras / Rappel)", fill_grp_id),
+        ]
+        for c_i, h_t, fl in sku_headers:
+            c = ws_sug.cell(row=hdr_sku_row, column=c_i, value=h_t)
+            c.font = font_th
+            c.fill = fl
+            c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            c.border = border_thin
+        ws_sug.row_dimensions[hdr_sku_row].height = 26
+
+        cur_s_row = hdr_sku_row + 1
+        start_s_row = cur_s_row
+        for it in sug_items:
+            fill_r = fill_row_alt if (cur_s_row % 2 == 0) else fill_row_white
+            is_nm = bool(it.get("is_nomover", False))
+            prio = "P1 - Crítica (>1.500€ NM)" if (is_nm and it.get("no_mover_eur", 0) >= 1500) else ("P1 - NoMover (>6M)" if is_nm else "P2 - SlowMover (3-6M)")
+            c_p = ws_sug.cell(cur_s_row, 1, prio)
+            c_p.alignment = Alignment(horizontal="center", vertical="center")
+            if is_nm:
+                c_p.fill = fill_crit
+                c_p.font = font_crit
+            else:
+                c_p.fill = fill_warn
+                c_p.font = font_warn
+
+            c_pl = ws_sug.cell(cur_s_row, 2, it.get("plan_name", ""))
+            c_pl.font = font_data_bold
+            c_pl.alignment = Alignment(horizontal="left", vertical="center")
+
+            c_sk = ws_sug.cell(cur_s_row, 3, it.get("base_sku", ""))
+            c_sk.font = font_data_bold
+            c_sk.alignment = Alignment(horizontal="center", vertical="center")
+
+            c_de = ws_sug.cell(cur_s_row, 4, it.get("desc", ""))
+            c_de.font = font_data
+            c_de.alignment = Alignment(horizontal="left", vertical="center")
+
+            c_fm = ws_sug.cell(cur_s_row, 5, it.get("formato", ""))
+            c_fm.font = font_data
+            c_fm.alignment = Alignment(horizontal="center", vertical="center")
+
+            c_sg = ws_sug.cell(cur_s_row, 6, it.get("segmento", ""))
+            c_sg.alignment = Alignment(horizontal="center", vertical="center")
+            if is_nm:
+                c_sg.fill = fill_crit
+                c_sg.font = font_crit
+            else:
+                c_sg.fill = fill_warn
+                c_sg.font = font_warn
+
+            c7 = ws_sug.cell(cur_s_row, 7, it.get("stock_actual", 0))
+            c7.number_format = '#,##0'
+            c7.font = font_data
+            c7.alignment = Alignment(horizontal="right", vertical="center")
+
+            c8 = ws_sug.cell(cur_s_row, 8, it.get("no_mover_qty", 0))
+            c8.number_format = '#,##0'
+            c8.font = font_crit if is_nm else font_data
+            c8.alignment = Alignment(horizontal="right", vertical="center")
+
+            c9 = ws_sug.cell(cur_s_row, 9, it.get("slow_mover_qty", 0))
+            c9.number_format = '#,##0'
+            c9.font = font_warn if it.get("slow_mover_qty", 0) > 0 else font_data
+            c9.alignment = Alignment(horizontal="right", vertical="center")
+
+            c10 = ws_sug.cell(cur_s_row, 10, it.get("exceso_total_qty", 0))
+            c10.number_format = '#,##0'
+            c10.font = font_data_bold
+            c10.alignment = Alignment(horizontal="right", vertical="center")
+
+            c11 = ws_sug.cell(cur_s_row, 11, it.get("coste_unit", 0))
+            c11.number_format = '#,##0.00 €'
+            c11.font = font_data
+            c11.alignment = Alignment(horizontal="right", vertical="center")
+
+            c12 = ws_sug.cell(cur_s_row, 12, it.get("no_mover_eur", 0))
+            c12.number_format = '#,##0.00 €'
+            c12.font = font_crit if is_nm else font_data
+            c12.alignment = Alignment(horizontal="right", vertical="center")
+
+            c13 = ws_sug.cell(cur_s_row, 13, it.get("exceso_total_eur", 0))
+            c13.number_format = '#,##0.00 €'
+            c13.font = font_data_bold
+            c13.alignment = Alignment(horizontal="right", vertical="center")
+
+            c14 = ws_sug.cell(cur_s_row, 14, -abs(it.get("dio_saving_days", 0)))
+            c14.number_format = '+0.00;-0.00;0.00'
+            c14.font = font_cov
+            c14.alignment = Alignment(horizontal="right", vertical="center")
+
+            c15 = ws_sug.cell(cur_s_row, 15, it.get("palets_liberados", 0))
+            c15.number_format = '#,##0.0'
+            c15.font = font_data
+            c15.alignment = Alignment(horizontal="right", vertical="center")
+
+            c16 = ws_sug.cell(cur_s_row, 16, it.get("pvp_historico", 0))
+            c16.number_format = '#,##0.00 €'
+            c16.font = font_data
+            c16.alignment = Alignment(horizontal="right", vertical="center")
+
+            c17 = ws_sug.cell(cur_s_row, 17, it.get("pvp_objetivo", 0))
+            c17.number_format = '#,##0.00 €'
+            c17.font = font_data_bold
+            c17.alignment = Alignment(horizontal="right", vertical="center")
+
+            c18 = ws_sug.cell(cur_s_row, 18, f"{it.get('dto_label', '')} (Dto: -{it.get('coste_dto_eur', 0):,.1f} €)")
+            c18.font = font_warn
+            c18.alignment = Alignment(horizontal="left", vertical="center")
+
+            c19 = ws_sug.cell(cur_s_row, 19, it.get("ingreso_neto_eur", 0))
+            c19.number_format = '#,##0.00 €'
+            c19.font = font_data_bold
+            c19.alignment = Alignment(horizontal="right", vertical="center")
+
+            c20 = ws_sug.cell(cur_s_row, 20, it.get("margen_neto_eur", 0))
+            c20.number_format = '#,##0.00 €'
+            c20.font = font_cov
+            c20.alignment = Alignment(horizontal="right", vertical="center")
+
+            c21 = ws_sug.cell(cur_s_row, 21, f"{it.get('clientes_diana', '')} — [{it.get('motivo_coherente', '')}]")
+            c21.font = font_data
+            c21.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+
+            c22 = ws_sug.cell(cur_s_row, 22, f"Pago: {it.get('condiciones_pago', '')} (+{it.get('dias_aplazamiento_extra', 0)}d | Fin: -{it.get('coste_fin_pago_eur', 0):,.1f}€) | Merch: -{it.get('coste_merch_eur', 0):,.1f}€ | Incentivos: {it.get('incentivos_adicionales', '')}")
+            c22.font = font_data
+            c22.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+
+            for c_i in range(2, 6):
+                ws_sug.cell(cur_s_row, c_i).fill = fill_r
+            for c_i in range(7, 23):
+                ws_sug.cell(cur_s_row, c_i).fill = fill_r
+            for c_i in range(1, 23):
+                ws_sug.cell(cur_s_row, c_i).border = border_thin
+
+            ws_sug.row_dimensions[cur_s_row].height = 28
+            cur_s_row += 1
+
+        # Fila Totales Tabla II
+        tot_s_row = cur_s_row
+        ws_sug.merge_cells(f"A{tot_s_row}:F{tot_s_row}")
+        ws_sug[f"A{tot_s_row}"].value = f"TOTAL CATÁLOGO ACCIONABLE ({len(sug_items)} SKUs CON EXCESO DE STOCK)"
+        ws_sug[f"A{tot_s_row}"].font = font_total
+        ws_sug[f"A{tot_s_row}"].alignment = Alignment(horizontal="right", vertical="center")
+
+        sum_s_cols = [
+            (7, "G", '#,##0'), (8, "H", '#,##0'), (9, "I", '#,##0'), (10, "J", '#,##0'),
+            (12, "L", '#,##0.00 €'), (13, "M", '#,##0.00 €'),
+            (14, "N", '+0.00;-0.00;0.00'), (15, "O", '#,##0.0'),
+            (19, "S", '#,##0.00 €'), (20, "T", '#,##0.00 €')
+        ]
+        for c_idx, letter, n_fmt in sum_s_cols:
+            c_s = ws_sug.cell(tot_s_row, c_idx, f"=SUM({letter}{start_s_row}:{letter}{tot_s_row - 1})")
+            c_s.number_format = n_fmt
+            c_s.font = font_total
+            c_s.alignment = Alignment(horizontal="right", vertical="center")
+
+        for c_i in range(1, 23):
+            c_t = ws_sug.cell(tot_s_row, c_i)
+            c_t.fill = fill_total
+            c_t.border = border_total
+        ws_sug.row_dimensions[tot_s_row].height = 26
+
+        col_widths_sug = {
+            'A': 16, 'B': 30, 'C': 16, 'D': 32, 'E': 16, 'F': 22,
+            'G': 16, 'H': 18, 'I': 18, 'J': 18, 'K': 14, 'L': 18,
+            'M': 20, 'N': 16, 'O': 15, 'P': 15, 'Q': 16, 'R': 28,
+            'S': 18, 'T': 18, 'U': 52, 'V': 58
+        }
+        for col_l, w in col_widths_sug.items():
+            ws_sug.column_dimensions[col_l].width = w
+
+        ws_sug.freeze_panes = f"A{start_s_row}"
+        ws_sug.auto_filter.ref = f"A{hdr_sku_row}:V{tot_s_row - 1}"
+
     # Guardar Excel en web_dashboard, web_dashboard_direccion y en ruta destino con control de bloqueo
     dashboard_excel_path = get_dest(os.path.join("web_dashboard", os.path.basename(output_path)))
     try:
@@ -1323,12 +1789,12 @@ def generar_excel_orden_fabricacion(
     saved_path = output_path
     try:
         wb.save(output_path)
-        print(f"¡Orden de Fabricación MRP y Rotación generada exitosamente con 4 hojas en: {output_path}!")
+        print(f"¡Orden de Fabricación MRP, Rotación y Sugerencias Stock generada exitosamente con 5 hojas en: {output_path}!")
     except PermissionError:
         alt_path = output_path.replace(".xlsx", "_Actualizado.xlsx")
         wb.save(alt_path)
         saved_path = alt_path
-        print(f"¡ATENCIÓN: {output_path} estaba abierto en Excel! Se ha guardado la versión actualizada con 4 hojas como: {alt_path} y en {dashboard_excel_path}")
+        print(f"¡ATENCIÓN: {output_path} estaba abierto en Excel! Se ha guardado la versión actualizada con 5 hojas como: {alt_path} y en {dashboard_excel_path}")
     return saved_path
 
 if __name__ == "__main__":

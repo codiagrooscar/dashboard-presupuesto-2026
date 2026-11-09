@@ -658,6 +658,47 @@
       width: 100%;
     }
 
+    .top-horizontal-scrollbar {
+      overflow-x: auto;
+      overflow-y: hidden;
+      height: 18px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      border-radius: var(--radius-sm);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+    }
+
+    .top-horizontal-scrollbar::-webkit-scrollbar,
+    .table-wrapper::-webkit-scrollbar {
+      height: 14px;
+      width: 14px;
+    }
+
+    .top-horizontal-scrollbar::-webkit-scrollbar-track,
+    .table-wrapper::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 6px;
+    }
+
+    .top-horizontal-scrollbar::-webkit-scrollbar-thumb,
+    .table-wrapper::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+      border-radius: 6px;
+      border: 2px solid #0f172a;
+      cursor: grab;
+    }
+
+    .top-horizontal-scrollbar::-webkit-scrollbar-thumb:hover,
+    .table-wrapper::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(90deg, #60a5fa 0%, #34d399 100%);
+    }
+
+    .top-horizontal-scrollbar::-webkit-scrollbar-thumb:active,
+    .table-wrapper::-webkit-scrollbar-thumb:active {
+      cursor: grabbing;
+      background: #10b981;
+    }
+
     table {
       width: 100%;
       min-width: 980px;
@@ -1918,12 +1959,19 @@
             <span>🏭</span>
             <span id="navGroupHeaderOps">OPERACIONES</span>
           </div>
-          <button class="nav-item-btn nav-mrp" id="navBtnProduccion" onclick="switchTab('produccion')">
+          <button class="nav-item-btn nav-mrp" id="navBtnProduccion" onclick="if(prodSubtab==='sugerencias'){prodSubtab='mrp';} switchTab('produccion')">
             <div class="nav-item-left">
               <span class="nav-item-icon">⚙️</span>
               <span id="navBtnProduccionText">Planificación & MRP</span>
             </div>
             <span class="tab-badge" id="tabBadgeProduccion" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">Reactores</span>
+          </button>
+          <button class="nav-item-btn" id="navBtnSugerenciasStock" onclick="openSugerenciasStockTab()" style="margin-top:0.3rem;">
+            <div class="nav-item-left">
+              <span class="nav-item-icon">💡</span>
+              <span id="navBtnSugerenciasStockText">Sugerencias Stock</span>
+            </div>
+            <span class="tab-badge" id="tabBadgeSugerenciasStock" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.4);">-23,3d DIO</span>
           </button>
           <button class="nav-item-btn" id="navBtnBiComplexity" onclick="switchTab('bi_complexity')" style="margin-top:0.3rem;">
             <div class="nav-item-left">
@@ -2074,6 +2122,23 @@
               <span class="period-dot"></span>
               <span id="pbtn-acumulado-text">📊 Acumulado Campaña</span>
               <span class="tab-badge badge-info" id="pbtn-acumulado-badge" style="font-size:0.65rem">Consolidado</span>
+            </button>
+          </div>
+
+          <!-- SCENARIO SWITCHER (BASE PREVISIÓN AUDITADA 09/11) -->
+          <div class="period-switcher scenario-switcher" id="scenarioSwitcher" style="border-color:rgba(59,130,246,0.45);background:rgba(30,41,59,0.75);">
+            <span class="period-label" style="color:#60a5fa;display:flex;align-items:center;gap:0.25rem;">
+              <span>🧭</span> ESCENARIO:
+            </span>
+            <button class="period-btn active" id="btnScenarioRevisado" onclick="switchScenario('revisado')" title="Previsiones Q4 actualizadas por los comerciales (324.729 u en Nov / 1.095.819 u en Q4)">
+              <span class="period-dot active"></span>
+              <span id="txtScenarioRevisado">🎯 Prev. Revisadas Q4</span>
+              <span class="tab-badge badge-success" style="font-size:0.65rem">324.729 u</span>
+            </button>
+            <button class="period-btn" id="btnScenarioOficial" onclick="switchScenario('oficial')" title="Presupuesto Anual Oficial Codiagro 2026 (15,18M€, 356.263 u en Nov)">
+              <span class="period-dot"></span>
+              <span id="txtScenarioOficial">🏢 Presupuesto Oficial 15,18M€</span>
+              <span class="tab-badge badge-info" style="font-size:0.65rem">356.263 u</span>
             </button>
           </div>
 
@@ -2722,11 +2787,11 @@
         mrp_selected_count: "meses seleccionados",
         mrp_active_range: "Ventana activa:",
         
-        mrp_preset_n: "N (Oct 26)",
-        mrp_preset_n1: "N+1 (Oct-Nov)",
-        mrp_preset_n2: "N+2 (Oct-Dic 2026)",
-        mrp_preset_n5: "N+5 (Oct 26 - Mar 27)",
-        mrp_preset_rest_2026: "Resto 2026 (Oct-Dic)",
+        mrp_preset_n: "N",
+        mrp_preset_n1: "N+1",
+        mrp_preset_n2: "N+2 (3 Meses)",
+        mrp_preset_n5: "N+5 (6 Meses)",
+        mrp_preset_rest_2026: "Resto Año Actual",
         mrp_preset_q1_2027: "Q1 2027 (Ene-Mar)",
         mrp_preset_h1_2027: "1er Semestre 2027",
         mrp_preset_all_2027: "Todo 2027 (12 meses)",
@@ -2746,11 +2811,11 @@
         mrp_kpi_covered: "SKUs Cubiertos",
         mrp_kpi_covered_sub: "Cobertura ≥ 100% de la demanda",
         mrp_kpi_nomover: "Stock NoMover (>6 Meses)",
-        mrp_kpi_nomover_sub: "Sin venta prevista en los próximos 6 meses (> Mar 27)",
+        mrp_kpi_nomover_sub: "Sin venta prevista en los próximos 6 meses (Ventana > N+5)",
         mrp_kpi_slowmover: "Stock SlowMover (3 a 6 Meses)",
-        mrp_kpi_slowmover_sub: "Venta prevista entre mes 3 y 6 (Ene-Mar 27)",
+        mrp_kpi_slowmover_sub: "Venta prevista entre mes 3 y mes 6 (N+2 a N+5)",
         mrp_kpi_fastmover: "Stock Alta Rotación (0 a 3 Meses)",
-        mrp_kpi_fastmover_sub: "Consumo previsto en próximo trimestre (Oct-Dic 26)",
+        mrp_kpi_fastmover_sub: "Consumo previsto en los próximos 3 meses (Ventana N+2)",
 
         mrp_rot_all: "Todos",
         mrp_rot_nomover: "🔴 NoMovers",
@@ -2761,9 +2826,9 @@
         mrp_badge_nomover: "🔴 NoMover",
         mrp_badge_slowmover: "🟡 SlowMover",
         mrp_badge_fastmover: "⚡ Alta Rotación",
-        mrp_tooltip_nomover: "Stock sobrante tras cubrir los próximos 6 meses (Oct 26 - Mar 27)",
-        mrp_tooltip_slowmover: "Stock que se prevé vender entre el mes 3 y el mes 6 (Ene - Mar 27)",
-        mrp_tooltip_fastmover: "Stock que se prevé consumir en los próximos 3 meses (Oct - Dic 26)",
+        mrp_tooltip_nomover: "Stock sobrante tras cubrir los próximos 6 meses (Ventana N+5)",
+        mrp_tooltip_slowmover: "Stock que se prevé vender entre el mes 3 y el mes 6",
+        mrp_tooltip_fastmover: "Stock que se prevé consumir en los próximos 3 meses (Ventana N+2)",
         mrp_modal_rotation_title: "Análisis de Rotación de Stock (Criterio 3M / 6M):",
 
         mrp_view_base: "📦 Por Envase / Planta",
@@ -2996,11 +3061,11 @@
         mrp_selected_count: "months selected",
         mrp_active_range: "Active window:",
         
-        mrp_preset_n: "N (Oct 26)",
-        mrp_preset_n1: "N+1 (Oct-Nov)",
-        mrp_preset_n2: "N+2 (Oct-Dec 2026)",
-        mrp_preset_n5: "N+5 (Oct 26 - Mar 27)",
-        mrp_preset_rest_2026: "Remainder 2026 (Oct-Dec)",
+        mrp_preset_n: "N",
+        mrp_preset_n1: "N+1",
+        mrp_preset_n2: "N+2 (3 Months)",
+        mrp_preset_n5: "N+5 (6 Months)",
+        mrp_preset_rest_2026: "Current Year Remainder",
         mrp_preset_q1_2027: "Q1 2027 (Jan-Mar)",
         mrp_preset_h1_2027: "H1 2027 (Jan-Jun)",
         mrp_preset_all_2027: "Full 2027 (12 months)",
@@ -3020,11 +3085,11 @@
         mrp_kpi_covered: "Fully Covered SKUs",
         mrp_kpi_covered_sub: "Coverage ≥ 100% of demand",
         mrp_kpi_nomover: "NoMover Stock (>6 Months)",
-        mrp_kpi_nomover_sub: "No sales expected in next 6 months (> Mar 27)",
+        mrp_kpi_nomover_sub: "No sales expected in next 6 months (> N+5 window)",
         mrp_kpi_slowmover: "SlowMover Stock (3-6 Months)",
-        mrp_kpi_slowmover_sub: "Sales expected between month 3 and 6 (Jan-Mar 27)",
+        mrp_kpi_slowmover_sub: "Sales expected between month 3 and 6 (N+2 to N+5)",
         mrp_kpi_fastmover: "FastMover Stock (0-3 Months)",
-        mrp_kpi_fastmover_sub: "Consumption expected within next quarter (Oct-Dec 26)",
+        mrp_kpi_fastmover_sub: "Consumption expected within next 3 months (N+2 window)",
 
         mrp_rot_all: "All",
         mrp_rot_nomover: "🔴 NoMovers",
@@ -3035,9 +3100,9 @@
         mrp_badge_nomover: "🔴 NoMover",
         mrp_badge_slowmover: "🟡 SlowMover",
         mrp_badge_fastmover: "⚡ Fast Mover",
-        mrp_tooltip_nomover: "Surplus stock after covering next 6 months (Oct 26 - Mar 27)",
-        mrp_tooltip_slowmover: "Stock expected to be sold between month 3 and 6 (Jan - Mar 27)",
-        mrp_tooltip_fastmover: "Stock expected to be consumed in next 3 months (Oct - Dec 26)",
+        mrp_tooltip_nomover: "Surplus stock after covering next 6 months (N+5 window)",
+        mrp_tooltip_slowmover: "Stock expected to be sold between month 3 and 6",
+        mrp_tooltip_fastmover: "Stock expected to be consumed in next 3 months (N+2 window)",
         mrp_modal_rotation_title: "Stock Turnover Classification (3M / 6M criteria):",
 
         mrp_view_base: "📦 By Package / Plant",
@@ -3778,11 +3843,66 @@
       }
     }
 
+    let currentScenario = 'revisado';
+    try {
+      const savedScenario = sessionStorage.getItem('codiagro_selected_scenario');
+      if (savedScenario) currentScenario = savedScenario;
+    } catch (e) {}
+
+    function getEffectivePeriodData(periodId, scenarioKey) {
+      if (!allPeriodsData || !allPeriodsData.periods[periodId]) return null;
+      const p = allPeriodsData.periods[periodId];
+      if (p.scenarios && p.scenarios[scenarioKey]) {
+        return p.scenarios[scenarioKey];
+      }
+      return p;
+    }
+
+    function switchScenario(scenarioKey) {
+      currentScenario = scenarioKey;
+      try { sessionStorage.setItem('codiagro_selected_scenario', scenarioKey); } catch (e) {}
+
+      // Update UI buttons
+      const btnRev = document.getElementById('btnScenarioRevisado');
+      const btnOfi = document.getElementById('btnScenarioOficial');
+      if (btnRev) {
+        btnRev.classList.toggle('active', scenarioKey === 'revisado');
+        const d = btnRev.querySelector('.period-dot');
+        if (d) d.classList.toggle('active', scenarioKey === 'revisado');
+      }
+      if (btnOfi) {
+        btnOfi.classList.toggle('active', scenarioKey === 'oficial');
+        const d = btnOfi.querySelector('.period-dot');
+        if (d) d.classList.toggle('active', scenarioKey === 'oficial');
+      }
+
+      // Update active period data
+      const eff = getEffectivePeriodData(currentPeriod, currentScenario);
+      if (eff) {
+        appData = eff;
+      }
+
+      // Fase 3: Conexión con Planificación de Producción, MRP y Sugerencias de Stock
+      if (rawProductionPlanningData) {
+        applyProductionScenario(scenarioKey);
+        sugSelectionInitialized = false;
+      }
+
+      updateHeaderInfo();
+      updateNavBadges();
+      renderCurrentTab();
+
+      const modalOverlay = document.getElementById('kpiModalOverlay');
+      if (modalOverlay && modalOverlay.classList.contains('active')) {
+        renderModalContent();
+      }
+    }
+
     function switchPeriod(periodId) {
       if (!allPeriodsData || !allPeriodsData.periods[periodId]) return;
       currentPeriod = periodId;
       try { sessionStorage.setItem('codiagro_selected_period', periodId); } catch (e) {}
-      appData = allPeriodsData.periods[periodId];
+      appData = getEffectivePeriodData(periodId, currentScenario) || allPeriodsData.periods[periodId];
       updatePeriodSwitcherUI();
       updateScopeSwitcherUI();
       updateHeaderInfo();
@@ -3887,8 +4007,26 @@
     // ESTADO Y LÓGICA: PLANIFICACIÓN DE LA PRODUCCIÓN (MRP)
     // ==========================================================
     let productionData = null;
-    let selectedMonths = new Set(['2026-10', '2026-11', '2026-12']); // Default N+2 (Oct + Nov + Dic 2026)
-    let activePreset = 'N2';
+    let rawProductionPlanningData = null;
+
+    function applyProductionScenario(scenarioKey) {
+      if (!rawProductionPlanningData) return;
+      const key = scenarioKey || currentScenario || 'revisado';
+      if (rawProductionPlanningData.scenarios && rawProductionPlanningData.scenarios[key]) {
+        const sc = rawProductionPlanningData.scenarios[key];
+        productionData = {
+          metadata: rawProductionPlanningData.metadata,
+          graneles: sc.graneles,
+          base_skus: sc.base_skus,
+          detailed_skus: sc.detailed_skus,
+          stock_suggestions: sc.stock_suggestions
+        };
+      } else {
+        productionData = rawProductionPlanningData;
+      }
+    }
+    let selectedMonths = new Set(['2026-11', '2026-12']); // Default REST_2026 (Nov + Dic 2026 - Criterio S&OP)
+    let activePreset = 'REST_2026';
     let prodSubtab = 'mrp'; // 'mrp' (Hoja 1), 'granel' (Hoja 2), 'envase' (Hoja 3), 'rotacion' (Hoja 4)
     let prodViewMode = 'base'; // 'base' (Formulación/Envase Planta) o 'detail' (Por Destino)
     let prodStatusFilter = 'ALL'; // 'ALL', 'CRITICAL', 'WARNING', 'COVERED'
@@ -3899,18 +4037,31 @@
     let prodSortField = 'falta_fabricar';
     let prodSortOrder = 'desc';
 
-    // Variables de estado para subpestaña de Rotación (Slow/NoMovers Nacional)
+    // Variables de estado para subpestaña de Rotación (Slow/NoMovers Nacional) y Sugerencias Stock (Plan CEO)
     let rotSearchQuery = '';
     let rotFilter = 'ALL'; // 'ALL', 'NOMOVER', 'SLOWMOVER', 'FASTMOVER'
     let granelSearchQuery = '';
+    let sugPlanFilter = 'ALL'; // 'ALL', 'NOMOVER_ONLY', 'SLOWMOVER_ONLY', 'PLAN 1', 'PLAN 2', 'PLAN 3', 'PLAN 4', 'PLAN 5'
+    let sugSearchQuery = '';
+    let sugSelectedSkus = new Set();
+    let sugSelectionInitialized = false;
+
+    function openSugerenciasStockTab() {
+      prodSubtab = 'sugerencias';
+      switchTab('produccion');
+    }
 
     function setProdSubtab(sub) {
       prodSubtab = sub;
+      updateSidebarActive(currentTab);
       renderCurrentTab();
     }
 
     async function loadProductionData() {
-      if (productionData) return productionData;
+      if (productionData && rawProductionPlanningData) {
+        applyProductionScenario(currentScenario);
+        return productionData;
+      }
       let fetched = null;
       try {
         const resp = await fetch('production_planning_data.json?t=' + Date.now());
@@ -3920,7 +4071,8 @@
       if (!fetched && window.PRODUCTION_PLANNING_DATA) {
         fetched = window.PRODUCTION_PLANNING_DATA;
       }
-      productionData = fetched;
+      rawProductionPlanningData = fetched;
+      applyProductionScenario(currentScenario);
       return productionData;
     }
 
@@ -4142,8 +4294,12 @@
       const isBaseView = (prodViewMode === 'base');
       const rawItems = isBaseView ? productionData.base_skus : productionData.detailed_skus;
 
-      const n2Months = ['2026-10', '2026-11', '2026-12'];
-      const n5Months = ['2026-10', '2026-11', '2026-12', '2027-01', '2027-02', '2027-03'];
+      const n2Months = (productionData && productionData.metadata && productionData.metadata.presets && productionData.metadata.presets['N2']) 
+        ? productionData.metadata.presets['N2'] 
+        : ['2026-11', '2026-12', '2027-01'];
+      const n5Months = (productionData && productionData.metadata && productionData.metadata.presets && productionData.metadata.presets['N5']) 
+        ? productionData.metadata.presets['N5'] 
+        : ['2026-11', '2026-12', '2027-01', '2027-02', '2027-03', '2027-04'];
 
       let all_skus_count = 0;
       let all_critical_count = 0;
@@ -4559,7 +4715,7 @@
       `;
     }
 
-    // RENDER: PESTAÑA PRINCIPAL DE FABRICACIÓN (CON 4 SUBPESTAÑAS EXACTAS AL EXCEL)
+    // RENDER: PESTAÑA PRINCIPAL DE FABRICACIÓN (CON 5 SUBPESTAÑAS EXACTAS AL EXCEL)
     function renderProduccionTab(container) {
       if (!productionData) {
         loadProductionData().then(() => renderProduccionTab(container));
@@ -4576,6 +4732,8 @@
         renderProdEnvaseSubtab(container);
       } else if (prodSubtab === 'rotacion') {
         renderProdRotacionSubtab(container);
+      } else if (prodSubtab === 'sugerencias') {
+        renderProdSugerenciasSubtab(container);
       } else {
         renderProdMrpSubtab(container);
       }
@@ -4597,10 +4755,17 @@
             <button class="pill-btn ${prodSubtab === 'rotacion' ? 'active' : ''}" onclick="setProdSubtab('rotacion')" style="${prodSubtab === 'rotacion' ? '' : 'color:#fbbf24;'}">
               🔄 SlowMovers & NoMovers (Nacional)
             </button>
+            <button class="pill-btn ${prodSubtab === 'sugerencias' ? 'active' : ''}" onclick="setProdSubtab('sugerencias')" style="${prodSubtab === 'sugerencias' ? 'background:linear-gradient(135deg, #059669 0%, #10b981 100%);color:#fff;border-color:#10b981;' : 'color:#34d399;border-color:rgba(16,185,129,0.45);'}">
+              💡 Sugerencias Stock (Plan CEO)
+            </button>
           </div>
           <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="font-size:0.72rem;padding:0.35rem 0.75rem;border-radius:9999px;font-weight:700;display:inline-flex;align-items:center;gap:0.4rem;border:1px solid ${currentScenario === 'revisado' ? 'rgba(16,185,129,0.45)' : 'rgba(56,189,248,0.45)'};background:${currentScenario === 'revisado' ? 'rgba(16,185,129,0.12)' : 'rgba(56,189,248,0.12)'};color:${currentScenario === 'revisado' ? '#34d399' : '#38bdf8'};" title="Escenario comercial activo para el cálculo del MRP y rotación">
+              <span>${currentScenario === 'revisado' ? '🎯' : '🏢'}</span>
+              <span>Demanda: <strong style="color:#fff;">${currentScenario === 'revisado' ? 'Prev. Revisadas Q4 (324k u)' : 'Presupuesto Oficial (356k u)'}</strong></span>
+            </div>
             <a href="/Orden_Fabricacion_MRP_Codiagro.xlsx" download="Orden_Fabricacion_MRP_Codiagro.xlsx" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;background:linear-gradient(135deg, #059669 0%, #10b981 100%);color:#fff;border:none;padding:0.55rem 1.1rem;border-radius:var(--radius-sm);cursor:pointer;font-weight:700;text-decoration:none;font-size:0.85rem;box-shadow:0 4px 12px rgba(5,150,105,0.3);">
-              📊 Descargar Excel MRP (4 Hojas)
+              📊 Descargar Excel MRP (5 Hojas)
             </a>
           </div>
         </div>
@@ -4618,16 +4783,45 @@
       const { rows, totals } = computeProductionTableData();
       const meta = productionData.metadata;
 
+      function getPresetDisplayLabel(key, highlight = false) {
+        let label = '';
+        if (meta && meta.preset_labels && meta.preset_labels[key]) {
+          label = meta.preset_labels[key];
+        } else if (meta && meta.presets && meta.presets[key]) {
+          const pMonths = meta.presets[key];
+          const monthsMeta = meta.months || [];
+          const getMShort = (k) => {
+            const found = monthsMeta.find(x => x.key === k);
+            if (!found) return k;
+            const l = currentLang === 'en' ? found.label_en : found.label_es;
+            return l.replace(' (N)', '').replace(' (Cerrado)', '').replace(' (Closed)', '');
+          };
+          if (pMonths.length === 1) {
+            label = `${key} (${getMShort(pMonths[0])})`;
+          } else {
+            const mFirst = getMShort(pMonths[0]);
+            const mLast = getMShort(pMonths[pMonths.length - 1]);
+            label = `${key.replace('_', ' ')} (${mFirst} - ${mLast})`;
+          }
+        } else {
+          label = t(`mrp_preset_${key.toLowerCase()}`) || key;
+        }
+        if (highlight && !label.startsWith('⭐')) {
+          label = '⭐ ' + label;
+        }
+        return label;
+      }
+
       const presetButtons = [
-        { key: 'N', label: t('mrp_preset_n') },
-        { key: 'N1', label: t('mrp_preset_n1') },
-        { key: 'N2', label: '⭐ ' + t('mrp_preset_n2'), highlight: true },
-        { key: 'N5', label: '⭐ ' + t('mrp_preset_n5'), highlight: true },
-        { key: 'REST_2026', label: t('mrp_preset_rest_2026') },
-        { key: 'Q1_2027', label: t('mrp_preset_q1_2027') },
-        { key: 'H1_2027', label: t('mrp_preset_h1_2027') },
-        { key: 'ALL_2027', label: t('mrp_preset_all_2027') },
-        { key: 'ALL_15', label: t('mrp_preset_all_15') }
+        { key: 'N', label: getPresetDisplayLabel('N'), highlight: false },
+        { key: 'N1', label: getPresetDisplayLabel('N1'), highlight: false },
+        { key: 'N2', label: getPresetDisplayLabel('N2', true), highlight: true },
+        { key: 'N5', label: getPresetDisplayLabel('N5', true), highlight: true },
+        { key: 'REST_2026', label: getPresetDisplayLabel('REST_2026'), highlight: false },
+        { key: 'Q1_2027', label: getPresetDisplayLabel('Q1_2027'), highlight: false },
+        { key: 'H1_2027', label: getPresetDisplayLabel('H1_2027'), highlight: false },
+        { key: 'ALL_2027', label: getPresetDisplayLabel('ALL_2027'), highlight: false },
+        { key: 'ALL_15', label: getPresetDisplayLabel('ALL_15'), highlight: false }
       ];
 
       let presetsHtml = presetButtons.map(p => `
@@ -5534,8 +5728,8 @@
                   <th style="min-width:95px;">Formato</th>
                   <th class="text-right" style="min-width:85px;">Stock (L/Kg)</th>
                   <th class="text-right" style="min-width:70px;color:#94a3b8;">Envases (u)</th>
-                  <th class="text-right" style="min-width:65px;color:#38bdf8;" title="Previsión Demanda Nacional Q4 (Oct-Dic 2026)">(N+2)</th>
-                  <th class="text-right" style="min-width:65px;color:#818cf8;" title="Previsión Demanda Nacional Q1-27 (Ene-Mar 2027)">(N+5)</th>
+                  <th class="text-right" style="min-width:65px;color:#38bdf8;" title="Previsión Demanda Nacional Ventana N+2 (3 Meses)">(N+2)</th>
+                  <th class="text-right" style="min-width:65px;color:#818cf8;" title="Previsión Demanda Nacional Ventana N+5 (6 Meses)">(N+5)</th>
                   <th class="text-right" style="min-width:80px;color:#fbbf24;">SlowMovers</th>
                   <th class="text-right" style="min-width:80px;color:#ef4444;">NoMovers</th>
                   <th style="text-align:center;min-width:110px;">Clasificación</th>
@@ -5556,6 +5750,871 @@
 
       // Render inicial del cuerpo y pie de tabla
       renderRotTableContent();
+    }
+
+    // 5. SUBPESTAÑA: SUGERENCIAS STOCK - PLAN EJECUTIVO CEO (OPTIMIZACIÓN DIO, CLIENTES DIANA & LIQUIDACIÓN RENTABLE)
+    function handleSugPlanFilter(planKey) {
+      sugPlanFilter = planKey;
+      renderProdSugerenciasSubtab(document.getElementById('appContent'));
+    }
+
+    function handleSugSearch(val) {
+      sugSearchQuery = val;
+      renderSugTableContent();
+    }
+
+    function handleTableScrollStep(wrapperId, step) {
+      const wrapper = document.getElementById(wrapperId);
+      if (wrapper) {
+        wrapper.scrollBy({ left: step, behavior: 'smooth' });
+      }
+    }
+
+    function initDoubleHorizontalScroll(topScrollId, bottomWrapperId, tableId, dummyId) {
+      const topEl = document.getElementById(topScrollId);
+      const bottomEl = document.getElementById(bottomWrapperId);
+      const tableEl = document.getElementById(tableId);
+      const dummyEl = document.getElementById(dummyId);
+      if (!topEl || !bottomEl) return;
+
+      const syncWidth = () => {
+        const targetW = tableEl ? tableEl.scrollWidth : bottomEl.scrollWidth;
+        if (dummyEl && targetW) {
+          dummyEl.style.width = targetW + 'px';
+        }
+      };
+
+      setTimeout(syncWidth, 30);
+      setTimeout(syncWidth, 200);
+
+      let isSyncingTop = false;
+      let isSyncingBottom = false;
+
+      topEl.onscroll = () => {
+        if (isSyncingTop) {
+          isSyncingTop = false;
+          return;
+        }
+        isSyncingBottom = true;
+        bottomEl.scrollLeft = topEl.scrollLeft;
+      };
+
+      bottomEl.onscroll = () => {
+        if (isSyncingBottom) {
+          isSyncingBottom = false;
+          return;
+        }
+        isSyncingTop = true;
+        topEl.scrollLeft = bottomEl.scrollLeft;
+      };
+    }
+
+    function handleSugToggleSku(sku, isChecked) {
+      if (isChecked) {
+        sugSelectedSkus.add(sku);
+      } else {
+        sugSelectedSkus.delete(sku);
+      }
+      const row = document.getElementById(`sug_row_${sku}`);
+      if (row) {
+        row.style.opacity = isChecked ? '1' : '0.4';
+      }
+      updateSugSimulation();
+      initDoubleHorizontalScroll('sugTopScroll', 'sugTableWrapper', 'sugTable', 'sugTopScrollDummy');
+    }
+
+    function handleSugToggleAllInView(isChecked) {
+      const tbody = document.getElementById('sugTableBody');
+      if (!tbody) return;
+      const checkboxes = tbody.querySelectorAll('.sug-sku-chk');
+      checkboxes.forEach(chk => {
+        chk.checked = isChecked;
+        const sku = chk.getAttribute('data-sku');
+        if (isChecked) {
+          sugSelectedSkus.add(sku);
+        } else {
+          sugSelectedSkus.delete(sku);
+        }
+        const row = document.getElementById(`sug_row_${sku}`);
+        if (row) {
+          row.style.opacity = isChecked ? '1' : '0.4';
+        }
+      });
+      updateSugSimulation();
+      initDoubleHorizontalScroll('sugTopScroll', 'sugTableWrapper', 'sugTable', 'sugTopScrollDummy');
+    }
+
+    function handleSugPresetSelection(preset) {
+      if (!productionData || !productionData.stock_suggestions) return;
+      const allItems = productionData.stock_suggestions.items || [];
+      if (preset === 'ALL') {
+        sugSelectedSkus = new Set(allItems.map(x => x.base_sku));
+      } else if (preset === 'NOMOVER') {
+        sugSelectedSkus = new Set(allItems.filter(x => x.is_nomover).map(x => x.base_sku));
+      } else if (preset === 'SLOWMOVER') {
+        sugSelectedSkus = new Set(allItems.filter(x => !x.is_nomover && x.slow_mover_qty > 0).map(x => x.base_sku));
+      } else if (preset === 'NONE') {
+        sugSelectedSkus.clear();
+      }
+      renderSugTableContent();
+    }
+
+    function updateSugSimulation() {
+      if (!productionData || !productionData.stock_suggestions) return;
+      const sug = productionData.stock_suggestions;
+      const allItems = sug.items || [];
+      const k = sug.kpis || {};
+
+      // Constantes oficiales del Balance Codiagro (Septiembre 2026)
+      const INV_TOTAL_BASE = k.inventario_total_base_eur || 1323814.0;
+      const COGS_LTM = k.cogs_ltm_total_eur || 4935072.0;
+      const VENTAS_LTM = k.ventas_netas_ltm_eur || 13780257.0;
+      const COGS_DIARIO = COGS_LTM / 365.0; // 13.520,745 €/día
+      const VENTAS_DIARIAS = VENTAS_LTM / 365.0; // 37.754,129 €/día
+      const DIO_BASE = k.dio_base_total_days || 97.9;
+      const DSO_BASE = k.dso_base_total_days || 103.5;
+      const DPO_BASE = k.dpo_base_total_days || 64.4;
+      const CCC_BASE = k.ccc_base_total_days || 137.0;
+
+      const selItems = allItems.filter(x => sugSelectedSkus.has(x.base_sku));
+      const selCount = selItems.length;
+
+      const sumNmQ = selItems.reduce((a, b) => a + (b.no_mover_qty || 0), 0);
+      const sumSmQ = selItems.reduce((a, b) => a + (b.slow_mover_qty || 0), 0);
+      const sumExQ = selItems.reduce((a, b) => a + (b.exceso_total_qty || 0), 0);
+      const sumCost = selItems.reduce((a, b) => a + (b.exceso_total_eur || 0), 0);
+      const sumNmCost = selItems.reduce((a, b) => a + (b.no_mover_eur || 0), 0);
+      const sumSmCost = selItems.reduce((a, b) => a + (b.slow_mover_eur || 0), 0);
+      const sumRev = selItems.reduce((a, b) => a + (b.ingreso_neto_eur || 0), 0);
+      const sumMar = selItems.reduce((a, b) => a + (b.margen_neto_eur || 0), 0);
+      const sumDto = selItems.reduce((a, b) => a + (b.coste_dto_eur || 0), 0);
+      const sumRappel = selItems.reduce((a, b) => a + (b.coste_rappel_eur || 0), 0);
+      const sumMerch = selItems.reduce((a, b) => a + (b.coste_merch_eur || 0), 0);
+      const sumFin = selItems.reduce((a, b) => a + (b.coste_fin_pago_eur || 0), 0);
+      const sumComCost = sumDto + sumRappel + sumMerch + sumFin;
+      const sumPal = selItems.reduce((a, b) => a + (b.palets_liberados || 0), 0);
+      const sumGain = selItems.reduce((a, b) => a + (b.net_financial_gain_eur || 0), 0);
+
+      // Métricas de Working Capital dinámicas
+      const dioSavingDays = sumCost / COGS_DIARIO; // Reducción en días DIO Empresa
+      const postDio = Math.max(0, DIO_BASE - dioSavingDays);
+      const postInv = Math.max(0, INV_TOTAL_BASE - sumCost);
+
+      const dsoImpactDays = selItems.reduce((a, b) => a + (b.dso_impact_empresa_days || 0), 0);
+      const postDso = DSO_BASE + dsoImpactDays;
+
+      const cccNetImpact = dioSavingDays - dsoImpactDays; // Ahorro neto en días de ciclo
+      const postCcc = postDio + postDso - DPO_BASE;
+      const arbitrageRatio = dsoImpactDays > 0.001 ? (dioSavingDays / dsoImpactDays).toFixed(1) : (dioSavingDays > 0 ? '∞' : '0.0');
+
+      // Actualizar resumen en badge
+      const liveBadge = document.getElementById('sugLiveSelectionSummary');
+      if (liveBadge) {
+        liveBadge.innerHTML = `🎯 <strong>${selCount} SKUs seleccionados</strong> (${fmtCurr(sumCost)} inmovilizado) &bull; <span style="color:#34d399;">-${dioSavingDays.toFixed(2)}d DIO</span> &bull; <span style="color:#60a5fa;">CCC: ${postCcc.toFixed(1)}d (-${cccNetImpact.toFixed(2)}d)</span>`;
+      }
+
+      // Actualizar Banner Ejecutivo
+      const elBannerInvPost = document.getElementById('sim_banner_inv_post');
+      if (elBannerInvPost) elBannerInvPost.innerText = fmtCurr(postInv);
+
+      const elBannerDioPost = document.getElementById('sim_banner_dio_post');
+      if (elBannerDioPost) elBannerDioPost.innerText = `${postDio.toFixed(1)} días (-${dioSavingDays.toFixed(2)}d)`;
+
+      const elBannerDsoPost = document.getElementById('sim_banner_dso_post');
+      if (elBannerDsoPost) elBannerDsoPost.innerText = `${postDso.toFixed(1)} días (+${dsoImpactDays.toFixed(2)}d)`;
+
+      const elBannerCccPost = document.getElementById('sim_banner_ccc_post');
+      if (elBannerCccPost) elBannerCccPost.innerText = `${postCcc.toFixed(1)} días (-${cccNetImpact.toFixed(2)}d)`;
+
+      // Actualizar KPIs de Arbitraje
+      const elDioSaving = document.getElementById('sim_kpi_ahorro_dio');
+      if (elDioSaving) elDioSaving.innerHTML = `-${dioSavingDays.toFixed(2)} <span style="font-size:0.75rem;">días</span>`;
+
+      const elDioSavingSub = document.getElementById('sim_kpi_ahorro_dio_sub');
+      if (elDioSavingSub) elDioSavingSub.innerText = `-${fmtCurr(sumCost)} de stock balance`;
+
+      const elDsoImpact = document.getElementById('sim_kpi_impacto_dso');
+      if (elDsoImpact) elDsoImpact.innerHTML = `+${dsoImpactDays.toFixed(2)} <span style="font-size:0.75rem;">días</span>`;
+
+      const elCccNet = document.getElementById('sim_kpi_ccc_neto');
+      if (elCccNet) elCccNet.innerHTML = `${(-cccNetImpact).toFixed(2)} <span style="font-size:0.75rem;">días</span>`;
+
+      const elCccNetSub = document.getElementById('sim_kpi_ccc_neto_sub');
+      if (elCccNetSub) elCccNetSub.innerText = `Ratio: ${arbitrageRatio}x a favor`;
+
+      const elNetFinGain = document.getElementById('sim_kpi_ganancia_financiera');
+      if (elNetFinGain) elNetFinGain.innerText = `+${fmtCurr(sumGain)}`;
+
+      // Actualizar 6 Tarjetas Superiores
+      const elNmCost = document.getElementById('sim_kpi_nomover_cost');
+      if (elNmCost) elNmCost.innerText = fmtCurr(sumNmCost);
+
+      const elNmCostSub = document.getElementById('sim_kpi_nomover_cost_sub');
+      if (elNmCostSub) elNmCostSub.innerText = `${selItems.filter(x => x.is_nomover).length} SKUs &bull; ${fmtNum(sumNmQ)} L/Kg`;
+
+      const elDioNm = document.getElementById('sim_kpi_dio_nm');
+      if (elDioNm) elDioNm.innerText = `-${(sumNmCost / COGS_DIARIO).toFixed(2)} días`;
+
+      const elTotCost = document.getElementById('sim_kpi_coste_stock');
+      if (elTotCost) elTotCost.innerText = fmtCurr(sumCost);
+
+      const elTotCostSub = document.getElementById('sim_kpi_coste_stock_sub');
+      if (elTotCostSub) elTotCostSub.innerText = `${selCount} SKUs &bull; ${fmtNum(sumExQ)} L/Kg`;
+
+      const elDioTot = document.getElementById('sim_kpi_dio_total_saving');
+      if (elDioTot) elDioTot.innerText = `-${dioSavingDays.toFixed(2)} días`;
+
+      const elDioTotSub = document.getElementById('sim_kpi_dio_total_saving_sub');
+      if (elDioTotSub) elDioTotSub.innerHTML = `Libera <strong>${sumPal.toFixed(1)} palets</strong>`;
+
+      const elCashIn = document.getElementById('sim_kpi_cash_in');
+      if (elCashIn) elCashIn.innerText = fmtCurr(sumRev);
+
+      const elMargenBruto = document.getElementById('sim_kpi_margen_bruto');
+      if (elMargenBruto) elMargenBruto.innerText = `+${fmtCurr(sumRev - sumCost)}`;
+
+      // Actualizar 4 Tarjetas de Costes Comerciales
+      const elDto = document.getElementById('sim_kpi_dto');
+      if (elDto) elDto.innerText = `-${fmtCurr(sumDto)}`;
+
+      const elMerch = document.getElementById('sim_kpi_merch');
+      if (elMerch) elMerch.innerText = `-${fmtCurr(sumMerch)}`;
+
+      const elFin = document.getElementById('sim_kpi_fin');
+      if (elFin) elFin.innerText = `-${fmtCurr(sumFin)}`;
+
+      const elMargenReal = document.getElementById('sim_kpi_margen_real');
+      if (elMargenReal) elMargenReal.innerText = `+${fmtCurr(sumMar)}`;
+
+      const elMargenRealSub = document.getElementById('sim_kpi_margen_real_sub');
+      const mbRealPct = sumRev > 0 ? (sumMar / sumRev * 100).toFixed(1) : '0.0';
+      if (elMargenRealSub) elMargenRealSub.innerHTML = `<strong>${mbRealPct}% Margen Real</strong> neto`;
+
+      // Actualizar Pie de Tabla (tfoot)
+      const tfoot = document.getElementById('sugTableFoot');
+      if (tfoot) {
+        const avgMb = sumRev > 0 ? (sumMar / sumRev * 100) : 0;
+        tfoot.innerHTML = `
+          <tr style="background:rgba(15,23,42,0.96);font-weight:800;border-top:2px solid #10b981;">
+            <td colspan="4" style="color:#f8fafc;font-size:0.85rem;padding:0.75rem 0.6rem;">
+              SIMULACIÓN ACTIVA: ${selCount} SKUs Seleccionados (${fmtCurr(sumCost)})
+            </td>
+            <td class="text-right" style="color:#ef4444;">${fmtNum(sumNmQ)}</td>
+            <td class="text-right" style="color:#fbbf24;">${fmtNum(sumSmQ)}</td>
+            <td class="text-right" style="color:#f8fafc;font-size:0.92rem;">${fmtNum(sumExQ)} L/Kg</td>
+            <td class="text-right" style="color:#f87171;font-size:0.92rem;">${fmtCurr(sumCost)}</td>
+            <td class="text-right" style="color:#34d399;font-size:0.85rem;white-space:nowrap;">
+              -${dioSavingDays.toFixed(2)}d DIO<br>
+              <span style="color:#fbbf24;font-size:0.72rem;">+${dsoImpactDays.toFixed(2)}d DSO</span>
+            </td>
+            <td style="text-align:center;color:var(--muted);font-size:0.75rem;">—</td>
+            <td style="color:#fbbf24;font-size:0.74rem;">
+              Dto: -${fmtCurr(sumDto)}<br>
+              Merch: -${fmtCurr(sumMerch)}<br>
+              Fin: -${fmtCurr(sumFin)}
+            </td>
+            <td class="text-right" style="color:#38bdf8;font-size:0.92rem;white-space:nowrap;">
+              ${fmtCurr(sumRev)}<br>
+              <span style="font-size:0.78rem;color:#34d399;">+${fmtCurr(sumMar)} (${avgMb.toFixed(1)}% MB)</span><br>
+              <span style="font-size:0.7rem;color:#a5b4fc;">+${fmtCurr(sumGain)} fin.</span>
+            </td>
+            <td colspan="2" style="color:#6ee7b7;font-size:0.75rem;line-height:1.4;">
+              Liberación neta de capital circulante (CCC neto: -${cccNetImpact.toFixed(2)}d | Ratio ${arbitrageRatio}x) &bull; ${sumPal.toFixed(1)} palets liberados
+            </td>
+          </tr>
+        `;
+      }
+
+      // Actualizar Master Checkbox de la vista
+      const chkMaster = document.getElementById('chkSugMaster');
+      if (chkMaster) {
+        const tbody = document.getElementById('sugTableBody');
+        if (tbody) {
+          const visibleCheckboxes = tbody.querySelectorAll('.sug-sku-chk');
+          if (visibleCheckboxes.length > 0) {
+            const visibleChecked = Array.from(visibleCheckboxes).filter(c => c.checked).length;
+            chkMaster.checked = (visibleChecked === visibleCheckboxes.length);
+            chkMaster.indeterminate = (visibleChecked > 0 && visibleChecked < visibleCheckboxes.length);
+          }
+        }
+      }
+    }
+
+    function renderSugTableContent() {
+      const tbody = document.getElementById('sugTableBody');
+      const countBadge = document.getElementById('sugFilteredCountBadge');
+      if (!tbody || !productionData || !productionData.stock_suggestions) return;
+
+      const allItems = productionData.stock_suggestions.items || [];
+      if (!sugSelectionInitialized && allItems.length > 0) {
+        sugSelectedSkus = new Set(allItems.map(x => x.base_sku));
+        sugSelectionInitialized = true;
+      }
+
+      let filtered = allItems;
+
+      if (sugPlanFilter === 'NOMOVER_ONLY') {
+        filtered = allItems.filter(x => x.is_nomover);
+      } else if (sugPlanFilter === 'SLOWMOVER_ONLY') {
+        filtered = allItems.filter(x => !x.is_nomover && x.slow_mover_qty > 0);
+      } else if (sugPlanFilter.startsWith('PLAN ')) {
+        filtered = allItems.filter(x => x.plan_id === sugPlanFilter);
+      }
+
+      if (sugSearchQuery.trim() !== '') {
+        const q = sugSearchQuery.toLowerCase();
+        filtered = filtered.filter(x =>
+          (x.base_sku || '').toLowerCase().includes(q) ||
+          (x.desc || '').toLowerCase().includes(q) ||
+          (x.clientes_diana || '').toLowerCase().includes(q) ||
+          (x.plan_name || '').toLowerCase().includes(q) ||
+          (x.granel_code || '').toLowerCase().includes(q) ||
+          (x.incentivos_adicionales || '').toLowerCase().includes(q)
+        );
+      }
+
+      if (countBadge) {
+        countBadge.innerText = `${filtered.length} SKUs en vista activa`;
+      }
+
+      const planColors = {
+        'PLAN 1': { bg: 'rgba(56,189,248,0.16)', bd: 'rgba(56,189,248,0.45)', fg: '#38bdf8', icon: '🌍' },
+        'PLAN 2': { bg: 'rgba(168,85,247,0.16)', bd: 'rgba(168,85,247,0.45)', fg: '#c084fc', icon: '🔄' },
+        'PLAN 3': { bg: 'rgba(16,185,129,0.16)', bd: 'rgba(16,185,129,0.45)', fg: '#34d399', icon: '🎁' },
+        'PLAN 4': { bg: 'rgba(245,158,11,0.16)', bd: 'rgba(245,158,11,0.45)', fg: '#fbbf24', icon: '🚀' },
+        'PLAN 5': { bg: 'rgba(239,68,68,0.16)', bd: 'rgba(239,68,68,0.45)', fg: '#f87171', icon: '⚗️' }
+      };
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="14" style="text-align:center;padding:2.5rem;color:var(--muted);">No se encontraron referencias para el filtro o búsqueda seleccionados.</td></tr>`;
+      } else {
+        tbody.innerHTML = filtered.map(it => {
+          const pc = planColors[it.plan_id] || planColors['PLAN 3'];
+          const isSelected = sugSelectedSkus.has(it.base_sku);
+          const segBadge = it.is_nomover
+            ? `<span class="tab-badge" style="background:rgba(239,68,68,0.2);color:#f87171;border:1px solid rgba(239,68,68,0.45);font-size:0.68rem;font-weight:800;">🔴 NoMover</span>`
+            : `<span class="tab-badge" style="background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.45);font-size:0.68rem;font-weight:700;">🟡 SlowMover</span>`;
+
+          return `
+            <tr id="sug_row_${it.base_sku}" style="opacity:${isSelected ? '1' : '0.4'};transition:opacity 0.2s;">
+              <td style="text-align:center;width:42px;">
+                <input type="checkbox" class="sug-sku-chk" data-sku="${it.base_sku}" ${isSelected ? 'checked' : ''} onchange="handleSugToggleSku('${it.base_sku}', this.checked)">
+              </td>
+              <td style="white-space:nowrap;">
+                <span class="tab-badge" style="background:${pc.bg};color:${pc.fg};border:1px solid ${pc.bd};font-size:0.7rem;font-weight:800;padding:0.2rem 0.5rem;">
+                  ${pc.icon} ${it.plan_id}
+                </span>
+                <div style="font-size:0.68rem;color:#94a3b8;margin-top:0.2rem;max-width:155px;white-space:normal;line-height:1.25;">
+                  ${(it.plan_name || '').replace(/^P\d:\s*/, '')}
+                </div>
+              </td>
+              <td style="font-family:monospace;font-weight:800;color:#38bdf8;cursor:pointer;" onclick="openProdSkuModal('${it.base_sku}')" title="Ver evolución mensual">
+                ${it.base_sku}
+                <div style="font-size:0.66rem;color:var(--muted);font-family:sans-serif;font-weight:normal;">Granel: ${it.granel_code}</div>
+              </td>
+              <td>
+                <div style="font-weight:700;color:#f8fafc;">${it.desc}</div>
+                <div style="font-size:0.72rem;color:#94a3b8;display:flex;align-items:center;gap:0.4rem;margin-top:0.15rem;">
+                  <span>📦 ${it.formato}</span>
+                  ${segBadge}
+                </div>
+              </td>
+              <td class="text-right" style="font-weight:800;color:${it.no_mover_qty > 0 ? '#ef4444' : 'var(--muted)'};">
+                ${fmtNum(it.no_mover_qty)}
+              </td>
+              <td class="text-right" style="font-weight:700;color:${it.slow_mover_qty > 0 ? '#fbbf24' : 'var(--muted)'};">
+                ${fmtNum(it.slow_mover_qty)}
+              </td>
+              <td class="text-right" style="font-weight:800;color:#f8fafc;">
+                ${fmtNum(it.exceso_total_qty)}
+                <div style="font-size:0.68rem;color:#94a3b8;font-weight:normal;">(${fmtNum(it.exceso_envases)} env.)</div>
+              </td>
+              <td class="text-right" style="font-weight:800;color:${it.no_mover_eur > 0 ? '#f87171' : '#fbbf24'};">
+                ${fmtCurr(it.exceso_total_eur)}
+                <div style="font-size:0.68rem;color:#94a3b8;font-weight:normal;">Coste: ${it.coste_unit.toFixed(2)} €/u</div>
+              </td>
+              <td class="text-right" style="white-space:nowrap;">
+                <div style="font-weight:800;color:#34d399;">-${it.dio_saving_days.toFixed(2)} d</div>
+                <div style="font-size:0.68rem;color:#fbbf24;font-weight:700;">+${(it.dso_impact_empresa_days || 0).toFixed(3)}d DSO</div>
+                <div style="font-size:0.66rem;color:#38bdf8;">${it.palets_liberados.toFixed(1)} palets</div>
+              </td>
+              <td class="text-right" style="white-space:nowrap;">
+                <div style="font-size:0.72rem;color:#94a3b8;text-decoration:${it.dto_pct > 0 ? 'line-through' : 'none'};">Tarifa: ${it.pvp_historico.toFixed(2)} €</div>
+                <div style="font-weight:800;color:#fbbf24;font-size:0.88rem;">Oferta: ${it.pvp_objetivo.toFixed(2)} €</div>
+                <div style="font-size:0.62rem;color:#94a3b8;max-width:120px;margin-left:auto;white-space:normal;line-height:1.15;margin-top:0.15rem;" title="${it.origen_pvp || ''}">
+                  ${(it.origen_pvp || 'Tarifa').replace(' (LTM)', '').replace(' (Previsión)', '')}
+                </div>
+              </td>
+              <td style="min-width:185px;line-height:1.35;">
+                <div style="font-size:0.74rem;color:#fbbf24;font-weight:700;">Dto: -${fmtCurr(it.coste_dto_eur || 0)} (${it.dto_pct.toFixed(0)}%)</div>
+                ${(it.coste_rappel_eur || 0) > 0 ? `<div style="font-size:0.72rem;color:#f472b6;font-weight:700;">Rappel 5%: -${fmtCurr(it.coste_rappel_eur)}</div>` : ''}
+                <div style="font-size:0.72rem;color:#c084fc;">Merch/Muestras: -${fmtCurr(it.coste_merch_eur || 0)}</div>
+                <div style="font-size:0.72rem;color:#38bdf8;">Fin (+${it.dias_aplazamiento_extra || 0}d): -${fmtCurr(it.coste_fin_pago_eur || 0)}</div>
+                <div style="font-size:0.7rem;color:#f87171;font-weight:800;border-top:1px solid rgba(255,255,255,0.08);margin-top:0.15rem;padding-top:0.15rem;">
+                  Total Costes: -${fmtCurr(it.coste_comercial_total_eur || 0)}
+                </div>
+              </td>
+              <td class="text-right" style="font-weight:800;color:#38bdf8;white-space:nowrap;">
+                ${fmtCurr(it.ingreso_neto_eur)}
+                <div style="font-size:0.72rem;color:#34d399;font-weight:800;">+${fmtCurr(it.margen_neto_eur)} (${it.margen_neto_pct.toFixed(0)}%)</div>
+                <div style="font-size:0.64rem;color:#94a3b8;font-weight:normal;">Margen tras costes</div>
+                <div style="font-size:0.66rem;color:#a5b4fc;font-weight:600;">+${fmtCurr(it.net_financial_gain_eur || 0)} fin. neto</div>
+              </td>
+              <td style="min-width:250px;max-width:310px;line-height:1.35;">
+                <div style="font-weight:700;color:#f8fafc;font-size:0.77rem;">🎯 ${it.clientes_diana}</div>
+                <div style="font-size:0.7rem;color:#94a3b8;margin-top:0.2rem;">💡 <em>${it.motivo_coherente}</em></div>
+              </td>
+              <td style="min-width:250px;max-width:310px;line-height:1.35;">
+                <div style="font-weight:700;color:#c084fc;font-size:0.75rem;">💳 ${it.condiciones_pago}</div>
+                <div style="font-size:0.72rem;color:#cbd5e1;margin-top:0.2rem;">🎁 ${it.incentivos_adicionales}</div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      updateSugSimulation();
+      initDoubleHorizontalScroll('sugTopScroll', 'sugTableWrapper', 'sugTable', 'sugTopScrollDummy');
+    }
+
+    function renderProdSugerenciasSubtab(container) {
+      const sug = (productionData && productionData.stock_suggestions) ? productionData.stock_suggestions : null;
+      if (!sug) {
+        container.innerHTML = `<div class="mrp-section">${renderProdSubtabsNavbar()}<div style="padding:3rem;text-align:center;color:var(--muted);">No hay datos de sugerencias de stock disponibles.</div></div>`;
+        return;
+      }
+
+      const k = sug.kpis || {};
+      const plans = sug.plans || [];
+      const items = sug.items || [];
+
+      if (!sugSelectionInitialized && items.length > 0) {
+        sugSelectedSkus = new Set(items.map(x => x.base_sku));
+        sugSelectionInitialized = true;
+      }
+
+      const planMetaIcons = {
+        'PLAN 1': { icon: '🌍', color: '#38bdf8', border: 'rgba(56,189,248,0.45)', bg: 'rgba(56,189,248,0.08)' },
+        'PLAN 2': { icon: '🔄', color: '#c084fc', border: 'rgba(168,85,247,0.45)', bg: 'rgba(168,85,247,0.08)' },
+        'PLAN 3': { icon: '🎁', color: '#34d399', border: 'rgba(16,185,129,0.45)', bg: 'rgba(16,185,129,0.08)' },
+        'PLAN 4': { icon: '🚀', color: '#fbbf24', border: 'rgba(245,158,11,0.45)', bg: 'rgba(245,158,11,0.08)' },
+        'PLAN 5': { icon: '⚗️', color: '#f87171', border: 'rgba(239,68,68,0.45)', bg: 'rgba(239,68,68,0.08)' }
+      };
+
+      const plansCardsHtml = plans.map(p => {
+        const pm = planMetaIcons[p.plan_id] || planMetaIcons['PLAN 3'];
+        const isActive = (sugPlanFilter === p.plan_id);
+        return `
+          <div onclick="handleSugPlanFilter('${isActive ? 'ALL' : p.plan_id}')"
+               style="background:${isActive ? pm.bg.replace('0.08', '0.22') : 'rgba(15,23,42,0.85)'};border:2px solid ${isActive ? pm.color : 'rgba(51,65,85,0.85)'};border-top:4px solid ${pm.color};border-radius:var(--radius-md);padding:1rem 1.1rem;cursor:pointer;transition:all 0.18s ease;display:flex;flex-direction:column;justify-content:space-between;gap:0.65rem;box-shadow:${isActive ? '0 8px 20px rgba(0,0,0,0.4)' : 'none'};"
+               title="Click para filtrar los ${p.skus_count} SKUs de este Plan">
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">
+                <span style="font-size:0.75rem;font-weight:800;color:${pm.color};text-transform:uppercase;letter-spacing:0.05em;">
+                  ${pm.icon} ${p.plan_id} &bull; ${p.skus_count} SKUs (${p.nomover_skus_count} NM)
+                </span>
+                <span class="tab-badge" style="background:rgba(16,185,129,0.18);color:#34d399;border:1px solid rgba(16,185,129,0.4);font-size:0.7rem;font-weight:800;">
+                  -${p.dio_saving_days.toFixed(1)}d DIO
+                </span>
+              </div>
+              <div style="font-size:0.95rem;font-weight:800;color:#f8fafc;line-height:1.3;margin-bottom:0.4rem;">
+                ${p.title}
+              </div>
+              <div style="font-size:0.76rem;color:#cbd5e1;line-height:1.4;margin-bottom:0.5rem;">
+                ${p.rationale}
+              </div>
+            </div>
+
+            <div style="background:rgba(9,13,22,0.65);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:0.6rem 0.75rem;font-size:0.74rem;display:flex;flex-direction:column;gap:0.3rem;">
+              <div style="display:flex;justify-content:space-between;">
+                <span style="color:#94a3b8;">Volumen / Palets:</span>
+                <strong style="color:#f8fafc;">${fmtNum(p.total_qty)} L/Kg (${p.palets_liberados.toFixed(1)} palets)</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="color:#94a3b8;">Coste Inmovilizado:</span>
+                <strong style="color:#f87171;">${fmtCurr(p.total_cost_eur)} (NM: ${fmtCurr(p.nomover_cost_eur)})</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="color:#94a3b8;">Cash-In Neto / Margen Real:</span>
+                <strong style="color:#34d399;">${fmtCurr(p.ingreso_neto_eur)} (+${fmtCurr(p.margen_neto_eur)} | ${p.margen_neto_pct.toFixed(1)}% MB)</strong>
+              </div>
+              <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:0.3rem;margin-top:0.15rem;display:flex;justify-content:space-between;font-size:0.72rem;">
+                <span style="color:#fde68a;">Descuento Comercial:</span>
+                <strong style="color:#fbbf24;">-${fmtCurr(p.coste_dto_eur || 0)}</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.72rem;">
+                <span style="color:#c084fc;">Merchandising & Ensayos:</span>
+                <strong style="color:#c084fc;">-${fmtCurr(p.coste_merch_eur || 0)}</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.72rem;">
+                <span style="color:#38bdf8;">Coste Fin. Aplazamiento (+${p.dias_extra || 0}d):</span>
+                <strong style="color:#38bdf8;">-${fmtCurr(p.coste_fin_pago_eur || 0)}</strong>
+              </div>
+              <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:0.3rem;margin-top:0.15rem;display:flex;justify-content:space-between;font-size:0.72rem;background:rgba(16,185,129,0.12);padding:0.25rem 0.4rem;border-radius:4px;">
+                <span style="color:#34d399;font-weight:700;">Arbitraje DIO vs DSO:</span>
+                <strong style="color:#34d399;">DIO -${p.dio_saving_days.toFixed(1)}d vs DSO +${(p.dso_impact_days || 0).toFixed(2)}d (Ratio: ${p.ratio_dio_vs_dso || 0}x)</strong>
+              </div>
+              <div style="font-size:0.7rem;color:#cbd5e1;line-height:1.35;margin-top:0.2rem;font-style:italic;">
+                💡 ${p.dio_vs_dso_analysis || ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="mrp-section">
+          ${renderProdSubtabsNavbar()}
+
+          <!-- BANNER EJECUTIVO DIRECCIÓN GENERAL (CEO) -->
+          <div style="background:linear-gradient(135deg, rgba(6,78,59,0.45) 0%, rgba(15,23,42,0.95) 100%);border:1px solid rgba(16,185,129,0.4);border-left:5px solid #10b981;border-radius:var(--radius-md);padding:1.15rem 1.4rem;margin-bottom:1.15rem;box-shadow:0 10px 25px -5px rgba(0,0,0,0.35);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+              <div style="max-width:860px;">
+                <div style="display:inline-flex;align-items:center;gap:0.45rem;background:rgba(16,185,129,0.18);color:#34d399;border:1px solid rgba(16,185,129,0.4);padding:0.2rem 0.65rem;border-radius:999px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.45rem;">
+                  💡 Propuesta Ejecutiva Dirección General &bull; Optimización de Working Capital y DIO
+                </div>
+                <h2 style="font-size:1.35rem;font-weight:800;color:#ffffff;margin:0 0 0.35rem 0;">
+                  Plan Maestro de Salida de Stock Sobrante (NoMovers & SlowMovers) y Reducción de DIO
+                </h2>
+                <p style="color:#cbd5e1;font-size:0.84rem;line-height:1.5;margin:0;">
+                  En el <strong>Balance Oficial de Codiagro (cierre Septiembre 2026)</strong> el <strong>Inventario Total es de ${fmtCurr(k.inventario_total_base_eur || 1323814)}</strong>, el Coste de Ventas (COGS LTM) es de <strong>${fmtCurr(k.cogs_ltm_total_eur || 4935072)}</strong> y las Ventas Netas LTM alcanzan <strong>${fmtCurr(k.ventas_netas_ltm_eur || 13780257)}</strong>.
+                  Esto sitúa el <strong>DIO Oficial Base de la Compañía en ${k.dio_base_total_days || 97.9} días (~98 días)</strong>, el <strong>DSO en ${k.dso_base_total_days || 103.5} días</strong>, el <strong>DPO en ${k.dpo_base_total_days || 64.4} días</strong> y el <strong>Ciclo de Efectivo (CCC) en ${k.ccc_base_total_days || 137.0} días</strong> (el stock en almacén de Producto Terminado planta representa ${k.dio_actual_pt_days}d).
+                  A través de este simulador interactivo, puede <strong>seleccionar y deseleccionar cualquier SKU o grupo</strong> para comprobar en tiempo real cómo la salida de stock inmovilizado rebaja el DIO de balance, acelera la rotación de nave y genera tesorería neta sin deteriorar el margen ni el plazo de cobro.
+                </p>
+              </div>
+              <div style="background:rgba(15,23,42,0.9);border:1px solid #334155;border-radius:var(--radius-sm);padding:0.85rem 1.1rem;min-width:260px;">
+                <div style="font-size:0.72rem;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem;">
+                  🎯 Métricas Oficiales de Balance
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.25rem;">
+                  <span style="color:#cbd5e1;">DIO Balance Oficial:</span>
+                  <strong style="color:#f87171;">${k.dio_base_total_days || 97.9} días (~98d)</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.25rem;">
+                  <span style="color:#cbd5e1;">DIO Post Simulado:</span>
+                  <strong id="sim_banner_dio_post" style="color:#34d399;">${k.dio_post_total_days} días (-${k.dio_saving_total_days}d)</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.25rem;">
+                  <span style="color:#cbd5e1;">DSO Post Simulado:</span>
+                  <strong id="sim_banner_dso_post" style="color:#fbbf24;">${k.dso_post_total_days} días (+${k.dso_impact_total_days}d)</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.25rem;">
+                  <span style="color:#cbd5e1;">CCC Post Simulado:</span>
+                  <strong id="sim_banner_ccc_post" style="color:#6ee7b7;">${k.ccc_post_total_days} días (${k.ccc_net_impact_days}d)</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.82rem;border-top:1px solid #334155;padding-top:0.3rem;margin-top:0.2rem;">
+                  <span style="color:#38bdf8;font-weight:700;">Inv. Total Post:</span>
+                  <strong id="sim_banner_inv_post" style="color:#38bdf8;font-size:0.92rem;">${fmtCurr((k.inventario_total_base_eur || 1323814) - k.exceso_total_cost_eur)}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DIAGNÓSTICO FINANCIERO DE ARBITRAJE WORKING CAPITAL: DIO vs. DSO (CASH CONVERSION CYCLE) -->
+          <div style="background:rgba(15,23,42,0.95);border:1px solid rgba(56,189,248,0.3);border-left:5px solid #38bdf8;border-radius:var(--radius-md);padding:1.1rem 1.35rem;margin-bottom:1.15rem;box-shadow:0 8px 20px -4px rgba(0,0,0,0.4);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1.1rem;">
+              <div style="max-width:810px;">
+                <div style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.35);padding:0.2rem 0.6rem;border-radius:999px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem;">
+                  ⚖️ Arbitraje Financiero de Circulante &bull; Demostración Rigurosa DIO vs. DSO
+                </div>
+                <h3 style="font-size:1.15rem;font-weight:800;color:#ffffff;margin:0 0 0.35rem 0;">
+                  Por qué la concesión de crédito (+30 a +60 días) NO opaca la reducción de inventario
+                </h3>
+                <p style="color:#cbd5e1;font-size:0.82rem;line-height:1.5;margin:0;">
+                  Al liquidar el stock inmovilizado seleccionado, la empresa reduce su Inventario Total en balance (${fmtCurr(k.exceso_total_cost_eur)} a coste), generando una rebaja directa en el <strong>DIO de la compañía de -${k.dio_saving_total_days} días</strong> (de ${k.dio_base_total_days || 97.9}d a ${k.dio_post_total_days}d).
+                  El aplazamiento de cobro ofrecido a clientes (+30 a +60 días) solo diluye el <strong>DSO global en +${k.dso_impact_total_days} días</strong> sobre los ${fmtCurr(k.ventas_netas_ltm_eur || 13780257)} de ventas netas, lo que arroja un <strong>Ratio de Arbitraje de ${k.ratio_dio_vs_dso} a 1</strong> a favor de la empresa.
+                  El Ciclo de Conversión de Caja (CCC) se acorta netamente en <strong>${k.ccc_net_impact_days} días</strong>.
+                  Asimismo, el ahorro en costes de tenencia y rotura de stock (${k.tasa_holding_anual_pct}% anual = <strong>+${fmtCurr(k.holding_cost_saved_total_eur)}</strong>) supera con creces el coste financiero de la financiación concedida (${k.tasa_financiera_anual_pct}% anual = <strong>-${fmtCurr(k.coste_financiero_aplazamiento_total_eur)}</strong>), generando una <strong>ganancia financiera neta de +${fmtCurr(k.net_financial_gain_total_eur)}</strong>.
+                </p>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:0.6rem;min-width:280px;">
+                <div style="background:rgba(2,6,23,0.7);padding:0.65rem 0.85rem;border-radius:6px;border:1px solid #334155;text-align:center;">
+                  <div style="font-size:0.7rem;color:#94a3b8;font-weight:700;text-transform:uppercase;">Ahorro DIO Empresa</div>
+                  <div id="sim_kpi_ahorro_dio" style="font-size:1.35rem;font-weight:800;color:#34d399;">-${k.dio_saving_total_days} <span style="font-size:0.75rem;">días</span></div>
+                  <div id="sim_kpi_ahorro_dio_sub" style="font-size:0.68rem;color:#6ee7b7;">-${fmtCurr(k.exceso_total_cost_eur)} stock balance</div>
+                </div>
+                <div style="background:rgba(2,6,23,0.7);padding:0.65rem 0.85rem;border-radius:6px;border:1px solid #334155;text-align:center;">
+                  <div style="font-size:0.7rem;color:#94a3b8;font-weight:700;text-transform:uppercase;">Impacto DSO Global</div>
+                  <div id="sim_kpi_impacto_dso" style="font-size:1.35rem;font-weight:800;color:#fbbf24;">+${k.dso_impact_total_days} <span style="font-size:0.75rem;">días</span></div>
+                  <div id="sim_kpi_impacto_dso_sub" style="font-size:0.68rem;color:#fde68a;">+30 a +60d diferido</div>
+                </div>
+                <div style="background:rgba(2,6,23,0.7);padding:0.65rem 0.85rem;border-radius:6px;border:1px solid rgba(16,185,129,0.3);text-align:center;">
+                  <div style="font-size:0.7rem;color:#34d399;font-weight:700;text-transform:uppercase;">Ciclo Neto (ΔCCC)</div>
+                  <div id="sim_kpi_ccc_neto" style="font-size:1.35rem;font-weight:800;color:#10b981;">${k.ccc_net_impact_days} <span style="font-size:0.75rem;">días</span></div>
+                  <div id="sim_kpi_ccc_neto_sub" style="font-size:0.68rem;color:#a7f3d0;">Ratio: ${k.ratio_dio_vs_dso}x a favor</div>
+                </div>
+                <div style="background:rgba(2,6,23,0.7);padding:0.65rem 0.85rem;border-radius:6px;border:1px solid rgba(56,189,248,0.3);text-align:center;">
+                  <div style="font-size:0.7rem;color:#38bdf8;font-weight:700;text-transform:uppercase;">Ganancia Fin. Neta</div>
+                  <div id="sim_kpi_ganancia_financiera" style="font-size:1.35rem;font-weight:800;color:#38bdf8;">+${fmtCurr(k.net_financial_gain_total_eur)}</div>
+                  <div style="font-size:0.68rem;color:#93c5fd;">Holding vs Financiación</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6 TARJETAS KPI GENERALES -->
+          <div class="mrp-kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));margin-bottom:0.9rem;">
+            <div class="mrp-kpi-card urgent" style="cursor:pointer;" onclick="handleSugPresetSelection('NOMOVER')">
+              <div style="font-size:0.76rem;font-weight:800;color:#f87171;text-transform:uppercase;">
+                🔴 Coste Stock NoMovers (&gt;6M)
+              </div>
+              <div id="sim_kpi_nomover_cost" style="font-size:1.65rem;font-weight:800;color:#ef4444;line-height:1.2;margin:0.2rem 0;">
+                ${fmtCurr(k.nomover_cost_eur)}
+              </div>
+              <div id="sim_kpi_nomover_cost_sub" style="font-size:0.73rem;color:#fca5a5;font-weight:600;">
+                ${k.nomover_skus} SKUs &bull; ${fmtNum(k.nomover_qty)} L/Kg sin rotación
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card urgent" style="cursor:pointer;" onclick="handleSugPresetSelection('NOMOVER')">
+              <div style="font-size:0.76rem;font-weight:800;color:#fbbf24;text-transform:uppercase;">
+                ⏱️ Ahorro DIO Solo NoMovers
+              </div>
+              <div id="sim_kpi_dio_nm" style="font-size:1.65rem;font-weight:800;color:#fbbf24;line-height:1.2;margin:0.2rem 0;">
+                -${k.dio_saving_nm_days} <span style="font-size:0.9rem;">días</span>
+              </div>
+              <div style="font-size:0.73rem;color:#fde68a;font-weight:600;">
+                Baja DIO Balance a <strong>${k.dio_post_nm_days} días</strong>
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card warning" style="cursor:pointer;" onclick="handleSugPresetSelection('ALL')">
+              <div style="font-size:0.76rem;font-weight:800;color:#38bdf8;text-transform:uppercase;">
+                📦 Total Exceso Seleccionado
+              </div>
+              <div id="sim_kpi_coste_stock" style="font-size:1.65rem;font-weight:800;color:#f8fafc;line-height:1.2;margin:0.2rem 0;">
+                ${fmtCurr(k.exceso_total_cost_eur)}
+              </div>
+              <div id="sim_kpi_coste_stock_sub" style="font-size:0.73rem;color:#93c5fd;font-weight:600;">
+                ${k.total_skus_accionables} SKUs &bull; ${fmtNum(k.exceso_total_qty)} L/Kg
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card success" style="cursor:pointer;" onclick="handleSugPresetSelection('ALL')">
+              <div style="font-size:0.76rem;font-weight:800;color:#34d399;text-transform:uppercase;">
+                📉 Ahorro DIO Total + Espacio
+              </div>
+              <div id="sim_kpi_dio_total_saving" style="font-size:1.65rem;font-weight:800;color:#10b981;line-height:1.2;margin:0.2rem 0;">
+                -${k.dio_saving_total_days} <span style="font-size:0.9rem;">días</span>
+              </div>
+              <div id="sim_kpi_dio_total_saving_sub" style="font-size:0.73rem;color:#6ee7b7;font-weight:600;">
+                Libera <strong>${k.palets_liberados_total} palets</strong> (de ${k.palets_planta_sop} en S&OP)
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card stock" style="cursor:pointer;" onclick="handleSugPresetSelection('ALL')">
+              <div style="font-size:0.76rem;font-weight:800;color:#38bdf8;text-transform:uppercase;">
+                💶 Generación de Caja (Cash-In)
+              </div>
+              <div id="sim_kpi_cash_in" style="font-size:1.65rem;font-weight:800;color:#38bdf8;line-height:1.2;margin:0.2rem 0;">
+                ${fmtCurr(k.ingreso_neto_total_eur)}
+              </div>
+              <div style="font-size:0.73rem;color:#cbd5e1;font-weight:600;">
+                Solo NoMovers generan: <strong>${fmtCurr(k.ingreso_nm_eur)}</strong>
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card success" style="cursor:pointer;" onclick="handleSugPresetSelection('ALL')">
+              <div style="font-size:0.76rem;font-weight:800;color:#c084fc;text-transform:uppercase;">
+                💎 Margen Bruto Inicial
+              </div>
+              <div id="sim_kpi_margen_bruto" style="font-size:1.65rem;font-weight:800;color:#c084fc;line-height:1.2;margin:0.2rem 0;">
+                +${fmtCurr(k.margen_bruto_total_eur || (k.ingreso_neto_total_eur - k.exceso_total_cost_eur))}
+              </div>
+              <div style="font-size:0.73rem;color:#e9d5ff;font-weight:600;">
+                Margen pre-costes comerciales
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 TARJETAS: DESGLOSE EXHAUSTIVO DE COSTES COMERCIALES Y MARGEN NETO REAL -->
+          <div class="mrp-kpi-grid" style="grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));margin-bottom:1.15rem;">
+            <div class="mrp-kpi-card warning" style="border-left:4px solid #fbbf24;background:rgba(245,158,11,0.06);">
+              <div style="font-size:0.76rem;font-weight:800;color:#fbbf24;text-transform:uppercase;">
+                🏷️ Coste Descuentos Comerciales
+              </div>
+              <div id="sim_kpi_dto" style="font-size:1.55rem;font-weight:800;color:#fbbf24;line-height:1.2;margin:0.2rem 0;">
+                -${fmtCurr(k.coste_descuentos_total_eur)}
+              </div>
+              <div style="font-size:0.73rem;color:#fde68a;font-weight:600;">
+                Erosión facial controlada vs PVP Tarifa
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card" style="border-left:4px solid #c084fc;background:rgba(168,85,247,0.06);">
+              <div style="font-size:0.76rem;font-weight:800;color:#c084fc;text-transform:uppercase;">
+                🎁 Coste Merchandising y Ensayos
+              </div>
+              <div id="sim_kpi_merch" style="font-size:1.55rem;font-weight:800;color:#c084fc;line-height:1.2;margin:0.2rem 0;">
+                -${fmtCurr(k.coste_merchandising_total_eur)}
+              </div>
+              <div style="font-size:0.73rem;color:#e9d5ff;font-weight:600;">
+                Incentivos no-precio, muestras y material campo
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card stock" style="border-left:4px solid #38bdf8;background:rgba(56,189,248,0.06);">
+              <div style="font-size:0.76rem;font-weight:800;color:#38bdf8;text-transform:uppercase;">
+                💳 Coste Fin. Pago Aplazado (5,5%)
+              </div>
+              <div id="sim_kpi_fin" style="font-size:1.55rem;font-weight:800;color:#38bdf8;line-height:1.2;margin:0.2rem 0;">
+                -${fmtCurr(k.coste_financiero_aplazamiento_total_eur)}
+              </div>
+              <div style="font-size:0.73rem;color:#93c5fd;font-weight:600;">
+                Interés por +30 a +60 días concedidos a clientes
+              </div>
+            </div>
+
+            <div class="mrp-kpi-card success" style="border-left:4px solid #10b981;background:rgba(16,185,129,0.08);">
+              <div style="font-size:0.76rem;font-weight:800;color:#34d399;text-transform:uppercase;">
+                🏆 Margen Neto Real Post-Costes
+              </div>
+              <div id="sim_kpi_margen_real" style="font-size:1.55rem;font-weight:800;color:#10b981;line-height:1.2;margin:0.2rem 0;">
+                +${fmtCurr(k.margen_neto_total_eur)}
+              </div>
+              <div id="sim_kpi_margen_real_sub" style="font-size:0.73rem;color:#6ee7b7;font-weight:600;">
+                <strong>${k.margen_neto_pct}% Margen Real</strong> tras deducir dto, merch y fin.
+              </div>
+            </div>
+          </div>
+
+          <!-- BARRA DE SIMULACIÓN INTERACTIVA CEO (PRESETS Y CONTADOR) -->
+          <div style="background:rgba(15,23,42,0.85);border:1px solid #3b82f6;border-radius:var(--radius-md);padding:0.85rem 1.15rem;margin-bottom:1.15rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+            <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+              <span style="font-size:0.82rem;font-weight:800;color:#60a5fa;display:flex;align-items:center;gap:0.35rem;">
+                🎮 Simulador Dinámico CEO:
+              </span>
+              <button class="pill-btn" onclick="handleSugPresetSelection('ALL')" style="background:rgba(59,130,246,0.2);color:#93c5fd;border:1px solid rgba(59,130,246,0.5);font-size:0.75rem;font-weight:700;padding:0.3rem 0.75rem;">
+                ✓ Seleccionar Todos (${items.length})
+              </button>
+              <button class="pill-btn" onclick="handleSugPresetSelection('NOMOVER')" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.5);font-size:0.75rem;font-weight:700;padding:0.3rem 0.75rem;">
+                🔴 Solo NoMovers (${k.nomover_skus})
+              </button>
+              <button class="pill-btn" onclick="handleSugPresetSelection('SLOWMOVER')" style="background:rgba(245,158,11,0.2);color:#fde68a;border:1px solid rgba(245,158,11,0.5);font-size:0.75rem;font-weight:700;padding:0.3rem 0.75rem;">
+                🟡 Solo SlowMovers (${items.length - k.nomover_skus})
+              </button>
+              <button class="pill-btn" onclick="handleSugPresetSelection('NONE')" style="background:rgba(100,116,139,0.2);color:#cbd5e1;border:1px solid rgba(100,116,139,0.5);font-size:0.75rem;font-weight:700;padding:0.3rem 0.75rem;">
+                ✗ Deseleccionar Todos (0)
+              </button>
+            </div>
+            <div id="sugLiveSelectionSummary" style="font-size:0.82rem;font-weight:800;color:#34d399;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);padding:0.35rem 0.85rem;border-radius:6px;">
+              🎯 Calculando simulación...
+            </div>
+          </div>
+
+          <!-- LOS 5 PLAYBOOKS ESTRATÉGICOS (TARJETAS INTERACTIVAS) -->
+          <div style="margin-bottom:1.35rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+              <h3 style="font-size:1.05rem;font-weight:800;color:#f8fafc;margin:0;display:flex;align-items:center;gap:0.5rem;">
+                <span>🧭</span> Arquitecturas de Salida: Los 5 Planes de Choque (Click en un Plan para filtrar SKUs y Clientes)
+              </h3>
+              <span style="font-size:0.76rem;color:#94a3b8;">
+                Combinación de palancas de precio, bonificación en especie 8+2, plazos 90-120d, garantía de rotación y re-work en reactor
+              </span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(290px, 1fr));gap:0.9rem;">
+              ${plansCardsHtml}
+            </div>
+          </div>
+
+          <!-- BARRA DE FILTROS Y BUSCADOR DE LA MATRIZ SKU POR SKU -->
+          <div class="mrp-toolbar" style="margin-bottom:0.75rem;">
+            <div class="mrp-toolbar-left" style="flex-wrap:wrap;gap:0.4rem;">
+              <div class="filter-pills" style="margin:0;flex-wrap:wrap;">
+                <button class="pill-btn ${sugPlanFilter === 'ALL' ? 'active' : ''}" onclick="handleSugPlanFilter('ALL')">
+                  Todos (${items.length})
+                </button>
+                <button class="pill-btn ${sugPlanFilter === 'NOMOVER_ONLY' ? 'active' : ''}" onclick="handleSugPlanFilter('NOMOVER_ONLY')" style="color:${sugPlanFilter === 'NOMOVER_ONLY' ? '#fff' : '#f87171'};">
+                  🔴 Solo NoMovers (${k.nomover_skus})
+                </button>
+                <button class="pill-btn ${sugPlanFilter === 'SLOWMOVER_ONLY' ? 'active' : ''}" onclick="handleSugPlanFilter('SLOWMOVER_ONLY')" style="color:${sugPlanFilter === 'SLOWMOVER_ONLY' ? '#fff' : '#fbbf24'};">
+                  🟡 Solo SlowMovers (${items.length - k.nomover_skus})
+                </button>
+                <button class="pill-btn ${sugPlanFilter === 'PLAN 1' ? 'active' : ''}" onclick="handleSugPlanFilter('PLAN 1')" style="color:${sugPlanFilter === 'PLAN 1' ? '#fff' : '#38bdf8'};">
+                  🌍 P1 Export (25)
+                </button>
+                <button class="pill-btn ${sugPlanFilter === 'PLAN 2' ? 'active' : ''}" onclick="handleSugPlanFilter('PLAN 2')" style="color:${sugPlanFilter === 'PLAN 2' ? '#fff' : '#c084fc'};">
+                  🔄 P2 Switch Formato (9)
+                </button>
+                <button class="pill-btn ${sugPlanFilter === 'PLAN 3' ? 'active' : ''}" onclick="handleSugPlanFilter('PLAN 3')" style="color:${sugPlanFilter === 'PLAN 3' ? '#fff' : '#34d399'};">
+                  🎁 P3 Bundle 8+2 (19)
+                </button>
+                <button class="pill-btn ${sugPlanFilter === 'PLAN 4' ? 'active' : ''}" onclick="handleSugPlanFilter('PLAN 4')" style="color:${sugPlanFilter === 'PLAN 4' ? '#fff' : '#fbbf24'};">
+                  🚀 P4 Captación 120d (13)
+                </button>
+                <button class="pill-btn ${sugPlanFilter === 'PLAN 5' ? 'active' : ''}" onclick="handleSugPlanFilter('PLAN 5')" style="color:${sugPlanFilter === 'PLAN 5' ? '#fff' : '#f87171'};">
+                  ⚗️ P5 Re-work / Outlet (23)
+                </button>
+              </div>
+            </div>
+
+            <div class="mrp-toolbar-right" style="display:flex;align-items:center;gap:0.65rem;">
+              <span id="sugFilteredCountBadge" class="tab-badge badge-info" style="font-size:0.75rem;padding:0.3rem 0.65rem;">
+                ${items.length} SKUs en vista activa
+              </span>
+              <input type="text" id="sugSearchInput" class="search-input" placeholder="Buscar SKU, producto, cliente (ej. Bayer, Fitomurcia)..."
+                     value="${sugSearchQuery}" oninput="handleSugSearch(this.value)" style="width:290px;">
+            </div>
+          </div>
+
+          <!-- BARRA DESLIZADORA HORIZONTAL SUPERIOR (STICKY / FLOTANTE) -->
+          <div id="sugStickyScrollWrapper" style="position:sticky;top:68px;z-index:80;background:rgba(15,23,42,0.96);backdrop-filter:blur(10px);padding:0.45rem 0.85rem;margin-bottom:0.65rem;border:1px solid #3b82f6;border-radius:var(--radius-sm);box-shadow:0 6px 18px rgba(0,0,0,0.6);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;flex-wrap:wrap;gap:0.5rem;">
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                <span style="font-size:0.8rem;font-weight:800;color:#60a5fa;display:flex;align-items:center;gap:0.35rem;">
+                  <span>↔️</span> Deslizador Horizontal Superior:
+                </span>
+                <span style="font-size:0.74rem;color:#cbd5e1;">
+                  Arrastre el deslizador o use los botones para explorar las columnas derechas (Clientes Diana, Costes y Condiciones) sin bajar al fondo de la tabla.
+                </span>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.4rem;">
+                <button type="button" class="pill-btn" onclick="handleTableScrollStep('sugTableWrapper', -350)" style="padding:0.22rem 0.65rem;font-size:0.74rem;font-weight:700;background:rgba(59,130,246,0.22);color:#93c5fd;border:1px solid rgba(59,130,246,0.55);" title="Desplazar tabla a la izquierda">
+                  ◀ Desplazar Izquierda
+                </button>
+                <button type="button" class="pill-btn" onclick="handleTableScrollStep('sugTableWrapper', 350)" style="padding:0.22rem 0.65rem;font-size:0.74rem;font-weight:700;background:rgba(59,130,246,0.22);color:#93c5fd;border:1px solid rgba(59,130,246,0.55);" title="Desplazar tabla a la derecha">
+                  Desplazar Derecha ▶
+                </button>
+              </div>
+            </div>
+            <div id="sugTopScroll" class="top-horizontal-scrollbar" style="overflow-x:auto;overflow-y:hidden;height:18px;margin:0;">
+              <div id="sugTopScrollDummy" style="height:1px;width:1420px;"></div>
+            </div>
+          </div>
+
+          <!-- MATRIZ OPERATIVA DETALLADA SKU POR SKU -->
+          <div id="sugTableWrapper" class="table-wrapper" style="overflow-x:auto;max-width:100%;border-radius:var(--radius-sm);border:1px solid var(--card-border);">
+            <table id="sugTable" style="width:100%;min-width:1420px;font-size:0.78rem;">
+              <thead>
+                <tr>
+                  <th style="width:42px;text-align:center;">
+                    <input type="checkbox" id="chkSugMaster" onchange="handleSugToggleAllInView(this.checked)" checked title="Seleccionar/Deseleccionar vista">
+                  </th>
+                  <th style="min-width:125px;">Plan Asignado</th>
+                  <th style="min-width:85px;">Cód. SKU</th>
+                  <th style="min-width:170px;">Producto / Formato</th>
+                  <th class="text-right" style="min-width:75px;color:#ef4444;">NoMover (L/Kg)</th>
+                  <th class="text-right" style="min-width:75px;color:#fbbf24;">SlowMover (L/Kg)</th>
+                  <th class="text-right" style="min-width:85px;">Total Sobrante</th>
+                  <th class="text-right" style="min-width:95px;color:#f87171;">Coste Inmov. (€)</th>
+                  <th class="text-right" style="min-width:90px;color:#34d399;">Ahorro DIO vs DSO</th>
+                  <th class="text-right" style="min-width:95px;color:#fbbf24;">PVP Tarifa vs Oferta</th>
+                  <th style="min-width:180px;">Desglose Costes (Dto + Merch + Fin)</th>
+                  <th class="text-right" style="min-width:125px;color:#38bdf8;" title="Facturación neta tras descuentos y margen estimado tras costes de incentivos">Facturación & Margen Est.</th>
+                  <th style="min-width:260px;">Clientes Diana Recomendados (con Histórico)</th>
+                  <th style="min-width:260px;">Condiciones Pago e Incentivos</th>
+                </tr>
+              </thead>
+              <tbody id="sugTableBody">
+              </tbody>
+              <tfoot id="sugTableFoot">
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      `;
+
+      renderSugTableContent();
     }
 
     // MODAL DE DETALLE: EVOLUCIÓN MENSUAL Y AGOTAMIENTO
@@ -5707,8 +6766,15 @@
       // Análisis de Rotación SlowMover / NoMover
       let rotationAnalysisHtml = '';
       if (stockInitial > 0) {
-        const n2Months = ['2026-10', '2026-11', '2026-12'];
-        const n5Months = ['2026-10', '2026-11', '2026-12', '2027-01', '2027-02', '2027-03'];
+        const n2Months = (productionData && productionData.metadata && productionData.metadata.presets && productionData.metadata.presets['N2']) 
+          ? productionData.metadata.presets['N2'] 
+          : ['2026-11', '2026-12', '2027-01'];
+        const n5Months = (productionData && productionData.metadata && productionData.metadata.presets && productionData.metadata.presets['N5']) 
+          ? productionData.metadata.presets['N5'] 
+          : ['2026-11', '2026-12', '2027-01', '2027-02', '2027-03', '2027-04'];
+        const n2RangeLabel = (productionData && productionData.metadata && productionData.metadata.preset_labels && productionData.metadata.preset_labels['N2'])
+          ? productionData.metadata.preset_labels['N2'].replace('N+2 (', '').replace(')', '')
+          : 'Nov 26 - Ene 27';
         let d_n2 = pendingUnits;
         n2Months.forEach(m => { d_n2 += (Number(item.monthly_forecast[m]) || 0); });
         let d_n5 = pendingUnits;
@@ -5729,12 +6795,12 @@
               <div style="background:rgba(16,185,129,0.08);padding:0.6rem;border-radius:4px;border:1px solid rgba(16,185,129,0.25);">
                 <div style="font-size:0.72rem;color:#6ee7b7;font-weight:700;">⚡ ${t('mrp_badge_fastmover')} (0-3M)</div>
                 <div style="font-size:1.15rem;font-weight:800;color:#34d399;margin-top:0.15rem;">${fmtNum(fast_mover_qty)} u</div>
-                <div style="font-size:0.68rem;color:var(--muted);">${stockInitial > 0 ? ((fast_mover_qty/stockInitial)*100).toFixed(0) : 0}% stock (Oct-Dic 26)</div>
+                <div style="font-size:0.68rem;color:var(--muted);">${stockInitial > 0 ? ((fast_mover_qty/stockInitial)*100).toFixed(0) : 0}% stock (${n2RangeLabel})</div>
               </div>
               <div style="background:rgba(245,158,11,0.08);padding:0.6rem;border-radius:4px;border:1px solid rgba(245,158,11,0.25);">
                 <div style="font-size:0.72rem;color:#fbbf24;font-weight:700;">🟡 ${t('mrp_badge_slowmover')} (3-6M)</div>
                 <div style="font-size:1.15rem;font-weight:800;color:#f59e0b;margin-top:0.15rem;">${fmtNum(slow_mover_qty)} u</div>
-                <div style="font-size:0.68rem;color:var(--muted);">${stockInitial > 0 ? ((slow_mover_qty/stockInitial)*100).toFixed(0) : 0}% stock (Ene-Mar 27)</div>
+                <div style="font-size:0.68rem;color:var(--muted);">${stockInitial > 0 ? ((slow_mover_qty/stockInitial)*100).toFixed(0) : 0}% stock (Meses 3-6)</div>
               </div>
               <div style="background:rgba(239,68,68,0.08);padding:0.6rem;border-radius:4px;border:1px solid rgba(239,68,68,0.25);">
                 <div style="font-size:0.72rem;color:#f87171;font-weight:700;">🔴 ${t('mrp_badge_nomover')} (>6M)</div>
@@ -6617,6 +7683,122 @@
         }
         wsEnv.getRow(envTotRow).height = 24;
 
+        // =========================================================================
+        // HOJA 5: SUGERENCIAS STOCK (PLAN EJECUTIVO CEO: DIO & LIQUIDACIÓN)
+        // =========================================================================
+        if (productionData.stock_suggestions && productionData.stock_suggestions.items) {
+          const wsSug = wb.addWorksheet('Sugerencias Stock', {
+            views: [{ state: 'frozen', ySplit: 12, showGridLines: true }]
+          });
+          const sk = productionData.stock_suggestions.kpis || {};
+          const splans = productionData.stock_suggestions.plans || [];
+          const sitems = productionData.stock_suggestions.items || [];
+
+          wsSug.mergeCells('A1:M1');
+          const cSTitle = wsSug.getCell('A1');
+          cSTitle.value = '  CODIAGRO S.L.  |  SUGERENCIAS STOCK: PLAN EJECUTIVO DE OPTIMIZACIÓN DE DIO Y SALIDA DE EXCEDENTES (CEO PLAYBOOK)';
+          cSTitle.font = { name: 'Calibri', size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
+          cSTitle.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_HEADER_BG } };
+          cSTitle.alignment = { vertical: 'middle', horizontal: 'left' };
+          wsSug.getRow(1).height = 28;
+
+          wsSug.mergeCells('A2:M2');
+          const cSSub = wsSug.getCell('A2');
+          cSSub.value = `  DIO Actual Almacén PT: ${sk.dio_actual_pt_days}d | Ahorro NoMovers: -${sk.dio_saving_nm_days}d (->${sk.dio_post_nm_days}d) | Ahorro Total: -${sk.dio_saving_total_days}d (->${sk.dio_post_total_days}d) | Espacio Liberado: ${sk.palets_liberados_total} palets`;
+          cSSub.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF94A3B8' } };
+          cSSub.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_HEADER_BG } };
+          cSSub.alignment = { vertical: 'middle', horizontal: 'left' };
+          wsSug.getRow(2).height = 18;
+
+          const pHeaders = [
+            { col: 1, text: 'Plan', width: 14 },
+            { col: 2, text: 'Playbook Estratégico', width: 38 },
+            { col: 3, text: 'SKUs (NM)', width: 14 },
+            { col: 4, text: 'Vol. Total (L/Kg)', width: 18 },
+            { col: 5, text: 'Coste Inmov. (€)', width: 18 },
+            { col: 6, text: 'Ahorro DIO (d)', width: 16 },
+            { col: 7, text: 'Palets Lib.', width: 14 },
+            { col: 8, text: 'Ingreso Neto (€)', width: 18 },
+            { col: 9, text: 'Margen Neto (€)', width: 18 },
+            { col: 10, text: 'MB (%)', width: 12 },
+            { col: 11, text: 'Palanca Precio / Dto.', width: 32 },
+            { col: 12, text: 'Facilidad de Pago', width: 34 },
+            { col: 13, text: 'Incentivos No-Precio y Racional', width: 52 }
+          ];
+          pHeaders.forEach(ph => {
+            const c = wsSug.getRow(4).getCell(ph.col);
+            c.value = ph.text;
+            c.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+            c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_ID } };
+            c.border = thinBorder;
+            wsSug.getColumn(ph.col).width = ph.width;
+          });
+          wsSug.getRow(4).height = 22;
+
+          let rP = 5;
+          splans.forEach(p => {
+            const row = wsSug.getRow(rP);
+            row.getCell(1).value = p.plan_id;
+            row.getCell(2).value = p.title;
+            row.getCell(3).value = `${p.skus_count} (${p.nomover_skus_count} NM)`;
+            row.getCell(4).value = p.total_qty; row.getCell(4).numFmt = '#,##0';
+            row.getCell(5).value = p.total_cost_eur; row.getCell(5).numFmt = '#,##0.00 €';
+            row.getCell(6).value = -Math.abs(p.dio_saving_days); row.getCell(6).numFmt = '+0.00;-0.00;0.00';
+            row.getCell(7).value = p.palets_liberados; row.getCell(7).numFmt = '#,##0.0';
+            row.getCell(8).value = p.ingreso_neto_eur; row.getCell(8).numFmt = '#,##0.00 €';
+            row.getCell(9).value = p.margen_neto_eur; row.getCell(9).numFmt = '#,##0.00 €';
+            row.getCell(10).value = p.margen_neto_pct / 100.0; row.getCell(10).numFmt = '0.0%';
+            row.getCell(11).value = p.price_lever;
+            row.getCell(12).value = p.payment_terms;
+            row.getCell(13).value = `${p.non_price_incentives} — ${p.rationale}`;
+            for (let ci = 1; ci <= 13; ci++) {
+              row.getCell(ci).font = { name: 'Calibri', size: 9, color: { argb: 'FF0F172A' } };
+              row.getCell(ci).border = thinBorder;
+            }
+            row.height = 22;
+            rP++;
+          });
+
+          const hdrS = 12;
+          const sCols = [
+            'Plan Asignado', 'Cód. SKU', 'Producto / Descripción', 'Formato', 'Segmento',
+            'Exceso NoMover (L/Kg)', 'Total Sobrante (L/Kg)', 'Coste Inmov. (€)', 'Ahorro DIO (d)',
+            'PVP Oferta (€)', 'Ingreso Neto (€)', 'Clientes Diana Recomendados (Histórico)', 'Facilidades de Pago + Incentivos'
+          ];
+          sCols.forEach((txt, idx) => {
+            const c = wsSug.getRow(hdrS).getCell(idx + 1);
+            c.value = txt;
+            c.font = { name: 'Calibri', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+            c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: C_GRP_PLAN } };
+            c.border = thinBorder;
+          });
+          wsSug.getRow(hdrS).height = 24;
+
+          let curS = hdrS + 1;
+          sitems.forEach(it => {
+            const row = wsSug.getRow(curS);
+            row.getCell(1).value = it.plan_name;
+            row.getCell(2).value = it.base_sku;
+            row.getCell(3).value = it.desc;
+            row.getCell(4).value = it.formato;
+            row.getCell(5).value = it.segmento;
+            row.getCell(6).value = it.no_mover_qty; row.getCell(6).numFmt = '#,##0';
+            row.getCell(7).value = it.exceso_total_qty; row.getCell(7).numFmt = '#,##0';
+            row.getCell(8).value = it.exceso_total_eur; row.getCell(8).numFmt = '#,##0.00 €';
+            row.getCell(9).value = -Math.abs(it.dio_saving_days); row.getCell(9).numFmt = '+0.00;-0.00;0.00';
+            row.getCell(10).value = `${it.pvp_objetivo.toFixed(2)} € (${it.dto_label})`;
+            row.getCell(11).value = it.ingreso_neto_eur; row.getCell(11).numFmt = '#,##0.00 €';
+            row.getCell(12).value = `${it.clientes_diana} [${it.motivo_coherente}]`;
+            row.getCell(13).value = `Pago: ${it.condiciones_pago} | Extra: ${it.incentivos_adicionales}`;
+            for (let ci = 1; ci <= 13; ci++) {
+              row.getCell(ci).font = { name: 'Calibri', size: 9, color: { argb: 'FF0F172A' } };
+              row.getCell(ci).border = thinBorder;
+            }
+            row.height = 22;
+            curS++;
+          });
+        }
+
         // ---------------- DESCARGAR ARCHIVO XLSX (EXCELJS + FALLBACK) ----------------
         const buffer = await wb.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -7460,10 +8642,17 @@
         if (titleIconEl) titleIconEl.textContent = '🎯';
         if (titleTextEl) titleTextEl.textContent = isEn ? 'Commercial | 2026 Close & Q4 Thermometer (Units)' : 'Comercial | Cierre 2026 & Termómetro Q4 (Unidades)';
       } else if (tabKey === 'produccion') {
-        const b = document.getElementById('navBtnProduccion');
-        if (b) b.classList.add('active');
-        if (titleIconEl) titleIconEl.textContent = '🏭';
-        if (titleTextEl) titleTextEl.textContent = isEn ? 'Manufacturing | Planning & MRP' : 'Fabricación | Planificación & MRP';
+        if (typeof prodSubtab !== 'undefined' && prodSubtab === 'sugerencias') {
+          const b = document.getElementById('navBtnSugerenciasStock');
+          if (b) b.classList.add('active');
+          if (titleIconEl) titleIconEl.textContent = '💡';
+          if (titleTextEl) titleTextEl.textContent = isEn ? 'Operations | Stock Suggestions & DIO Reduction Plan (CEO)' : 'Operaciones | Sugerencias Stock & Plan Reducción DIO (CEO)';
+        } else {
+          const b = document.getElementById('navBtnProduccion');
+          if (b) b.classList.add('active');
+          if (titleIconEl) titleIconEl.textContent = '🏭';
+          if (titleTextEl) titleTextEl.textContent = isEn ? 'Manufacturing | Planning & MRP' : 'Fabricación | Planificación & MRP';
+        }
       } else if (tabKey === 'tesoreria') {
         const b = document.getElementById('navBtnTesoreria');
         if (b) b.classList.add('active');

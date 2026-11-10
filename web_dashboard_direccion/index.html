@@ -6415,6 +6415,10 @@
                 <span style="color:#38bdf8;">Coste Fin. Aplazamiento (+${p.dias_extra || 0}d):</span>
                 <strong style="color:#38bdf8;">-${fmtCurr(p.coste_fin_pago_eur || 0)}</strong>
               </div>
+              <div style="display:flex;justify-content:space-between;font-size:0.72rem;">
+                <span style="color:#6ee7b7;">Ahorro Almacenamiento:</span>
+                <strong style="color:#34d399;">+${fmtCurr(p.holding_cost_saved_eur || 0)} (Ganancia: +${fmtCurr(p.net_financial_gain_eur || 0)})</strong>
+              </div>
               <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:0.3rem;margin-top:0.15rem;display:flex;justify-content:space-between;font-size:0.72rem;background:rgba(16,185,129,0.12);padding:0.25rem 0.4rem;border-radius:4px;">
                 <span style="color:#34d399;font-weight:700;">Arbitraje DIO vs DSO:</span>
                 <strong style="color:#34d399;">DIO -${p.dio_saving_days.toFixed(1)}d vs DSO +${(p.dso_impact_days || 0).toFixed(2)}d (Ratio: ${p.ratio_dio_vs_dso || 0}x)</strong>

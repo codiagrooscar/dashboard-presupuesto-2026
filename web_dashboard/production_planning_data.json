@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-11-10T08:10:09.616366",
+    "generated_at": "2026-11-10T09:10:55.639039",
     "stock_source": "Stock 10.11.xlsx",
     "orders_source": "Pedidos02.11 comerciales.xlsx, Pedidos10.11 comerciales.xlsx",
     "forecast_source": "Revision_Previsiones_Q4_2026_CONSOLIDADO.xlsx (Revisado) / Presupuesto_Ventas_2027_Definitivo.xlsx (Oficial)",
@@ -92398,8 +92398,8 @@
           "caja_31_60d_total_eur": 40234.05,
           "caja_61_90d_total_eur": 150390.2,
           "caja_90d_plus_total_eur": 40294.63,
-          "holding_cost_saved_total_eur": 5386.27,
-          "net_financial_gain_total_eur": 4342.09,
+          "holding_cost_saved_total_eur": 5386.26,
+          "net_financial_gain_total_eur": 4342.08,
           "ratio_dio_vs_dso": 10.7,
           "tasa_financiera_anual_pct": 5.5,
           "tasa_holding_anual_pct": 15.0,
@@ -92488,8 +92488,8 @@
             "dio_saving_days": 1.69,
             "dso_impact_days": 0.21687,
             "ccc_net_impact_days": -1.473,
-            "holding_cost_saved_eur": 1690.67,
-            "net_financial_gain_eur": 1240.35,
+            "holding_cost_saved_eur": 2344.28,
+            "net_financial_gain_eur": 1893.96,
             "ratio_dio_vs_dso": 7.8,
             "palets_liberados": 90.4,
             "dio_vs_dso_analysis": "DIO Almacén se reduce en -1.69d. El DSO estimado varía en +0.22d. Coste financiero aplazamiento: 450.32 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=2,368.47 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -1.47 días."
@@ -92531,8 +92531,8 @@
             "dio_saving_days": 0.315,
             "dso_impact_days": 0.02547,
             "ccc_net_impact_days": -0.29,
-            "holding_cost_saved_eur": 315.46,
-            "net_financial_gain_eur": 262.56,
+            "holding_cost_saved_eur": 388.18,
+            "net_financial_gain_eur": 335.28,
             "ratio_dio_vs_dso": 12.4,
             "palets_liberados": 9.5,
             "dio_vs_dso_analysis": "DIO Almacén se reduce en -0.32d. El DSO estimado varía en +0.03d. Coste financiero aplazamiento: 52.90 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=285.66 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -0.29 días."
@@ -92574,8 +92574,8 @@
             "dio_saving_days": 3.336,
             "dso_impact_days": 0.2552,
             "ccc_net_impact_days": -3.081,
-            "holding_cost_saved_eur": 3336.53,
-            "net_financial_gain_eur": 2806.6,
+            "holding_cost_saved_eur": 2228.76,
+            "net_financial_gain_eur": 1698.83,
             "ratio_dio_vs_dso": 13.1,
             "palets_liberados": 81.0,
             "dio_vs_dso_analysis": "DIO Almacén se reduce en -3.34d. El DSO estimado varía en +0.26d. Coste financiero aplazamiento: 529.93 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=2,673.06 €, Rappel=5,861.29 €. Impacto neto en ciclo de caja (CCC): -3.08 días."
@@ -92617,8 +92617,8 @@
             "dio_saving_days": 0.054,
             "dso_impact_days": 0.00531,
             "ccc_net_impact_days": -0.049,
-            "holding_cost_saved_eur": 54.1,
-            "net_financial_gain_eur": 43.07,
+            "holding_cost_saved_eur": 45.86,
+            "net_financial_gain_eur": 34.83,
             "ratio_dio_vs_dso": 10.2,
             "palets_liberados": 1.0,
             "dio_vs_dso_analysis": "DIO Almacén se reduce en -0.05d. El DSO estimado varía en +0.01d. Coste financiero aplazamiento: 11.03 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=43.67 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -0.05 días."
@@ -92660,8 +92660,8 @@
             "dio_saving_days": 0.069,
             "dso_impact_days": 0.00841,
             "ccc_net_impact_days": -0.061,
-            "holding_cost_saved_eur": 252.79,
-            "net_financial_gain_eur": 252.79,
+            "holding_cost_saved_eur": 379.18,
+            "net_financial_gain_eur": 379.18,
             "ratio_dio_vs_dso": 8.2,
             "palets_liberados": 13.5,
             "dio_vs_dso_analysis": "DIO Almacén se reduce en -0.07d. El DSO estimado varía en +0.01d. Coste financiero aplazamiento: 0.00 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=241.86 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -0.06 días."
@@ -92762,7 +92762,10 @@
                 "dio_saving_days": 0.92813,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 1392.42,
+                "net_financial_gain_eur": 1091.68
               }
             ]
           },
@@ -92860,7 +92863,10 @@
                 "dio_saving_days": 0.09226,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 138.41,
+                "net_financial_gain_eur": 120.29
               },
               {
                 "cliente": "Almacén Planta / Reactor Nodriza (AO)",
@@ -92900,7 +92906,10 @@
                 "dio_saving_days": 0.0,
                 "es_reprocesado_interno": true,
                 "compras_materia_prima_evitadas_eur": 2235.95,
-                "coste_tecnico_reprocesado_eur": 191.2
+                "coste_tecnico_reprocesado_eur": 191.2,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 275.67,
+                "net_financial_gain_eur": 275.67
               }
             ]
           },
@@ -92998,7 +93007,10 @@
                 "dio_saving_days": 0.05285,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 52.86,
+                "net_financial_gain_eur": 46.65
               },
               {
                 "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -93038,7 +93050,10 @@
                 "dio_saving_days": 0.00813,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 8.13,
+                "net_financial_gain_eur": 7.15
               },
               {
                 "cliente": "STE BBMAGRI, SARL",
@@ -93078,7 +93093,10 @@
                 "dio_saving_days": 0.24798,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 248.02,
+                "net_financial_gain_eur": 206.41
               }
             ]
           },
@@ -93176,7 +93194,10 @@
                 "dio_saving_days": 0.2927,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 292.75,
+                "net_financial_gain_eur": 222.5
               }
             ]
           },
@@ -93274,7 +93295,10 @@
                 "dio_saving_days": 0.03995,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 59.94,
+                "net_financial_gain_eur": 45.65
               },
               {
                 "cliente": "Lote Outlet Liquidación Fin de Año",
@@ -93314,7 +93338,10 @@
                 "dio_saving_days": 0.069,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 103.51,
+                "net_financial_gain_eur": 103.51
               }
             ]
           },
@@ -93412,7 +93439,10 @@
                 "dio_saving_days": 0.10038,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 150.6,
+                "net_financial_gain_eur": 126.19
               }
             ]
           },
@@ -93510,7 +93540,10 @@
                 "dio_saving_days": 0.01753,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 26.3,
+                "net_financial_gain_eur": 23.34
               },
               {
                 "cliente": "VILLALTA SATIVUM, S.L.",
@@ -93550,7 +93583,10 @@
                 "dio_saving_days": 0.00839,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 12.59,
+                "net_financial_gain_eur": 11.13
               },
               {
                 "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -93590,7 +93626,10 @@
                 "dio_saving_days": 0.00351,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.26,
+                "net_financial_gain_eur": 4.7
               },
               {
                 "cliente": "SC MARCOSER S.R.L.",
@@ -93630,7 +93669,10 @@
                 "dio_saving_days": 0.05535,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 83.04,
+                "net_financial_gain_eur": 73.83
               },
               {
                 "cliente": "AGROVEYCA,S.L",
@@ -93670,7 +93712,10 @@
                 "dio_saving_days": 0.00689,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 10.33,
+                "net_financial_gain_eur": 9.35
               }
             ]
           },
@@ -93768,7 +93813,10 @@
                 "dio_saving_days": 0.11964,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 150.0,
+                "holding_cost_saved_eur": 99.71,
+                "net_financial_gain_eur": 84.67
               }
             ]
           },
@@ -93866,7 +93914,10 @@
                 "dio_saving_days": 0.06513,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 97.71,
+                "net_financial_gain_eur": 81.59
               }
             ]
           },
@@ -93964,7 +94015,10 @@
                 "dio_saving_days": 0.06321,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 94.83,
+                "net_financial_gain_eur": 86.35
               }
             ]
           },
@@ -94062,7 +94116,10 @@
                 "dio_saving_days": 0.00652,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 6.52,
+                "net_financial_gain_eur": 5.82
               },
               {
                 "cliente": "FITOMURCIA S.L.",
@@ -94102,7 +94159,10 @@
                 "dio_saving_days": 0.06301,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 63.02,
+                "net_financial_gain_eur": 57.12
               }
             ]
           },
@@ -94200,7 +94260,10 @@
                 "dio_saving_days": 0.00268,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 2.68,
+                "net_financial_gain_eur": 2.3
               },
               {
                 "cliente": "ZTB AQRO MMC",
@@ -94240,7 +94303,10 @@
                 "dio_saving_days": 0.06025,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 60.26,
+                "net_financial_gain_eur": 49.29
               }
             ]
           },
@@ -94338,7 +94404,10 @@
                 "dio_saving_days": 0.12452,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 62.27,
+                "net_financial_gain_eur": 32.54
               }
             ]
           },
@@ -94436,7 +94505,10 @@
                 "dio_saving_days": 0.00862,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 12.94,
+                "net_financial_gain_eur": 11.88
               },
               {
                 "cliente": "ZTB AQRO MMC",
@@ -94476,7 +94548,10 @@
                 "dio_saving_days": 0.03622,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 54.34,
+                "net_financial_gain_eur": 49.19
               }
             ]
           },
@@ -94574,7 +94649,10 @@
                 "dio_saving_days": 0.06474,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 64.76,
+                "net_financial_gain_eur": 52.38
               }
             ]
           },
@@ -94672,7 +94750,10 @@
                 "dio_saving_days": 0.02923,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 29.23,
+                "net_financial_gain_eur": 25.43
               },
               {
                 "cliente": "HORTICOLAS Y PATATAS HNOS. MORAN, S.A.T.",
@@ -94712,7 +94793,10 @@
                 "dio_saving_days": 0.01439,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 14.4,
+                "net_financial_gain_eur": 12.38
               },
               {
                 "cliente": "AGROTÉCNICA DEL NORTE, S.L",
@@ -94752,7 +94836,10 @@
                 "dio_saving_days": 0.00785,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 7.85,
+                "net_financial_gain_eur": 6.83
               },
               {
                 "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
@@ -94792,7 +94879,10 @@
                 "dio_saving_days": 0.00087,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 0.87,
+                "net_financial_gain_eur": 0.76
               }
             ]
           },
@@ -94890,7 +94980,10 @@
                 "dio_saving_days": 0.01549,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 15.49,
+                "net_financial_gain_eur": 13.63
               },
               {
                 "cliente": "FITOMURCIA S.L.",
@@ -94930,7 +95023,10 @@
                 "dio_saving_days": 0.01549,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 15.49,
+                "net_financial_gain_eur": 13.87
               },
               {
                 "cliente": "DOTRA CHEMICALS",
@@ -94970,7 +95066,10 @@
                 "dio_saving_days": 0.03335,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 33.36,
+                "net_financial_gain_eur": 28.67
               }
             ]
           },
@@ -95068,7 +95167,10 @@
                 "dio_saving_days": 0.22129,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 126.0,
+                "holding_cost_saved_eur": 154.93,
+                "net_financial_gain_eur": 116.7
               }
             ]
           },
@@ -95166,7 +95268,10 @@
                 "dio_saving_days": 0.00559,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 5.59,
+                "net_financial_gain_eur": 3.25
               },
               {
                 "cliente": "AGRITEC MEDINA, S.L.U.",
@@ -95206,7 +95311,10 @@
                 "dio_saving_days": 0.00235,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 2.35,
+                "net_financial_gain_eur": 1.31
               },
               {
                 "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -95246,7 +95354,10 @@
                 "dio_saving_days": 0.00081,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 0.81,
+                "net_financial_gain_eur": 0.43
               },
               {
                 "cliente": "COMERCIAL NORTE AGROCAMPO, S.L.",
@@ -95286,7 +95397,10 @@
                 "dio_saving_days": 0.00065,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 0.65,
+                "net_financial_gain_eur": 0.37
               },
               {
                 "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
@@ -95326,7 +95440,10 @@
                 "dio_saving_days": 0.0175,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 17.5,
+                "net_financial_gain_eur": 7.49
               }
             ]
           },
@@ -95424,7 +95541,10 @@
                 "dio_saving_days": 0.00524,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 7.87,
+                "net_financial_gain_eur": 6.35
               },
               {
                 "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -95464,7 +95584,10 @@
                 "dio_saving_days": 0.0035,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.24,
+                "net_financial_gain_eur": 4.23
               },
               {
                 "cliente": "SC MARCOSER S.R.L.",
@@ -95504,7 +95627,10 @@
                 "dio_saving_days": 0.01689,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 25.34,
+                "net_financial_gain_eur": 20.56
               }
             ]
           },
@@ -95602,7 +95728,10 @@
                 "dio_saving_days": 0.02922,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 29.22,
+                "net_financial_gain_eur": 24.39
               }
             ]
           },
@@ -95700,7 +95829,10 @@
                 "dio_saving_days": 0.02108,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 31.63,
+                "net_financial_gain_eur": 29.28
               }
             ]
           },
@@ -95748,8 +95880,8 @@
             "dso_impact_empresa_days": 0.00872,
             "ccc_net_impact_days": -0.126,
             "holding_days": 166.0,
-            "holding_cost_saved_eur": 124.22,
-            "net_financial_gain_eur": 106.12,
+            "holding_cost_saved_eur": 124.23,
+            "net_financial_gain_eur": 106.13,
             "ratio_dio_vs_dso": 15.5,
             "palets_liberados": 1.91,
             "plan_id": "PLAN 4",
@@ -95798,7 +95930,10 @@
                 "dio_saving_days": 0.08905,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 166.0,
+                "holding_cost_saved_eur": 82.14,
+                "net_financial_gain_eur": 71.83
               },
               {
                 "cliente": "COOP.AGRIC. SAN ISIDRO S.C.A.",
@@ -95838,7 +95973,10 @@
                 "dio_saving_days": 0.04563,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 166.0,
+                "holding_cost_saved_eur": 42.09,
+                "net_financial_gain_eur": 34.3
               }
             ]
           },
@@ -95886,8 +96024,8 @@
             "dso_impact_empresa_days": 0.00105,
             "ccc_net_impact_days": -0.015,
             "holding_days": 270.0,
-            "holding_cost_saved_eur": 23.53,
-            "net_financial_gain_eur": 21.35,
+            "holding_cost_saved_eur": 23.52,
+            "net_financial_gain_eur": 21.34,
             "ratio_dio_vs_dso": 15.2,
             "palets_liberados": 0.37,
             "plan_id": "PLAN 5",
@@ -95936,7 +96074,10 @@
                 "dio_saving_days": 0.00309,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 4.63,
+                "net_financial_gain_eur": 4.3
               },
               {
                 "cliente": "FITOMURCIA S.L.",
@@ -95976,7 +96117,10 @@
                 "dio_saving_days": 0.01259,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 18.89,
+                "net_financial_gain_eur": 17.04
               }
             ]
           },
@@ -96024,8 +96168,8 @@
             "dso_impact_empresa_days": 0.00131,
             "ccc_net_impact_days": -0.019,
             "holding_days": 180.0,
-            "holding_cost_saved_eur": 19.52,
-            "net_financial_gain_eur": 16.8,
+            "holding_cost_saved_eur": 19.51,
+            "net_financial_gain_eur": 16.79,
             "ratio_dio_vs_dso": 15.3,
             "palets_liberados": 0.42,
             "plan_id": "PLAN 2",
@@ -96074,7 +96218,10 @@
                 "dio_saving_days": 0.00634,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 6.34,
+                "net_financial_gain_eur": 5.52
               },
               {
                 "cliente": "MAJ AGROQUIMICOS S.L.",
@@ -96114,7 +96261,10 @@
                 "dio_saving_days": 0.0039,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 3.9,
+                "net_financial_gain_eur": 3.34
               },
               {
                 "cliente": "STE BBMAGRI, SARL",
@@ -96154,7 +96304,10 @@
                 "dio_saving_days": 0.00927,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 9.27,
+                "net_financial_gain_eur": 7.93
               }
             ]
           },
@@ -96202,8 +96355,8 @@
             "dso_impact_empresa_days": 0.00734,
             "ccc_net_impact_days": -0.061,
             "holding_days": 180.0,
-            "holding_cost_saved_eur": 68.31,
-            "net_financial_gain_eur": 53.07,
+            "holding_cost_saved_eur": 68.3,
+            "net_financial_gain_eur": 53.06,
             "ratio_dio_vs_dso": 9.3,
             "palets_liberados": 3.67,
             "plan_id": "PLAN 1",
@@ -96252,7 +96405,10 @@
                 "dio_saving_days": 0.04559,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 45.6,
+                "net_financial_gain_eur": 35.99
               },
               {
                 "cliente": "SERVIAGRI´ 97, S.L.",
@@ -96292,7 +96448,10 @@
                 "dio_saving_days": 0.0227,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 22.7,
+                "net_financial_gain_eur": 17.07
               }
             ]
           },
@@ -96390,7 +96549,10 @@
                 "dio_saving_days": 0.01406,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 14.06,
+                "net_financial_gain_eur": 12.1
               }
             ]
           },
@@ -96488,7 +96650,10 @@
                 "dio_saving_days": 0.01063,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 10.63,
+                "net_financial_gain_eur": 9.1
               }
             ]
           },
@@ -96536,8 +96701,8 @@
             "dso_impact_empresa_days": 0.00162,
             "ccc_net_impact_days": -0.012,
             "holding_days": 180.0,
-            "holding_cost_saved_eur": 13.83,
-            "net_financial_gain_eur": 10.47,
+            "holding_cost_saved_eur": 13.84,
+            "net_financial_gain_eur": 10.48,
             "ratio_dio_vs_dso": 8.6,
             "palets_liberados": 0.31,
             "plan_id": "PLAN 5",
@@ -96586,7 +96751,10 @@
                 "dio_saving_days": 0.00692,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 6.92,
+                "net_financial_gain_eur": 5.83
               },
               {
                 "cliente": "CAMPOEJIDO S.C.A.",
@@ -96626,7 +96794,10 @@
                 "dio_saving_days": 0.00692,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 6.92,
+                "net_financial_gain_eur": 4.65
               }
             ]
           },
@@ -96724,7 +96895,10 @@
                 "dio_saving_days": 0.00326,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 4.9,
+                "net_financial_gain_eur": 4.49
               },
               {
                 "cliente": "ACTIV. PRODUC. Y COMERC. LA VEGUILLA, SL",
@@ -96764,7 +96938,10 @@
                 "dio_saving_days": 0.00276,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 4.14,
+                "net_financial_gain_eur": 3.69
               }
             ]
           },
@@ -96862,7 +97039,10 @@
                 "dio_saving_days": 0.03495,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 34.95,
+                "net_financial_gain_eur": 24.71
               },
               {
                 "cliente": "ASESORAMIENTO TECNICO DE CULTIVOS, S.L.",
@@ -96902,7 +97082,10 @@
                 "dio_saving_days": 0.00024,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 0.24,
+                "net_financial_gain_eur": 0.16
               }
             ]
           },
@@ -97000,7 +97183,10 @@
                 "dio_saving_days": 0.00441,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 6.62,
+                "net_financial_gain_eur": 5.95
               }
             ]
           },
@@ -97098,7 +97284,10 @@
                 "dio_saving_days": 0.00375,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.63,
+                "net_financial_gain_eur": 4.93
               }
             ]
           },
@@ -97196,7 +97385,10 @@
                 "dio_saving_days": 0.00374,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.62,
+                "net_financial_gain_eur": 5.02
               }
             ]
           },
@@ -97294,7 +97486,10 @@
                 "dio_saving_days": 0.00368,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.53,
+                "net_financial_gain_eur": 5.12
               }
             ]
           },
@@ -97392,7 +97587,10 @@
                 "dio_saving_days": 0.00342,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.12,
+                "net_financial_gain_eur": 4.45
               }
             ]
           },
@@ -97490,7 +97688,10 @@
                 "dio_saving_days": 0.003,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 1.5,
+                "net_financial_gain_eur": 0.89
               }
             ]
           },
@@ -97588,7 +97789,10 @@
                 "dio_saving_days": 0.28072,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 111.0,
+                "holding_cost_saved_eur": 173.14,
+                "net_financial_gain_eur": 147.85
               },
               {
                 "cliente": "FITOMURCIA S.L.",
@@ -97628,7 +97832,10 @@
                 "dio_saving_days": 0.07558,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 111.0,
+                "holding_cost_saved_eur": 46.61,
+                "net_financial_gain_eur": 39.99
               }
             ]
           },
@@ -97726,7 +97933,10 @@
                 "dio_saving_days": 0.24086,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 120.45,
+                "net_financial_gain_eur": 84.61
               }
             ]
           },
@@ -97824,7 +98034,10 @@
                 "dio_saving_days": 0.20463,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 102.33,
+                "net_financial_gain_eur": 74.87
               }
             ]
           },
@@ -97922,7 +98135,10 @@
                 "dio_saving_days": 0.15815,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 79.09,
+                "net_financial_gain_eur": 49.59
               }
             ]
           },
@@ -98020,7 +98236,10 @@
                 "dio_saving_days": 0.14396,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 71.99,
+                "net_financial_gain_eur": 50.91
               }
             ]
           },
@@ -98118,7 +98337,10 @@
                 "dio_saving_days": 0.11036,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 104.0,
+                "holding_cost_saved_eur": 63.78,
+                "net_financial_gain_eur": 49.14
               }
             ]
           },
@@ -98216,7 +98438,10 @@
                 "dio_saving_days": 0.10694,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 53.48,
+                "net_financial_gain_eur": 24.44
               }
             ]
           },
@@ -98314,7 +98539,10 @@
                 "dio_saving_days": 0.10066,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 50.34,
+                "net_financial_gain_eur": 40.42
               }
             ]
           },
@@ -98412,7 +98640,10 @@
                 "dio_saving_days": 0.0789,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 39.46,
+                "net_financial_gain_eur": 27.59
               }
             ]
           },
@@ -98510,7 +98741,10 @@
                 "dio_saving_days": 0.07002,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 35.02,
+                "net_financial_gain_eur": 25.07
               }
             ]
           },
@@ -98608,7 +98842,10 @@
                 "dio_saving_days": 0.06915,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 34.58,
+                "net_financial_gain_eur": 25.98
               }
             ]
           },
@@ -98656,8 +98893,8 @@
             "dso_impact_empresa_days": 0.00386,
             "ccc_net_impact_days": -0.063,
             "holding_days": 118.0,
-            "holding_cost_saved_eur": 43.89,
-            "net_financial_gain_eur": 35.87,
+            "holding_cost_saved_eur": 43.9,
+            "net_financial_gain_eur": 35.88,
             "ratio_dio_vs_dso": 17.4,
             "palets_liberados": 1.46,
             "plan_id": "PLAN 4",
@@ -98706,7 +98943,10 @@
                 "dio_saving_days": 0.06073,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 118.0,
+                "holding_cost_saved_eur": 39.82,
+                "net_financial_gain_eur": 32.56
               },
               {
                 "cliente": "FITOXENT S.C.L.V.",
@@ -98746,7 +98986,10 @@
                 "dio_saving_days": 0.00622,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 118.0,
+                "holding_cost_saved_eur": 4.08,
+                "net_financial_gain_eur": 3.32
               }
             ]
           },
@@ -98844,7 +99087,10 @@
                 "dio_saving_days": 0.06414,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 113.0,
+                "holding_cost_saved_eur": 40.27,
+                "net_financial_gain_eur": 31.59
               }
             ]
           },
@@ -98942,7 +99188,10 @@
                 "dio_saving_days": 0.05743,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 28.72,
+                "net_financial_gain_eur": 21.63
               }
             ]
           },
@@ -99040,7 +99289,10 @@
                 "dio_saving_days": 0.05368,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 94.0,
+                "holding_cost_saved_eur": 28.04,
+                "net_financial_gain_eur": 20.93
               }
             ]
           },
@@ -99138,7 +99390,10 @@
                 "dio_saving_days": 0.04124,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 20.62,
+                "net_financial_gain_eur": 13.28
               }
             ]
           },
@@ -99186,8 +99441,8 @@
             "dso_impact_empresa_days": 0.00332,
             "ccc_net_impact_days": -0.029,
             "holding_days": 129.0,
-            "holding_cost_saved_eur": 23.29,
-            "net_financial_gain_eur": 16.4,
+            "holding_cost_saved_eur": 23.28,
+            "net_financial_gain_eur": 16.39,
             "ratio_dio_vs_dso": 9.6,
             "palets_liberados": 0.71,
             "plan_id": "PLAN 4",
@@ -99236,7 +99491,10 @@
                 "dio_saving_days": 0.01051,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 129.0,
+                "holding_cost_saved_eur": 7.53,
+                "net_financial_gain_eur": 5.37
               },
               {
                 "cliente": "FRUITURE ADVISORS, S.L.",
@@ -99276,7 +99534,10 @@
                 "dio_saving_days": 0.0043,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 129.0,
+                "holding_cost_saved_eur": 3.08,
+                "net_financial_gain_eur": 2.16
               },
               {
                 "cliente": "GUIVARTO AGRICOLA, S.L.",
@@ -99316,7 +99577,10 @@
                 "dio_saving_days": 0.0043,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 129.0,
+                "holding_cost_saved_eur": 3.08,
+                "net_financial_gain_eur": 2.2
               },
               {
                 "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -99356,7 +99620,10 @@
                 "dio_saving_days": 0.00382,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 129.0,
+                "holding_cost_saved_eur": 2.74,
+                "net_financial_gain_eur": 1.98
               },
               {
                 "cliente": "CAMPO ABIERTO, S.A.S.",
@@ -99396,7 +99663,10 @@
                 "dio_saving_days": 0.00956,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 129.0,
+                "holding_cost_saved_eur": 6.85,
+                "net_financial_gain_eur": 4.68
               }
             ]
           },
@@ -99494,7 +99764,10 @@
                 "dio_saving_days": 0.03182,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 15.91,
+                "net_financial_gain_eur": 9.45
               }
             ]
           },
@@ -99592,7 +99865,10 @@
                 "dio_saving_days": 0.03092,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 15.46,
+                "net_financial_gain_eur": 10.04
               }
             ]
           },
@@ -99690,7 +99966,10 @@
                 "dio_saving_days": 0.02103,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 10.52,
+                "net_financial_gain_eur": 7.53
               }
             ]
           },
@@ -99788,7 +100067,10 @@
                 "dio_saving_days": 0.01946,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 9.73,
+                "net_financial_gain_eur": 6.68
               }
             ]
           },
@@ -99886,7 +100168,10 @@
                 "dio_saving_days": 0.01843,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 9.22,
+                "net_financial_gain_eur": 6.61
               }
             ]
           },
@@ -99984,7 +100269,10 @@
                 "dio_saving_days": 0.01604,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 120.0,
+                "holding_cost_saved_eur": 10.7,
+                "net_financial_gain_eur": 8.7
               }
             ]
           },
@@ -100082,7 +100370,10 @@
                 "dio_saving_days": 0.01089,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 5.45,
+                "net_financial_gain_eur": 4.02
               }
             ]
           },
@@ -100180,7 +100471,10 @@
                 "dio_saving_days": 0.00998,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 4.99,
+                "net_financial_gain_eur": 3.69
               }
             ]
           },
@@ -100278,7 +100572,10 @@
                 "dio_saving_days": 0.00873,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 158.0,
+                "holding_cost_saved_eur": 7.66,
+                "net_financial_gain_eur": 6.29
               }
             ]
           },
@@ -100376,7 +100673,10 @@
                 "dio_saving_days": 0.00816,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 4.08,
+                "net_financial_gain_eur": 3.26
               }
             ]
           },
@@ -100474,7 +100774,10 @@
                 "dio_saving_days": 0.00779,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 164.0,
+                "holding_cost_saved_eur": 7.1,
+                "net_financial_gain_eur": 5.61
               }
             ]
           },
@@ -100572,7 +100875,10 @@
                 "dio_saving_days": 0.00373,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 166.0,
+                "holding_cost_saved_eur": 3.44,
+                "net_financial_gain_eur": 3.07
               }
             ]
           },
@@ -100670,7 +100976,10 @@
                 "dio_saving_days": 0.00304,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 1.52,
+                "net_financial_gain_eur": 1.18
               }
             ]
           },
@@ -100768,7 +101077,10 @@
                 "dio_saving_days": 0.0007,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 0.35,
+                "net_financial_gain_eur": 0.27
               }
             ]
           }
@@ -181070,8 +181382,8 @@
           "caja_31_60d_total_eur": 38823.46,
           "caja_61_90d_total_eur": 146977.6,
           "caja_90d_plus_total_eur": 40043.0,
-          "holding_cost_saved_total_eur": 5190.69,
-          "net_financial_gain_total_eur": 4164.18,
+          "holding_cost_saved_total_eur": 5190.68,
+          "net_financial_gain_total_eur": 4164.17,
           "ratio_dio_vs_dso": 10.9,
           "tasa_financiera_anual_pct": 5.5,
           "tasa_holding_anual_pct": 15.0,
@@ -181160,8 +181472,8 @@
             "dio_saving_days": 1.65,
             "dso_impact_days": 0.20998,
             "ccc_net_impact_days": -1.44,
-            "holding_cost_saved_eur": 1650.71,
-            "net_financial_gain_eur": 1214.68,
+            "holding_cost_saved_eur": 2284.34,
+            "net_financial_gain_eur": 1848.31,
             "ratio_dio_vs_dso": 7.9,
             "palets_liberados": 88.4,
             "dio_vs_dso_analysis": "DIO Almacén se reduce en -1.65d. El DSO estimado varía en +0.21d. Coste financiero aplazamiento: 436.03 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=2,313.79 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -1.44 días."
@@ -181203,8 +181515,8 @@
             "dio_saving_days": 0.315,
             "dso_impact_days": 0.02547,
             "ccc_net_impact_days": -0.29,
-            "holding_cost_saved_eur": 315.46,
-            "net_financial_gain_eur": 262.56,
+            "holding_cost_saved_eur": 388.18,
+            "net_financial_gain_eur": 335.28,
             "ratio_dio_vs_dso": 12.4,
             "palets_liberados": 9.5,
             "dio_vs_dso_analysis": "DIO Almacén se reduce en -0.32d. El DSO estimado varía en +0.03d. Coste financiero aplazamiento: 52.90 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=285.66 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -0.29 días."
@@ -181246,8 +181558,8 @@
             "dio_saving_days": 3.311,
             "dso_impact_days": 0.25356,
             "ccc_net_impact_days": -3.057,
-            "holding_cost_saved_eur": 3311.4,
-            "net_financial_gain_eur": 2784.85,
+            "holding_cost_saved_eur": 2196.63,
+            "net_financial_gain_eur": 1670.08,
             "ratio_dio_vs_dso": 13.1,
             "palets_liberados": 80.4,
             "dio_vs_dso_analysis": "DIO Almacén se reduce en -3.31d. El DSO estimado varía en +0.25d. Coste financiero aplazamiento: 526.55 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=2,659.07 €, Rappel=5,823.52 €. Impacto neto en ciclo de caja (CCC): -3.06 días."
@@ -181289,8 +181601,8 @@
             "dio_saving_days": 0.054,
             "dso_impact_days": 0.00531,
             "ccc_net_impact_days": -0.049,
-            "holding_cost_saved_eur": 54.1,
-            "net_financial_gain_eur": 43.07,
+            "holding_cost_saved_eur": 45.86,
+            "net_financial_gain_eur": 34.83,
             "ratio_dio_vs_dso": 10.2,
             "palets_liberados": 1.0,
             "dio_vs_dso_analysis": "DIO Almacén se reduce en -0.05d. El DSO estimado varía en +0.01d. Coste financiero aplazamiento: 11.03 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=43.67 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -0.05 días."
@@ -181332,8 +181644,8 @@
             "dio_saving_days": 0.0,
             "dso_impact_days": 0.0,
             "ccc_net_impact_days": 0.0,
-            "holding_cost_saved_eur": 183.78,
-            "net_financial_gain_eur": 183.78,
+            "holding_cost_saved_eur": 275.67,
+            "net_financial_gain_eur": 275.67,
             "ratio_dio_vs_dso": 999.0,
             "palets_liberados": 10.0,
             "dio_vs_dso_analysis": "DIO Almacén se reduce en -0.00d. El DSO estimado varía en +0.00d. Coste financiero aplazamiento: 0.00 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=191.20 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): +0.00 días."
@@ -181434,7 +181746,10 @@
                 "dio_saving_days": 0.92813,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 1392.42,
+                "net_financial_gain_eur": 1091.68
               }
             ]
           },
@@ -181532,7 +181847,10 @@
                 "dio_saving_days": 0.09226,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 138.41,
+                "net_financial_gain_eur": 120.29
               },
               {
                 "cliente": "Almacén Planta / Reactor Nodriza (AO)",
@@ -181572,7 +181890,10 @@
                 "dio_saving_days": 0.0,
                 "es_reprocesado_interno": true,
                 "compras_materia_prima_evitadas_eur": 2235.95,
-                "coste_tecnico_reprocesado_eur": 191.2
+                "coste_tecnico_reprocesado_eur": 191.2,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 275.67,
+                "net_financial_gain_eur": 275.67
               }
             ]
           },
@@ -181670,7 +181991,10 @@
                 "dio_saving_days": 0.05285,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 52.86,
+                "net_financial_gain_eur": 46.65
               },
               {
                 "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -181710,7 +182034,10 @@
                 "dio_saving_days": 0.00813,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 8.13,
+                "net_financial_gain_eur": 7.15
               },
               {
                 "cliente": "STE BBMAGRI, SARL",
@@ -181750,7 +182077,10 @@
                 "dio_saving_days": 0.24798,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 248.02,
+                "net_financial_gain_eur": 206.41
               }
             ]
           },
@@ -181848,7 +182178,10 @@
                 "dio_saving_days": 0.2927,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 292.75,
+                "net_financial_gain_eur": 222.5
               }
             ]
           },
@@ -181946,7 +182279,10 @@
                 "dio_saving_days": 0.10038,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 150.6,
+                "net_financial_gain_eur": 126.19
               }
             ]
           },
@@ -182044,7 +182380,10 @@
                 "dio_saving_days": 0.01753,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 26.3,
+                "net_financial_gain_eur": 23.34
               },
               {
                 "cliente": "VILLALTA SATIVUM, S.L.",
@@ -182084,7 +182423,10 @@
                 "dio_saving_days": 0.00839,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 12.59,
+                "net_financial_gain_eur": 11.13
               },
               {
                 "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -182124,7 +182466,10 @@
                 "dio_saving_days": 0.00351,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.26,
+                "net_financial_gain_eur": 4.7
               },
               {
                 "cliente": "SC MARCOSER S.R.L.",
@@ -182164,7 +182509,10 @@
                 "dio_saving_days": 0.05535,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 83.04,
+                "net_financial_gain_eur": 73.83
               },
               {
                 "cliente": "AGROVEYCA,S.L",
@@ -182204,7 +182552,10 @@
                 "dio_saving_days": 0.00689,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 10.33,
+                "net_financial_gain_eur": 9.35
               }
             ]
           },
@@ -182302,7 +182653,10 @@
                 "dio_saving_days": 0.11476,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 139.0,
+                "holding_cost_saved_eur": 88.63,
+                "net_financial_gain_eur": 74.2
               }
             ]
           },
@@ -182400,7 +182754,10 @@
                 "dio_saving_days": 0.06513,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 97.71,
+                "net_financial_gain_eur": 81.59
               }
             ]
           },
@@ -182498,7 +182855,10 @@
                 "dio_saving_days": 0.06321,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 94.83,
+                "net_financial_gain_eur": 86.35
               }
             ]
           },
@@ -182596,7 +182956,10 @@
                 "dio_saving_days": 0.00652,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 6.52,
+                "net_financial_gain_eur": 5.82
               },
               {
                 "cliente": "FITOMURCIA S.L.",
@@ -182636,7 +182999,10 @@
                 "dio_saving_days": 0.06301,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 63.02,
+                "net_financial_gain_eur": 57.12
               }
             ]
           },
@@ -182734,7 +183100,10 @@
                 "dio_saving_days": 0.00268,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 2.68,
+                "net_financial_gain_eur": 2.3
               },
               {
                 "cliente": "ZTB AQRO MMC",
@@ -182774,7 +183143,10 @@
                 "dio_saving_days": 0.06025,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 60.26,
+                "net_financial_gain_eur": 49.29
               }
             ]
           },
@@ -182872,7 +183244,10 @@
                 "dio_saving_days": 0.12409,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 62.05,
+                "net_financial_gain_eur": 32.42
               }
             ]
           },
@@ -182970,7 +183345,10 @@
                 "dio_saving_days": 0.00862,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 12.94,
+                "net_financial_gain_eur": 11.88
               },
               {
                 "cliente": "ZTB AQRO MMC",
@@ -183010,7 +183388,10 @@
                 "dio_saving_days": 0.03622,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 54.34,
+                "net_financial_gain_eur": 49.19
               }
             ]
           },
@@ -183108,7 +183489,10 @@
                 "dio_saving_days": 0.06474,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 64.76,
+                "net_financial_gain_eur": 52.38
               }
             ]
           },
@@ -183206,7 +183590,10 @@
                 "dio_saving_days": 0.02923,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 29.23,
+                "net_financial_gain_eur": 25.43
               },
               {
                 "cliente": "HORTICOLAS Y PATATAS HNOS. MORAN, S.A.T.",
@@ -183246,7 +183633,10 @@
                 "dio_saving_days": 0.01439,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 14.4,
+                "net_financial_gain_eur": 12.38
               },
               {
                 "cliente": "AGROTÉCNICA DEL NORTE, S.L",
@@ -183286,7 +183676,10 @@
                 "dio_saving_days": 0.00785,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 7.85,
+                "net_financial_gain_eur": 6.83
               },
               {
                 "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
@@ -183326,7 +183719,10 @@
                 "dio_saving_days": 0.00087,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 0.87,
+                "net_financial_gain_eur": 0.76
               }
             ]
           },
@@ -183424,7 +183820,10 @@
                 "dio_saving_days": 0.01549,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 15.49,
+                "net_financial_gain_eur": 13.63
               },
               {
                 "cliente": "FITOMURCIA S.L.",
@@ -183464,7 +183863,10 @@
                 "dio_saving_days": 0.01549,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 15.49,
+                "net_financial_gain_eur": 13.87
               },
               {
                 "cliente": "DOTRA CHEMICALS",
@@ -183504,7 +183906,10 @@
                 "dio_saving_days": 0.03335,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 33.36,
+                "net_financial_gain_eur": 28.67
               }
             ]
           },
@@ -183602,7 +184007,10 @@
                 "dio_saving_days": 0.21596,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 121.0,
+                "holding_cost_saved_eur": 145.2,
+                "net_financial_gain_eur": 107.89
               }
             ]
           },
@@ -183700,7 +184108,10 @@
                 "dio_saving_days": 0.00559,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 5.59,
+                "net_financial_gain_eur": 3.25
               },
               {
                 "cliente": "AGRITEC MEDINA, S.L.U.",
@@ -183740,7 +184151,10 @@
                 "dio_saving_days": 0.00235,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 2.35,
+                "net_financial_gain_eur": 1.31
               },
               {
                 "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -183780,7 +184194,10 @@
                 "dio_saving_days": 0.00081,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 0.81,
+                "net_financial_gain_eur": 0.43
               },
               {
                 "cliente": "COMERCIAL NORTE AGROCAMPO, S.L.",
@@ -183820,7 +184237,10 @@
                 "dio_saving_days": 0.00065,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 0.65,
+                "net_financial_gain_eur": 0.37
               },
               {
                 "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
@@ -183860,7 +184280,10 @@
                 "dio_saving_days": 0.0175,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 17.5,
+                "net_financial_gain_eur": 7.49
               }
             ]
           },
@@ -183958,7 +184381,10 @@
                 "dio_saving_days": 0.00524,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 7.87,
+                "net_financial_gain_eur": 6.35
               },
               {
                 "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -183998,7 +184424,10 @@
                 "dio_saving_days": 0.0035,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.24,
+                "net_financial_gain_eur": 4.23
               },
               {
                 "cliente": "SC MARCOSER S.R.L.",
@@ -184038,7 +184467,10 @@
                 "dio_saving_days": 0.01689,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 25.34,
+                "net_financial_gain_eur": 20.56
               }
             ]
           },
@@ -184136,7 +184568,10 @@
                 "dio_saving_days": 0.02922,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 29.22,
+                "net_financial_gain_eur": 24.39
               }
             ]
           },
@@ -184234,7 +184669,10 @@
                 "dio_saving_days": 0.02108,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 31.63,
+                "net_financial_gain_eur": 29.28
               }
             ]
           },
@@ -184282,8 +184720,8 @@
             "dso_impact_empresa_days": 0.00872,
             "ccc_net_impact_days": -0.126,
             "holding_days": 166.0,
-            "holding_cost_saved_eur": 124.22,
-            "net_financial_gain_eur": 106.12,
+            "holding_cost_saved_eur": 124.23,
+            "net_financial_gain_eur": 106.13,
             "ratio_dio_vs_dso": 15.5,
             "palets_liberados": 1.91,
             "plan_id": "PLAN 4",
@@ -184332,7 +184770,10 @@
                 "dio_saving_days": 0.08905,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 166.0,
+                "holding_cost_saved_eur": 82.14,
+                "net_financial_gain_eur": 71.83
               },
               {
                 "cliente": "COOP.AGRIC. SAN ISIDRO S.C.A.",
@@ -184372,7 +184813,10 @@
                 "dio_saving_days": 0.04563,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 166.0,
+                "holding_cost_saved_eur": 42.09,
+                "net_financial_gain_eur": 34.3
               }
             ]
           },
@@ -184420,8 +184864,8 @@
             "dso_impact_empresa_days": 0.00105,
             "ccc_net_impact_days": -0.015,
             "holding_days": 270.0,
-            "holding_cost_saved_eur": 23.53,
-            "net_financial_gain_eur": 21.35,
+            "holding_cost_saved_eur": 23.52,
+            "net_financial_gain_eur": 21.34,
             "ratio_dio_vs_dso": 15.2,
             "palets_liberados": 0.37,
             "plan_id": "PLAN 5",
@@ -184470,7 +184914,10 @@
                 "dio_saving_days": 0.00309,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 4.63,
+                "net_financial_gain_eur": 4.3
               },
               {
                 "cliente": "FITOMURCIA S.L.",
@@ -184510,7 +184957,10 @@
                 "dio_saving_days": 0.01259,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 18.89,
+                "net_financial_gain_eur": 17.04
               }
             ]
           },
@@ -184558,8 +185008,8 @@
             "dso_impact_empresa_days": 0.00131,
             "ccc_net_impact_days": -0.019,
             "holding_days": 180.0,
-            "holding_cost_saved_eur": 19.52,
-            "net_financial_gain_eur": 16.8,
+            "holding_cost_saved_eur": 19.51,
+            "net_financial_gain_eur": 16.79,
             "ratio_dio_vs_dso": 15.3,
             "palets_liberados": 0.42,
             "plan_id": "PLAN 2",
@@ -184608,7 +185058,10 @@
                 "dio_saving_days": 0.00634,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 6.34,
+                "net_financial_gain_eur": 5.52
               },
               {
                 "cliente": "MAJ AGROQUIMICOS S.L.",
@@ -184648,7 +185101,10 @@
                 "dio_saving_days": 0.0039,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 3.9,
+                "net_financial_gain_eur": 3.34
               },
               {
                 "cliente": "STE BBMAGRI, SARL",
@@ -184688,7 +185144,10 @@
                 "dio_saving_days": 0.00927,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 9.27,
+                "net_financial_gain_eur": 7.93
               }
             ]
           },
@@ -184736,8 +185195,8 @@
             "dso_impact_empresa_days": 0.00734,
             "ccc_net_impact_days": -0.061,
             "holding_days": 180.0,
-            "holding_cost_saved_eur": 68.31,
-            "net_financial_gain_eur": 53.07,
+            "holding_cost_saved_eur": 68.3,
+            "net_financial_gain_eur": 53.06,
             "ratio_dio_vs_dso": 9.3,
             "palets_liberados": 3.67,
             "plan_id": "PLAN 1",
@@ -184786,7 +185245,10 @@
                 "dio_saving_days": 0.04559,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 45.6,
+                "net_financial_gain_eur": 35.99
               },
               {
                 "cliente": "SERVIAGRI´ 97, S.L.",
@@ -184826,7 +185288,10 @@
                 "dio_saving_days": 0.0227,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 22.7,
+                "net_financial_gain_eur": 17.07
               }
             ]
           },
@@ -184924,7 +185389,10 @@
                 "dio_saving_days": 0.01406,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 14.06,
+                "net_financial_gain_eur": 12.1
               }
             ]
           },
@@ -185022,7 +185490,10 @@
                 "dio_saving_days": 0.01063,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 10.63,
+                "net_financial_gain_eur": 9.1
               }
             ]
           },
@@ -185070,8 +185541,8 @@
             "dso_impact_empresa_days": 0.00162,
             "ccc_net_impact_days": -0.012,
             "holding_days": 180.0,
-            "holding_cost_saved_eur": 13.83,
-            "net_financial_gain_eur": 10.47,
+            "holding_cost_saved_eur": 13.84,
+            "net_financial_gain_eur": 10.48,
             "ratio_dio_vs_dso": 8.6,
             "palets_liberados": 0.31,
             "plan_id": "PLAN 5",
@@ -185120,7 +185591,10 @@
                 "dio_saving_days": 0.00692,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 6.92,
+                "net_financial_gain_eur": 5.83
               },
               {
                 "cliente": "CAMPOEJIDO S.C.A.",
@@ -185160,7 +185634,10 @@
                 "dio_saving_days": 0.00692,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 6.92,
+                "net_financial_gain_eur": 4.65
               }
             ]
           },
@@ -185258,7 +185735,10 @@
                 "dio_saving_days": 0.00326,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 4.9,
+                "net_financial_gain_eur": 4.49
               },
               {
                 "cliente": "ACTIV. PRODUC. Y COMERC. LA VEGUILLA, SL",
@@ -185298,7 +185778,10 @@
                 "dio_saving_days": 0.00276,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 4.14,
+                "net_financial_gain_eur": 3.69
               }
             ]
           },
@@ -185396,7 +185879,10 @@
                 "dio_saving_days": 0.03495,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 34.95,
+                "net_financial_gain_eur": 24.71
               },
               {
                 "cliente": "ASESORAMIENTO TECNICO DE CULTIVOS, S.L.",
@@ -185436,7 +185922,10 @@
                 "dio_saving_days": 0.00024,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 180.0,
+                "holding_cost_saved_eur": 0.24,
+                "net_financial_gain_eur": 0.16
               }
             ]
           },
@@ -185534,7 +186023,10 @@
                 "dio_saving_days": 0.00441,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 6.62,
+                "net_financial_gain_eur": 5.95
               }
             ]
           },
@@ -185632,7 +186124,10 @@
                 "dio_saving_days": 0.00375,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.63,
+                "net_financial_gain_eur": 4.93
               }
             ]
           },
@@ -185730,7 +186225,10 @@
                 "dio_saving_days": 0.00374,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.62,
+                "net_financial_gain_eur": 5.02
               }
             ]
           },
@@ -185828,7 +186326,10 @@
                 "dio_saving_days": 0.00368,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.53,
+                "net_financial_gain_eur": 5.12
               }
             ]
           },
@@ -185926,7 +186427,10 @@
                 "dio_saving_days": 0.00342,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 270.0,
+                "holding_cost_saved_eur": 5.12,
+                "net_financial_gain_eur": 4.45
               }
             ]
           },
@@ -186024,7 +186528,10 @@
                 "dio_saving_days": 0.003,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 1.5,
+                "net_financial_gain_eur": 0.89
               }
             ]
           },
@@ -186122,7 +186629,10 @@
                 "dio_saving_days": 0.28072,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 111.0,
+                "holding_cost_saved_eur": 173.14,
+                "net_financial_gain_eur": 147.85
               },
               {
                 "cliente": "FITOMURCIA S.L.",
@@ -186162,7 +186672,10 @@
                 "dio_saving_days": 0.07558,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 111.0,
+                "holding_cost_saved_eur": 46.61,
+                "net_financial_gain_eur": 39.99
               }
             ]
           },
@@ -186260,7 +186773,10 @@
                 "dio_saving_days": 0.24086,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 120.45,
+                "net_financial_gain_eur": 84.61
               }
             ]
           },
@@ -186358,7 +186874,10 @@
                 "dio_saving_days": 0.20463,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 102.33,
+                "net_financial_gain_eur": 74.87
               }
             ]
           },
@@ -186456,7 +186975,10 @@
                 "dio_saving_days": 0.15655,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 78.29,
+                "net_financial_gain_eur": 49.09
               }
             ]
           },
@@ -186554,7 +187076,10 @@
                 "dio_saving_days": 0.12822,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 64.12,
+                "net_financial_gain_eur": 45.34
               }
             ]
           },
@@ -186652,7 +187177,10 @@
                 "dio_saving_days": 0.10694,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 53.48,
+                "net_financial_gain_eur": 24.44
               }
             ]
           },
@@ -186750,7 +187278,10 @@
                 "dio_saving_days": 0.10663,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 98.0,
+                "holding_cost_saved_eur": 58.06,
+                "net_financial_gain_eur": 43.91
               }
             ]
           },
@@ -186848,7 +187379,10 @@
                 "dio_saving_days": 0.10066,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 50.34,
+                "net_financial_gain_eur": 40.42
               }
             ]
           },
@@ -186946,7 +187480,10 @@
                 "dio_saving_days": 0.0789,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 39.46,
+                "net_financial_gain_eur": 27.59
               }
             ]
           },
@@ -187044,7 +187581,10 @@
                 "dio_saving_days": 0.07002,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 35.02,
+                "net_financial_gain_eur": 25.07
               }
             ]
           },
@@ -187142,7 +187682,10 @@
                 "dio_saving_days": 0.06915,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 34.58,
+                "net_financial_gain_eur": 25.98
               }
             ]
           },
@@ -187190,8 +187733,8 @@
             "dso_impact_empresa_days": 0.00386,
             "ccc_net_impact_days": -0.063,
             "holding_days": 118.0,
-            "holding_cost_saved_eur": 43.89,
-            "net_financial_gain_eur": 35.87,
+            "holding_cost_saved_eur": 43.9,
+            "net_financial_gain_eur": 35.88,
             "ratio_dio_vs_dso": 17.4,
             "palets_liberados": 1.46,
             "plan_id": "PLAN 4",
@@ -187240,7 +187783,10 @@
                 "dio_saving_days": 0.06073,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 118.0,
+                "holding_cost_saved_eur": 39.82,
+                "net_financial_gain_eur": 32.56
               },
               {
                 "cliente": "FITOXENT S.C.L.V.",
@@ -187280,7 +187826,10 @@
                 "dio_saving_days": 0.00622,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 118.0,
+                "holding_cost_saved_eur": 4.08,
+                "net_financial_gain_eur": 3.32
               }
             ]
           },
@@ -187378,7 +187927,10 @@
                 "dio_saving_days": 0.06414,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 113.0,
+                "holding_cost_saved_eur": 40.27,
+                "net_financial_gain_eur": 31.59
               }
             ]
           },
@@ -187476,7 +188028,10 @@
                 "dio_saving_days": 0.05743,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 28.72,
+                "net_financial_gain_eur": 21.63
               }
             ]
           },
@@ -187574,7 +188129,10 @@
                 "dio_saving_days": 0.05368,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 94.0,
+                "holding_cost_saved_eur": 28.04,
+                "net_financial_gain_eur": 20.93
               }
             ]
           },
@@ -187672,7 +188230,10 @@
                 "dio_saving_days": 0.04124,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 20.62,
+                "net_financial_gain_eur": 13.28
               }
             ]
           },
@@ -187770,7 +188331,10 @@
                 "dio_saving_days": 0.0337,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 16.85,
+                "net_financial_gain_eur": 10.94
               }
             ]
           },
@@ -187818,8 +188382,8 @@
             "dso_impact_empresa_days": 0.00332,
             "ccc_net_impact_days": -0.029,
             "holding_days": 129.0,
-            "holding_cost_saved_eur": 23.29,
-            "net_financial_gain_eur": 16.4,
+            "holding_cost_saved_eur": 23.28,
+            "net_financial_gain_eur": 16.39,
             "ratio_dio_vs_dso": 9.6,
             "palets_liberados": 0.71,
             "plan_id": "PLAN 4",
@@ -187868,7 +188432,10 @@
                 "dio_saving_days": 0.01051,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 129.0,
+                "holding_cost_saved_eur": 7.53,
+                "net_financial_gain_eur": 5.37
               },
               {
                 "cliente": "FRUITURE ADVISORS, S.L.",
@@ -187908,7 +188475,10 @@
                 "dio_saving_days": 0.0043,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 129.0,
+                "holding_cost_saved_eur": 3.08,
+                "net_financial_gain_eur": 2.16
               },
               {
                 "cliente": "GUIVARTO AGRICOLA, S.L.",
@@ -187948,7 +188518,10 @@
                 "dio_saving_days": 0.0043,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 129.0,
+                "holding_cost_saved_eur": 3.08,
+                "net_financial_gain_eur": 2.2
               },
               {
                 "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -187988,7 +188561,10 @@
                 "dio_saving_days": 0.00382,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 129.0,
+                "holding_cost_saved_eur": 2.74,
+                "net_financial_gain_eur": 1.98
               },
               {
                 "cliente": "CAMPO ABIERTO, S.A.S.",
@@ -188028,7 +188604,10 @@
                 "dio_saving_days": 0.00956,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 129.0,
+                "holding_cost_saved_eur": 6.85,
+                "net_financial_gain_eur": 4.68
               }
             ]
           },
@@ -188126,7 +188705,10 @@
                 "dio_saving_days": 0.03182,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 15.91,
+                "net_financial_gain_eur": 9.45
               }
             ]
           },
@@ -188224,7 +188806,10 @@
                 "dio_saving_days": 0.02103,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 10.52,
+                "net_financial_gain_eur": 7.53
               }
             ]
           },
@@ -188322,7 +188907,10 @@
                 "dio_saving_days": 0.02035,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 10.18,
+                "net_financial_gain_eur": 6.98
               },
               {
                 "cliente": "CAMPOEJIDO S.C.A.",
@@ -188362,7 +188950,10 @@
                 "dio_saving_days": 1e-05,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 0.0,
+                "net_financial_gain_eur": 0.0
               }
             ]
           },
@@ -188460,7 +189051,10 @@
                 "dio_saving_days": 0.01604,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 120.0,
+                "holding_cost_saved_eur": 10.7,
+                "net_financial_gain_eur": 8.7
               }
             ]
           },
@@ -188558,7 +189152,10 @@
                 "dio_saving_days": 0.01451,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 7.26,
+                "net_financial_gain_eur": 5.2
               }
             ]
           },
@@ -188656,7 +189253,10 @@
                 "dio_saving_days": 0.01089,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 5.45,
+                "net_financial_gain_eur": 4.02
               }
             ]
           },
@@ -188754,7 +189354,10 @@
                 "dio_saving_days": 0.00998,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 4.99,
+                "net_financial_gain_eur": 3.69
               }
             ]
           },
@@ -188852,7 +189455,10 @@
                 "dio_saving_days": 0.00873,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 158.0,
+                "holding_cost_saved_eur": 7.66,
+                "net_financial_gain_eur": 6.29
               }
             ]
           },
@@ -188950,7 +189556,10 @@
                 "dio_saving_days": 0.00816,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 4.08,
+                "net_financial_gain_eur": 3.26
               }
             ]
           },
@@ -189048,7 +189657,10 @@
                 "dio_saving_days": 0.00779,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 164.0,
+                "holding_cost_saved_eur": 7.1,
+                "net_financial_gain_eur": 5.61
               }
             ]
           },
@@ -189146,7 +189758,10 @@
                 "dio_saving_days": 0.00682,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 3.41,
+                "net_financial_gain_eur": 2.16
               }
             ]
           },
@@ -189244,7 +189859,10 @@
                 "dio_saving_days": 0.00373,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 166.0,
+                "holding_cost_saved_eur": 3.44,
+                "net_financial_gain_eur": 3.07
               }
             ]
           },
@@ -189342,7 +189960,10 @@
                 "dio_saving_days": 0.00304,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 1.52,
+                "net_financial_gain_eur": 1.18
               }
             ]
           },
@@ -189440,7 +190061,10 @@
                 "dio_saving_days": 0.0007,
                 "es_reprocesado_interno": false,
                 "compras_materia_prima_evitadas_eur": 0.0,
-                "coste_tecnico_reprocesado_eur": 0.0
+                "coste_tecnico_reprocesado_eur": 0.0,
+                "holding_days": 90.0,
+                "holding_cost_saved_eur": 0.35,
+                "net_financial_gain_eur": 0.27
               }
             ]
           }
@@ -281646,8 +282270,8 @@
       "caja_31_60d_total_eur": 40234.05,
       "caja_61_90d_total_eur": 150390.2,
       "caja_90d_plus_total_eur": 40294.63,
-      "holding_cost_saved_total_eur": 5386.27,
-      "net_financial_gain_total_eur": 4342.09,
+      "holding_cost_saved_total_eur": 5386.26,
+      "net_financial_gain_total_eur": 4342.08,
       "ratio_dio_vs_dso": 10.7,
       "tasa_financiera_anual_pct": 5.5,
       "tasa_holding_anual_pct": 15.0,
@@ -281736,8 +282360,8 @@
         "dio_saving_days": 1.69,
         "dso_impact_days": 0.21687,
         "ccc_net_impact_days": -1.473,
-        "holding_cost_saved_eur": 1690.67,
-        "net_financial_gain_eur": 1240.35,
+        "holding_cost_saved_eur": 2344.28,
+        "net_financial_gain_eur": 1893.96,
         "ratio_dio_vs_dso": 7.8,
         "palets_liberados": 90.4,
         "dio_vs_dso_analysis": "DIO Almacén se reduce en -1.69d. El DSO estimado varía en +0.22d. Coste financiero aplazamiento: 450.32 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=2,368.47 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -1.47 días."
@@ -281779,8 +282403,8 @@
         "dio_saving_days": 0.315,
         "dso_impact_days": 0.02547,
         "ccc_net_impact_days": -0.29,
-        "holding_cost_saved_eur": 315.46,
-        "net_financial_gain_eur": 262.56,
+        "holding_cost_saved_eur": 388.18,
+        "net_financial_gain_eur": 335.28,
         "ratio_dio_vs_dso": 12.4,
         "palets_liberados": 9.5,
         "dio_vs_dso_analysis": "DIO Almacén se reduce en -0.32d. El DSO estimado varía en +0.03d. Coste financiero aplazamiento: 52.90 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=285.66 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -0.29 días."
@@ -281822,8 +282446,8 @@
         "dio_saving_days": 3.336,
         "dso_impact_days": 0.2552,
         "ccc_net_impact_days": -3.081,
-        "holding_cost_saved_eur": 3336.53,
-        "net_financial_gain_eur": 2806.6,
+        "holding_cost_saved_eur": 2228.76,
+        "net_financial_gain_eur": 1698.83,
         "ratio_dio_vs_dso": 13.1,
         "palets_liberados": 81.0,
         "dio_vs_dso_analysis": "DIO Almacén se reduce en -3.34d. El DSO estimado varía en +0.26d. Coste financiero aplazamiento: 529.93 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=2,673.06 €, Rappel=5,861.29 €. Impacto neto en ciclo de caja (CCC): -3.08 días."
@@ -281865,8 +282489,8 @@
         "dio_saving_days": 0.054,
         "dso_impact_days": 0.00531,
         "ccc_net_impact_days": -0.049,
-        "holding_cost_saved_eur": 54.1,
-        "net_financial_gain_eur": 43.07,
+        "holding_cost_saved_eur": 45.86,
+        "net_financial_gain_eur": 34.83,
         "ratio_dio_vs_dso": 10.2,
         "palets_liberados": 1.0,
         "dio_vs_dso_analysis": "DIO Almacén se reduce en -0.05d. El DSO estimado varía en +0.01d. Coste financiero aplazamiento: 11.03 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=43.67 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -0.05 días."
@@ -281908,8 +282532,8 @@
         "dio_saving_days": 0.069,
         "dso_impact_days": 0.00841,
         "ccc_net_impact_days": -0.061,
-        "holding_cost_saved_eur": 252.79,
-        "net_financial_gain_eur": 252.79,
+        "holding_cost_saved_eur": 379.18,
+        "net_financial_gain_eur": 379.18,
         "ratio_dio_vs_dso": 8.2,
         "palets_liberados": 13.5,
         "dio_vs_dso_analysis": "DIO Almacén se reduce en -0.07d. El DSO estimado varía en +0.01d. Coste financiero aplazamiento: 0.00 € (5,5% anual). Costes de incentivos: Merchandising/Muestras=241.86 €, Rappel=0.00 €. Impacto neto en ciclo de caja (CCC): -0.06 días."
@@ -282010,7 +282634,10 @@
             "dio_saving_days": 0.92813,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 1392.42,
+            "net_financial_gain_eur": 1091.68
           }
         ]
       },
@@ -282108,7 +282735,10 @@
             "dio_saving_days": 0.09226,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 138.41,
+            "net_financial_gain_eur": 120.29
           },
           {
             "cliente": "Almacén Planta / Reactor Nodriza (AO)",
@@ -282148,7 +282778,10 @@
             "dio_saving_days": 0.0,
             "es_reprocesado_interno": true,
             "compras_materia_prima_evitadas_eur": 2235.95,
-            "coste_tecnico_reprocesado_eur": 191.2
+            "coste_tecnico_reprocesado_eur": 191.2,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 275.67,
+            "net_financial_gain_eur": 275.67
           }
         ]
       },
@@ -282246,7 +282879,10 @@
             "dio_saving_days": 0.05285,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 52.86,
+            "net_financial_gain_eur": 46.65
           },
           {
             "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -282286,7 +282922,10 @@
             "dio_saving_days": 0.00813,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 8.13,
+            "net_financial_gain_eur": 7.15
           },
           {
             "cliente": "STE BBMAGRI, SARL",
@@ -282326,7 +282965,10 @@
             "dio_saving_days": 0.24798,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 248.02,
+            "net_financial_gain_eur": 206.41
           }
         ]
       },
@@ -282424,7 +283066,10 @@
             "dio_saving_days": 0.2927,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 292.75,
+            "net_financial_gain_eur": 222.5
           }
         ]
       },
@@ -282522,7 +283167,10 @@
             "dio_saving_days": 0.03995,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 59.94,
+            "net_financial_gain_eur": 45.65
           },
           {
             "cliente": "Lote Outlet Liquidación Fin de Año",
@@ -282562,7 +283210,10 @@
             "dio_saving_days": 0.069,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 103.51,
+            "net_financial_gain_eur": 103.51
           }
         ]
       },
@@ -282660,7 +283311,10 @@
             "dio_saving_days": 0.10038,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 150.6,
+            "net_financial_gain_eur": 126.19
           }
         ]
       },
@@ -282758,7 +283412,10 @@
             "dio_saving_days": 0.01753,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 26.3,
+            "net_financial_gain_eur": 23.34
           },
           {
             "cliente": "VILLALTA SATIVUM, S.L.",
@@ -282798,7 +283455,10 @@
             "dio_saving_days": 0.00839,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 12.59,
+            "net_financial_gain_eur": 11.13
           },
           {
             "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -282838,7 +283498,10 @@
             "dio_saving_days": 0.00351,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 5.26,
+            "net_financial_gain_eur": 4.7
           },
           {
             "cliente": "SC MARCOSER S.R.L.",
@@ -282878,7 +283541,10 @@
             "dio_saving_days": 0.05535,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 83.04,
+            "net_financial_gain_eur": 73.83
           },
           {
             "cliente": "AGROVEYCA,S.L",
@@ -282918,7 +283584,10 @@
             "dio_saving_days": 0.00689,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 10.33,
+            "net_financial_gain_eur": 9.35
           }
         ]
       },
@@ -283016,7 +283685,10 @@
             "dio_saving_days": 0.11964,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 150.0,
+            "holding_cost_saved_eur": 99.71,
+            "net_financial_gain_eur": 84.67
           }
         ]
       },
@@ -283114,7 +283786,10 @@
             "dio_saving_days": 0.06513,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 97.71,
+            "net_financial_gain_eur": 81.59
           }
         ]
       },
@@ -283212,7 +283887,10 @@
             "dio_saving_days": 0.06321,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 94.83,
+            "net_financial_gain_eur": 86.35
           }
         ]
       },
@@ -283310,7 +283988,10 @@
             "dio_saving_days": 0.00652,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 6.52,
+            "net_financial_gain_eur": 5.82
           },
           {
             "cliente": "FITOMURCIA S.L.",
@@ -283350,7 +284031,10 @@
             "dio_saving_days": 0.06301,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 63.02,
+            "net_financial_gain_eur": 57.12
           }
         ]
       },
@@ -283448,7 +284132,10 @@
             "dio_saving_days": 0.00268,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 2.68,
+            "net_financial_gain_eur": 2.3
           },
           {
             "cliente": "ZTB AQRO MMC",
@@ -283488,7 +284175,10 @@
             "dio_saving_days": 0.06025,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 60.26,
+            "net_financial_gain_eur": 49.29
           }
         ]
       },
@@ -283586,7 +284276,10 @@
             "dio_saving_days": 0.12452,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 62.27,
+            "net_financial_gain_eur": 32.54
           }
         ]
       },
@@ -283684,7 +284377,10 @@
             "dio_saving_days": 0.00862,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 12.94,
+            "net_financial_gain_eur": 11.88
           },
           {
             "cliente": "ZTB AQRO MMC",
@@ -283724,7 +284420,10 @@
             "dio_saving_days": 0.03622,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 54.34,
+            "net_financial_gain_eur": 49.19
           }
         ]
       },
@@ -283822,7 +284521,10 @@
             "dio_saving_days": 0.06474,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 64.76,
+            "net_financial_gain_eur": 52.38
           }
         ]
       },
@@ -283920,7 +284622,10 @@
             "dio_saving_days": 0.02923,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 29.23,
+            "net_financial_gain_eur": 25.43
           },
           {
             "cliente": "HORTICOLAS Y PATATAS HNOS. MORAN, S.A.T.",
@@ -283960,7 +284665,10 @@
             "dio_saving_days": 0.01439,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 14.4,
+            "net_financial_gain_eur": 12.38
           },
           {
             "cliente": "AGROTÉCNICA DEL NORTE, S.L",
@@ -284000,7 +284708,10 @@
             "dio_saving_days": 0.00785,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 7.85,
+            "net_financial_gain_eur": 6.83
           },
           {
             "cliente": "COMERCIAL TÉCNICA FITOCARTHAGO, S.L.",
@@ -284040,7 +284751,10 @@
             "dio_saving_days": 0.00087,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 0.87,
+            "net_financial_gain_eur": 0.76
           }
         ]
       },
@@ -284138,7 +284852,10 @@
             "dio_saving_days": 0.01549,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 15.49,
+            "net_financial_gain_eur": 13.63
           },
           {
             "cliente": "FITOMURCIA S.L.",
@@ -284178,7 +284895,10 @@
             "dio_saving_days": 0.01549,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 15.49,
+            "net_financial_gain_eur": 13.87
           },
           {
             "cliente": "DOTRA CHEMICALS",
@@ -284218,7 +284938,10 @@
             "dio_saving_days": 0.03335,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 33.36,
+            "net_financial_gain_eur": 28.67
           }
         ]
       },
@@ -284316,7 +285039,10 @@
             "dio_saving_days": 0.22129,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 126.0,
+            "holding_cost_saved_eur": 154.93,
+            "net_financial_gain_eur": 116.7
           }
         ]
       },
@@ -284414,7 +285140,10 @@
             "dio_saving_days": 0.00559,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 5.59,
+            "net_financial_gain_eur": 3.25
           },
           {
             "cliente": "AGRITEC MEDINA, S.L.U.",
@@ -284454,7 +285183,10 @@
             "dio_saving_days": 0.00235,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 2.35,
+            "net_financial_gain_eur": 1.31
           },
           {
             "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -284494,7 +285226,10 @@
             "dio_saving_days": 0.00081,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 0.81,
+            "net_financial_gain_eur": 0.43
           },
           {
             "cliente": "COMERCIAL NORTE AGROCAMPO, S.L.",
@@ -284534,7 +285269,10 @@
             "dio_saving_days": 0.00065,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 0.65,
+            "net_financial_gain_eur": 0.37
           },
           {
             "cliente": "ÇITAR ÇIÇEK TARIM TIC. LTD. STI",
@@ -284574,7 +285312,10 @@
             "dio_saving_days": 0.0175,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 17.5,
+            "net_financial_gain_eur": 7.49
           }
         ]
       },
@@ -284672,7 +285413,10 @@
             "dio_saving_days": 0.00524,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 7.87,
+            "net_financial_gain_eur": 6.35
           },
           {
             "cliente": "ASOC. HORTICULTORES DE VILLA DEL PRADO",
@@ -284712,7 +285456,10 @@
             "dio_saving_days": 0.0035,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 5.24,
+            "net_financial_gain_eur": 4.23
           },
           {
             "cliente": "SC MARCOSER S.R.L.",
@@ -284752,7 +285499,10 @@
             "dio_saving_days": 0.01689,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 25.34,
+            "net_financial_gain_eur": 20.56
           }
         ]
       },
@@ -284850,7 +285600,10 @@
             "dio_saving_days": 0.02922,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 29.22,
+            "net_financial_gain_eur": 24.39
           }
         ]
       },
@@ -284948,7 +285701,10 @@
             "dio_saving_days": 0.02108,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 31.63,
+            "net_financial_gain_eur": 29.28
           }
         ]
       },
@@ -284996,8 +285752,8 @@
         "dso_impact_empresa_days": 0.00872,
         "ccc_net_impact_days": -0.126,
         "holding_days": 166.0,
-        "holding_cost_saved_eur": 124.22,
-        "net_financial_gain_eur": 106.12,
+        "holding_cost_saved_eur": 124.23,
+        "net_financial_gain_eur": 106.13,
         "ratio_dio_vs_dso": 15.5,
         "palets_liberados": 1.91,
         "plan_id": "PLAN 4",
@@ -285046,7 +285802,10 @@
             "dio_saving_days": 0.08905,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 166.0,
+            "holding_cost_saved_eur": 82.14,
+            "net_financial_gain_eur": 71.83
           },
           {
             "cliente": "COOP.AGRIC. SAN ISIDRO S.C.A.",
@@ -285086,7 +285845,10 @@
             "dio_saving_days": 0.04563,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 166.0,
+            "holding_cost_saved_eur": 42.09,
+            "net_financial_gain_eur": 34.3
           }
         ]
       },
@@ -285134,8 +285896,8 @@
         "dso_impact_empresa_days": 0.00105,
         "ccc_net_impact_days": -0.015,
         "holding_days": 270.0,
-        "holding_cost_saved_eur": 23.53,
-        "net_financial_gain_eur": 21.35,
+        "holding_cost_saved_eur": 23.52,
+        "net_financial_gain_eur": 21.34,
         "ratio_dio_vs_dso": 15.2,
         "palets_liberados": 0.37,
         "plan_id": "PLAN 5",
@@ -285184,7 +285946,10 @@
             "dio_saving_days": 0.00309,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 4.63,
+            "net_financial_gain_eur": 4.3
           },
           {
             "cliente": "FITOMURCIA S.L.",
@@ -285224,7 +285989,10 @@
             "dio_saving_days": 0.01259,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 18.89,
+            "net_financial_gain_eur": 17.04
           }
         ]
       },
@@ -285272,8 +286040,8 @@
         "dso_impact_empresa_days": 0.00131,
         "ccc_net_impact_days": -0.019,
         "holding_days": 180.0,
-        "holding_cost_saved_eur": 19.52,
-        "net_financial_gain_eur": 16.8,
+        "holding_cost_saved_eur": 19.51,
+        "net_financial_gain_eur": 16.79,
         "ratio_dio_vs_dso": 15.3,
         "palets_liberados": 0.42,
         "plan_id": "PLAN 2",
@@ -285322,7 +286090,10 @@
             "dio_saving_days": 0.00634,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 6.34,
+            "net_financial_gain_eur": 5.52
           },
           {
             "cliente": "MAJ AGROQUIMICOS S.L.",
@@ -285362,7 +286133,10 @@
             "dio_saving_days": 0.0039,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 3.9,
+            "net_financial_gain_eur": 3.34
           },
           {
             "cliente": "STE BBMAGRI, SARL",
@@ -285402,7 +286176,10 @@
             "dio_saving_days": 0.00927,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 9.27,
+            "net_financial_gain_eur": 7.93
           }
         ]
       },
@@ -285450,8 +286227,8 @@
         "dso_impact_empresa_days": 0.00734,
         "ccc_net_impact_days": -0.061,
         "holding_days": 180.0,
-        "holding_cost_saved_eur": 68.31,
-        "net_financial_gain_eur": 53.07,
+        "holding_cost_saved_eur": 68.3,
+        "net_financial_gain_eur": 53.06,
         "ratio_dio_vs_dso": 9.3,
         "palets_liberados": 3.67,
         "plan_id": "PLAN 1",
@@ -285500,7 +286277,10 @@
             "dio_saving_days": 0.04559,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 45.6,
+            "net_financial_gain_eur": 35.99
           },
           {
             "cliente": "SERVIAGRI´ 97, S.L.",
@@ -285540,7 +286320,10 @@
             "dio_saving_days": 0.0227,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 22.7,
+            "net_financial_gain_eur": 17.07
           }
         ]
       },
@@ -285638,7 +286421,10 @@
             "dio_saving_days": 0.01406,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 14.06,
+            "net_financial_gain_eur": 12.1
           }
         ]
       },
@@ -285736,7 +286522,10 @@
             "dio_saving_days": 0.01063,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 10.63,
+            "net_financial_gain_eur": 9.1
           }
         ]
       },
@@ -285784,8 +286573,8 @@
         "dso_impact_empresa_days": 0.00162,
         "ccc_net_impact_days": -0.012,
         "holding_days": 180.0,
-        "holding_cost_saved_eur": 13.83,
-        "net_financial_gain_eur": 10.47,
+        "holding_cost_saved_eur": 13.84,
+        "net_financial_gain_eur": 10.48,
         "ratio_dio_vs_dso": 8.6,
         "palets_liberados": 0.31,
         "plan_id": "PLAN 5",
@@ -285834,7 +286623,10 @@
             "dio_saving_days": 0.00692,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 6.92,
+            "net_financial_gain_eur": 5.83
           },
           {
             "cliente": "CAMPOEJIDO S.C.A.",
@@ -285874,7 +286666,10 @@
             "dio_saving_days": 0.00692,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 6.92,
+            "net_financial_gain_eur": 4.65
           }
         ]
       },
@@ -285972,7 +286767,10 @@
             "dio_saving_days": 0.00326,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 4.9,
+            "net_financial_gain_eur": 4.49
           },
           {
             "cliente": "ACTIV. PRODUC. Y COMERC. LA VEGUILLA, SL",
@@ -286012,7 +286810,10 @@
             "dio_saving_days": 0.00276,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 4.14,
+            "net_financial_gain_eur": 3.69
           }
         ]
       },
@@ -286110,7 +286911,10 @@
             "dio_saving_days": 0.03495,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 34.95,
+            "net_financial_gain_eur": 24.71
           },
           {
             "cliente": "ASESORAMIENTO TECNICO DE CULTIVOS, S.L.",
@@ -286150,7 +286954,10 @@
             "dio_saving_days": 0.00024,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 180.0,
+            "holding_cost_saved_eur": 0.24,
+            "net_financial_gain_eur": 0.16
           }
         ]
       },
@@ -286248,7 +287055,10 @@
             "dio_saving_days": 0.00441,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 6.62,
+            "net_financial_gain_eur": 5.95
           }
         ]
       },
@@ -286346,7 +287156,10 @@
             "dio_saving_days": 0.00375,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 5.63,
+            "net_financial_gain_eur": 4.93
           }
         ]
       },
@@ -286444,7 +287257,10 @@
             "dio_saving_days": 0.00374,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 5.62,
+            "net_financial_gain_eur": 5.02
           }
         ]
       },
@@ -286542,7 +287358,10 @@
             "dio_saving_days": 0.00368,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 5.53,
+            "net_financial_gain_eur": 5.12
           }
         ]
       },
@@ -286640,7 +287459,10 @@
             "dio_saving_days": 0.00342,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 270.0,
+            "holding_cost_saved_eur": 5.12,
+            "net_financial_gain_eur": 4.45
           }
         ]
       },
@@ -286738,7 +287560,10 @@
             "dio_saving_days": 0.003,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 1.5,
+            "net_financial_gain_eur": 0.89
           }
         ]
       },
@@ -286836,7 +287661,10 @@
             "dio_saving_days": 0.28072,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 111.0,
+            "holding_cost_saved_eur": 173.14,
+            "net_financial_gain_eur": 147.85
           },
           {
             "cliente": "FITOMURCIA S.L.",
@@ -286876,7 +287704,10 @@
             "dio_saving_days": 0.07558,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 111.0,
+            "holding_cost_saved_eur": 46.61,
+            "net_financial_gain_eur": 39.99
           }
         ]
       },
@@ -286974,7 +287805,10 @@
             "dio_saving_days": 0.24086,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 120.45,
+            "net_financial_gain_eur": 84.61
           }
         ]
       },
@@ -287072,7 +287906,10 @@
             "dio_saving_days": 0.20463,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 102.33,
+            "net_financial_gain_eur": 74.87
           }
         ]
       },
@@ -287170,7 +288007,10 @@
             "dio_saving_days": 0.15815,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 79.09,
+            "net_financial_gain_eur": 49.59
           }
         ]
       },
@@ -287268,7 +288108,10 @@
             "dio_saving_days": 0.14396,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 71.99,
+            "net_financial_gain_eur": 50.91
           }
         ]
       },
@@ -287366,7 +288209,10 @@
             "dio_saving_days": 0.11036,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 104.0,
+            "holding_cost_saved_eur": 63.78,
+            "net_financial_gain_eur": 49.14
           }
         ]
       },
@@ -287464,7 +288310,10 @@
             "dio_saving_days": 0.10694,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 53.48,
+            "net_financial_gain_eur": 24.44
           }
         ]
       },
@@ -287562,7 +288411,10 @@
             "dio_saving_days": 0.10066,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 50.34,
+            "net_financial_gain_eur": 40.42
           }
         ]
       },
@@ -287660,7 +288512,10 @@
             "dio_saving_days": 0.0789,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 39.46,
+            "net_financial_gain_eur": 27.59
           }
         ]
       },
@@ -287758,7 +288613,10 @@
             "dio_saving_days": 0.07002,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 35.02,
+            "net_financial_gain_eur": 25.07
           }
         ]
       },
@@ -287856,7 +288714,10 @@
             "dio_saving_days": 0.06915,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 34.58,
+            "net_financial_gain_eur": 25.98
           }
         ]
       },
@@ -287904,8 +288765,8 @@
         "dso_impact_empresa_days": 0.00386,
         "ccc_net_impact_days": -0.063,
         "holding_days": 118.0,
-        "holding_cost_saved_eur": 43.89,
-        "net_financial_gain_eur": 35.87,
+        "holding_cost_saved_eur": 43.9,
+        "net_financial_gain_eur": 35.88,
         "ratio_dio_vs_dso": 17.4,
         "palets_liberados": 1.46,
         "plan_id": "PLAN 4",
@@ -287954,7 +288815,10 @@
             "dio_saving_days": 0.06073,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 118.0,
+            "holding_cost_saved_eur": 39.82,
+            "net_financial_gain_eur": 32.56
           },
           {
             "cliente": "FITOXENT S.C.L.V.",
@@ -287994,7 +288858,10 @@
             "dio_saving_days": 0.00622,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 118.0,
+            "holding_cost_saved_eur": 4.08,
+            "net_financial_gain_eur": 3.32
           }
         ]
       },
@@ -288092,7 +288959,10 @@
             "dio_saving_days": 0.06414,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 113.0,
+            "holding_cost_saved_eur": 40.27,
+            "net_financial_gain_eur": 31.59
           }
         ]
       },
@@ -288190,7 +289060,10 @@
             "dio_saving_days": 0.05743,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 28.72,
+            "net_financial_gain_eur": 21.63
           }
         ]
       },
@@ -288288,7 +289161,10 @@
             "dio_saving_days": 0.05368,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 94.0,
+            "holding_cost_saved_eur": 28.04,
+            "net_financial_gain_eur": 20.93
           }
         ]
       },
@@ -288386,7 +289262,10 @@
             "dio_saving_days": 0.04124,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 20.62,
+            "net_financial_gain_eur": 13.28
           }
         ]
       },
@@ -288434,8 +289313,8 @@
         "dso_impact_empresa_days": 0.00332,
         "ccc_net_impact_days": -0.029,
         "holding_days": 129.0,
-        "holding_cost_saved_eur": 23.29,
-        "net_financial_gain_eur": 16.4,
+        "holding_cost_saved_eur": 23.28,
+        "net_financial_gain_eur": 16.39,
         "ratio_dio_vs_dso": 9.6,
         "palets_liberados": 0.71,
         "plan_id": "PLAN 4",
@@ -288484,7 +289363,10 @@
             "dio_saving_days": 0.01051,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 129.0,
+            "holding_cost_saved_eur": 7.53,
+            "net_financial_gain_eur": 5.37
           },
           {
             "cliente": "FRUITURE ADVISORS, S.L.",
@@ -288524,7 +289406,10 @@
             "dio_saving_days": 0.0043,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 129.0,
+            "holding_cost_saved_eur": 3.08,
+            "net_financial_gain_eur": 2.16
           },
           {
             "cliente": "GUIVARTO AGRICOLA, S.L.",
@@ -288564,7 +289449,10 @@
             "dio_saving_days": 0.0043,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 129.0,
+            "holding_cost_saved_eur": 3.08,
+            "net_financial_gain_eur": 2.2
           },
           {
             "cliente": "AGROQUIMICAS DRAGO S.L.",
@@ -288604,7 +289492,10 @@
             "dio_saving_days": 0.00382,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 129.0,
+            "holding_cost_saved_eur": 2.74,
+            "net_financial_gain_eur": 1.98
           },
           {
             "cliente": "CAMPO ABIERTO, S.A.S.",
@@ -288644,7 +289535,10 @@
             "dio_saving_days": 0.00956,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 129.0,
+            "holding_cost_saved_eur": 6.85,
+            "net_financial_gain_eur": 4.68
           }
         ]
       },
@@ -288742,7 +289636,10 @@
             "dio_saving_days": 0.03182,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 15.91,
+            "net_financial_gain_eur": 9.45
           }
         ]
       },
@@ -288840,7 +289737,10 @@
             "dio_saving_days": 0.03092,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 15.46,
+            "net_financial_gain_eur": 10.04
           }
         ]
       },
@@ -288938,7 +289838,10 @@
             "dio_saving_days": 0.02103,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 10.52,
+            "net_financial_gain_eur": 7.53
           }
         ]
       },
@@ -289036,7 +289939,10 @@
             "dio_saving_days": 0.01946,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 9.73,
+            "net_financial_gain_eur": 6.68
           }
         ]
       },
@@ -289134,7 +290040,10 @@
             "dio_saving_days": 0.01843,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 9.22,
+            "net_financial_gain_eur": 6.61
           }
         ]
       },
@@ -289232,7 +290141,10 @@
             "dio_saving_days": 0.01604,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 120.0,
+            "holding_cost_saved_eur": 10.7,
+            "net_financial_gain_eur": 8.7
           }
         ]
       },
@@ -289330,7 +290242,10 @@
             "dio_saving_days": 0.01089,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 5.45,
+            "net_financial_gain_eur": 4.02
           }
         ]
       },
@@ -289428,7 +290343,10 @@
             "dio_saving_days": 0.00998,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 4.99,
+            "net_financial_gain_eur": 3.69
           }
         ]
       },
@@ -289526,7 +290444,10 @@
             "dio_saving_days": 0.00873,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 158.0,
+            "holding_cost_saved_eur": 7.66,
+            "net_financial_gain_eur": 6.29
           }
         ]
       },
@@ -289624,7 +290545,10 @@
             "dio_saving_days": 0.00816,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 4.08,
+            "net_financial_gain_eur": 3.26
           }
         ]
       },
@@ -289722,7 +290646,10 @@
             "dio_saving_days": 0.00779,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 164.0,
+            "holding_cost_saved_eur": 7.1,
+            "net_financial_gain_eur": 5.61
           }
         ]
       },
@@ -289820,7 +290747,10 @@
             "dio_saving_days": 0.00373,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 166.0,
+            "holding_cost_saved_eur": 3.44,
+            "net_financial_gain_eur": 3.07
           }
         ]
       },
@@ -289918,7 +290848,10 @@
             "dio_saving_days": 0.00304,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 1.52,
+            "net_financial_gain_eur": 1.18
           }
         ]
       },
@@ -290016,7 +290949,10 @@
             "dio_saving_days": 0.0007,
             "es_reprocesado_interno": false,
             "compras_materia_prima_evitadas_eur": 0.0,
-            "coste_tecnico_reprocesado_eur": 0.0
+            "coste_tecnico_reprocesado_eur": 0.0,
+            "holding_days": 90.0,
+            "holding_cost_saved_eur": 0.35,
+            "net_financial_gain_eur": 0.27
           }
         ]
       }

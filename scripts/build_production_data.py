@@ -1362,8 +1362,15 @@ def build_scenario_production_data(scenario_name='revisado'):
             holding_days = max(90.0, min(180.0, round((tot_ex_qty / nac_6m) * 180.0, 0)))
         else:
             holding_days = 180.0
-        holding_cost_saved_eur = round(tot_ex_eur * TASA_HOLDING_INVENTARIO * (holding_days / 365.0), 2)
-        net_financial_gain_eur = round(holding_cost_saved_eur - coste_fin_pago_eur, 2)
+
+        for o in ofertas_clientes:
+            o_cogs = o.get('cogs_eur', 0.0)
+            o['holding_days'] = holding_days
+            o['holding_cost_saved_eur'] = round(o_cogs * TASA_HOLDING_INVENTARIO * (holding_days / 365.0), 2)
+            o['net_financial_gain_eur'] = round(o['holding_cost_saved_eur'] - o.get('coste_fin_eur', 0.0), 2)
+
+        holding_cost_saved_eur = round(sum(o['holding_cost_saved_eur'] for o in ofertas_clientes), 2)
+        net_financial_gain_eur = round(sum(o['net_financial_gain_eur'] for o in ofertas_clientes), 2)
 
         suggestions_items.append({
             'base_sku': b_sku,
@@ -1534,8 +1541,8 @@ def build_scenario_production_data(scenario_name='revisado'):
         meta_p['dio_saving_days'] = round(sum(o.get('dio_saving_days', 0.0) for o in p_offers), 3)
         meta_p['dso_impact_days'] = round(sum(o.get('dso_impact_days', 0.0) for o in p_offers), 5)
         meta_p['ccc_net_impact_days'] = round(-meta_p['dio_saving_days'] + meta_p['dso_impact_days'], 3)
-        meta_p['holding_cost_saved_eur'] = round(meta_p['total_cost_eur'] * TASA_HOLDING_INVENTARIO * (180.0 / 365.0), 2)
-        meta_p['net_financial_gain_eur'] = round(meta_p['holding_cost_saved_eur'] - meta_p['coste_fin_pago_eur'], 2)
+        meta_p['holding_cost_saved_eur'] = round(sum(o.get('holding_cost_saved_eur', 0.0) for o in p_offers), 2)
+        meta_p['net_financial_gain_eur'] = round(sum(o.get('net_financial_gain_eur', 0.0) for o in p_offers), 2)
         meta_p['ratio_dio_vs_dso'] = round(meta_p['dio_saving_days'] / meta_p['dso_impact_days'], 1) if meta_p['dso_impact_days'] > 0 else 999.0
         meta_p['palets_liberados'] = round(sum(
             max(0.1, o['vol_asignado'] / (
@@ -1571,12 +1578,12 @@ def build_scenario_production_data(scenario_name='revisado'):
     coste_dto_total = round(sum(x['coste_dto_eur'] for x in suggestions_items), 2)
     coste_rappel_total = round(sum(x.get('coste_rappel_eur', 0) for x in suggestions_items), 2)
     coste_merch_total = round(sum(x['coste_merch_eur'] for x in suggestions_items), 2)
-    coste_fin_total = round(sum(x['coste_fin_pago_eur'] for x in suggestions_items), 2)
+    coste_fin_total = round(sum(p['coste_fin_pago_eur'] for p in plans_summary), 2)
     coste_comercial_tot = round(sum(x['coste_comercial_total_eur'] for x in suggestions_items), 2)
     margen_bruto_tot = round(sum(x['margen_bruto_eur'] for x in suggestions_items), 2)
     margen_neto_real_tot = round(sum(x['margen_neto_eur'] for x in suggestions_items), 2)
-    holding_saved_tot = round(sum(x['holding_cost_saved_eur'] for x in suggestions_items), 2)
-    net_fin_gain_tot = round(sum(x['net_financial_gain_eur'] for x in suggestions_items), 2)
+    holding_saved_tot = round(sum(p['holding_cost_saved_eur'] for p in plans_summary), 2)
+    net_fin_gain_tot = round(sum(p['net_financial_gain_eur'] for p in plans_summary), 2)
     ratio_dio_dso_tot = round(dio_ex_total / dso_impact_total, 1) if dso_impact_total > 0 else 999.0
 
     # Resumen de regalos técnicos reservados de stock

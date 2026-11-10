@@ -11,7 +11,7 @@ echo.
 set "PY=C:\Users\oscar.ocampo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
 set "BACKUP_DIR=scratch\last_valid_backup"
 set "STAGING_DIR=scratch\staging"
-set "LAST_DATA_DATE=30/09/2026 (Cierre Full Costing Sep-26) / 09/11/2026 (Pedidos 09.11 y Stock 09.11)"
+set "LAST_DATA_DATE=30/09/2026 (Cierre Full Costing Sep-26) / 10/11/2026 (Pedidos 10.11 y Stock 10.11)"
 
 REM ----------------------------------------------------------------------
 REM PASO 0: Resguardar la ultima version valida antes de regenerar salidas

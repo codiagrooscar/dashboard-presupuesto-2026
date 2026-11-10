@@ -1,15 +1,15 @@
 {
   "mejora_1_forecast_accuracy": {
-    "tot_budget_uds": 374235.7685,
+    "tot_budget_uds": 284389.92000000004,
     "tot_pedidos_uds": 290647.0,
-    "tot_bias_uds": -83588.7685,
-    "tot_error_abs_sku_uds": 559704.22,
+    "tot_bias_uds": 6257.079999999958,
+    "tot_error_abs_sku_uds": 475864.3,
     "tot_importe_neto_eur": 1025449.77,
-    "tot_consecucion_pct": 77.7,
-    "tot_consecucion_volumen_pct": 77.7,
+    "tot_consecucion_pct": 102.2,
+    "tot_consecucion_volumen_pct": 102.2,
     "tot_forecast_accuracy_pct": 0.0,
     "tot_forecast_accuracy_sku_wmape_pct": 0.0,
-    "tot_wmape_error_pct": 192.6,
+    "tot_wmape_error_pct": 163.7,
     "comerciales": [
       {
         "comercial": "Alfonso",
@@ -66,14 +66,14 @@
       {
         "comercial": "Mehmet",
         "clientes_activos": 1,
-        "budget_uds": 89845.84850000001,
+        "budget_uds": 0.0,
         "pedidos_uds": 7632.0,
-        "desv_uds": -82213.84850000001,
-        "error_abs_sku_uds": 91471.92,
-        "pct_consec": 8.494549417049582,
+        "desv_uds": 7632.0,
+        "error_abs_sku_uds": 7632.0,
+        "pct_consec": 100.0,
         "forecast_accuracy_pct": 0.0,
-        "wmape_error_pct": 1198.5,
-        "bias_tipo": "Sobreestimó (Ventas < Presupuesto)",
+        "wmape_error_pct": 100.0,
+        "bias_tipo": "Subestimó (Ventas > Presupuesto)",
         "importe_neto_eur": 38415.16
       },
       {
@@ -103,7 +103,7 @@
         "importe_neto_eur": 299520.20000000007
       }
     ],
-    "nota_metodologia": "La consecución de volumen total (77.7%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU WMAPE (0.0%) mide precisión ponderada por volumen."
+    "nota_metodologia": "La consecución de volumen total (102.2%) mide cumplimiento presupuestario agregado. La fiabilidad oficial SKU a SKU WMAPE (0.0%) mide precisión ponderada por volumen."
   },
   "mejora_2_concentracion_stress_test": {
     "total_ventas_2026": 15179999.94,

@@ -6140,6 +6140,520 @@
       mostrarToastNotificacion('↺ Oferta reabierta como PENDIENTE');
     };
 
+    
+    // =========================================================================
+    // MODULO: COMPROBACIÓN DE ESTADO Y OFERTA DESACTUALIZADA (PUNTO 4 CHATGPT)
+    // =========================================================================
+    function checkOfferStatus(o, it) {
+      const fb = (getOffersFeedback())[o.id_oferta] || {};
+      if (fb.estado === 'RECHAZADA') {
+        return {
+          status: 'RECHAZADA',
+          badgeBg: 'rgba(239,68,68,0.25)',
+          badgeColor: '#fca5a5',
+          badgeBorder: 'rgba(239,68,68,0.5)',
+          badgeText: '❌ Rechazada',
+          tooltip: 'Motivo: ' + (fb.motivo || 'Rechazada por cliente'),
+          isWarning: true
+        };
+      }
+      if (fb.estado === 'ACEPTADA') {
+        return {
+          status: 'ACEPTADA',
+          badgeBg: 'rgba(16,185,129,0.25)',
+          badgeColor: '#34d399',
+          badgeBorder: 'rgba(16,185,129,0.5)',
+          badgeText: '✅ Aceptada',
+          tooltip: 'Acuerdo confirmado y en tramitación operativa',
+          isWarning: false
+        };
+      }
+
+      // Chequeo de stock libre físico en almacén
+      const freeStock = (o.alertas_desactualizacion && o.alertas_desactualizacion.stock_libre_disponible !== undefined)
+        ? o.alertas_desactualizacion.stock_libre_disponible
+        : (it ? (it.stock_libre || it.stock_actual) : o.vol_asignado);
+
+      if (freeStock < (o.vol_asignado || 0)) {
+        return {
+          status: 'DESACTUALIZADA_STOCK',
+          badgeBg: 'rgba(245,158,11,0.25)',
+          badgeColor: '#fde68a',
+          badgeBorder: 'rgba(245,158,11,0.5)',
+          badgeText: '⚠️ Stock Insuficiente',
+          tooltip: 'Stock libre en nave (' + fmtNum(freeStock) + ') menor al cupo propuesto (' + fmtNum(o.vol_asignado) + ')',
+          isWarning: true
+        };
+      }
+
+      return {
+        status: 'VIGENTE',
+        badgeBg: 'rgba(16,185,129,0.18)',
+        badgeColor: '#34d399',
+        badgeBorder: 'rgba(16,185,129,0.4)',
+        badgeText: '🟢 En Plazo y Stock OK',
+        tooltip: 'Stock libre reservado y propuesta vigente hasta ' + (o.vigencia || '30/11/2026'),
+        isWarning: false
+      };
+    }
+
+    // =========================================================================
+    // MODULO: GESTOR DE SIMULACIONES Y COMPARADOR CEO (PUNTO 3 CHATGPT)
+    // =========================================================================
+    function getSavedSimulations() {
+      try {
+        const raw = localStorage.getItem('codiagro_stock_simulations');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+
+      // Escenarios base por defecto si no hay nada guardado
+      const sug = (productionData && productionData.stock_suggestions) ? productionData.stock_suggestions : null;
+      const allSkus = (sug && sug.items) ? sug.items.map(x => x.base_sku) : [];
+      const nmSkus = (sug && sug.items) ? sug.items.filter(x => x.is_nomover).map(x => x.base_sku) : [];
+
+      const defaultSims = [
+        {
+          id: 'sim_default_all',
+          name: 'Plan Integral (Cartera Completa 68 SKUs)',
+          date: '10/11/2026 08:00',
+          notes: 'Selección global de todas las referencias NoMovers y SlowMovers auditadas.',
+          skus: allSkus,
+          is_builtin: true
+        },
+        {
+          id: 'sim_default_nomover',
+          name: 'Plan de Choque NoMovers Urgentes',
+          date: '10/11/2026 08:00',
+          notes: 'Enfocado exclusivamente en las referencias sin rotación (>6 meses) para cortar coste holding.',
+          skus: nmSkus,
+          is_builtin: true
+        }
+      ];
+      try {
+        localStorage.setItem('codiagro_stock_simulations', JSON.stringify(defaultSims));
+      } catch (e) {}
+      return defaultSims;
+    }
+
+    function saveSavedSimulations(simList) {
+      try {
+        localStorage.setItem('codiagro_stock_simulations', JSON.stringify(simList));
+      } catch (e) {}
+    }
+
+    function computeSimulationMetrics(skuList) {
+      const sug = (productionData && productionData.stock_suggestions) ? productionData.stock_suggestions : null;
+      if (!sug || !sug.items) return null;
+      const skuSet = new Set(skuList);
+      const items = sug.items.filter(it => skuSet.has(it.base_sku));
+
+      const count = items.length;
+      const qty = items.reduce((a, b) => a + (b.total_excedente_qty || 0), 0);
+      const cost = items.reduce((a, b) => a + (b.total_excedente_eur || 0), 0);
+      const rev = items.reduce((a, b) => a + (b.ingreso_total_propuesto_eur || 0), 0);
+      const margin = items.reduce((a, b) => a + (b.margen_neto_real_eur || 0), 0);
+      const marginPct = rev > 0 ? (margin / rev) * 100 : (cost > 0 ? (margin / cost) * 100 : 0);
+
+      // Métricas de Working Capital congruentes (sin reprocesado en DIO)
+      const sumExtCost = items.reduce((a, b) => {
+        return a + (b.ofertas_clientes || []).filter(o => !o.es_reprocesado_interno).reduce((sa, sb) => sa + (sb.cogs_eur || 0), 0);
+      }, 0);
+      const dioSaving = items.reduce((a, b) => a + (b.dio_saving_days || 0), 0);
+      const dsoImpact = items.reduce((a, b) => a + (b.dso_impact_empresa_days || 0), 0);
+      const cccNet = dioSaving - dsoImpact;
+
+      const holdingSaved = items.reduce((a, b) => a + (b.holding_cost_saved_eur || 0), 0);
+      const netGain = items.reduce((a, b) => a + (b.net_financial_gain_eur || 0), 0);
+
+      return {
+        count, qty, cost, rev, margin, marginPct, sumExtCost, dioSaving, dsoImpact, cccNet, holdingSaved, netGain
+      };
+    }
+
+    window.abrirModalGuardarSimulacion = function() {
+      const count = sugSelectedSkus.size;
+      if (count === 0) {
+        alert('Seleccione al menos un SKU antes de guardar la simulación.');
+        return;
+      }
+      const m = computeSimulationMetrics(Array.from(sugSelectedSkus));
+      const defaultName = 'Campaña Noviembre (' + count + ' SKUs - ' + fmtCurr(m.cost) + ')';
+
+      const modalHtml = `
+        <div id="modalGuardarSimOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:100000;display:flex;align-items:center;justify-content:center;padding:1rem;">
+          <div style="background:#0f172a;border:1px solid #3b82f6;border-radius:12px;max-width:520px;width:100%;padding:1.5rem;color:#f8fafc;box-shadow:0 25px 50px rgba(0,0,0,0.8);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;border-bottom:1px solid #334155;padding-bottom:0.5rem;">
+              <h3 style="margin:0;font-size:1.15rem;color:#60a5fa;display:flex;align-items:center;gap:0.4rem;">
+                💾 Guardar Simulación Actual
+              </h3>
+              <button onclick="document.getElementById('modalGuardarSimOverlay').remove()" style="background:transparent;border:none;color:#94a3b8;font-size:1.4rem;cursor:pointer;">&times;</button>
+            </div>
+            
+            <div style="background:rgba(30,41,59,0.7);padding:0.75rem;border-radius:8px;font-size:0.78rem;margin-bottom:1rem;line-height:1.5;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                <span style="color:#cbd5e1;">SKUs seleccionados:</span>
+                <strong style="color:#f8fafc;">${count} referencias (${fmtNum(m.qty)} L/Kg)</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                <span style="color:#cbd5e1;">Stock a coste:</span>
+                <strong style="color:#fbbf24;">${fmtCurr(m.cost)}</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                <span style="color:#cbd5e1;">Facturación esperada:</span>
+                <strong style="color:#38bdf8;">${fmtCurr(m.rev)}</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                <span style="color:#cbd5e1;">Margen neto de ofertas:</span>
+                <strong style="color:#34d399;">+${fmtCurr(m.margin)} (${m.marginPct.toFixed(1)}%)</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;border-top:1px solid #334155;padding-top:0.25rem;margin-top:0.25rem;">
+                <span style="color:#cbd5e1;">Reducción DIO / Ganancia Neta:</span>
+                <strong style="color:#34d399;">-${m.dioSaving.toFixed(2)}d / +${fmtCurr(m.netGain)}</strong>
+              </div>
+            </div>
+
+            <div style="margin-bottom:0.9rem;">
+              <label style="display:block;font-size:0.75rem;color:#cbd5e1;font-weight:700;margin-bottom:0.3rem;">Nombre de la Simulación:</label>
+              <input type="text" id="inputSimNombre" value="${defaultName}" style="width:100%;box-sizing:border-box;background:#1e293b;border:1px solid #475569;border-radius:6px;padding:0.5rem 0.75rem;color:#f8fafc;font-size:0.82rem;">
+            </div>
+
+            <div style="margin-bottom:1.2rem;">
+              <label style="display:block;font-size:0.75rem;color:#cbd5e1;font-weight:700;margin-bottom:0.3rem;">Notas u Objetivo Comercial:</label>
+              <textarea id="inputSimNotas" placeholder="Ej: Campaña de salida pactada en S&OP para liquidar garrafas 20L..." rows="2" style="width:100%;box-sizing:border-box;background:#1e293b;border:1px solid #475569;border-radius:6px;padding:0.5rem 0.75rem;color:#f8fafc;font-size:0.8rem;resize:none;"></textarea>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+              <button onclick="document.getElementById('modalGuardarSimOverlay').remove()" class="pill-btn" style="font-size:0.75rem;padding:0.4rem 0.9rem;cursor:pointer;">
+                Cancelar
+              </button>
+              <button onclick="confirmarGuardarSimulacion()" class="pill-btn active" style="font-size:0.75rem;padding:0.4rem 1.1rem;background:#10b981;border-color:#10b981;cursor:pointer;">
+                💾 Guardar Simulación
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      const existing = document.getElementById('modalGuardarSimOverlay');
+      if (existing) existing.remove();
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    };
+
+    window.confirmarGuardarSimulacion = function() {
+      const nombreInput = document.getElementById('inputSimNombre');
+      const notasInput = document.getElementById('inputSimNotas');
+      const nombre = nombreInput ? (nombreInput.value.trim() || 'Simulación Sin Título') : 'Simulación';
+      const notas = notasInput ? notasInput.value.trim() : '';
+
+      const list = getSavedSimulations();
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('es-ES') + ' ' + now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+      const newSim = {
+        id: 'sim_' + Date.now(),
+        name: nombre,
+        date: dateStr,
+        notes: notas,
+        skus: Array.from(sugSelectedSkus),
+        is_builtin: false
+      };
+
+      list.unshift(newSim);
+      saveSavedSimulations(list);
+
+      const m = document.getElementById('modalGuardarSimOverlay');
+      if (m) m.remove();
+      mostrarToastNotificacion('💾 Simulación guardada: ' + nombre);
+      abrirModalGestorSimulaciones('lista');
+    };
+
+    window.abrirModalGestorSimulaciones = function(tabActiva = 'lista', compareSimAId = null, compareSimBId = null) {
+      const list = getSavedSimulations();
+
+      // IDs para comparación
+      const curSkus = Array.from(sugSelectedSkus);
+      let simAId = compareSimAId || (list.length > 0 ? list[0].id : 'current');
+      let simBId = compareSimBId || (list.length > 1 ? list[1].id : 'current');
+
+      const modalHtml = `
+        <div id="modalGestorSimOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:100000;display:flex;align-items:center;justify-content:center;padding:1rem;">
+          <div style="background:#0f172a;border:1px solid #334155;border-radius:12px;max-width:850px;width:100%;max-height:90vh;overflow-y:auto;padding:1.5rem;color:#f8fafc;box-shadow:0 25px 50px rgba(0,0,0,0.8);">
+            
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;border-bottom:1px solid #334155;padding-bottom:0.75rem;">
+              <div>
+                <h3 style="margin:0;font-size:1.2rem;color:#38bdf8;font-weight:800;display:flex;align-items:center;gap:0.5rem;">
+                  🗂️ Gestor de Simulaciones y Comparador CEO
+                </h3>
+                <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.2rem;">
+                  Conserva escenarios comerciales, recupéralos en un clic y compara alternativas económicas lado a lado.
+                </div>
+              </div>
+              <button onclick="document.getElementById('modalGestorSimOverlay').remove()" style="background:transparent;border:none;color:#94a3b8;font-size:1.5rem;cursor:pointer;">&times;</button>
+            </div>
+
+            <div style="display:flex;gap:0.5rem;margin-bottom:1.2rem;border-bottom:1px solid #1e293b;padding-bottom:0.5rem;">
+              <button id="btnTabSimLista" onclick="cambiarTabGestorSim('lista')" class="pill-btn ${tabActiva === 'lista' ? 'active' : ''}" style="font-size:0.78rem;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;">
+                📂 Simulaciones Guardadas (${list.length})
+              </button>
+              <button id="btnTabSimComparar" onclick="cambiarTabGestorSim('comparar')" class="pill-btn ${tabActiva === 'comparar' ? 'active' : ''}" style="font-size:0.78rem;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;">
+                ⚖️ Comparar 2 Escenarios Lado a Lado
+              </button>
+            </div>
+
+            <!-- VISTA: LISTA DE SIMULACIONES GUARDADAS -->
+            <div id="vistaGestorSimLista" style="display:${tabActiva === 'lista' ? 'block' : 'none'};">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                <span style="font-size:0.78rem;color:#cbd5e1;">Historial de escenarios registrados:</span>
+                <button onclick="document.getElementById('modalGestorSimOverlay').remove(); abrirModalGuardarSimulacion();" class="pill-btn active" style="font-size:0.75rem;padding:0.3rem 0.8rem;background:#10b981;border-color:#10b981;cursor:pointer;">
+                  ➕ Guardar Selección Actual (${sugSelectedSkus.size} SKUs)
+                </button>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                ${list.map((sim, sIdx) => {
+                  const m = computeSimulationMetrics(sim.skus) || { count: 0, cost: 0, rev: 0, margin: 0, dioSaving: 0, netGain: 0 };
+                  const isCurrentActive = sim.skus.length === sugSelectedSkus.size && sim.skus.every(x => sugSelectedSkus.has(x));
+
+                  return `
+                    <div style="background:rgba(30,41,59,0.7);border:1px solid ${isCurrentActive ? '#10b981' : '#334155'};border-radius:8px;padding:0.9rem 1.1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+                      <div style="max-width:55%;">
+                        <div style="display:flex;align-items:center;gap:0.4rem;">
+                          <strong style="font-size:0.92rem;color:#f8fafc;">${sim.name}</strong>
+                          ${isCurrentActive ? '<span class="tab-badge" style="background:rgba(16,185,129,0.2);color:#34d399;font-size:0.65rem;border:1px solid rgba(16,185,129,0.4);">ACTIVA EN PANTALLA</span>' : ''}
+                          ${sim.is_builtin ? '<span class="tab-badge" style="background:rgba(56,189,248,0.2);color:#38bdf8;font-size:0.65rem;border:1px solid rgba(56,189,248,0.4);">OFICIAL</span>' : ''}
+                        </div>
+                        <div style="font-size:0.72rem;color:#94a3b8;margin-top:0.2rem;">
+                          📅 ${sim.date} &bull; ${sim.skus.length} SKUs &bull; ${sim.notes || 'Sin observaciones'}
+                        </div>
+                        <div style="display:flex;gap:0.85rem;font-size:0.75rem;margin-top:0.4rem;">
+                          <span style="color:#cbd5e1;">Coste: <strong style="color:#fbbf24;">${fmtCurr(m.cost)}</strong></span>
+                          <span style="color:#cbd5e1;">Facturación: <strong style="color:#38bdf8;">${fmtCurr(m.rev)}</strong></span>
+                          <span style="color:#cbd5e1;">Margen: <strong style="color:#34d399;">+${fmtCurr(m.margin)}</strong></span>
+                          <span style="color:#cbd5e1;">Red. DIO: <strong style="color:#34d399;">-${m.dioSaving.toFixed(2)}d</strong></span>
+                        </div>
+                      </div>
+
+                      <div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
+                        <button onclick="cargarSimulacionEnPantalla('${sim.id}')" class="pill-btn ${isCurrentActive ? '' : 'active'}" style="font-size:0.72rem;padding:0.35rem 0.75rem;cursor:pointer;">
+                          ▶️ Cargar en Pantalla
+                        </button>
+                        <button onclick="abrirModalGestorSimulaciones('comparar', '${sim.id}', 'current')" class="pill-btn" style="font-size:0.72rem;padding:0.35rem 0.7rem;background:rgba(56,189,248,0.18);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;cursor:pointer;">
+                          ⚖️ Comparar
+                        </button>
+                        ${!sim.is_builtin ? `
+                          <button onclick="eliminarSimulacion('${sim.id}')" class="pill-btn" style="font-size:0.72rem;padding:0.35rem 0.6rem;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#fca5a5;cursor:pointer;" title="Eliminar simulación">
+                            🗑️
+                          </button>
+                        ` : ''}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+
+            <!-- VISTA: COMPARADOR DE SIMULACIONES LADO A LADO -->
+            <div id="vistaGestorSimComparar" style="display:${tabActiva === 'comparar' ? 'block' : 'none'};">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                <div style="background:rgba(30,41,59,0.7);padding:0.75rem;border-radius:8px;border:1px solid #38bdf8;">
+                  <label style="display:block;font-size:0.75rem;color:#38bdf8;font-weight:700;margin-bottom:0.3rem;">Escenario Base (A):</label>
+                  <select id="selectCompareSimA" onchange="actualizarComparativaModal()" style="width:100%;background:#1e293b;color:#f8fafc;border:1px solid #475569;border-radius:6px;padding:0.4rem 0.6rem;font-size:0.8rem;">
+                    <option value="current">🖥️ Selección Actual en Pantalla (${sugSelectedSkus.size} SKUs)</option>
+                    ${list.map(s => `<option value="${s.id}" ${s.id === simAId ? 'selected' : ''}>${s.name} (${s.skus.length} SKUs)</option>`).join('')}
+                  </select>
+                </div>
+                <div style="background:rgba(30,41,59,0.7);padding:0.75rem;border-radius:8px;border:1px solid #c084fc;">
+                  <label style="display:block;font-size:0.75rem;color:#c084fc;font-weight:700;margin-bottom:0.3rem;">Escenario a Contrastar (B):</label>
+                  <select id="selectCompareSimB" onchange="actualizarComparativaModal()" style="width:100%;background:#1e293b;color:#f8fafc;border:1px solid #475569;border-radius:6px;padding:0.4rem 0.6rem;font-size:0.8rem;">
+                    <option value="current" ${simBId === 'current' ? 'selected' : ''}>🖥️ Selección Actual en Pantalla (${sugSelectedSkus.size} SKUs)</option>
+                    ${list.map(s => `<option value="${s.id}" ${s.id === simBId ? 'selected' : ''}>${s.name} (${s.skus.length} SKUs)</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+
+              <div id="contenedorTablaComparativa">
+                <!-- Se inyecta dinámicamente con renderTablaComparativa -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `;
+
+      const existing = document.getElementById('modalGestorSimOverlay');
+      if (existing) existing.remove();
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+      if (tabActiva === 'comparar') {
+        window.actualizarComparativaModal();
+      }
+    };
+
+    window.cambiarTabGestorSim = function(tab) {
+      const vList = document.getElementById('vistaGestorSimLista');
+      const vComp = document.getElementById('vistaGestorSimComparar');
+      const bList = document.getElementById('btnTabSimLista');
+      const bComp = document.getElementById('btnTabSimComparar');
+      if (!vList || !vComp) return;
+
+      if (tab === 'lista') {
+        vList.style.display = 'block';
+        vComp.style.display = 'none';
+        if (bList) bList.classList.add('active');
+        if (bComp) bComp.classList.remove('active');
+      } else {
+        vList.style.display = 'none';
+        vComp.style.display = 'block';
+        if (bList) bList.classList.remove('active');
+        if (bComp) bComp.classList.add('active');
+        window.actualizarComparativaModal();
+      }
+    };
+
+    window.cargarSimulacionEnPantalla = function(simId) {
+      const list = getSavedSimulations();
+      const target = list.find(s => s.id === simId);
+      if (!target) return;
+
+      sugSelectedSkus = new Set(target.skus);
+      renderSugTableContent();
+      renderQueHagoHoyWidget();
+      updateSugSimulation();
+
+      const modal = document.getElementById('modalGestorSimOverlay');
+      if (modal) modal.remove();
+      mostrarToastNotificacion('🎯 Simulación cargada en pantalla: ' + target.name);
+    };
+
+    window.eliminarSimulacion = function(simId) {
+      if (!confirm('¿Desea eliminar esta simulación guardada?')) return;
+      let list = getSavedSimulations();
+      list = list.filter(s => s.id !== simId);
+      saveSavedSimulations(list);
+      abrirModalGestorSimulaciones('lista');
+      mostrarToastNotificacion('🗑️ Simulación eliminada');
+    };
+
+    window.actualizarComparativaModal = function() {
+      const selA = document.getElementById('selectCompareSimA');
+      const selB = document.getElementById('selectCompareSimB');
+      const cont = document.getElementById('contenedorTablaComparativa');
+      if (!selA || !selB || !cont) return;
+
+      const idA = selA.value;
+      const idB = selB.value;
+      const list = getSavedSimulations();
+
+      const getSkus = (id) => {
+        if (id === 'current') return Array.from(sugSelectedSkus);
+        const f = list.find(s => s.id === id);
+        return f ? f.skus : [];
+      };
+
+      const mA = computeSimulationMetrics(getSkus(idA));
+      const mB = computeSimulationMetrics(getSkus(idB));
+
+      if (!mA || !mB) {
+        cont.innerHTML = '<div style="text-align:center;padding:2rem;color:#94a3b8;">No se pudieron calcular las métricas comparativas.</div>';
+        return;
+      }
+
+      const deltaCount = mB.count - mA.count;
+      const deltaQty = mB.qty - mA.qty;
+      const deltaCost = mB.cost - mA.cost;
+      const deltaRev = mB.rev - mA.rev;
+      const deltaMargin = mB.margin - mA.margin;
+      const deltaDio = mB.dioSaving - mA.dioSaving;
+      const deltaGain = mB.netGain - mA.netGain;
+
+      const fmtDelta = (val, isCurrency = false, isDays = false) => {
+        const sign = val > 0 ? '+' : '';
+        const color = val > 0 ? '#34d399' : (val < 0 ? '#f87171' : '#94a3b8');
+        let txt = '';
+        if (isCurrency) txt = sign + fmtCurr(val);
+        else if (isDays) txt = sign + val.toFixed(2) + ' d';
+        else txt = sign + fmtNum(val);
+        return `<span style="color:${color};font-weight:800;">${txt}</span>`;
+      };
+
+      cont.innerHTML = `
+        <div style="background:rgba(15,23,42,0.9);border:1px solid #334155;border-radius:8px;overflow:hidden;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+            <thead>
+              <tr style="background:#1e293b;border-bottom:1px solid #334155;color:#94a3b8;">
+                <th style="padding:0.6rem 0.75rem;text-align:left;">Métrica Estratégica</th>
+                <th style="padding:0.6rem 0.75rem;text-align:right;color:#38bdf8;">Escenario A</th>
+                <th style="padding:0.6rem 0.75rem;text-align:right;color:#c084fc;">Escenario B</th>
+                <th style="padding:0.6rem 0.75rem;text-align:right;">Diferencial (B - A)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                <td style="padding:0.5rem 0.75rem;font-weight:700;color:#f8fafc;">Referencias Seleccionadas</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;font-weight:700;color:#38bdf8;">${mA.count} SKUs</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;font-weight:700;color:#c084fc;">${mB.count} SKUs</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;">${fmtDelta(deltaCount)}</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                <td style="padding:0.5rem 0.75rem;font-weight:700;color:#f8fafc;">Volumen Físico Total</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;color:#cbd5e1;">${fmtNum(mA.qty)} L/Kg</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;color:#cbd5e1;">${fmtNum(mB.qty)} L/Kg</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;">${fmtDelta(deltaQty)}</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                <td style="padding:0.5rem 0.75rem;font-weight:700;color:#f8fafc;">Stock Movilizado a Coste</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;font-weight:700;color:#fbbf24;">${fmtCurr(mA.cost)}</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;font-weight:700;color:#fbbf24;">${fmtCurr(mB.cost)}</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;">${fmtDelta(deltaCost, true)}</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                <td style="padding:0.5rem 0.75rem;font-weight:700;color:#f8fafc;">Facturación Neta Estimada</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;font-weight:700;color:#38bdf8;">${fmtCurr(mA.rev)}</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;font-weight:700;color:#38bdf8;">${fmtCurr(mB.rev)}</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;">${fmtDelta(deltaRev, true)}</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(16,185,129,0.05);">
+                <td style="padding:0.5rem 0.75rem;font-weight:700;color:#34d399;">Margen Neto de la Operación</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;font-weight:800;color:#34d399;">+${fmtCurr(mA.margin)} (${mA.marginPct.toFixed(1)}%)</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;font-weight:800;color:#34d399;">+${fmtCurr(mB.margin)} (${mB.marginPct.toFixed(1)}%)</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;">${fmtDelta(deltaMargin, true)}</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                <td style="padding:0.5rem 0.75rem;font-weight:700;color:#f8fafc;">Reducción Directa DIO (Balance)</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;font-weight:700;color:#34d399;">-${mA.dioSaving.toFixed(2)} días</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;font-weight:700;color:#34d399;">-${mB.dioSaving.toFixed(2)} días</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;">${fmtDelta(deltaDio, false, true)}</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                <td style="padding:0.5rem 0.75rem;font-weight:700;color:#f8fafc;">Impacto en DSO Cartera</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;color:#cbd5e1;">+${mA.dsoImpact.toFixed(3)} días</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;color:#cbd5e1;">+${mB.dsoImpact.toFixed(3)} días</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;">${fmtDelta(mB.dsoImpact - mA.dsoImpact, false, true)}</td>
+              </tr>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                <td style="padding:0.5rem 0.75rem;font-weight:700;color:#f8fafc;">Ahorro Almacenamiento (Holding)</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;color:#cbd5e1;">+${fmtCurr(mA.holdingSaved)}</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;color:#cbd5e1;">+${fmtCurr(mB.holdingSaved)}</td>
+                <td style="padding:0.5rem 0.75rem;text-align:right;">${fmtDelta(mB.holdingSaved - mA.holdingSaved, true)}</td>
+              </tr>
+              <tr style="background:rgba(56,189,248,0.08);">
+                <td style="padding:0.6rem 0.75rem;font-weight:800;color:#38bdf8;">Ganancia Neta Total Empresa</td>
+                <td style="padding:0.6rem 0.75rem;text-align:right;font-weight:800;color:#38bdf8;">+${fmtCurr(mA.netGain)}</td>
+                <td style="padding:0.6rem 0.75rem;text-align:right;font-weight:800;color:#38bdf8;">+${fmtCurr(mB.netGain)}</td>
+                <td style="padding:0.6rem 0.75rem;text-align:right;">${fmtDelta(deltaGain, true)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    };
+
+    window.abrirComparadorAlternativas = function(idOferta) {
+      abrirFichaDual(idOferta, 'alternativas');
+    };
+    
     function findOfferById(idOferta) {
       const sug = (productionData && productionData.stock_suggestions) ? productionData.stock_suggestions : null;
       if (!sug || !sug.items) return null;
@@ -6252,7 +6766,7 @@
       mostrarToastNotificacion(`❌ Rechazo registrado (${motivo.split(':')[0]})`);
     };
 
-    window.abrirFichaDual = function(idOferta) {
+    window.abrirFichaDual = function(idOferta, initialTab = "cliente") {
       const found = findOfferById(idOferta);
       if (!found) return;
       const o = found.offer;
@@ -6263,22 +6777,30 @@
           <div style="background:#0f172a;border:1px solid #334155;border-radius:12px;max-width:760px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,0.7);padding:1.5rem;color:#f8fafc;">
             <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;padding-bottom:0.75rem;margin-bottom:1rem;">
               <div>
-                <h3 style="margin:0;font-size:1.15rem;color:#38bdf8;font-weight:800;">📄 Ficha Comercial y Financiera de Oferta</h3>
+                <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+                  <h3 style="margin:0;font-size:1.15rem;color:#38bdf8;font-weight:800;">📄 Ficha Comercial y Financiera de Oferta</h3>
+                  <span class="tab-badge" style="background:${checkOfferStatus(o, it).badgeBg};color:${checkOfferStatus(o, it).badgeColor};border:1px solid ${checkOfferStatus(o, it).badgeBorder};font-size:0.7rem;font-weight:800;">
+                    ${checkOfferStatus(o, it).badgeText}
+                  </span>
+                </div>
                 <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.2rem;">${o.id_oferta} &bull; ${o.cliente} (${o.pais}) &bull; Responsable: <strong>${o.comercial}</strong></div>
               </div>
               <button onclick="document.getElementById('modalFichaDualOverlay').remove()" style="background:transparent;border:none;color:#94a3b8;font-size:1.5rem;cursor:pointer;line-height:1;">&times;</button>
             </div>
             
-            <div style="display:flex;gap:0.5rem;margin-bottom:1rem;border-bottom:1px solid #1e293b;padding-bottom:0.5rem;">
-              <button id="btnTabFichaCliente" onclick="cambiarTabFicha('cliente')" class="pill-btn active" style="font-size:0.78rem;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;">
-                🌿 Vista Comercial Cliente (Sin Costes)
+            <div style="display:flex;gap:0.5rem;margin-bottom:1rem;border-bottom:1px solid #1e293b;padding-bottom:0.5rem;flex-wrap:wrap;">
+              <button id="btnTabFichaCliente" onclick="cambiarTabFicha('cliente')" class="pill-btn ${initialTab === 'cliente' ? 'active' : ''}" style="font-size:0.78rem;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;">
+                🌿 Vista Comercial Cliente
               </button>
-              <button id="btnTabFichaInterna" onclick="cambiarTabFicha('interna')" class="pill-btn" style="font-size:0.78rem;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;">
-                💼 Vista Interna Dirección (Costes, Margen & Ahorro)
+              <button id="btnTabFichaInterna" onclick="cambiarTabFicha('interna')" class="pill-btn ${initialTab === 'interna' ? 'active' : ''}" style="font-size:0.78rem;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;">
+                💼 Vista Interna Dirección
+              </button>
+              <button id="btnTabFichaAlternativas" onclick="cambiarTabFicha('alternativas')" class="pill-btn ${initialTab === 'alternativas' ? 'active' : ''}" style="font-size:0.78rem;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;border-color:#38bdf8;color:${initialTab === 'alternativas' ? '#ffffff' : '#38bdf8'};">
+                ⚖️ Comparar 3 Alternativas Económicas
               </button>
             </div>
             
-            <div id="vistaFichaCliente" style="display:block;background:rgba(30,41,59,0.7);border:1px solid #334155;border-radius:8px;padding:1.25rem;">
+            <div id="vistaFichaCliente" style="display:${initialTab === 'cliente' ? 'block' : 'none'};background:rgba(30,41,59,0.7);border:1px solid #334155;border-radius:8px;padding:1.25rem;">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
                 <div>
                   <span class="tab-badge" style="background:rgba(56,189,248,0.2);color:#38bdf8;font-size:0.72rem;font-weight:800;border:1px solid rgba(56,189,248,0.4);">${o.plan_name}</span>
@@ -6329,7 +6851,7 @@
               </div>
             </div>
             
-            <div id="vistaFichaInterna" style="display:none;background:rgba(15,23,42,0.85);border:1px solid #334155;border-radius:8px;padding:1.25rem;">
+            <div id="vistaFichaInterna" style="display:${initialTab === 'interna' ? 'block' : 'none'};background:rgba(15,23,42,0.85);border:1px solid #334155;border-radius:8px;padding:1.25rem;">
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;font-size:0.8rem;">
                 <div style="background:rgba(30,41,59,0.7);padding:0.65rem;border-radius:6px;">
                   <span style="color:#94a3b8;font-size:0.72rem;">Facturación Neta (Cash-In):</span>
@@ -6371,6 +6893,120 @@
                 </div>
               </div>
             </div>
+            <!-- TAB 3: COMPARADOR DE 3 ALTERNATIVAS ECONÓMICAS POR OFERTA -->
+            <div id="vistaFichaAlternativas" style="display:${initialTab === 'alternativas' ? 'block' : 'none'};background:rgba(15,23,42,0.92);border:1px solid #334155;border-radius:8px;padding:1.25rem;">
+              <div style="margin-bottom:1rem;">
+                <h4 style="margin:0 0 0.25rem 0;font-size:1rem;color:#f8fafc;display:flex;align-items:center;gap:0.4rem;">
+                  ⚖️ Comparador Económico de Salida para ${o.base_sku || it.base_sku}
+                </h4>
+                <div style="font-size:0.75rem;color:#94a3b8;">
+                  Evaluación multi-criterio entre el plan recomendado, liquidación rápida con descuento directo y recuperación interna en reactor / pasivo.
+                </div>
+              </div>
+
+              ${(() => {
+                const alts = o.alternativas_economicas || {};
+                const altA = alts.alt_a || {
+                  nombre: o.plan_name,
+                  tipo: 'Plan Asignado (Recomendado)',
+                  facturacion_eur: o.facturacion_neta_eur,
+                  cogs_eur: o.cogs_eur,
+                  coste_comercial_eur: (o.coste_dto_eur || 0) + (o.coste_rappel_eur || 0) + (o.coste_merch_eur || 0) + (o.regalo_coste_eur || 0),
+                  margen_eur: o.margen_estimado_eur,
+                  margen_pct: o.margen_estimado_pct,
+                  plazo_pago: o.plazo_pago,
+                  dso_dias: (o.dias_extra || 0) + 60,
+                  ahorro_holding_eur: o.holding_cost_saved_eur || 0,
+                  ganancia_neta_eur: o.net_financial_gain_eur || 0,
+                  ventajas: ['Preserva el precio de catálogo', 'Fideliza cliente mediante regalo técnico']
+                };
+                const altB = alts.alt_b || {
+                  nombre: 'Liquidación Directa -20%',
+                  tipo: 'Liquidación Rápida',
+                  facturacion_eur: round(o.facturacion_neta_eur * 0.8, 2),
+                  cogs_eur: o.cogs_eur,
+                  coste_comercial_eur: o.coste_rappel_eur || 0,
+                  margen_eur: round(o.facturacion_neta_eur * 0.8 - o.cogs_eur, 2),
+                  margen_pct: 12.5,
+                  plazo_pago: '30 días',
+                  dso_dias: 30,
+                  ahorro_holding_eur: o.holding_cost_saved_eur || 0,
+                  ganancia_neta_eur: round(o.facturacion_neta_eur * 0.8 - o.cogs_eur + (o.holding_cost_saved_eur || 0), 2),
+                  ventajas: ['Cobro en 30 días', 'Ahorro íntegro de unidades de obsequio']
+                };
+                const altC = alts.alt_c || {
+                  nombre: 'Reproceso / Almacenamiento Pasivo',
+                  tipo: 'Técnica / Pasivo',
+                  facturacion_eur: 0,
+                  cogs_eur: o.cogs_eur,
+                  coste_comercial_eur: 0,
+                  margen_eur: 0,
+                  margen_pct: 0,
+                  plazo_pago: 'Sin cobro',
+                  dso_dias: 0,
+                  ahorro_holding_eur: 0,
+                  ganancia_neta_eur: -round(o.cogs_eur * 0.07 * 0.5, 2),
+                  ventajas: ['Sin descuento comercial facial', 'Asume coste financiero de posesión']
+                };
+                const rec = alts.recomendada || 'alt_a';
+
+                const cardAlt = (alt, key, accentColor, borderStyle) => `
+                  <div style="background:rgba(30,41,59,0.7);border:${rec === key ? '2px solid #10b981' : '1px solid #334155'};border-top:4px solid ${accentColor};border-radius:8px;padding:0.9rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:${rec === key ? '0 8px 20px rgba(16,185,129,0.2)' : 'none'};">
+                    <div>
+                      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.4rem;">
+                        <span style="font-size:0.68rem;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.04em;">${alt.tipo}</span>
+                        ${rec === key ? '<span class="tab-badge" style="background:rgba(16,185,129,0.25);color:#34d399;font-size:0.62rem;font-weight:800;border:1px solid rgba(16,185,129,0.5);">⭐ RECOMENDADA</span>' : ''}
+                      </div>
+                      <h5 style="margin:0 0 0.5rem 0;font-size:0.88rem;color:#f8fafc;line-height:1.25;">${alt.nombre}</h5>
+                      
+                      <div style="background:rgba(15,23,42,0.6);padding:0.55rem;border-radius:6px;font-size:0.75rem;margin-bottom:0.65rem;line-height:1.45;">
+                        <div style="display:flex;justify-content:space-between;">
+                          <span style="color:#94a3b8;">Facturación:</span>
+                          <strong style="color:#38bdf8;">${fmtCurr(alt.facturacion_eur)}</strong>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                          <span style="color:#94a3b8;">Coste Stock (COGS):</span>
+                          <span style="color:#f87171;">-${fmtCurr(alt.cogs_eur)}</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                          <span style="color:#94a3b8;">Costes Comerciales:</span>
+                          <span style="color:#fbbf24;">-${fmtCurr(alt.coste_comercial_eur)}</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;border-top:1px solid #334155;padding-top:0.25rem;margin-top:0.25rem;">
+                          <span style="color:#34d399;font-weight:700;">Margen Neto:</span>
+                          <strong style="color:#34d399;">+${fmtCurr(alt.margen_eur)} (${(alt.margen_pct || 0).toFixed(1)}%)</strong>
+                        </div>
+                      </div>
+
+                      <div style="font-size:0.72rem;color:#cbd5e1;margin-bottom:0.6rem;line-height:1.35;">
+                        <div>⏱️ <strong>Plazo de cobro:</strong> ${alt.plazo_pago} (DSO: ${alt.dso_dias}d)</div>
+                        <div>📦 <strong>Ahorro Almacenaje:</strong> +${fmtCurr(alt.ahorro_holding_eur)}</div>
+                      </div>
+
+                      <div style="background:rgba(16,185,129,0.1);border-left:3px solid ${accentColor};padding:0.4rem 0.55rem;border-radius:4px;font-size:0.7rem;color:#e2e8f0;line-height:1.35;">
+                        ${(alt.ventajas || []).map(v => `• ${v}`).join('<br>')}
+                      </div>
+                    </div>
+
+                    <div style="border-top:1px solid #334155;padding-top:0.55rem;margin-top:0.75rem;display:flex;justify-content:space-between;align-items:center;">
+                      <span style="font-size:0.72rem;color:#94a3b8;">Ganancia Neta:</span>
+                      <strong style="font-size:0.95rem;color:${alt.ganancia_neta_eur >= 0 ? '#34d399' : '#f87171'};">
+                        ${alt.ganancia_neta_eur >= 0 ? '+' : ''}${fmtCurr(alt.ganancia_neta_eur)}
+                      </strong>
+                    </div>
+                  </div>
+                `;
+
+                return `
+                  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:0.85rem;">
+                    ${cardAlt(altA, 'alt_a', '#38bdf8')}
+                    ${cardAlt(altB, 'alt_b', '#fbbf24')}
+                    ${cardAlt(altC, 'alt_c', '#c084fc')}
+                  </div>
+                `;
+              })()}
+            </div>
+
           </div>
         </div>
       `;
@@ -6383,19 +7019,33 @@
     window.cambiarTabFicha = function(tab) {
       const vCli = document.getElementById('vistaFichaCliente');
       const vInt = document.getElementById('vistaFichaInterna');
+      const vAlt = document.getElementById('vistaFichaAlternativas');
       const bCli = document.getElementById('btnTabFichaCliente');
       const bInt = document.getElementById('btnTabFichaInterna');
+      const bAlt = document.getElementById('btnTabFichaAlternativas');
       if (!vCli || !vInt) return;
+
       if (tab === 'cliente') {
         vCli.style.display = 'block';
         vInt.style.display = 'none';
+        if (vAlt) vAlt.style.display = 'none';
         if (bCli) bCli.classList.add('active');
         if (bInt) bInt.classList.remove('active');
-      } else {
+        if (bAlt) bAlt.classList.remove('active');
+      } else if (tab === 'interna') {
         vCli.style.display = 'none';
         vInt.style.display = 'block';
+        if (vAlt) vAlt.style.display = 'none';
         if (bCli) bCli.classList.remove('active');
         if (bInt) bInt.classList.add('active');
+        if (bAlt) bAlt.classList.remove('active');
+      } else {
+        vCli.style.display = 'none';
+        vInt.style.display = 'none';
+        if (vAlt) vAlt.style.display = 'block';
+        if (bCli) bCli.classList.remove('active');
+        if (bInt) bInt.classList.remove('active');
+        if (bAlt) bAlt.classList.add('active');
       }
     };
 
@@ -6555,9 +7205,14 @@
                           </div>
                           
                           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;">
-                            <span class="tab-badge" style="background:${o.prioridad === 'ALTA' ? 'rgba(239,68,68,0.2)' : 'rgba(56,189,248,0.15)'};color:${o.prioridad === 'ALTA' ? '#fca5a5' : '#38bdf8'};border:1px solid ${o.prioridad === 'ALTA' ? 'rgba(239,68,68,0.4)' : 'rgba(56,189,248,0.3)'};font-size:0.65rem;font-weight:800;">
-                              ${o.prioridad === 'ALTA' ? '🔴 ALTA PRIORIDAD' : '🟡 MEDIA'}
-                            </span>
+                            <div style="display:flex;gap:0.25rem;">
+                              <span class="tab-badge" style="background:${checkOfferStatus(o, null).badgeBg};color:${checkOfferStatus(o, null).badgeColor};border:1px solid ${checkOfferStatus(o, null).badgeBorder};font-size:0.63rem;font-weight:800;">
+                                ${checkOfferStatus(o, null).badgeText}
+                              </span>
+                              <span class="tab-badge" style="background:${o.prioridad === 'ALTA' ? 'rgba(239,68,68,0.2)' : 'rgba(56,189,248,0.15)'};color:${o.prioridad === 'ALTA' ? '#fca5a5' : '#38bdf8'};border:1px solid ${o.prioridad === 'ALTA' ? 'rgba(239,68,68,0.4)' : 'rgba(56,189,248,0.3)'};font-size:0.63rem;font-weight:800;">
+                                ${o.prioridad === 'ALTA' ? '🔴 ALTA' : '🟡 MEDIA'}
+                              </span>
+                            </div>
                             <span style="font-size:0.68rem;color:#fbbf24;font-weight:700;">
                               ⏱️ Límite: ${o.fecha_limite || '30/11/2026'}
                             </span>
@@ -6586,12 +7241,15 @@
                       </div>
 
                       <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:0.6rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.45rem;">
-                        <div style="display:flex;gap:0.35rem;">
+                        <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">
                           <button onclick="copiarFichaCliente('${o.id_oferta}')" class="pill-btn" style="font-size:0.7rem;padding:0.25rem 0.55rem;background:rgba(16,185,129,0.18);border:1px solid rgba(16,185,129,0.4);color:#34d399;font-weight:700;cursor:pointer;" title="Copiar ficha comercial para WhatsApp/Email">
                             📋 Copiar Oferta
                           </button>
                           <button onclick="abrirFichaDual('${o.id_oferta}')" class="pill-btn" style="font-size:0.7rem;padding:0.25rem 0.55rem;background:rgba(56,189,248,0.18);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;font-weight:700;cursor:pointer;" title="Ver ficha dual completa">
                             👁️ Ficha Dual
+                          </button>
+                          <button onclick="abrirComparadorAlternativas('${o.id_oferta}')" class="pill-btn" style="font-size:0.7rem;padding:0.25rem 0.55rem;background:rgba(168,85,247,0.18);border:1px solid rgba(168,85,247,0.4);color:#c084fc;font-weight:700;cursor:pointer;" title="Comparar las 3 alternativas económicas">
+                            ⚖️ Alternativas
                           </button>
                         </div>
 
@@ -6889,6 +7547,9 @@
                                   </button>
                                   <button type="button" onclick="abrirFichaDual('${o.id_oferta}')" class="pill-btn" style="font-size:0.65rem;padding:0.2rem 0.45rem;background:rgba(56,189,248,0.18);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;font-weight:700;cursor:pointer;" title="Ver ficha dual completa">
                                     👁️ Ficha
+                                  </button>
+                                  <button type="button" onclick="abrirComparadorAlternativas('${o.id_oferta}')" class="pill-btn" style="font-size:0.65rem;padding:0.2rem 0.45rem;background:rgba(168,85,247,0.18);border:1px solid rgba(168,85,247,0.4);color:#c084fc;font-weight:700;cursor:pointer;" title="Comparar 3 alternativas económicas">
+                                    ⚖️ Alts
                                   </button>
                                 </div>
                                 <div>
@@ -7299,8 +7960,16 @@
                 ✗ Deseleccionar Todos (0)
               </button>
             </div>
-            <div id="sugLiveSelectionSummary" style="font-size:0.82rem;font-weight:800;color:#34d399;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);padding:0.35rem 0.85rem;border-radius:6px;">
-              🎯 Calculando simulación...
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <button onclick="abrirModalGuardarSimulacion()" class="pill-btn" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.5);font-size:0.75rem;font-weight:800;padding:0.3rem 0.75rem;cursor:pointer;" title="Guardar la selección actual como escenario con nombre">
+                💾 Guardar Simulación
+              </button>
+              <button onclick="abrirModalGestorSimulaciones('lista')" class="pill-btn" style="background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(168,85,247,0.5);font-size:0.75rem;font-weight:800;padding:0.3rem 0.75rem;cursor:pointer;" title="Ver escenarios guardados y comparar dos opciones">
+                📂 Gestor & Comparar
+              </button>
+              <div id="sugLiveSelectionSummary" style="font-size:0.82rem;font-weight:800;color:#34d399;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);padding:0.35rem 0.85rem;border-radius:6px;">
+                🎯 Calculando simulación...
+              </div>
             </div>
           </div>
 

@@ -1405,6 +1405,131 @@ def build_scenario_production_data(scenario_name='revisado'):
 
             o['vigencia'] = "30/11/2026"
 
+            # 3 Alternativas Económicas comparadas por propuesta individual
+            # Alternativa A: Plan Asignado Actual
+            gan_a = round(o.get('margen_estimado_eur', 0.0) + o.get('holding_cost_saved_eur', 0.0) - o.get('coste_fin_eur', 0.0), 2) if not o.get('es_reprocesado_interno') else round(o.get('compras_materia_prima_evitadas_eur', 0.0) - o.get('coste_tecnico_reprocesado_eur', 0.0), 2)
+            alt_a = {
+                'id': 'alt_a',
+                'nombre': f"{o.get('plan_id', 'PLAN')}: {o.get('plan_name', 'Plan Asignado')}",
+                'tipo': 'Plan Asignado (Recomendado)',
+                'facturacion_eur': o.get('facturacion_neta_eur', 0.0),
+                'cogs_eur': o_cogs,
+                'coste_comercial_eur': round(o.get('coste_dto_eur', 0.0) + o.get('coste_rappel_eur', 0.0) + o.get('coste_merch_eur', 0.0) + o.get('regalo_coste_eur', 0.0), 2),
+                'coste_fin_eur': o.get('coste_fin_eur', 0.0),
+                'margen_eur': o.get('margen_estimado_eur', 0.0),
+                'margen_pct': o.get('margen_estimado_pct', 0.0),
+                'plazo_pago': o.get('plazo_pago', '60 días'),
+                'dso_dias': o.get('dias_extra', 0) + 60,
+                'ahorro_holding_eur': o.get('holding_cost_saved_eur', 0.0),
+                'ganancia_neta_eur': gan_a,
+                'ventajas': ["Preserva precio de tarifa", "Fideliza al cliente con obsequio técnico", "Evita canibalización"] if not o.get('es_reprocesado_interno') else ["Recupera principio activo a coste técnico", "Cero exposición a impagos"]
+            }
+
+            # Alternativa B: Liquidación Rápida de Caja (Descuento Directo agresivo, sin regalo, cobro 30 días)
+            if o.get('es_reprocesado_interno'):
+                fact_b = round(o_cogs * 0.90, 2)
+                coste_b = round(o_cogs, 2)
+                margen_b = round(fact_b - coste_b, 2)
+                gan_b = round(margen_b + o.get('holding_cost_saved_eur', 0.0), 2)
+                alt_b = {
+                    'id': 'alt_b',
+                    'nombre': "Venta Outlet a Terceros (Liquidación Directa)",
+                    'tipo': 'Liquidación Rápida',
+                    'facturacion_eur': fact_b,
+                    'cogs_eur': o_cogs,
+                    'coste_comercial_eur': 0.0,
+                    'coste_fin_eur': 0.0,
+                    'margen_eur': margen_b,
+                    'margen_pct': round((margen_b / fact_b) * 100, 1) if fact_b > 0 else 0.0,
+                    'plazo_pago': "30 días (Contado)",
+                    'dso_dias': 30,
+                    'ahorro_holding_eur': o.get('holding_cost_saved_eur', 0.0),
+                    'ganancia_neta_eur': gan_b,
+                    'ventajas': ["Entrada de liquidez externa en 30 días", "Sin saturar reactor de planta"]
+                }
+            else:
+                fact_b = round(o.get('facturacion_neta_eur', 0.0) * 0.80, 2)
+                coste_b = round(o_cogs + o.get('coste_rappel_eur', 0.0), 2)
+                margen_b = round(fact_b - coste_b, 2)
+                gan_b = round(margen_b + o.get('holding_cost_saved_eur', 0.0), 2)
+                alt_b = {
+                    'id': 'alt_b',
+                    'nombre': "Liquidación Directa -20% (Sin Regalo, Cobro 30d)",
+                    'tipo': 'Liquidación Rápida',
+                    'facturacion_eur': fact_b,
+                    'cogs_eur': o_cogs,
+                    'coste_comercial_eur': round(o.get('coste_rappel_eur', 0.0), 2),
+                    'coste_fin_eur': 0.0,
+                    'margen_eur': margen_b,
+                    'margen_pct': round((margen_b / fact_b) * 100, 1) if fact_b > 0 else 0.0,
+                    'plazo_pago': "30 días (Acelerado)",
+                    'dso_dias': 30,
+                    'ahorro_holding_eur': o.get('holding_cost_saved_eur', 0.0),
+                    'ganancia_neta_eur': gan_b,
+                    'ventajas': ["Cobro acelerado en 30 días", "Ahorro íntegro de unidades de regalo", "Cierre comercial expedito"]
+                }
+
+            # Alternativa C: Reprocesado Interno a Reactor o Almacenamiento Pasivo
+            if o.get('es_reprocesado_interno') or g_code:
+                comp_evit = round(o_cogs * 0.85, 2)
+                cost_tec = round(o.get('vol_asignado', 0.0) * 0.08, 2)
+                gan_c = round(comp_evit - cost_tec, 2)
+                alt_c = {
+                    'id': 'alt_c',
+                    'nombre': f"Reprocesado Interno en Reactor ({g_code or 'Granel'})",
+                    'tipo': 'Recuperación Técnica en Planta',
+                    'facturacion_eur': 0.0,
+                    'cogs_eur': 0.0,
+                    'coste_comercial_eur': cost_tec,
+                    'coste_fin_eur': 0.0,
+                    'margen_eur': 0.0,
+                    'margen_pct': 0.0,
+                    'plazo_pago': "Inmediato (Interno)",
+                    'dso_dias': 0,
+                    'ahorro_holding_eur': o.get('holding_cost_saved_eur', 0.0),
+                    'ganancia_neta_eur': gan_c,
+                    'ventajas': [f"Evita compras de materia prima por {comp_evit:,.2f} €", "Cero exposición a impagos comerciales"]
+                }
+            else:
+                coste_posesion = round(o_cogs * 0.07 * (holding_days / 365.0), 2)
+                alt_c = {
+                    'id': 'alt_c',
+                    'nombre': f"Almacenamiento Pasivo ({int(holding_days)}d adicionales)",
+                    'tipo': 'Inacción / Pasivo en Nave',
+                    'facturacion_eur': 0.0,
+                    'cogs_eur': o_cogs,
+                    'coste_comercial_eur': 0.0,
+                    'coste_fin_eur': coste_posesion,
+                    'margen_eur': 0.0,
+                    'margen_pct': 0.0,
+                    'plazo_pago': "Sin cobro",
+                    'dso_dias': 0,
+                    'ahorro_holding_eur': 0.0,
+                    'ganancia_neta_eur': -coste_posesion,
+                    'ventajas': ["Sin descuento de tarifa", f"Asume coste de inmovilizado de {coste_posesion:,.2f} € y riesgo de caducidad"]
+                }
+
+            rec_alt = 'alt_a'
+            if o.get('es_reprocesado_interno'):
+                rec_alt = 'alt_a' if alt_a['ganancia_neta_eur'] >= alt_b['ganancia_neta_eur'] else 'alt_b'
+            elif alt_a['ganancia_neta_eur'] < 0 and alt_b['ganancia_neta_eur'] > alt_a['ganancia_neta_eur']:
+                rec_alt = 'alt_b'
+
+            o['alternativas_economicas'] = {
+                'alt_a': alt_a,
+                'alt_b': alt_b,
+                'alt_c': alt_c,
+                'recomendada': rec_alt
+            }
+
+            # Alerta de desactualización y coherencia física en tiempo real
+            o['alertas_desactualizacion'] = {
+                'desactualizada': False,
+                'motivo': "Propuesta al día con stock libre verificado",
+                'stock_libre_disponible': round(free_stock_map.get(b_sku, tot_ex_qty), 1),
+                'requiere_atencion': False
+            }
+
         holding_cost_saved_eur = round(sum(o['holding_cost_saved_eur'] for o in ofertas_clientes), 2)
         net_financial_gain_eur = round(sum(o['net_financial_gain_eur'] for o in ofertas_clientes), 2)
 

@@ -1363,11 +1363,47 @@ def build_scenario_production_data(scenario_name='revisado'):
         else:
             holding_days = 180.0
 
-        for o in ofertas_clientes:
+        for idx_o, o in enumerate(ofertas_clientes):
             o_cogs = o.get('cogs_eur', 0.0)
+            o['id_oferta'] = f"OFR-{b_sku}-{idx_o+1}"
+            o['base_sku'] = b_sku
+            o['sku_desc'] = desc
+            o['formato'] = fmt
             o['holding_days'] = holding_days
             o['holding_cost_saved_eur'] = round(o_cogs * TASA_HOLDING_INVENTARIO * (holding_days / 365.0), 2)
             o['net_financial_gain_eur'] = round(o['holding_cost_saved_eur'] - o.get('coste_fin_eur', 0.0), 2)
+
+            # Enriquecimiento operativo: Siguiente paso y fecha límite («Qué hago hoy»)
+            if o.get('es_reprocesado_interno'):
+                o['siguiente_paso'] = "Coordinar orden de trasvase a reactor nodriza con el Jefe de Planta"
+                o['fecha_limite'] = "15/11/2026"
+                o['prioridad'] = "ALTA"
+            elif o.get('plan_id') == 'PLAN 1':
+                o['siguiente_paso'] = "Contactar al importador y enviar proforma con re-etiquetado export"
+                o['fecha_limite'] = "20/11/2026"
+                o['prioridad'] = "ALTA" if nm_q > 0 else "MEDIA"
+            elif o.get('plan_id') == 'PLAN 2':
+                o['siguiente_paso'] = "Proponer bonificación en producto complementario ligada al próximo pedido"
+                o['fecha_limite'] = "25/11/2026"
+                o['prioridad'] = "MEDIA"
+            elif o.get('plan_id') == 'PLAN 3':
+                o['siguiente_paso'] = "Presentar oferta con rappel diferido del 5% y reserva del obsequio técnico"
+                o['fecha_limite'] = "30/11/2026"
+                o['prioridad'] = "ALTA" if o.get('facturacion_neta_eur', 0) >= 3000 else "MEDIA"
+            elif o.get('plan_id') == 'PLAN 4':
+                o['siguiente_paso'] = "Enviar propuesta de captación con ensayo técnico y garantía de resultado"
+                o['fecha_limite'] = "25/11/2026"
+                o['prioridad'] = "MEDIA"
+            elif o.get('plan_id') == 'PLAN 5':
+                o['siguiente_paso'] = "Acordar visita técnica a finca y definir calendario de aplicación"
+                o['fecha_limite'] = "20/11/2026"
+                o['prioridad'] = "MEDIA"
+            else:
+                o['siguiente_paso'] = "Presentar propuesta de liquidación comercial especial"
+                o['fecha_limite'] = "30/11/2026"
+                o['prioridad'] = "ESTÁNDAR"
+
+            o['vigencia'] = "30/11/2026"
 
         holding_cost_saved_eur = round(sum(o['holding_cost_saved_eur'] for o in ofertas_clientes), 2)
         net_financial_gain_eur = round(sum(o['net_financial_gain_eur'] for o in ofertas_clientes), 2)

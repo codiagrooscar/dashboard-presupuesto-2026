@@ -5726,7 +5726,7 @@
 
           <!-- TABLA COMPLETA DE ROTACIÓN -->
           <div class="table-wrapper" style="overflow-x:auto;max-width:100%;margin-top:0.75rem;border-radius:var(--radius-sm);border:1px solid var(--card-border);">
-            <table style="width:100%;min-width:1150px;font-size:0.8rem;">
+            <table style="width:100%;min-width:1280px;font-size:0.8rem;">
               <thead>
                 <tr>
                   <th style="min-width:90px;">Cód. SKU</th>
@@ -5767,6 +5767,7 @@
     function handleSugSearch(val) {
       sugSearchQuery = val;
       renderSugTableContent();
+      renderQueHagoHoyWidget();
     }
 
     function handleTableScrollStep(wrapperId, step) {
@@ -5863,6 +5864,7 @@
         sugSelectedSkus.clear();
       }
       renderSugTableContent();
+      renderQueHagoHoyWidget();
     }
 
     function updateSugSimulation() {
@@ -6091,6 +6093,558 @@
       }
     };
 
+    
+    // =========================================================================
+    // MEJORAS OPERATIVAS SUGERENCIAS DE STOCK: QUÉ HAGO HOY, COPIA Y FEEDBACK
+    // =========================================================================
+    let queHagoHoyComFilter = 'ALL';
+    let queHagoHoyStatusFilter = 'ALL';
+    let queHagoHoyLimit = 8;
+    let queHagoHoyCollapsed = false;
+
+    function getOffersFeedback() {
+      try {
+        return JSON.parse(localStorage.getItem('codiagro_stock_offers_status') || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function setOfferFeedback(idOferta, estado, motivo) {
+      const fb = getOffersFeedback();
+      fb[idOferta] = {
+        estado: estado,
+        motivo: motivo || '',
+        timestamp: new Date().toISOString()
+      };
+      try {
+        localStorage.setItem('codiagro_stock_offers_status', JSON.stringify(fb));
+      } catch (e) {}
+      renderSugTableContent();
+      renderQueHagoHoyWidget();
+    }
+
+    window.marcarOfertaAceptada = function(idOferta) {
+      setOfferFeedback(idOferta, 'ACEPTADA');
+      mostrarToastNotificacion('✅ Oferta marcada como ACEPTADA');
+    };
+
+    window.reabrirOferta = function(idOferta) {
+      const fb = getOffersFeedback();
+      delete fb[idOferta];
+      try {
+        localStorage.setItem('codiagro_stock_offers_status', JSON.stringify(fb));
+      } catch (e) {}
+      renderSugTableContent();
+      renderQueHagoHoyWidget();
+      mostrarToastNotificacion('↺ Oferta reabierta como PENDIENTE');
+    };
+
+    function findOfferById(idOferta) {
+      const sug = (productionData && productionData.stock_suggestions) ? productionData.stock_suggestions : null;
+      if (!sug || !sug.items) return null;
+      for (const it of sug.items) {
+        for (const o of (it.ofertas_clientes || [])) {
+          if (o.id_oferta === idOferta) {
+            return { offer: o, skuItem: it };
+          }
+        }
+      }
+      return null;
+    }
+
+    function mostrarToastNotificacion(msg) {
+      let toast = document.getElementById('sugToastNotification');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'sugToastNotification';
+        toast.style.cssText = 'position:fixed;bottom:25px;right:25px;background:#10b981;color:#ffffff;padding:0.75rem 1.25rem;border-radius:8px;font-weight:700;font-size:0.85rem;box-shadow:0 10px 25px rgba(0,0,0,0.5);z-index:999999;transition:all 0.3s ease;display:none;align-items:center;gap:0.5rem;';
+        document.body.appendChild(toast);
+      }
+      toast.innerText = msg;
+      toast.style.display = 'flex';
+      toast.style.opacity = '1';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+      }, 3000);
+    }
+
+    window.copiarFichaCliente = function(idOferta) {
+      const found = findOfferById(idOferta);
+      if (!found) return;
+      const o = found.offer;
+      const it = found.skuItem;
+
+      let texto = '🌿 PROPUESTA COMERCIAL EXCLUSIVA | CODIAGRO\n' +
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+        'Cliente: ' + o.cliente + '\n' +
+        'País: ' + o.pais + ' | Comercial Responsable: ' + o.comercial + '\n' +
+        'Fecha de Emisión: 10/11/2026 | Validez: ' + (o.vigencia || '30/11/2026') + '\n\n' +
+        '📦 PRODUCTO PROPUESTO:\n' +
+        '• Referencia: ' + (o.base_sku || it.base_sku) + ' — ' + (o.sku_desc || it.desc) + '\n' +
+        '• Formato: ' + (o.formato || it.formato) + '\n' +
+        '• Volumen asignado: ' + fmtNum(o.vol_asignado) + ' L/Kg (' + fmtNum(o.envases_asignados) + ' unidades)\n\n' +
+        '💰 CONDICIONES ECONÓMICAS:\n' +
+        '• Tarifa Oficial: ' + (o.es_reprocesado_interno ? '—' : o.pvp_tarifa_ref.toFixed(2) + ' €/u') + '\n' +
+        '• Precio Especial Oferta: ' + (o.es_reprocesado_interno ? '0,00 € (Trasvase a Planta)' : o.pvp_oferta.toFixed(2) + ' €/u') + (o.dto_pct > 0 ? ' (Descuento: -' + o.dto_pct.toFixed(0) + '%)' : '') + '\n' +
+        '• Importe Neto Propuesta: ' + fmtCurr(o.facturacion_neta_eur) + '\n' +
+        (o.regalo_sku && o.regalo_sku !== '-' ? '• Obsequio Técnico en Especie: ' + o.regalo_uds + 'x ' + o.regalo_desc + ' (Sin cargo)\n' : '') +
+        '• Condiciones de Pago: ' + o.plazo_pago + '\n\n' +
+        '⚠️ Nota: Stock físico reservado en almacén de Codiagro hasta fecha límite (' + (o.fecha_limite || '30/11/2026') + ') o fin de existencias.\n' +
+        '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+
+      navigator.clipboard.writeText(texto).then(() => {
+        mostrarToastNotificacion('✅ Propuesta copiada al portapapeles para ' + o.cliente);
+      }).catch(() => {
+        prompt('Copie el texto de la propuesta:', texto);
+      });
+    };
+
+    window.abrirModalRechazoOferta = function(idOferta) {
+      const found = findOfferById(idOferta);
+      const cliName = found ? found.offer.cliente : idOferta;
+
+      const modalHtml = `
+        <div id="modalRechazoOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:100000;display:flex;align-items:center;justify-content:center;padding:1rem;">
+          <div style="background:#0f172a;border:1px solid #ef4444;border-radius:12px;max-width:520px;width:100%;padding:1.5rem;color:#f8fafc;box-shadow:0 25px 50px rgba(0,0,0,0.8);">
+            <h3 style="margin:0 0 0.5rem 0;color:#f87171;font-size:1.15rem;display:flex;align-items:center;gap:0.4rem;">
+              ❌ Registrar Motivo de Rechazo
+            </h3>
+            <p style="font-size:0.8rem;color:#cbd5e1;margin:0 0 1rem 0;">
+              Cliente: <strong>${cliName}</strong> (${idOferta})<br>
+              Seleccione la causa principal para retroalimentar el motor comercial:
+            </p>
+            <div style="display:flex;flex-direction:column;gap:0.45rem;margin-bottom:1.2rem;">
+              <button onclick="confirmarRechazoOferta('${idOferta}', 'Precio percibido alto / margen cliente insuficiente')" class="pill-btn" style="text-align:left;padding:0.55rem 0.85rem;font-size:0.78rem;background:rgba(30,41,59,0.8);color:#cbd5e1;border:1px solid #334155;cursor:pointer;">
+                💸 <strong>Precio</strong>: Percibido alto o margen cliente insuficiente
+              </button>
+              <button onclick="confirmarRechazoOferta('${idOferta}', 'Plazo de pago insuficiente / requiere más de 90 días')" class="pill-btn" style="text-align:left;padding:0.55rem 0.85rem;font-size:0.78rem;background:rgba(30,41,59,0.8);color:#cbd5e1;border:1px solid #334155;cursor:pointer;">
+                ⏱️ <strong>Plazo</strong>: Plazo de pago insuficiente (requiere >90d)
+              </button>
+              <button onclick="confirmarRechazoOferta('${idOferta}', 'Volumen excesivo para la capacidad de absorción actual')" class="pill-btn" style="text-align:left;padding:0.55rem 0.85rem;font-size:0.78rem;background:rgba(30,41,59,0.8);color:#cbd5e1;border:1px solid #334155;cursor:pointer;">
+                📦 <strong>Volumen</strong>: Cantidad propuesta superior a su necesidad inmediata
+              </button>
+              <button onclick="confirmarRechazoOferta('${idOferta}', 'Producto o formato no encaja en los cultivos del cliente')" class="pill-btn" style="text-align:left;padding:0.55rem 0.85rem;font-size:0.78rem;background:rgba(30,41,59,0.8);color:#cbd5e1;border:1px solid #334155;cursor:pointer;">
+                🌾 <strong>Producto/Formato</strong>: No encaja en el ciclo del cultivo actual
+              </button>
+              <button onclick="confirmarRechazoOferta('${idOferta}', 'El cliente ya dispone de stock suficiente en sus almacenes')" class="pill-btn" style="text-align:left;padding:0.55rem 0.85rem;font-size:0.78rem;background:rgba(30,41,59,0.8);color:#cbd5e1;border:1px solid #334155;cursor:pointer;">
+                🔄 <strong>Stock previo</strong>: El cliente aún tiene existencias de producto
+              </button>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+              <button onclick="document.getElementById('modalRechazoOverlay').remove()" class="pill-btn" style="font-size:0.75rem;padding:0.35rem 0.85rem;cursor:pointer;">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      const existing = document.getElementById('modalRechazoOverlay');
+      if (existing) existing.remove();
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    };
+
+    window.confirmarRechazoOferta = function(idOferta, motivo) {
+      setOfferFeedback(idOferta, 'RECHAZADA', motivo);
+      const m = document.getElementById('modalRechazoOverlay');
+      if (m) m.remove();
+      mostrarToastNotificacion(`❌ Rechazo registrado (${motivo.split(':')[0]})`);
+    };
+
+    window.abrirFichaDual = function(idOferta) {
+      const found = findOfferById(idOferta);
+      if (!found) return;
+      const o = found.offer;
+      const it = found.skuItem;
+
+      const modalHtml = `
+        <div id="modalFichaDualOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;">
+          <div style="background:#0f172a;border:1px solid #334155;border-radius:12px;max-width:760px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px -12px rgba(0,0,0,0.7);padding:1.5rem;color:#f8fafc;">
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;padding-bottom:0.75rem;margin-bottom:1rem;">
+              <div>
+                <h3 style="margin:0;font-size:1.15rem;color:#38bdf8;font-weight:800;">📄 Ficha Comercial y Financiera de Oferta</h3>
+                <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.2rem;">${o.id_oferta} &bull; ${o.cliente} (${o.pais}) &bull; Responsable: <strong>${o.comercial}</strong></div>
+              </div>
+              <button onclick="document.getElementById('modalFichaDualOverlay').remove()" style="background:transparent;border:none;color:#94a3b8;font-size:1.5rem;cursor:pointer;line-height:1;">&times;</button>
+            </div>
+            
+            <div style="display:flex;gap:0.5rem;margin-bottom:1rem;border-bottom:1px solid #1e293b;padding-bottom:0.5rem;">
+              <button id="btnTabFichaCliente" onclick="cambiarTabFicha('cliente')" class="pill-btn active" style="font-size:0.78rem;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;">
+                🌿 Vista Comercial Cliente (Sin Costes)
+              </button>
+              <button id="btnTabFichaInterna" onclick="cambiarTabFicha('interna')" class="pill-btn" style="font-size:0.78rem;font-weight:700;padding:0.4rem 0.9rem;cursor:pointer;">
+                💼 Vista Interna Dirección (Costes, Margen & Ahorro)
+              </button>
+            </div>
+            
+            <div id="vistaFichaCliente" style="display:block;background:rgba(30,41,59,0.7);border:1px solid #334155;border-radius:8px;padding:1.25rem;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+                <div>
+                  <span class="tab-badge" style="background:rgba(56,189,248,0.2);color:#38bdf8;font-size:0.72rem;font-weight:800;border:1px solid rgba(56,189,248,0.4);">${o.plan_name}</span>
+                  <h4 style="margin:0.4rem 0 0.15rem 0;font-size:1.05rem;color:#f8fafc;">${o.base_sku || it.base_sku} — ${o.sku_desc || it.desc}</h4>
+                  <div style="font-size:0.78rem;color:#94a3b8;">Formato: ${o.formato || it.formato}</div>
+                </div>
+                <button onclick="copiarFichaCliente('${o.id_oferta}')" class="pill-btn active" style="font-size:0.75rem;padding:0.35rem 0.75rem;background:#10b981;border-color:#10b981;cursor:pointer;">
+                  📋 Copiar Texto
+                </button>
+              </div>
+              
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;font-size:0.8rem;margin-bottom:1rem;">
+                <div style="background:rgba(15,23,42,0.6);padding:0.6rem;border-radius:6px;">
+                  <span style="color:#94a3b8;font-size:0.72rem;">Volumen / Envases:</span>
+                  <div style="font-weight:800;color:#f8fafc;font-size:0.95rem;margin-top:0.15rem;">${fmtNum(o.vol_asignado)} L/Kg (${fmtNum(o.envases_asignados)} uds)</div>
+                </div>
+                <div style="background:rgba(15,23,42,0.6);padding:0.6rem;border-radius:6px;">
+                  <span style="color:#94a3b8;font-size:0.72rem;">Precio Oferta Especial:</span>
+                  <div style="font-weight:800;color:#fbbf24;font-size:0.95rem;margin-top:0.15rem;">
+                    ${o.pvp_oferta.toFixed(2)} €/u
+                    ${o.dto_pct > 0 ? `<span style="font-size:0.75rem;color:#94a3b8;text-decoration:line-through;margin-left:0.35rem;">${o.pvp_tarifa_ref.toFixed(2)} €</span> <span style="font-size:0.72rem;color:#34d399;">(-${o.dto_pct.toFixed(0)}%)</span>` : ''}
+                  </div>
+                </div>
+                <div style="background:rgba(15,23,42,0.6);padding:0.6rem;border-radius:6px;">
+                  <span style="color:#94a3b8;font-size:0.72rem;">Facturación Neta Propuesta:</span>
+                  <div style="font-weight:800;color:#38bdf8;font-size:0.95rem;margin-top:0.15rem;">${fmtCurr(o.facturacion_neta_eur)}</div>
+                </div>
+                <div style="background:rgba(15,23,42,0.6);padding:0.6rem;border-radius:6px;">
+                  <span style="color:#94a3b8;font-size:0.72rem;">Condiciones de Cobro:</span>
+                  <div style="font-weight:800;color:#c084fc;font-size:0.85rem;margin-top:0.15rem;">${o.plazo_pago}</div>
+                </div>
+              </div>
+              
+              ${o.regalo_sku && o.regalo_sku !== '-' ? `
+                <div style="background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);border-radius:6px;padding:0.65rem 0.85rem;margin-bottom:1rem;">
+                  <div style="font-weight:800;color:#c084fc;font-size:0.8rem;display:flex;align-items:center;gap:0.4rem;">
+                    🎁 Obsequio Técnico en Especie Bonificado (Sin Cargo)
+                  </div>
+                  <div style="font-size:0.85rem;font-weight:700;color:#f8fafc;margin-top:0.2rem;">
+                    ${o.regalo_uds}x ${o.regalo_desc} (SKU: ${o.regalo_sku})
+                  </div>
+                  <div style="font-size:0.72rem;color:#cbd5e1;margin-top:0.15rem;">${o.regalo_sinergia || ''}</div>
+                </div>
+              ` : ''}
+              
+              <div style="background:rgba(245,158,11,0.1);border-left:3px solid #fbbf24;padding:0.5rem 0.75rem;border-radius:4px;font-size:0.74rem;color:#fde68a;">
+                ⏱️ <strong>Vigencia:</strong> Propuesta válida hasta el <strong>${o.vigencia || '30/11/2026'}</strong> o hasta agotar existencias reservadas en almacén.
+              </div>
+            </div>
+            
+            <div id="vistaFichaInterna" style="display:none;background:rgba(15,23,42,0.85);border:1px solid #334155;border-radius:8px;padding:1.25rem;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;font-size:0.8rem;">
+                <div style="background:rgba(30,41,59,0.7);padding:0.65rem;border-radius:6px;">
+                  <span style="color:#94a3b8;font-size:0.72rem;">Facturación Neta (Cash-In):</span>
+                  <div style="font-weight:800;color:#38bdf8;font-size:1.05rem;">+${fmtCurr(o.facturacion_neta_eur)}</div>
+                </div>
+                <div style="background:rgba(30,41,59,0.7);padding:0.65rem;border-radius:6px;">
+                  <span style="color:#94a3b8;font-size:0.72rem;">Coste de Stock (COGS):</span>
+                  <div style="font-weight:800;color:#f87171;font-size:1.05rem;">-${fmtCurr(o.cogs_eur)}</div>
+                </div>
+                <div style="background:rgba(30,41,59,0.7);padding:0.65rem;border-radius:6px;">
+                  <span style="color:#94a3b8;font-size:0.72rem;">Costes Comerciales Totales:</span>
+                  <div style="font-weight:700;color:#fbbf24;font-size:0.9rem;">
+                    -${fmtCurr((o.coste_dto_eur || 0) + (o.coste_rappel_eur || 0) + (o.coste_merch_eur || 0) + (o.coste_fin_eur || 0))}
+                  </div>
+                </div>
+                <div style="background:rgba(16,185,129,0.15);padding:0.65rem;border-radius:6px;border:1px solid rgba(16,185,129,0.4);">
+                  <span style="color:#34d399;font-size:0.72rem;font-weight:700;">Margen Neto de la Oferta:</span>
+                  <div style="font-weight:800;color:#34d399;font-size:1.05rem;">+${fmtCurr(o.margen_estimado_eur)} (${o.margen_estimado_pct.toFixed(1)}%)</div>
+                </div>
+              </div>
+              
+              <div style="background:rgba(30,41,59,0.5);border:1px solid #334155;border-radius:6px;padding:0.75rem;margin-bottom:1rem;font-size:0.75rem;">
+                <div style="font-weight:800;color:#60a5fa;margin-bottom:0.35rem;">📊 Impacto Financiero y de Working Capital:</div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                  <span style="color:#cbd5e1;">Ahorro Almacenamiento (Holding Cost ${o.holding_days || 180}d):</span>
+                  <strong style="color:#34d399;">+${fmtCurr(o.holding_cost_saved_eur || 0)}</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                  <span style="color:#cbd5e1;">Coste Financiero Aplazamiento (+${o.dias_extra || 0}d):</span>
+                  <strong style="color:#f87171;">-${fmtCurr(o.coste_fin_eur || 0)}</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;border-top:1px solid #334155;padding-top:0.25rem;margin-top:0.25rem;">
+                  <span style="color:#38bdf8;font-weight:700;">Ganancia Financiera Neta:</span>
+                  <strong style="color:#38bdf8;">+${fmtCurr(o.net_financial_gain_eur || 0)}</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-top:0.25rem;">
+                  <span style="color:#cbd5e1;">Reducción Directa DIO Balance:</span>
+                  <strong style="color:#34d399;">-${(o.dio_saving_days || 0).toFixed(3)} días</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const existing = document.getElementById('modalFichaDualOverlay');
+      if (existing) existing.remove();
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+    };
+
+    window.cambiarTabFicha = function(tab) {
+      const vCli = document.getElementById('vistaFichaCliente');
+      const vInt = document.getElementById('vistaFichaInterna');
+      const bCli = document.getElementById('btnTabFichaCliente');
+      const bInt = document.getElementById('btnTabFichaInterna');
+      if (!vCli || !vInt) return;
+      if (tab === 'cliente') {
+        vCli.style.display = 'block';
+        vInt.style.display = 'none';
+        if (bCli) bCli.classList.add('active');
+        if (bInt) bInt.classList.remove('active');
+      } else {
+        vCli.style.display = 'none';
+        vInt.style.display = 'block';
+        if (bCli) bCli.classList.remove('active');
+        if (bInt) bInt.classList.add('active');
+      }
+    };
+
+    window.setQueHagoHoyComFilter = function(com) {
+      queHagoHoyComFilter = com;
+      renderQueHagoHoyWidget();
+    };
+
+    window.setQueHagoHoyStatusFilter = function(st) {
+      queHagoHoyStatusFilter = st;
+      renderQueHagoHoyWidget();
+    };
+
+    window.toggleQueHagoHoyCollapse = function() {
+      queHagoHoyCollapsed = !queHagoHoyCollapsed;
+      renderQueHagoHoyWidget();
+    };
+
+    window.setQueHagoHoyLimit = function(limit) {
+      queHagoHoyLimit = limit;
+      renderQueHagoHoyWidget();
+    };
+
+    function renderQueHagoHoyWidget() {
+      const container = document.getElementById('queHagoHoyContainer');
+      if (!container || !productionData || !productionData.stock_suggestions) return;
+
+      const sug = productionData.stock_suggestions;
+      const items = sug.items || [];
+      const feedbackMap = getOffersFeedback();
+
+      const allOffers = [];
+      items.forEach(it => {
+        (it.ofertas_clientes || []).forEach(o => {
+          const fb = feedbackMap[o.id_oferta] || {};
+          allOffers.push({
+            ...o,
+            base_sku: o.base_sku || it.base_sku,
+            sku_desc: o.sku_desc || it.desc,
+            formato: o.formato || it.formato,
+            is_nomover: it.is_nomover,
+            estado_feedback: fb.estado || 'PENDIENTE',
+            motivo_rechazo: fb.motivo || ''
+          });
+        });
+      });
+
+      const comSet = new Set(allOffers.map(o => o.comercial));
+      const comList = ['Alfonso', 'García', 'Irene', 'Javier', 'Ricardo', 'Mehmet', 'Pedro', 'Dirección Técnica / Operaciones'];
+      const activeComs = comList.filter(c => comSet.has(c));
+
+      const totalCount = allOffers.length;
+      const pendingCount = allOffers.filter(o => o.estado_feedback === 'PENDIENTE').length;
+      const acceptedCount = allOffers.filter(o => o.estado_feedback === 'ACEPTADA').length;
+      const rejectedCount = allOffers.filter(o => o.estado_feedback === 'RECHAZADA').length;
+
+      let filtered = allOffers;
+      if (queHagoHoyComFilter !== 'ALL') {
+        filtered = filtered.filter(o => o.comercial === queHagoHoyComFilter);
+      }
+      if (queHagoHoyStatusFilter !== 'ALL') {
+        filtered = filtered.filter(o => o.estado_feedback === queHagoHoyStatusFilter);
+      }
+
+      filtered.sort((a, b) => {
+        if (a.estado_feedback === 'PENDIENTE' && b.estado_feedback !== 'PENDIENTE') return -1;
+        if (a.estado_feedback !== 'PENDIENTE' && b.estado_feedback === 'PENDIENTE') return 1;
+        const pOrder = { 'ALTA': 1, 'MEDIA': 2, 'ESTÁNDAR': 3 };
+        const pa = pOrder[a.prioridad] || 3;
+        const pb = pOrder[b.prioridad] || 3;
+        if (pa !== pb) return pa - pb;
+        return (b.facturacion_neta_eur || 0) - (a.facturacion_neta_eur || 0);
+      });
+
+      const displayList = queHagoHoyLimit > 0 ? filtered.slice(0, queHagoHoyLimit) : filtered;
+
+      let html = `
+        <div style="background:rgba(15,23,42,0.92);border:1px solid #10b981;border-radius:var(--radius-md);box-shadow:0 10px 25px -5px rgba(0,0,0,0.4);overflow:hidden;">
+          <div style="background:linear-gradient(135deg, rgba(6,78,59,0.5) 0%, rgba(15,23,42,0.95) 100%);padding:0.9rem 1.25rem;border-bottom:1px solid rgba(16,185,129,0.3);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+            <div style="display:flex;align-items:center;gap:0.6rem;">
+              <span style="font-size:1.35rem;">⚡</span>
+              <div>
+                <h3 style="margin:0;font-size:1.1rem;font-weight:800;color:#ffffff;display:flex;align-items:center;gap:0.5rem;">
+                  «Qué hago hoy» — Acciones Comerciales y Operativas Prioritarias
+                  <span class="tab-badge" style="background:rgba(16,185,129,0.2);color:#34d399;border:1px solid rgba(16,185,129,0.5);font-size:0.7rem;font-weight:800;">
+                    ${pendingCount} Pendientes
+                  </span>
+                </h3>
+                <div style="font-size:0.74rem;color:#cbd5e1;margin-top:0.15rem;">
+                  Guía de ejecución directa: cliente diana, siguiente paso comercial, fecha límite y copia rápida de propuesta.
+                </div>
+              </div>
+            </div>
+            
+            <button onclick="toggleQueHagoHoyCollapse()" class="pill-btn" style="font-size:0.75rem;padding:0.3rem 0.75rem;cursor:pointer;">
+              ${queHagoHoyCollapsed ? '▼ Desplegar Lista' : '▲ Plegar'}
+            </button>
+          </div>
+      `;
+
+      if (!queHagoHoyCollapsed) {
+        html += `
+          <div style="padding:0.85rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(15,23,42,0.6);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+            <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+              <span style="font-size:0.72rem;font-weight:800;color:#94a3b8;text-transform:uppercase;">Comercial:</span>
+              <button onclick="setQueHagoHoyComFilter('ALL')" class="pill-btn ${queHagoHoyComFilter === 'ALL' ? 'active' : ''}" style="font-size:0.72rem;padding:0.25rem 0.65rem;cursor:pointer;">
+                Todos (${totalCount})
+              </button>
+              ${activeComs.map(c => `
+                <button onclick="setQueHagoHoyComFilter('${c}')" class="pill-btn ${queHagoHoyComFilter === c ? 'active' : ''}" style="font-size:0.72rem;padding:0.25rem 0.65rem;cursor:pointer;">
+                  ${c === 'Dirección Técnica / Operaciones' ? '🏭 Planta/Dirección' : c} (${allOffers.filter(o => o.comercial === c).length})
+                </button>
+              `).join('')}
+            </div>
+
+            <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+              <span style="font-size:0.72rem;font-weight:800;color:#94a3b8;text-transform:uppercase;">Estado:</span>
+              <button onclick="setQueHagoHoyStatusFilter('ALL')" class="pill-btn ${queHagoHoyStatusFilter === 'ALL' ? 'active' : ''}" style="font-size:0.72rem;padding:0.25rem 0.65rem;cursor:pointer;">
+                Todas (${filtered.length})
+              </button>
+              <button onclick="setQueHagoHoyStatusFilter('PENDIENTE')" class="pill-btn ${queHagoHoyStatusFilter === 'PENDIENTE' ? 'active' : ''}" style="font-size:0.72rem;padding:0.25rem 0.65rem;background:${queHagoHoyStatusFilter === 'PENDIENTE' ? '#fbbf24' : 'rgba(245,158,11,0.15)'};color:${queHagoHoyStatusFilter === 'PENDIENTE' ? '#0f172a' : '#fbbf24'};border-color:rgba(245,158,11,0.4);cursor:pointer;">
+                ⏳ Pendientes (${allOffers.filter(o => (queHagoHoyComFilter === 'ALL' || o.comercial === queHagoHoyComFilter) && o.estado_feedback === 'PENDIENTE').length})
+              </button>
+              <button onclick="setQueHagoHoyStatusFilter('ACEPTADA')" class="pill-btn ${queHagoHoyStatusFilter === 'ACEPTADA' ? 'active' : ''}" style="font-size:0.72rem;padding:0.25rem 0.65rem;background:${queHagoHoyStatusFilter === 'ACEPTADA' ? '#10b981' : 'rgba(16,185,129,0.15)'};color:${queHagoHoyStatusFilter === 'ACEPTADA' ? '#ffffff' : '#34d399'};border-color:rgba(16,185,129,0.4);cursor:pointer;">
+                ✅ Aceptadas (${allOffers.filter(o => (queHagoHoyComFilter === 'ALL' || o.comercial === queHagoHoyComFilter) && o.estado_feedback === 'ACEPTADA').length})
+              </button>
+              <button onclick="setQueHagoHoyStatusFilter('RECHAZADA')" class="pill-btn ${queHagoHoyStatusFilter === 'RECHAZADA' ? 'active' : ''}" style="font-size:0.72rem;padding:0.25rem 0.65rem;background:${queHagoHoyStatusFilter === 'RECHAZADA' ? '#ef4444' : 'rgba(239,68,68,0.15)'};color:${queHagoHoyStatusFilter === 'RECHAZADA' ? '#ffffff' : '#fca5a5'};border-color:rgba(239,68,68,0.4);cursor:pointer;">
+                ❌ Rechazadas (${allOffers.filter(o => (queHagoHoyComFilter === 'ALL' || o.comercial === queHagoHoyComFilter) && o.estado_feedback === 'RECHAZADA').length})
+              </button>
+            </div>
+          </div>
+
+          <div style="padding:1rem 1.25rem;">
+            ${displayList.length === 0 ? `
+              <div style="padding:2rem;text-align:center;color:#94a3b8;font-size:0.85rem;">
+                No hay acciones que coincidan con los filtros seleccionados.
+              </div>
+            ` : `
+              <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:0.9rem;">
+                ${displayList.map(o => {
+                  const isAccepted = o.estado_feedback === 'ACEPTADA';
+                  const isRejected = o.estado_feedback === 'RECHAZADA';
+                  const cardBorder = isAccepted ? '#10b981' : (isRejected ? '#ef4444' : (o.prioridad === 'ALTA' ? 'rgba(245,158,11,0.5)' : '#334155'));
+                  const cardBg = isAccepted ? 'rgba(16,185,129,0.06)' : (isRejected ? 'rgba(239,68,68,0.06)' : 'rgba(30,41,59,0.55)');
+
+                  return `
+                    <div style="background:${cardBg};border:1px solid ${cardBorder};border-radius:8px;padding:0.9rem 1rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 12px rgba(0,0,0,0.25);">
+                      <div>
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.4rem;">
+                          <div>
+                            <div style="font-weight:800;color:#f8fafc;font-size:0.95rem;line-height:1.2;">
+                              ${o.cliente}
+                            </div>
+                            <div style="font-size:0.72rem;color:#94a3b8;margin-top:0.15rem;">
+                              🌍 ${o.pais} &bull; Responsable: <strong style="color:#cbd5e1;">${o.comercial}</strong>
+                            </div>
+                          </div>
+                          
+                          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;">
+                            <span class="tab-badge" style="background:${o.prioridad === 'ALTA' ? 'rgba(239,68,68,0.2)' : 'rgba(56,189,248,0.15)'};color:${o.prioridad === 'ALTA' ? '#fca5a5' : '#38bdf8'};border:1px solid ${o.prioridad === 'ALTA' ? 'rgba(239,68,68,0.4)' : 'rgba(56,189,248,0.3)'};font-size:0.65rem;font-weight:800;">
+                              ${o.prioridad === 'ALTA' ? '🔴 ALTA PRIORIDAD' : '🟡 MEDIA'}
+                            </span>
+                            <span style="font-size:0.68rem;color:#fbbf24;font-weight:700;">
+                              ⏱️ Límite: ${o.fecha_limite || '30/11/2026'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div style="background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:0.55rem 0.75rem;margin:0.45rem 0 0.6rem 0;font-size:0.75rem;">
+                          <div style="display:flex;justify-content:space-between;color:#cbd5e1;">
+                            <span>📦 <strong>${o.base_sku}</strong> — ${o.sku_desc}</span>
+                            <strong style="color:#f8fafc;">${fmtNum(o.vol_asignado)} L/Kg</strong>
+                          </div>
+                          <div style="display:flex;justify-content:space-between;color:#94a3b8;margin-top:0.2rem;font-size:0.72rem;">
+                            <span>PVP Oferta: <strong style="color:#fbbf24;">${o.pvp_oferta.toFixed(2)} €/u</strong> (${o.dto_pct > 0 ? `-${o.dto_pct.toFixed(0)}%` : 'Tarifa'})</span>
+                            <span style="color:#38bdf8;font-weight:700;">Neto: ${fmtCurr(o.facturacion_neta_eur)}</span>
+                          </div>
+                          ${o.regalo_sku && o.regalo_sku !== '-' ? `
+                            <div style="margin-top:0.25rem;color:#c084fc;font-size:0.7rem;font-weight:600;">
+                              🎁 Obsequio: ${o.regalo_uds}x ${o.regalo_desc}
+                            </div>
+                          ` : ''}
+                        </div>
+
+                        <div style="background:rgba(56,189,248,0.1);border-left:3px solid #38bdf8;padding:0.45rem 0.65rem;border-radius:4px;font-size:0.75rem;color:#e0f2fe;line-height:1.35;margin-bottom:0.7rem;">
+                          👉 <strong>Siguiente paso:</strong> ${o.siguiente_paso}
+                        </div>
+                      </div>
+
+                      <div style="border-top:1px solid rgba(255,255,255,0.07);padding-top:0.6rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.45rem;">
+                        <div style="display:flex;gap:0.35rem;">
+                          <button onclick="copiarFichaCliente('${o.id_oferta}')" class="pill-btn" style="font-size:0.7rem;padding:0.25rem 0.55rem;background:rgba(16,185,129,0.18);border:1px solid rgba(16,185,129,0.4);color:#34d399;font-weight:700;cursor:pointer;" title="Copiar ficha comercial para WhatsApp/Email">
+                            📋 Copiar Oferta
+                          </button>
+                          <button onclick="abrirFichaDual('${o.id_oferta}')" class="pill-btn" style="font-size:0.7rem;padding:0.25rem 0.55rem;background:rgba(56,189,248,0.18);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;font-weight:700;cursor:pointer;" title="Ver ficha dual completa">
+                            👁️ Ficha Dual
+                          </button>
+                        </div>
+
+                        <div>
+                          ${isAccepted ? `
+                            <span class="tab-badge" style="background:rgba(16,185,129,0.25);color:#34d399;border:1px solid rgba(16,185,129,0.5);font-size:0.7rem;font-weight:800;">
+                              ✅ Aceptada
+                            </span>
+                            <button onclick="reabrirOferta('${o.id_oferta}')" class="pill-btn" style="font-size:0.65rem;padding:0.2rem 0.45rem;margin-left:0.3rem;cursor:pointer;" title="Volver a estado pendiente">↺ Reabrir</button>
+                          ` : (isRejected ? `
+                            <span class="tab-badge" style="background:rgba(239,68,68,0.25);color:#fca5a5;border:1px solid rgba(239,68,68,0.5);font-size:0.68rem;font-weight:700;" title="${o.motivo_rechazo}">
+                              ❌ Rechazada
+                            </span>
+                            <button onclick="reabrirOferta('${o.id_oferta}')" class="pill-btn" style="font-size:0.65rem;padding:0.2rem 0.45rem;margin-left:0.3rem;cursor:pointer;" title="Volver a estado pendiente">↺ Reabrir</button>
+                          ` : `
+                            <div style="display:flex;gap:0.3rem;">
+                              <button onclick="marcarOfertaAceptada('${o.id_oferta}')" class="pill-btn" style="font-size:0.68rem;padding:0.22rem 0.5rem;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);font-weight:700;cursor:pointer;" title="Marcar como acordada/aceptada por el cliente">
+                                ✅ Aceptar
+                              </button>
+                              <button onclick="abrirModalRechazoOferta('${o.id_oferta}')" class="pill-btn" style="font-size:0.68rem;padding:0.22rem 0.5rem;background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);font-weight:700;cursor:pointer;" title="Registrar rechazo y motivo">
+                                ❌ Rechazar
+                              </button>
+                            </div>
+                          `)}
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `}
+
+            ${filtered.length > queHagoHoyLimit && queHagoHoyLimit > 0 ? `
+              <div style="text-align:center;margin-top:1rem;">
+                <button onclick="setQueHagoHoyLimit(0)" class="pill-btn active" style="font-size:0.78rem;padding:0.4rem 1.1rem;cursor:pointer;">
+                  👉 Ver las ${filtered.length} propuestas completas de esta lista
+                </button>
+              </div>
+            ` : (queHagoHoyLimit === 0 && filtered.length > 8 ? `
+              <div style="text-align:center;margin-top:1rem;">
+                <button onclick="setQueHagoHoyLimit(8)" class="pill-btn" style="font-size:0.75rem;padding:0.35rem 0.9rem;cursor:pointer;">
+                  ▲ Mostrar solo las 8 más prioritarias
+                </button>
+              </div>
+            ` : '')}
+          </div>
+        `;
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
     function renderSugTableContent() {
       const tbody = document.getElementById('sugTableBody');
       const countBadge = document.getElementById('sugFilteredCountBadge');
@@ -6238,7 +6792,7 @@
                     </span>
                   </div>
                   <div style="overflow-x:auto;">
-                    <table style="width:100%;min-width:1150px;font-size:0.73rem;border-collapse:collapse;">
+                    <table style="width:100%;min-width:1280px;font-size:0.73rem;border-collapse:collapse;">
                       <thead>
                         <tr style="background:rgba(15,23,42,0.85);color:#94a3b8;border-bottom:1px solid rgba(255,255,255,0.12);text-align:left;">
                           <th style="padding:0.4rem 0.5rem;">Cliente Destino</th>
@@ -6253,6 +6807,7 @@
                           <th style="padding:0.4rem 0.5rem;text-align:right;">Costes Comercial</th>
                           <th style="padding:0.4rem 0.5rem;text-align:right;">Margen Est.</th>
                           <th style="padding:0.4rem 0.5rem;">Cobro & Maduración Caja</th>
+                          <th style="padding:0.4rem 0.5rem;text-align:center;">Acciones & Estado</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -6324,6 +6879,34 @@
                                 ${o.caja_31_60d_eur > 0 ? `<span style="color:#38bdf8;">60d: ${fmtCurr(o.caja_31_60d_eur)}</span>` : ''}
                                 ${o.caja_61_90d_eur > 0 ? `<span style="color:#c084fc;">90d: ${fmtCurr(o.caja_61_90d_eur)}</span>` : ''}
                                 ${o.caja_90d_plus_eur > 0 ? `<span style="color:#fbbf24;">>90d: ${fmtCurr(o.caja_90d_plus_eur)}</span>` : ''}
+                              </div>
+                            </td>
+                            <td style="padding:0.45rem 0.5rem;text-align:center;white-space:nowrap;">
+                              <div style="display:flex;flex-direction:column;gap:0.3rem;align-items:center;">
+                                <div style="display:flex;gap:0.3rem;">
+                                  <button type="button" onclick="copiarFichaCliente('${o.id_oferta}')" class="pill-btn" style="font-size:0.65rem;padding:0.2rem 0.45rem;background:rgba(16,185,129,0.18);border:1px solid rgba(16,185,129,0.4);color:#34d399;font-weight:700;cursor:pointer;" title="Copiar propuesta comercial para WhatsApp o Email">
+                                    📋 Copiar
+                                  </button>
+                                  <button type="button" onclick="abrirFichaDual('${o.id_oferta}')" class="pill-btn" style="font-size:0.65rem;padding:0.2rem 0.45rem;background:rgba(56,189,248,0.18);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;font-weight:700;cursor:pointer;" title="Ver ficha dual completa">
+                                    👁️ Ficha
+                                  </button>
+                                </div>
+                                <div>
+                                  ${(getOffersFeedback()[o.id_oferta] || {}).estado === 'ACEPTADA' ? `
+                                    <span class="tab-badge" style="background:rgba(16,185,129,0.25);color:#34d399;border:1px solid rgba(16,185,129,0.5);font-size:0.62rem;font-weight:800;">
+                                      ✅ Aceptada
+                                    </span>
+                                  ` : ((getOffersFeedback()[o.id_oferta] || {}).estado === 'RECHAZADA' ? `
+                                    <span class="tab-badge" style="background:rgba(239,68,68,0.25);color:#fca5a5;border:1px solid rgba(239,68,68,0.5);font-size:0.62rem;font-weight:700;" title="${(getOffersFeedback()[o.id_oferta] || {}).motivo || ''}">
+                                      ❌ Rechazada
+                                    </span>
+                                  ` : `
+                                    <div style="display:flex;gap:0.25rem;">
+                                      <button type="button" onclick="marcarOfertaAceptada('${o.id_oferta}')" class="pill-btn" style="font-size:0.62rem;padding:0.18rem 0.4rem;background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.4);font-weight:700;cursor:pointer;" title="Marcar acordada/aceptada">✅</button>
+                                      <button type="button" onclick="abrirModalRechazoOferta('${o.id_oferta}')" class="pill-btn" style="font-size:0.62rem;padding:0.18rem 0.4rem;background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);font-weight:700;cursor:pointer;" title="Registrar motivo de rechazo">❌</button>
+                                    </div>
+                                  `)}
+                                </div>
                               </div>
                             </td>
                           </tr>
@@ -6721,6 +7304,9 @@
             </div>
           </div>
 
+          <!-- WIDGET OPERATIVO «QUÉ HAGO HOY» -->
+          <div id="queHagoHoyContainer" style="margin-bottom:1.35rem;"></div>
+
           <!-- LOS 5 PLAYBOOKS ESTRATÉGICOS (TARJETAS INTERACTIVAS) -->
           <div style="margin-bottom:1.35rem;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
@@ -6834,6 +7420,7 @@
       `;
 
       renderSugTableContent();
+      renderQueHagoHoyWidget();
     }
 
     // MODAL DE DETALLE: EVOLUCIÓN MENSUAL Y AGOTAMIENTO

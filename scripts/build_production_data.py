@@ -1407,14 +1407,17 @@ def build_scenario_production_data(scenario_name='revisado'):
 
             # 3 Alternativas Económicas comparadas por propuesta individual
             # Alternativa A: Plan Asignado Actual
-            gan_a = round(o.get('margen_estimado_eur', 0.0) + o.get('holding_cost_saved_eur', 0.0) - o.get('coste_fin_eur', 0.0), 2) if not o.get('es_reprocesado_interno') else round(o.get('compras_materia_prima_evitadas_eur', 0.0) - o.get('coste_tecnico_reprocesado_eur', 0.0), 2)
+            # Nota: c_margen_est ya deduce COGS, rappel, merchandising (incluye regalo) y coste financiero de aplazamiento.
+            # Por tanto, la ganancia neta total consolidada es Margen estimado + Ahorro de holding de inventario.
+            gan_a = round(o.get('margen_estimado_eur', 0.0) + o.get('holding_cost_saved_eur', 0.0), 2) if not o.get('es_reprocesado_interno') else round(o.get('compras_materia_prima_evitadas_eur', 0.0) - o.get('coste_tecnico_reprocesado_eur', 0.0), 2)
+            coste_com_a = round(o.get('coste_dto_eur', 0.0) + o.get('coste_rappel_eur', 0.0) + o.get('coste_merch_eur', 0.0), 2)
             alt_a = {
                 'id': 'alt_a',
                 'nombre': f"{o.get('plan_id', 'PLAN')}: {o.get('plan_name', 'Plan Asignado')}",
                 'tipo': 'Plan Asignado (Recomendado)',
                 'facturacion_eur': o.get('facturacion_neta_eur', 0.0),
                 'cogs_eur': o_cogs,
-                'coste_comercial_eur': round(o.get('coste_dto_eur', 0.0) + o.get('coste_rappel_eur', 0.0) + o.get('coste_merch_eur', 0.0) + o.get('regalo_coste_eur', 0.0), 2),
+                'coste_comercial_eur': coste_com_a,
                 'coste_fin_eur': o.get('coste_fin_eur', 0.0),
                 'margen_eur': o.get('margen_estimado_eur', 0.0),
                 'margen_pct': o.get('margen_estimado_pct', 0.0),
@@ -1448,9 +1451,10 @@ def build_scenario_production_data(scenario_name='revisado'):
                     'ventajas': ["Entrada de liquidez externa en 30 días", "Sin saturar reactor de planta"]
                 }
             else:
+                # -20% adicional de descuento directo sobre pvp_oferta, sin regalo (0€ merch) y pago a 30 días
                 fact_b = round(o.get('facturacion_neta_eur', 0.0) * 0.80, 2)
-                coste_b = round(o_cogs + o.get('coste_rappel_eur', 0.0), 2)
-                margen_b = round(fact_b - coste_b, 2)
+                coste_com_b = round(o.get('coste_rappel_eur', 0.0), 2)
+                margen_b = round(fact_b - o_cogs - coste_com_b, 2)
                 gan_b = round(margen_b + o.get('holding_cost_saved_eur', 0.0), 2)
                 alt_b = {
                     'id': 'alt_b',
@@ -1458,7 +1462,7 @@ def build_scenario_production_data(scenario_name='revisado'):
                     'tipo': 'Liquidación Rápida',
                     'facturacion_eur': fact_b,
                     'cogs_eur': o_cogs,
-                    'coste_comercial_eur': round(o.get('coste_rappel_eur', 0.0), 2),
+                    'coste_comercial_eur': coste_com_b,
                     'coste_fin_eur': 0.0,
                     'margen_eur': margen_b,
                     'margen_pct': round((margen_b / fact_b) * 100, 1) if fact_b > 0 else 0.0,
@@ -1473,7 +1477,7 @@ def build_scenario_production_data(scenario_name='revisado'):
             if o.get('es_reprocesado_interno') or g_code:
                 comp_evit = round(o_cogs * 0.85, 2)
                 cost_tec = round(o.get('vol_asignado', 0.0) * 0.08, 2)
-                gan_c = round(comp_evit - cost_tec, 2)
+                gan_c = round(comp_evit - cost_tec + o.get('holding_cost_saved_eur', 0.0), 2)
                 alt_c = {
                     'id': 'alt_c',
                     'nombre': f"Reprocesado Interno en Reactor ({g_code or 'Granel'})",
@@ -1509,17 +1513,28 @@ def build_scenario_production_data(scenario_name='revisado'):
                     'ventajas': ["Sin descuento de tarifa", f"Asume coste de inmovilizado de {coste_posesion:,.2f} € y riesgo de caducidad"]
                 }
 
-            rec_alt = 'alt_a'
-            if o.get('es_reprocesado_interno'):
-                rec_alt = 'alt_a' if alt_a['ganancia_neta_eur'] >= alt_b['ganancia_neta_eur'] else 'alt_b'
-            elif alt_a['ganancia_neta_eur'] < 0 and alt_b['ganancia_neta_eur'] > alt_a['ganancia_neta_eur']:
-                rec_alt = 'alt_b'
+            # Regla de recomendación estricta y transparente: compara las 3 opciones admisibles
+            candidates = [
+                ('alt_a', alt_a['ganancia_neta_eur']),
+                ('alt_b', alt_b['ganancia_neta_eur']),
+                ('alt_c', alt_c['ganancia_neta_eur'])
+            ]
+            best_alt, best_gain = max(candidates, key=lambda x: x[1])
+            rec_alt = best_alt
+
+            if rec_alt == 'alt_a':
+                motivo_rec = f"Maximiza ganancia neta (+{alt_a['ganancia_neta_eur']:,.2f} €) preservando precio de catálogo y fidelizando al cliente con producto complementario."
+            elif rec_alt == 'alt_b':
+                motivo_rec = f"Maximiza ganancia neta (+{alt_b['ganancia_neta_eur']:,.2f} €) mediante entrada rápida de liquidez a 30 días sin consumo de obsequios."
+            else:
+                motivo_rec = f"Maximiza ganancia neta (+{alt_c['ganancia_neta_eur']:,.2f} €) mediante valor técnico de recuperación en reactor ({g_code or 'Tanque'}) evitando compras de MP."
 
             o['alternativas_economicas'] = {
                 'alt_a': alt_a,
                 'alt_b': alt_b,
                 'alt_c': alt_c,
-                'recomendada': rec_alt
+                'recomendada': rec_alt,
+                'motivo_recomendacion': motivo_rec
             }
 
             # Alerta de desactualización y coherencia física en tiempo real

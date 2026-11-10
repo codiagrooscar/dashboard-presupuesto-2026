@@ -6145,6 +6145,17 @@
     // MODULO: COMPROBACIÓN DE ESTADO Y OFERTA DESACTUALIZADA (PUNTO 4 CHATGPT)
     // =========================================================================
     function checkOfferStatus(o, it) {
+      if (!o) return { status: 'UNKNOWN', badgeBg: 'rgba(100,116,139,0.2)', badgeColor: '#cbd5e1', badgeBorder: '#64748b', badgeText: '—', tooltip: '', isWarning: true };
+
+      // Localizar el item del SKU si no se pasa explícitamente
+      if (!it && productionData && productionData.stock_suggestions && productionData.stock_suggestions.items) {
+        const bSku = o.base_sku || (o.id_oferta ? o.id_oferta.split('-')[1] : null);
+        if (bSku) {
+          it = productionData.stock_suggestions.items.find(x => x.base_sku === bSku);
+        }
+      }
+
+      // 1. Estado registrado manualmente en feedback
       const fb = (getOffersFeedback())[o.id_oferta] || {};
       if (fb.estado === 'RECHAZADA') {
         return {
@@ -6169,19 +6180,53 @@
         };
       }
 
-      // Chequeo de stock libre físico en almacén
-      const freeStock = (o.alertas_desactualizacion && o.alertas_desactualizacion.stock_libre_disponible !== undefined)
-        ? o.alertas_desactualizacion.stock_libre_disponible
-        : (it ? (it.stock_libre || it.stock_actual) : o.vol_asignado);
+      // 2. Comprobación estricta de caducidad / vigencia temporal
+      const fechaStr = o.fecha_limite || o.vigencia;
+      if (fechaStr) {
+        const parts = String(fechaStr).trim().split('/');
+        if (parts.length === 3) {
+          const d = parseInt(parts[0], 10);
+          const m = parseInt(parts[1], 10) - 1;
+          const y = parseInt(parts[2], 10);
+          const expDate = new Date(y, m, d, 23, 59, 59);
+          const now = new Date();
+          if (!isNaN(expDate.getTime()) && expDate.getTime() < now.getTime()) {
+            return {
+              status: 'VENCIDA',
+              badgeBg: 'rgba(239,68,68,0.25)',
+              badgeColor: '#fca5a5',
+              badgeBorder: 'rgba(239,68,68,0.5)',
+              badgeText: '⚠️ Oferta Vencida',
+              tooltip: 'La fecha límite (' + fechaStr + ') ha caducado respecto a la fecha actual',
+              isWarning: true
+            };
+          }
+        }
+      }
 
-      if (freeStock < (o.vol_asignado || 0)) {
+      // 3. Comprobación estricta de stock físico disponible actual del SKU (no usar disponibilidad histórica)
+      let liveFreeStock = 0;
+      if (it) {
+        if (it.stock_libre !== undefined && it.stock_libre !== null) {
+          liveFreeStock = Number(it.stock_libre);
+        } else if (it.stock_actual !== undefined) {
+          liveFreeStock = Number(it.stock_actual) - Number(it.pendientes_entrega || 0);
+        }
+      } else if (o.alertas_desactualizacion && o.alertas_desactualizacion.stock_libre_disponible !== undefined) {
+        liveFreeStock = Number(o.alertas_desactualizacion.stock_libre_disponible);
+      } else {
+        liveFreeStock = Number(o.vol_asignado || 0);
+      }
+
+      const volRequerido = Number(o.vol_asignado || 0);
+      if (liveFreeStock < volRequerido) {
         return {
           status: 'DESACTUALIZADA_STOCK',
           badgeBg: 'rgba(245,158,11,0.25)',
           badgeColor: '#fde68a',
           badgeBorder: 'rgba(245,158,11,0.5)',
           badgeText: '⚠️ Stock Insuficiente',
-          tooltip: 'Stock libre en nave (' + fmtNum(freeStock) + ') menor al cupo propuesto (' + fmtNum(o.vol_asignado) + ')',
+          tooltip: 'Stock libre actual en nave (' + fmtNum(liveFreeStock) + ') menor al cupo requerido (' + fmtNum(volRequerido) + ')',
           isWarning: true
         };
       }
@@ -6192,7 +6237,7 @@
         badgeColor: '#34d399',
         badgeBorder: 'rgba(16,185,129,0.4)',
         badgeText: '🟢 En Plazo y Stock OK',
-        tooltip: 'Stock libre reservado y propuesta vigente hasta ' + (o.vigencia || '30/11/2026'),
+        tooltip: 'Stock libre reservado (' + fmtNum(liveFreeStock) + ' L/Kg) y propuesta vigente hasta ' + (fechaStr || '30/11/2026'),
         isWarning: false
       };
     }
@@ -6241,7 +6286,11 @@
     function saveSavedSimulations(simList) {
       try {
         localStorage.setItem('codiagro_stock_simulations', JSON.stringify(simList));
-      } catch (e) {}
+        return true;
+      } catch (e) {
+        console.error('Error al guardar simulación en localStorage:', e);
+        return false;
+      }
     }
 
     function computeSimulationMetrics(skuList) {
@@ -6251,10 +6300,11 @@
       const items = sug.items.filter(it => skuSet.has(it.base_sku));
 
       const count = items.length;
-      const qty = items.reduce((a, b) => a + (b.total_excedente_qty || 0), 0);
-      const cost = items.reduce((a, b) => a + (b.total_excedente_eur || 0), 0);
-      const rev = items.reduce((a, b) => a + (b.ingreso_total_propuesto_eur || 0), 0);
-      const margin = items.reduce((a, b) => a + (b.margen_neto_real_eur || 0), 0);
+      // Nombres exactos de campos en el modelo generado
+      const qty = items.reduce((a, b) => a + (b.exceso_total_qty || (b.no_mover_qty + b.slow_mover_qty) || 0), 0);
+      const cost = items.reduce((a, b) => a + (b.exceso_total_eur || (b.no_mover_eur + b.slow_mover_eur) || 0), 0);
+      const rev = items.reduce((a, b) => a + (b.ingreso_neto_eur || 0), 0);
+      const margin = items.reduce((a, b) => a + (b.margen_neto_eur || 0), 0);
       const marginPct = rev > 0 ? (margin / rev) * 100 : (cost > 0 ? (margin / cost) * 100 : 0);
 
       // Métricas de Working Capital congruentes (sin reprocesado en DIO)
@@ -6356,12 +6406,19 @@
         name: nombre,
         date: dateStr,
         notes: notas,
+        escenario: currentScenario || 'revisado',
+        version_datos: '10/11/2026',
         skus: Array.from(sugSelectedSkus),
         is_builtin: false
       };
 
       list.unshift(newSim);
-      saveSavedSimulations(list);
+      const guardadoOk = saveSavedSimulations(list);
+
+      if (!guardadoOk) {
+        alert('⚠️ Error: no se pudo guardar la simulación en el almacenamiento local (posible cuota excedida o restricciones de almacenamiento).');
+        return; // Conservar formulario abierto
+      }
 
       const m = document.getElementById('modalGuardarSimOverlay');
       if (m) m.remove();
@@ -6911,13 +6968,13 @@
                   tipo: 'Plan Asignado (Recomendado)',
                   facturacion_eur: o.facturacion_neta_eur,
                   cogs_eur: o.cogs_eur,
-                  coste_comercial_eur: (o.coste_dto_eur || 0) + (o.coste_rappel_eur || 0) + (o.coste_merch_eur || 0) + (o.regalo_coste_eur || 0),
+                  coste_comercial_eur: (o.coste_dto_eur || 0) + (o.coste_rappel_eur || 0) + (o.coste_merch_eur || 0),
                   margen_eur: o.margen_estimado_eur,
                   margen_pct: o.margen_estimado_pct,
                   plazo_pago: o.plazo_pago,
                   dso_dias: (o.dias_extra || 0) + 60,
                   ahorro_holding_eur: o.holding_cost_saved_eur || 0,
-                  ganancia_neta_eur: o.net_financial_gain_eur || 0,
+                  ganancia_neta_eur: o.es_reprocesado_interno ? ((o.compras_materia_prima_evitadas_eur || 0) - (o.coste_tecnico_reprocesado_eur || 0) + (o.holding_cost_saved_eur || 0)) : (o.margen_estimado_eur + (o.holding_cost_saved_eur || 0)),
                   ventajas: ['Preserva el precio de catálogo', 'Fideliza cliente mediante regalo técnico']
                 };
                 const altB = alts.alt_b || {
@@ -6957,6 +7014,11 @@
                         <span style="font-size:0.68rem;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.04em;">${alt.tipo}</span>
                         ${rec === key ? '<span class="tab-badge" style="background:rgba(16,185,129,0.25);color:#34d399;font-size:0.62rem;font-weight:800;border:1px solid rgba(16,185,129,0.5);">⭐ RECOMENDADA</span>' : ''}
                       </div>
+                      ${rec === key && alts.motivo_recomendacion ? `
+                        <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:4px;padding:0.35rem 0.5rem;font-size:0.68rem;color:#a7f3d0;margin-bottom:0.45rem;line-height:1.3;">
+                          🎯 ${alts.motivo_recomendacion}
+                        </div>
+                      ` : ''}
                       <h5 style="margin:0 0 0.5rem 0;font-size:0.88rem;color:#f8fafc;line-height:1.25;">${alt.nombre}</h5>
                       
                       <div style="background:rgba(15,23,42,0.6);padding:0.55rem;border-radius:6px;font-size:0.75rem;margin-bottom:0.65rem;line-height:1.45;">

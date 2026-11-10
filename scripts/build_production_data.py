@@ -1490,40 +1490,64 @@ def build_scenario_production_data(scenario_name='revisado'):
         }
     }
 
+    # Reconstrucción estricta de los planes desde las ofertas individuales asignadas a cada plan
+    all_offers = []
+    for x in suggestions_items:
+        for o in x.get('ofertas_clientes', []):
+            o_rec = dict(o)
+            o_rec['base_sku'] = x['base_sku']
+            o_rec['is_nomover'] = x.get('is_nomover', False)
+            o_rec['envase_l'] = x.get('envase_l', 1.0)
+            all_offers.append(o_rec)
+
     plans_summary = []
     for pid in sorted(plan_meta_defs.keys()):
-        p_items = [x for x in suggestions_items if x['plan_id'] == pid]
+        p_offers = [o for o in all_offers if o.get('plan_id') == pid]
+        p_skus = set(o['base_sku'] for o in p_offers)
         meta_p = dict(plan_meta_defs[pid])
-        meta_p['skus_count'] = len(p_items)
-        meta_p['nomover_skus_count'] = sum(1 for x in p_items if x['is_nomover'])
-        meta_p['nomover_qty'] = round(sum(x['no_mover_qty'] for x in p_items), 1)
-        meta_p['slowmover_qty'] = round(sum(x['slow_mover_qty'] for x in p_items), 1)
-        meta_p['total_qty'] = round(sum(x['exceso_total_qty'] for x in p_items), 1)
-        meta_p['nomover_cost_eur'] = round(sum(x['no_mover_eur'] for x in p_items), 2)
-        meta_p['slowmover_cost_eur'] = round(sum(x['slow_mover_eur'] for x in p_items), 2)
-        meta_p['total_cost_eur'] = round(sum(x['exceso_total_eur'] for x in p_items), 2)
-        meta_p['ingreso_nm_eur'] = round(sum(x['ingreso_nm_eur'] for x in p_items), 2)
-        meta_p['ingreso_neto_eur'] = round(sum(x['ingreso_neto_eur'] for x in p_items), 2)
-        meta_p['coste_dto_eur'] = round(sum(x['coste_dto_eur'] for x in p_items), 2)
-        meta_p['coste_rappel_eur'] = round(sum(x.get('coste_rappel_eur', 0) for x in p_items), 2)
-        meta_p['coste_merch_eur'] = round(sum(x['coste_merch_eur'] for x in p_items), 2)
-        meta_p['coste_fin_pago_eur'] = round(sum(x['coste_fin_pago_eur'] for x in p_items), 2)
-        meta_p['coste_comercial_total_eur'] = round(sum(x['coste_comercial_total_eur'] for x in p_items), 2)
-        meta_p['margen_bruto_eur'] = round(sum(x['margen_bruto_eur'] for x in p_items), 2)
-        meta_p['margen_neto_eur'] = round(sum(x['margen_neto_eur'] for x in p_items), 2)
-        meta_p['margen_neto_pct'] = round((meta_p['margen_neto_eur'] / meta_p['ingreso_neto_eur']) * 100, 1) if meta_p['ingreso_neto_eur'] > 0 else 0.0
-        meta_p['caja_0_30d_eur'] = round(sum(x.get('caja_0_30d_eur', 0) for x in p_items), 2)
-        meta_p['caja_31_60d_eur'] = round(sum(x.get('caja_31_60d_eur', 0) for x in p_items), 2)
-        meta_p['caja_61_90d_eur'] = round(sum(x.get('caja_61_90d_eur', 0) for x in p_items), 2)
-        meta_p['caja_90d_plus_eur'] = round(sum(x.get('caja_90d_plus_eur', 0) for x in p_items), 2)
-        meta_p['dio_nm_days'] = round(sum(x['dio_nm_days'] for x in p_items), 2)
-        meta_p['dio_saving_days'] = round(sum(x['dio_saving_days'] for x in p_items), 2)
-        meta_p['dso_impact_days'] = round(sum(x['dso_impact_empresa_days'] for x in p_items), 3)
-        meta_p['ccc_net_impact_days'] = round(-meta_p['dio_saving_days'] + meta_p['dso_impact_days'], 2)
-        meta_p['holding_cost_saved_eur'] = round(sum(x['holding_cost_saved_eur'] for x in p_items), 2)
-        meta_p['net_financial_gain_eur'] = round(sum(x['net_financial_gain_eur'] for x in p_items), 2)
+        meta_p['skus_count'] = len(p_skus)
+        meta_p['ofertas_count'] = len(p_offers)
+        meta_p['nomover_skus_count'] = len(set(o['base_sku'] for o in p_offers if o.get('is_nomover')))
+        meta_p['nomover_qty'] = round(sum(o['vol_asignado'] for o in p_offers if o.get('is_nomover')), 1)
+        meta_p['slowmover_qty'] = round(sum(o['vol_asignado'] for o in p_offers if not o.get('is_nomover')), 1)
+        meta_p['total_qty'] = round(sum(o['vol_asignado'] for o in p_offers), 1)
+        meta_p['nomover_cost_eur'] = round(sum(o['cogs_eur'] for o in p_offers if o.get('is_nomover')), 2)
+        meta_p['slowmover_cost_eur'] = round(sum(o['cogs_eur'] for o in p_offers if not o.get('is_nomover')), 2)
+        meta_p['total_cost_eur'] = round(sum(o['cogs_eur'] for o in p_offers), 2)
+        meta_p['ingreso_nm_eur'] = round(sum(o['facturacion_neta_eur'] for o in p_offers if o.get('is_nomover')), 2)
+        meta_p['ingreso_neto_eur'] = round(sum(o['facturacion_neta_eur'] for o in p_offers), 2)
+        meta_p['coste_dto_eur'] = round(sum(o.get('coste_dto_eur', 0.0) for o in p_offers), 2)
+        meta_p['coste_rappel_eur'] = round(sum(o.get('coste_rappel_eur', 0.0) for o in p_offers), 2)
+        meta_p['coste_merch_eur'] = round(sum(o.get('coste_merch_eur', 0.0) for o in p_offers), 2)
+        meta_p['coste_fin_pago_eur'] = round(sum(o.get('coste_fin_eur', 0.0) for o in p_offers), 2)
+        meta_p['coste_comercial_total_eur'] = round(meta_p['coste_dto_eur'] + meta_p['coste_rappel_eur'] + meta_p['coste_merch_eur'] + meta_p['coste_fin_pago_eur'], 2)
+        meta_p['margen_bruto_eur'] = round(meta_p['ingreso_neto_eur'] - meta_p['total_cost_eur'], 2)
+        meta_p['margen_neto_eur'] = round(sum(o.get('margen_estimado_eur', 0.0) for o in p_offers), 2)
+        meta_p['margen_neto_pct'] = round((meta_p['margen_neto_eur'] / meta_p['ingreso_neto_eur']) * 100, 1) if meta_p['ingreso_neto_eur'] > 0 else (
+            round((meta_p['margen_neto_eur'] / meta_p['total_cost_eur']) * 100, 1) if meta_p['total_cost_eur'] > 0 else 0.0
+        )
+        meta_p['caja_0_30d_eur'] = round(sum(o.get('caja_0_30d_eur', 0.0) for o in p_offers), 2)
+        meta_p['caja_31_60d_eur'] = round(sum(o.get('caja_31_60d_eur', 0.0) for o in p_offers), 2)
+        meta_p['caja_61_90d_eur'] = round(sum(o.get('caja_61_90d_eur', 0.0) for o in p_offers), 2)
+        meta_p['caja_90d_plus_eur'] = round(sum(o.get('caja_90d_plus_eur', 0.0) for o in p_offers), 2)
+        meta_p['dio_nm_days'] = round(sum(o.get('dio_saving_days', 0.0) for o in p_offers if o.get('is_nomover')), 3)
+        meta_p['dio_saving_days'] = round(sum(o.get('dio_saving_days', 0.0) for o in p_offers), 3)
+        meta_p['dso_impact_days'] = round(sum(o.get('dso_impact_days', 0.0) for o in p_offers), 5)
+        meta_p['ccc_net_impact_days'] = round(-meta_p['dio_saving_days'] + meta_p['dso_impact_days'], 3)
+        meta_p['holding_cost_saved_eur'] = round(meta_p['total_cost_eur'] * TASA_HOLDING_INVENTARIO * (180.0 / 365.0), 2)
+        meta_p['net_financial_gain_eur'] = round(meta_p['holding_cost_saved_eur'] - meta_p['coste_fin_pago_eur'], 2)
         meta_p['ratio_dio_vs_dso'] = round(meta_p['dio_saving_days'] / meta_p['dso_impact_days'], 1) if meta_p['dso_impact_days'] > 0 else 999.0
-        meta_p['palets_liberados'] = round(sum(x['palets_liberados'] for x in p_items), 1)
+        meta_p['palets_liberados'] = round(sum(
+            max(0.1, o['vol_asignado'] / (
+                1000.0 if o.get('envase_l', 1) >= 500 else (
+                    800.0 if o.get('envase_l', 1) >= 150 else (
+                        640.0 if o.get('envase_l', 1) >= 15 else (
+                            480.0 if o.get('envase_l', 1) >= 4 else 360.0
+                        )
+                    )
+                )
+            )) for o in p_offers
+        ), 1) if p_offers else 0.0
 
         dio_sav = meta_p['dio_saving_days']
         dso_imp = meta_p['dso_impact_days']

@@ -40,19 +40,19 @@
   <script>if (typeof Chart === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>'); }</script>
   <script src="exceljs.min.js"></script>
   <script>if (typeof ExcelJS === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"><\/script>'); }</script>
-  <script src="dashboard_i18n.js?v=20261109_1430"></script>
-  <script src="dashboard_data.js?v=20261109_1430"></script>
-  <script src="production_planning_data.js?v=20261109_1430"></script>
-  <script src="treasury_data.js?v=20261109_1430"></script>
-  <script src="profitability_data.js?v=20261109_1430"></script>
-  <script src="fullcost_data.js?v=20261109_1430"></script>
-  <script src="profitability_logic.js?v=20261109_1430"></script>
-  <script src="bi_intelligence_data.js?v=20261109_1430"></script>
-  <script src="cockpit_inicio_logic.js?v=20261104_0815"></script>
-  <script src="bi_intelligence_logic.js?v=20261104_0815"></script>
-  <link rel="stylesheet" href="marta_tracking.css?v=20261104_0815">
-  <script src="marta_tracking_data.js?v=20261104_0815"></script>
-  <script src="marta_tracking_logic.js?v=20261104_0815"></script>
+  <script src="dashboard_i18n.js?v=20261110_1000"></script>
+  <script src="dashboard_data.js?v=20261110_1000"></script>
+  <script src="production_planning_data.js?v=20261110_1000"></script>
+  <script src="treasury_data.js?v=20261110_1000"></script>
+  <script src="profitability_data.js?v=20261110_1000"></script>
+  <script src="fullcost_data.js?v=20261110_1000"></script>
+  <script src="profitability_logic.js?v=20261110_1000"></script>
+  <script src="bi_intelligence_data.js?v=20261110_1000"></script>
+  <script src="cockpit_inicio_logic.js?v=20261110_1000"></script>
+  <script src="bi_intelligence_logic.js?v=20261110_1000"></script>
+  <link rel="stylesheet" href="marta_tracking.css?v=20261110_1000">
+  <script src="marta_tracking_data.js?v=20261110_1000"></script>
+  <script src="marta_tracking_logic.js?v=20261110_1000"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -5901,10 +5901,19 @@
       const sumPal = selItems.reduce((a, b) => a + (b.palets_liberados || 0), 0);
       const sumGain = selItems.reduce((a, b) => a + (b.net_financial_gain_eur || 0), 0);
 
-      // Métricas de Working Capital dinámicas
-      const dioSavingDays = sumCost / COGS_DIARIO; // Reducción en días DIO Empresa
+      // Métricas de Working Capital dinámicas congruentes con el generador
+      // Solo el stock con salida comercial externa sale del inventario de balance
+      const sumExtCost = selItems.reduce((a, b) => {
+        return a + (b.ofertas_clientes || []).filter(o => !o.es_reprocesado_interno).reduce((sa, sb) => sa + (sb.cogs_eur || 0), 0);
+      }, 0);
+      const sumReprocCost = selItems.reduce((a, b) => {
+        return a + (b.ofertas_clientes || []).filter(o => o.es_reprocesado_interno).reduce((sa, sb) => sa + (sb.cogs_eur || 0), 0);
+      }, 0);
+
+      const dioSavingDays = selItems.reduce((a, b) => a + (b.dio_saving_days || 0), 0);
+      const dioNmDays = selItems.reduce((a, b) => a + (b.dio_nm_days || 0), 0);
       const postDio = Math.max(0, DIO_BASE - dioSavingDays);
-      const postInv = Math.max(0, INV_TOTAL_BASE - sumCost);
+      const postInv = Math.max(0, INV_TOTAL_BASE - sumExtCost);
 
       const dsoImpactDays = selItems.reduce((a, b) => a + (b.dso_impact_empresa_days || 0), 0);
       const postDso = DSO_BASE + dsoImpactDays;
@@ -5916,7 +5925,7 @@
       // Actualizar resumen en badge
       const liveBadge = document.getElementById('sugLiveSelectionSummary');
       if (liveBadge) {
-        liveBadge.innerHTML = `🎯 <strong>${selCount} SKUs seleccionados</strong> (${fmtCurr(sumCost)} inmovilizado) &bull; <span style="color:#34d399;">-${dioSavingDays.toFixed(2)}d DIO</span> &bull; <span style="color:#60a5fa;">CCC: ${postCcc.toFixed(1)}d (-${cccNetImpact.toFixed(2)}d)</span>`;
+        liveBadge.innerHTML = `🎯 <strong>${selCount} SKUs seleccionados</strong> (${fmtCurr(sumCost)} inmovilizado${sumReprocCost > 0 ? ` &bull; ${fmtCurr(sumExtCost)} venta / ${fmtCurr(sumReprocCost)} reactor` : ''}) &bull; <span style="color:#34d399;">-${dioSavingDays.toFixed(2)}d DIO</span> &bull; <span style="color:#60a5fa;">CCC: ${postCcc.toFixed(1)}d (-${cccNetImpact.toFixed(2)}d)</span>`;
       }
 
       // Actualizar Banner Ejecutivo
@@ -5937,7 +5946,7 @@
       if (elDioSaving) elDioSaving.innerHTML = `-${dioSavingDays.toFixed(2)} <span style="font-size:0.75rem;">días</span>`;
 
       const elDioSavingSub = document.getElementById('sim_kpi_ahorro_dio_sub');
-      if (elDioSavingSub) elDioSavingSub.innerText = `-${fmtCurr(sumCost)} de stock balance`;
+      if (elDioSavingSub) elDioSavingSub.innerText = `-${fmtCurr(sumExtCost)} de stock balance`;
 
       const elDsoImpact = document.getElementById('sim_kpi_impacto_dso');
       if (elDsoImpact) elDsoImpact.innerHTML = `+${dsoImpactDays.toFixed(2)} <span style="font-size:0.75rem;">días</span>`;
@@ -5959,7 +5968,7 @@
       if (elNmCostSub) elNmCostSub.innerText = `${selItems.filter(x => x.is_nomover).length} SKUs &bull; ${fmtNum(sumNmQ)} L/Kg`;
 
       const elDioNm = document.getElementById('sim_kpi_dio_nm');
-      if (elDioNm) elDioNm.innerText = `-${(sumNmCost / COGS_DIARIO).toFixed(2)} días`;
+      if (elDioNm) elDioNm.innerText = `-${dioNmDays.toFixed(2)} días`;
 
       const elTotCost = document.getElementById('sim_kpi_coste_stock');
       if (elTotCost) elTotCost.innerText = fmtCurr(sumCost);
@@ -6100,7 +6109,7 @@
       } else if (sugPlanFilter === 'SLOWMOVER_ONLY') {
         filtered = allItems.filter(x => !x.is_nomover && x.slow_mover_qty > 0);
       } else if (sugPlanFilter.startsWith('PLAN ')) {
-        filtered = allItems.filter(x => x.plan_id === sugPlanFilter);
+        filtered = allItems.filter(x => (x.ofertas_clientes || []).some(o => o.plan_id === sugPlanFilter));
       }
 
       if (sugSearchQuery.trim() !== '') {
@@ -6206,7 +6215,7 @@
                 <div style="font-weight:700;color:#f8fafc;font-size:0.77rem;">🎯 ${it.clientes_diana}</div>
                 <div style="font-size:0.7rem;color:#94a3b8;margin-top:0.2rem;">💡 <em>${it.motivo_coherente}</em></div>
                 <button type="button" id="btn_toggle_sug_${it.base_sku}" class="pill-btn" style="margin-top:0.4rem;font-size:0.67rem;padding:0.22rem 0.55rem;background:rgba(56,189,248,0.14);border:1px solid rgba(56,189,248,0.4);color:#38bdf8;font-weight:700;cursor:pointer;" onclick="toggleSugOffersRow('${it.base_sku}')">
-                  📋 Ver ${it.total_ofertas || (it.ofertas_clientes ? it.ofertas_clientes.length : 1)} ofertas individuales
+                  📋 Ver ${(sugPlanFilter.startsWith('PLAN ') ? (it.ofertas_clientes || []).filter(o => o.plan_id === sugPlanFilter).length : (it.ofertas_clientes ? it.ofertas_clientes.length : 1))} ofertas individuales
                 </button>
               </td>
               <td style="min-width:250px;max-width:310px;line-height:1.35;">
@@ -6225,7 +6234,7 @@
                       </div>
                     </div>
                     <span class="tab-badge" style="background:rgba(56,189,248,0.18);color:#38bdf8;border:1px solid rgba(56,189,248,0.4);font-size:0.7rem;font-weight:700;">
-                      ${(it.ofertas_clientes || []).length} Propuestas
+                      ${(sugPlanFilter.startsWith('PLAN ') ? (it.ofertas_clientes || []).filter(o => o.plan_id === sugPlanFilter).length : (it.ofertas_clientes || []).length)} Propuestas
                     </span>
                   </div>
                   <div style="overflow-x:auto;">
@@ -6247,7 +6256,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        ${(it.ofertas_clientes || []).map(o => `
+                        ${(sugPlanFilter.startsWith('PLAN ') ? (it.ofertas_clientes || []).filter(o => o.plan_id === sugPlanFilter) : (it.ofertas_clientes || [])).map(o => `
                           <tr style="border-bottom:1px solid rgba(255,255,255,0.06);line-height:1.35;">
                             <td style="padding:0.45rem 0.5rem;font-weight:700;color:#f8fafc;">
                               ${o.cliente}

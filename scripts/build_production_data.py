@@ -17,6 +17,7 @@ except Exception as _e:
 
 import openpyxl
 import json
+import math
 import re
 import shutil
 import subprocess
@@ -35,50 +36,74 @@ def safe_load_workbook(filepath, data_only=True, read_only=False):
         subprocess.run(['powershell', '-Command', f'Copy-Item -LiteralPath "{filepath}" -Destination "{temp_file}" -Force'], check=True)
         return openpyxl.load_workbook(temp_file, data_only=data_only, read_only=read_only)
 
-def get_latest_stock_file():
-    stock_dir = r'C:\Users\oscar.ocampo\OneDrive - Agroquímica Codiagro S.L\Escritorio\Estado de pedidos\Aplicacion web'
-    if not os.path.exists(stock_dir):
-        return None
-    candidates = [f for f in os.listdir(stock_dir) if f.startswith('Stock') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))]
-    if not candidates:
-        return None
-    def sort_key(f):
-        m = re.search(r'(\d{1,2})\.(\d{1,2})', f)
-        if m:
-            return (int(m.group(2)), int(m.group(1)))
-        return (0, 0)
-    candidates.sort(key=sort_key, reverse=True)
-    return os.path.join(stock_dir, candidates[0])
+def parse_campaign_source_date(filename, campaign_start_year=2026):
+    """
+    Resuelve fecha completa (año, mes, día) soportando cambio de año fiscal/campaña
+    (Sep-Dic -> año base; Ene-Ago -> año base + 1) y años explícitos de 2 o 4 dígitos.
+    """
+    base_f = os.path.basename(str(filename or ""))
+    # Formato ISO YYYY-MM-DD o DD.MM.YYYY
+    m_iso = re.search(r'(20\d{2})[-_\.](\d{1,2})[-_\.](\d{1,2})', base_f)
+    if m_iso:
+        return (int(m_iso.group(1)), int(m_iso.group(2)), int(m_iso.group(3)))
+    m_dmy4 = re.search(r'(\d{1,2})[\./-](\d{1,2})[\./-](20\d{2})', base_f)
+    if m_dmy4:
+        return (int(m_dmy4.group(3)), int(m_dmy4.group(2)), int(m_dmy4.group(1)))
+    m_dm = re.search(r'(\d{1,2})\.(\d{1,2})(?:\.(\d{2})(?!\d))?', base_f)
+    if m_dm:
+        day, mo = int(m_dm.group(1)), int(m_dm.group(2))
+        if m_dm.group(3):
+            yr = 2000 + int(m_dm.group(3))
+        else:
+            yr = campaign_start_year if mo >= 9 else campaign_start_year + 1
+        return (yr, mo, day)
+    return (0, 0, 0)
 
-def get_active_order_files():
+def get_latest_stock_file(candidates=None, stock_dir=r'C:\Users\oscar.ocampo\OneDrive - Agroquímica Codiagro S.L\Escritorio\Estado de pedidos\Aplicacion web'):
+    if candidates is None:
+        if not os.path.exists(stock_dir):
+            return None
+        files = [f for f in os.listdir(stock_dir) if f.startswith('Stock') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))]
+        if not files:
+            return None
+        files.sort(key=lambda f: parse_campaign_source_date(f), reverse=True)
+        return os.path.join(stock_dir, files[0])
+    files = [f for f in candidates if os.path.basename(f).startswith('Stock') and f.endswith('.xlsx') and not os.path.basename(f).startswith(('temp_', '~$'))]
+    if not files:
+        return None
+    files.sort(key=lambda f: parse_campaign_source_date(f), reverse=True)
+    return files[0]
+
+def get_active_order_files(candidates=None):
     order_files = []
-    for f in ['Pedidos02.11 comerciales.xlsx', 'Pedidos 02.11 comerciales.xlsx', 'Pedidos30.10 comerciales.xlsx']:
-        if os.path.exists(f):
-            order_files.append(f)
-            break
-        elif os.path.exists(os.path.join('Pedidos', f)):
-            order_files.append(os.path.join('Pedidos', f))
-            break
-    candidates = [
-        f for f in os.listdir('.')
-        if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
-    ]
-    if os.path.exists('Pedidos') and os.path.isdir('Pedidos'):
-        candidates += [
-            os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
+    if candidates is None:
+        for f in ['Pedidos02.11 comerciales.xlsx', 'Pedidos 02.11 comerciales.xlsx', 'Pedidos30.10 comerciales.xlsx']:
+            if os.path.exists(f):
+                order_files.append(f)
+                break
+            elif os.path.exists(os.path.join('Pedidos', f)):
+                order_files.append(os.path.join('Pedidos', f))
+                break
+        candidates = [
+            f for f in os.listdir('.')
             if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
         ]
-    nov_candidates = []
+        if os.path.exists('Pedidos') and os.path.isdir('Pedidos'):
+            candidates += [
+                os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
+                if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
+            ]
+    dated_candidates = []
     for f in candidates:
         base_f = os.path.basename(f)
-        m = re.search(r'(\d{1,2})\.11', base_f)
-        if m:
-            day = int(m.group(1))
-            if day >= 3:
-                nov_candidates.append((day, f))
-    if nov_candidates:
-        nov_candidates.sort(key=lambda x: x[0], reverse=True)
-        order_files.append(nov_candidates[0][1])
+        if not base_f.startswith('Pedidos') or not base_f.endswith('.xlsx') or base_f.startswith(('temp_', '~$')):
+            continue
+        d_tup = parse_campaign_source_date(base_f)
+        if d_tup >= (2026, 11, 3):
+            dated_candidates.append((d_tup, f))
+    if dated_candidates:
+        dated_candidates.sort(key=lambda x: x[0], reverse=True)
+        order_files.append(dated_candidates[0][1])
     elif os.path.exists('Pedidos03.11 comerciales.xlsx'):
         order_files.append('Pedidos03.11 comerciales.xlsx')
     return list(dict.fromkeys(order_files))
@@ -86,15 +111,9 @@ def get_active_order_files():
 def detect_current_cutoff_month(order_files, default="2026-11"):
     latest_date = None
     for f in order_files:
-        base_f = os.path.basename(f)
-        m = re.search(r'Pedidos\s*(\d{1,2})\.(\d{1,2})', base_f, re.IGNORECASE)
-        if m:
-            day = int(m.group(1))
-            mo = int(m.group(2))
-            yr = 2026 if mo in [10, 11, 12] else 2027
-            d_val = (yr, mo, day)
-            if latest_date is None or d_val > latest_date:
-                latest_date = d_val
+        d_val = parse_campaign_source_date(f)
+        if d_val > (0, 0, 0) and (latest_date is None or d_val > latest_date):
+            latest_date = d_val
     if latest_date:
         return f"{latest_date[0]}-{latest_date[1]:02d}"
     return default
@@ -471,17 +490,36 @@ def get_packaging_format(env_val, desc="", sku="", fam=None):
         else:
             return f"Botellas {l_val}L"
 
-# Catálogo Auditado de Regalos Técnicos Verificados (Stock real excedentario en almacén, garantizando 0 colisiones con ventas)
+# Catálogo Técnico de Sinergias de Regalos (sin costes ni stocks fijos; se resuelven 100% contra inventario y coste actual del SKU)
 CATALOGO_REGALOS = {
-    'ANAE0005': {'sku': 'ANAE0005', 'desc': 'ALCAPLANT NEW AE, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'coste_unit': 0.2191, 'stock_disponible': 8420.0, 'sinergia': 'Corrección de Calcio en Suelo'},
-    'BROTA0005': {'sku': 'BROTA0005', 'desc': 'BROTAMEC, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.2668, 'stock_disponible': 1100.0, 'sinergia': 'Brotación y Crecimiento Vegetativo'},
-    'PT0005': {'sku': 'PT0005', 'desc': 'AGROPOTASION, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.1395, 'stock_disponible': 880.0, 'sinergia': 'Potasio Puro para Maduración'},
-    'A-50(2)0005': {'sku': 'A-50(2)0005', 'desc': 'CODIORGAN-A50, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'coste_unit': 0.5247, 'stock_disponible': 1120.0, 'sinergia': 'Desbloqueo Salino y Materia Orgánica'},
-    'AVAN0005': {'sku': 'AVAN0005', 'desc': 'FLORAMEC AVANCE, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.4500, 'stock_disponible': 2640.0, 'sinergia': 'Floración, Cuajado y Movilidad Boro'},
-    'AGZNP0005': {'sku': 'AGZNP0005', 'desc': 'AGROXILATO ZN PLUS, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'coste_unit': 1.6000, 'stock_disponible': 955.0, 'sinergia': 'Corrección Rápida Zinc-Manganeso'},
-    'C-CU0005': {'sku': 'C-CU0005', 'desc': 'CODICOBRE, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'coste_unit': 1.8500, 'stock_disponible': 1900.0, 'sinergia': 'Protección Sistémica y Cobre Complejado'},
-    'FU0001': {'sku': 'FU0001', 'desc': 'FULVIGIN, 1 L', 'formato': 'Botellas 1L', 'envase_l': 1.0, 'coste_unit': 1.4470, 'stock_disponible': 588.0, 'sinergia': 'Ácidos Fúlvicos y Complejación'}
+    'ANAE0005': {'sku': 'ANAE0005', 'desc': 'ALCAPLANT NEW AE, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'sinergia': 'Corrección de Calcio en Suelo'},
+    'BROTA0005': {'sku': 'BROTA0005', 'desc': 'BROTAMEC, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'sinergia': 'Brotación y Crecimiento Vegetativo'},
+    'PT0005': {'sku': 'PT0005', 'desc': 'AGROPOTASION, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'sinergia': 'Potasio Puro para Maduración'},
+    'A-50(2)0005': {'sku': 'A-50(2)0005', 'desc': 'CODIORGAN-A50, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'sinergia': 'Desbloqueo Salino y Materia Orgánica'},
+    'AVAN0005': {'sku': 'AVAN0005', 'desc': 'FLORAMEC AVANCE, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'sinergia': 'Floración, Cuajado y Movilidad Boro'},
+    'AGZNP0005': {'sku': 'AGZNP0005', 'desc': 'AGROXILATO ZN PLUS, 5 KG', 'formato': 'Bolsas 5 Kg', 'envase_l': 5.0, 'sinergia': 'Corrección Rápida Zinc-Manganeso'},
+    'C-CU0005': {'sku': 'C-CU0005', 'desc': 'CODICOBRE, 5 L', 'formato': 'Garrafas 5L', 'envase_l': 5.0, 'sinergia': 'Protección Sistémica y Cobre Complejado'},
+    'FU0001': {'sku': 'FU0001', 'desc': 'FULVIGIN, 1 L', 'formato': 'Botellas 1L', 'envase_l': 1.0, 'sinergia': 'Ácidos Fúlvicos y Complejación'}
 }
+
+def _get_live_gift_unit_cost(c_sku, base_skus_dict=None, live_stock_map=None):
+    """Devuelve el coste unitario vigente desde una única fuente por SKU y unidad de medida."""
+    if base_skus_dict and c_sku in base_skus_dict:
+        p = float(base_skus_dict[c_sku].get('precio_unitario', 0) or 0)
+        if p > 0:
+            return p
+    src_map = live_stock_map if live_stock_map is not None else stock_map
+    if src_map and c_sku in src_map:
+        p = float(src_map[c_sku].get('precio', 0) or 0)
+        if p > 0:
+            return p
+    return None
+
+def _get_live_gift_free_stock(c_sku, free_stock_map):
+    """Devuelve exclusivamente el stock libre vivo del SKU de regalo (0.0 si no existe registro vivo)."""
+    if not free_stock_map or c_sku not in free_stock_map:
+        return 0.0
+    return max(0.0, float(free_stock_map.get(c_sku, 0.0) or 0.0))
 
 def _get_verified_gift(b_sku, desc, g_code):
     text = f"{b_sku} {desc} {g_code or ''}".upper()
@@ -499,43 +537,41 @@ def _get_verified_gift(b_sku, desc, g_code):
         return CATALOGO_REGALOS['AVAN0005']
     return CATALOGO_REGALOS['BROTA0005']
 
-def _select_dynamic_gift(b_sku, desc, g_code, units_needed, stock_reservado, free_stock_map):
+def _select_dynamic_gift(b_sku, desc, g_code, units_needed, stock_reservado, free_stock_map, base_skus_dict=None, live_stock_map=None):
     pref = _get_verified_gift(b_sku, desc, g_code)
     pref_sku = pref['sku']
     cands = [pref_sku] + [k for k in CATALOGO_REGALOS if k != pref_sku]
-    for c_sku in cands:
-        if c_sku == b_sku:
-            continue
-        item = CATALOGO_REGALOS[c_sku]
-        env_l = item['envase_l']
-        q_need = units_needed * env_l
-        fs = free_stock_map.get(c_sku, item['stock_disponible'])
-        res = stock_reservado.get(c_sku, {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0})
-        used = res['ventas'] + res['regalos'] + res['reprocesado']
-        if (fs - used) >= q_need:
-            if c_sku not in stock_reservado:
-                stock_reservado[c_sku] = {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0}
-            stock_reservado[c_sku]['regalos'] += q_need
-            return item, units_needed
-    # Si no alcanza para todas las unidades, intentar con 1 unidad
-    for c_sku in cands:
-        if c_sku == b_sku:
-            continue
-        item = CATALOGO_REGALOS[c_sku]
-        env_l = item['envase_l']
-        fs = free_stock_map.get(c_sku, item['stock_disponible'])
-        res = stock_reservado.get(c_sku, {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0})
-        used = res['ventas'] + res['regalos'] + res['reprocesado']
-        if (fs - used) >= env_l:
-            if c_sku not in stock_reservado:
-                stock_reservado[c_sku] = {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0}
-            stock_reservado[c_sku]['regalos'] += env_l
-            return item, 1
-    return CATALOGO_REGALOS['BROTA0005'], 0
+    for try_units in (units_needed, 1):
+        for c_sku in cands:
+            if c_sku == b_sku:
+                continue
+            item = CATALOGO_REGALOS[c_sku]
+            live_cost = _get_live_gift_unit_cost(c_sku, base_skus_dict=base_skus_dict, live_stock_map=live_stock_map)
+            if live_cost is None:
+                continue  # Nunca usar constante si falta coste actual del SKU
+            env_l = float(item['envase_l'])
+            q_need = try_units * env_l
+            fs = _get_live_gift_free_stock(c_sku, free_stock_map)
+            if fs <= 0:
+                continue
+            res = stock_reservado.get(c_sku, {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0})
+            used = res['ventas'] + res['regalos'] + res['reprocesado']
+            if (fs - used) >= q_need - 1e-6:
+                if c_sku not in stock_reservado:
+                    stock_reservado[c_sku] = {'ventas': 0.0, 'regalos': 0.0, 'reprocesado': 0.0}
+                stock_reservado[c_sku]['regalos'] += q_need
+                resolved = dict(item)
+                resolved['coste_unit'] = live_cost
+                resolved['stock_libre_disponible'] = fs
+                resolved['coste_pendiente'] = False
+                return resolved, try_units
+    return {'sku': '-', 'desc': 'Sin obsequio (stock/coste actual no disponible)', 'formato': '-', 'envase_l': 1.0, 'sinergia': '', 'coste_unit': None, 'coste_pendiente': False}, 0
 
 def _get_complementary_product(b_sku, desc, g_code):
     g = _get_verified_gift(b_sku, desc, g_code)
-    return f"Obsequio Técnico: {g['desc']} ({g['sku']}) - {g['sinergia']} (Coste real: {g['coste_unit']:.2f}€/L-Kg)"
+    live_c = _get_live_gift_unit_cost(g['sku'])
+    cost_txt = f"{live_c:.2f}€/L-Kg" if live_c is not None else "Coste pendiente"
+    return f"Obsequio Técnico: {g['desc']} ({g['sku']}) - {g['sinergia']} (Coste SKU: {cost_txt})"
 
 # Official Balance / P&L constants (Inputs CEO / CFO)
 INVENTARIO_TOTAL_BALANCE_EUR = 1323814.0
@@ -1114,10 +1150,17 @@ def build_scenario_production_data(scenario_name='revisado'):
             if rem_stock <= 0:
                 break
             cap = buy.get('capacidad_absorcion', 10.0)
-            alloc_q = min(rem_stock, cap)
-            if alloc_q < 5.0 and rem_stock >= 5.0:
-                alloc_q = min(rem_stock, 5.0)
-            alloc_q = round(alloc_q, 1)
+            if env_l > 0:
+                pkgs_avail = int(math.floor(rem_stock / env_l + 1e-9))
+                if pkgs_avail <= 0:
+                    break
+                pkgs_cap = int(math.floor(cap / env_l + 1e-9))
+                pkgs_assign = min(pkgs_avail, max(1, pkgs_cap))
+                alloc_q = round(pkgs_assign * env_l, 2)
+                env_asignados = pkgs_assign
+            else:
+                alloc_q = round(min(rem_stock, cap), 1)
+                env_asignados = alloc_q
             if alloc_q <= 0:
                 continue
 
@@ -1146,16 +1189,27 @@ def build_scenario_production_data(scenario_name='revisado'):
                 c_pago_label = "Pago a 120 días (Garantía Canje 90d)"
                 c_dias_extra = 60
 
-            c_pvp_ref = buy['pvp'] if buy['pvp'] > cost * 1.10 else pvp_ref
+            if buy['pvp'] > cost * 1.10:
+                c_pvp_ref = round(buy['pvp'], 2)
+                c_pvp_ref_origin = buy.get('pvp_tipo', 'PVP Real Histórico Cliente (Ene-Ago 2026)')
+            else:
+                c_pvp_ref = round(pvp_ref, 2)
+                c_pvp_ref_origin = origen_pvp
+
             c_pvp_oferta = round(max(cost * 1.20, c_pvp_ref * (1.0 - c_dto_pct)), 2)
+            c_dto_efectivo_pct = round(((c_pvp_ref - c_pvp_oferta) / c_pvp_ref) * 100.0, 2) if (c_pvp_ref > 0 and c_pvp_oferta < c_pvp_ref) else 0.0
             c_facturacion = round(alloc_q * c_pvp_oferta, 2)
             c_cogs = round(alloc_q * cost, 2)
             c_dto_eur = round(max(0.0, (alloc_q * c_pvp_ref) - c_facturacion), 2)
             c_rappel_eur = round(c_facturacion * 0.05, 2) if c_plan_id == "PLAN 3" else 0.0
 
             gift_units_req = max(1, min(5, int(alloc_q / (200.0 if env_l <= 5 else 400.0)) + 1))
-            c_gift_info, c_gift_uds = _select_dynamic_gift(b_sku, desc, g_code, gift_units_req, stock_reservado, free_stock_map)
-            c_gift_cost = round(c_gift_uds * c_gift_info['coste_unit'] * c_gift_info['envase_l'], 2)
+            c_gift_info, c_gift_uds = _select_dynamic_gift(
+                b_sku, desc, g_code, gift_units_req, stock_reservado, free_stock_map,
+                base_skus_dict=base_skus_dict, live_stock_map=stock_map
+            )
+            c_gift_unit_cost = c_gift_info.get('coste_unit')
+            c_gift_cost = round(c_gift_uds * float(c_gift_unit_cost) * float(c_gift_info['envase_l']), 2) if (c_gift_uds > 0 and c_gift_unit_cost is not None) else 0.0
             c_merch_eur = round(c_gift_cost + (alloc_q * 0.04), 2)
             c_fin_eur = round(c_facturacion * TASA_FINANCIERA_ANUAL * (c_dias_extra / 365.0), 2)
             c_margen_est = round(c_facturacion - c_cogs - c_rappel_eur - c_merch_eur - c_fin_eur, 2)
@@ -1196,12 +1250,13 @@ def build_scenario_production_data(scenario_name='revisado'):
                 'vol_historico_o_prev': buy['vol'],
                 'capacidad_absorcion': cap,
                 'vol_asignado': alloc_q,
-                'envases_asignados': round(alloc_q / env_l, 1) if env_l > 0 else alloc_q,
+                'envases_asignados': env_asignados,
                 'plan_id': c_plan_id,
                 'plan_name': c_plan_name,
-                'pvp_tarifa_ref': round(c_pvp_ref, 2),
-                'pvp_oferta': round(c_pvp_oferta, 2),
-                'dto_pct': round(c_dto_pct * 100, 1),
+                'pvp_tarifa_ref': c_pvp_ref,
+                'pvp_ref_origen': c_pvp_ref_origin,
+                'pvp_oferta': c_pvp_oferta,
+                'dto_pct': c_dto_efectivo_pct,
                 'facturacion_neta_eur': c_facturacion,
                 'cogs_eur': c_cogs,
                 'coste_dto_eur': c_dto_eur,
@@ -1213,9 +1268,12 @@ def build_scenario_production_data(scenario_name='revisado'):
                 'regalo_sku': c_gift_info['sku'] if c_gift_uds > 0 else "-",
                 'regalo_desc': c_gift_info['desc'] if c_gift_uds > 0 else "Sin obsequio",
                 'regalo_uds': c_gift_uds,
+                'regalo_coste_unit_sku': round(float(c_gift_unit_cost), 4) if (c_gift_uds > 0 and c_gift_unit_cost is not None) else None,
                 'regalo_coste_eur': c_gift_cost,
+                'regalo_coste_pendiente': False,
                 'regalo_sinergia': c_gift_info['sinergia'] if c_gift_uds > 0 else "",
                 'plazo_pago': c_pago_label,
+                'dso_base_referencia_dias': 60,
                 'caja_0_30d_eur': c_caja_0_30,
                 'caja_31_60d_eur': c_caja_31_60,
                 'caja_61_90d_eur': c_caja_61_90,
@@ -1227,107 +1285,131 @@ def build_scenario_production_data(scenario_name='revisado'):
                 'compras_materia_prima_evitadas_eur': 0.0,
                 'coste_tecnico_reprocesado_eur': 0.0
             })
-            rem_stock = round(rem_stock - alloc_q, 1)
+            rem_stock = round(rem_stock - alloc_q, 2)
 
-        # Si queda excedente no absorbido, asignar a Plan 5 (Re-work reactor / Outlet)
+        # Si queda excedente no absorbido, asignar a Plan 5 (Re-work reactor o Outlet en envases completos)
         if rem_stock > 0:
             is_internal_rework = bool(g_code)
-            if is_internal_rework:
-                c_plan_id = "PLAN 5"
-                c_plan_name = "P5: Re-work en Reactor Nodriza (Transferencia Interna)"
-                c_pvp_ref_rem = 0.0
-                c_pvp_oferta = 0.0
-                c_dto_pct = 0.0
-                c_facturacion = 0.0
-                c_cogs = round(rem_stock * cost, 2)
-                c_dto_eur = 0.0
-                c_rappel_eur = 0.0
-                c_coste_tecnico = round(rem_stock * 0.04, 2)
-                c_merch_eur = c_coste_tecnico
-                c_fin_eur = 0.0
-                c_dias_extra = 0
-                c_compras_evitadas = round(rem_stock * cost * 0.90, 2)
-                c_margen_est = round(c_compras_evitadas - c_cogs - c_coste_tecnico, 2)
-                c_margen_pct = round((c_margen_est / c_cogs) * 100, 1) if c_cogs > 0 else 0.0
-                c_caja_0_30 = 0.0
-                c_caja_31_60 = 0.0
-                c_caja_61_90 = 0.0
-                c_caja_90_plus = 0.0
-                c_plazo_pago = "Transferencia Interna Planta (Sin cobro externo)"
-                c_cliente = f"Almacén Planta / Reactor Nodriza ({g_code})"
-                c_tipo_rel = "Transferencia Interna (Reactor Nodriza)"
-                c_dso_impact = 0.0
-                c_dio_saving = 0.0  # El material permanece en planta, cambia a granel/MP
-                stock_reservado[b_sku]['reprocesado'] += rem_stock
+            rem_qty_assign = rem_stock
+            if not is_internal_rework and env_l > 0:
+                pkgs_rem = int(math.floor(rem_stock / env_l + 1e-9))
+                rem_qty_assign = round(pkgs_rem * env_l, 2)
+                rem_env_assign = pkgs_rem
             else:
-                c_plan_id = "PLAN 5"
-                c_plan_name = "P5: Liquidación Comercial Outlet Fin de Año"
-                c_pvp_ref_rem = pvp_ref
-                c_dto_pct = 35.0
-                c_pvp_oferta = round(max(cost * 1.15, pvp_ref * 0.65), 2)
-                c_facturacion = round(rem_stock * c_pvp_oferta, 2)
-                c_cogs = round(rem_stock * cost, 2)
-                c_dto_eur = round(max(0.0, (rem_stock * pvp_ref) - c_facturacion), 2)
-                c_rappel_eur = 0.0
-                c_coste_tecnico = 0.0
-                c_compras_evitadas = 0.0
-                c_merch_eur = round(rem_stock * 0.04, 2)
-                c_fin_eur = 0.0
-                c_dias_extra = 30
-                c_margen_est = round(c_facturacion - c_cogs - c_merch_eur, 2)
-                c_margen_pct = round((c_margen_est / c_facturacion) * 100, 1) if c_facturacion > 0 else 0.0
-                c_caja_0_30 = round(c_facturacion * 0.70, 2)
-                c_caja_31_60 = round(c_facturacion - c_caja_0_30, 2)
-                c_caja_61_90 = 0.0
-                c_caja_90_plus = 0.0
-                c_plazo_pago = "Liquidación Contado -5% / 60 días"
-                c_cliente = "Lote Outlet Liquidación Fin de Año"
-                c_tipo_rel = "Venta Outlet Comercial"
-                c_dso_impact = round((c_facturacion * c_dias_extra) / VENTAS_NETAS_LTM_EUR, 6)
-                c_dio_saving = round(c_cogs / COGS_DIARIO_TOTAL, 5)
-                stock_reservado[b_sku]['ventas'] += rem_stock
+                rem_env_assign = round(rem_qty_assign / env_l, 2) if env_l > 0 else rem_qty_assign
 
-            ofertas_clientes.append({
-                'cliente': c_cliente,
-                'pais': "ESPAÑA",
-                'comercial': "Dirección Técnica / Operaciones",
-                'tipo_relacion': c_tipo_rel,
-                'es_comprador_real': False,
-                'vol_historico_o_prev': 0.0,
-                'capacidad_absorcion': rem_stock,
-                'vol_asignado': rem_stock,
-                'envases_asignados': round(rem_stock / env_l, 1) if env_l > 0 else rem_stock,
-                'plan_id': c_plan_id,
-                'plan_name': c_plan_name,
-                'pvp_tarifa_ref': round(c_pvp_ref_rem, 2),
-                'pvp_oferta': round(c_pvp_oferta, 2),
-                'dto_pct': c_dto_pct,
-                'facturacion_neta_eur': c_facturacion,
-                'cogs_eur': c_cogs,
-                'coste_dto_eur': c_dto_eur,
-                'coste_rappel_eur': 0.0,
-                'coste_merch_eur': c_merch_eur,
-                'coste_fin_eur': 0.0,
-                'margen_estimado_eur': c_margen_est,
-                'margen_estimado_pct': c_margen_pct,
-                'regalo_sku': "-",
-                'regalo_desc': "Sin obsequio (Re-work / Outlet)",
-                'regalo_uds': 0,
-                'regalo_coste_eur': 0.0,
-                'regalo_sinergia': "Recuperación de principio activo" if is_internal_rework else "",
-                'plazo_pago': c_plazo_pago,
-                'caja_0_30d_eur': c_caja_0_30,
-                'caja_31_60d_eur': c_caja_31_60,
-                'caja_61_90d_eur': c_caja_61_90,
-                'caja_90d_plus_eur': c_caja_90_plus,
-                'dias_extra': c_dias_extra,
-                'dso_impact_days': c_dso_impact,
-                'dio_saving_days': c_dio_saving,
-                'es_reprocesado_interno': is_internal_rework,
-                'compras_materia_prima_evitadas_eur': c_compras_evitadas,
-                'coste_tecnico_reprocesado_eur': c_coste_tecnico
-            })
-            rem_stock = 0.0
+            if rem_qty_assign > 0:
+                if is_internal_rework:
+                    c_plan_id = "PLAN 5"
+                    c_plan_name = "P5: Re-work en Reactor Nodriza (Transferencia Interna)"
+                    c_pvp_ref_rem = 0.0
+                    c_pvp_ref_origin_rem = "Transferencia Interna Planta"
+                    c_pvp_oferta = 0.0
+                    c_dto_pct_eff = 0.0
+                    c_facturacion = 0.0
+                    c_cogs = round(rem_qty_assign * cost, 2)
+                    c_dto_eur = 0.0
+                    c_rappel_eur = 0.0
+                    c_coste_tecnico = round(rem_qty_assign * 0.04, 2)
+                    c_merch_eur = c_coste_tecnico
+                    c_fin_eur = 0.0
+                    c_dias_extra = 0
+                    c_compras_evitadas = round(rem_qty_assign * cost * 0.90, 2)
+                    c_margen_est = round(c_compras_evitadas - c_cogs - c_coste_tecnico, 2)
+                    c_margen_pct = round((c_margen_est / c_cogs) * 100, 1) if c_cogs > 0 else 0.0
+                    c_caja_0_30 = 0.0
+                    c_caja_31_60 = 0.0
+                    c_caja_61_90 = 0.0
+                    c_caja_90_plus = 0.0
+                    c_plazo_pago = "Transferencia Interna Planta (Sin cobro externo)"
+                    c_cliente = f"Almacén Planta / Reactor Nodriza ({g_code})"
+                    c_tipo_rel = "Transferencia Interna (Reactor Nodriza)"
+                    c_dso_impact = 0.0
+                    c_dio_saving = 0.0  # El material permanece en planta
+                    stock_reservado[b_sku]['reprocesado'] += rem_qty_assign
+                else:
+                    c_plan_id = "PLAN 5"
+                    c_plan_name = "P5: Liquidación Comercial Outlet Fin de Año"
+                    c_pvp_ref_rem = round(pvp_ref, 2)
+                    c_pvp_ref_origin_rem = origen_pvp
+                    c_pvp_oferta = round(max(cost * 1.15, c_pvp_ref_rem * 0.65), 2)
+                    c_dto_pct_eff = round(((c_pvp_ref_rem - c_pvp_oferta) / c_pvp_ref_rem) * 100.0, 2) if (c_pvp_ref_rem > 0 and c_pvp_oferta < c_pvp_ref_rem) else 0.0
+                    c_facturacion = round(rem_qty_assign * c_pvp_oferta, 2)
+                    c_cogs = round(rem_qty_assign * cost, 2)
+                    c_dto_eur = round(max(0.0, (rem_qty_assign * c_pvp_ref_rem) - c_facturacion), 2)
+                    c_rappel_eur = 0.0
+                    c_coste_tecnico = 0.0
+                    c_compras_evitadas = 0.0
+                    c_merch_eur = round(rem_qty_assign * 0.04, 2)
+                    c_fin_eur = 0.0
+                    c_dias_extra = 30
+                    c_margen_est = round(c_facturacion - c_cogs - c_merch_eur, 2)
+                    c_margen_pct = round((c_margen_est / c_facturacion) * 100, 1) if c_facturacion > 0 else 0.0
+                    c_caja_0_30 = round(c_facturacion * 0.70, 2)
+                    c_caja_31_60 = round(c_facturacion - c_caja_0_30, 2)
+                    c_caja_61_90 = 0.0
+                    c_caja_90_plus = 0.0
+                    c_plazo_pago = "Liquidación Contado -5% / 60 días"
+                    c_cliente = "Lote Outlet Liquidación Fin de Año"
+                    c_tipo_rel = "Venta Outlet Comercial"
+                    c_dso_impact = round((c_facturacion * c_dias_extra) / VENTAS_NETAS_LTM_EUR, 6)
+                    c_dio_saving = round(c_cogs / COGS_DIARIO_TOTAL, 5)
+                    stock_reservado[b_sku]['ventas'] += rem_qty_assign
+
+                ofertas_clientes.append({
+                    'cliente': c_cliente,
+                    'pais': "ESPAÑA",
+                    'comercial': "Dirección Técnica / Operaciones",
+                    'tipo_relacion': c_tipo_rel,
+                    'es_comprador_real': False,
+                    'vol_historico_o_prev': 0.0,
+                    'capacidad_absorcion': rem_qty_assign,
+                    'vol_asignado': rem_qty_assign,
+                    'envases_asignados': rem_env_assign,
+                    'plan_id': c_plan_id,
+                    'plan_name': c_plan_name,
+                    'pvp_tarifa_ref': c_pvp_ref_rem,
+                    'pvp_ref_origen': c_pvp_ref_origin_rem,
+                    'pvp_oferta': c_pvp_oferta,
+                    'dto_pct': c_dto_pct_eff,
+                    'facturacion_neta_eur': c_facturacion,
+                    'cogs_eur': c_cogs,
+                    'coste_dto_eur': c_dto_eur,
+                    'coste_rappel_eur': 0.0,
+                    'coste_merch_eur': c_merch_eur,
+                    'coste_fin_eur': 0.0,
+                    'margen_estimado_eur': c_margen_est,
+                    'margen_estimado_pct': c_margen_pct,
+                    'regalo_sku': "-",
+                    'regalo_desc': "Sin obsequio (Re-work / Outlet)",
+                    'regalo_uds': 0,
+                    'regalo_coste_unit_sku': None,
+                    'regalo_coste_eur': 0.0,
+                    'regalo_coste_pendiente': False,
+                    'regalo_sinergia': "Recuperación de principio activo" if is_internal_rework else "",
+                    'plazo_pago': c_plazo_pago,
+                    'dso_base_referencia_dias': 60,
+                    'caja_0_30d_eur': c_caja_0_30,
+                    'caja_31_60d_eur': c_caja_31_60,
+                    'caja_61_90d_eur': c_caja_61_90,
+                    'caja_90d_plus_eur': c_caja_90_plus,
+                    'dias_extra': c_dias_extra,
+                    'dso_impact_days': c_dso_impact,
+                    'dio_saving_days': c_dio_saving,
+                    'es_reprocesado_interno': is_internal_rework,
+                    'compras_materia_prima_evitadas_eur': c_compras_evitadas,
+                    'coste_tecnico_reprocesado_eur': c_coste_tecnico
+                })
+                rem_stock = round(rem_stock - rem_qty_assign, 2)
+
+        # Ajustar cantidades accionables del SKU a los envases completos/ofertas efectivas asignadas
+        if rem_stock > 0 and ofertas_clientes:
+            tot_ex_qty = round(sum(o['vol_asignado'] for o in ofertas_clientes), 2)
+            nm_q = round(min(nm_q, tot_ex_qty), 2)
+            sm_q = round(max(0.0, tot_ex_qty - nm_q), 2)
+            nm_eur = round(nm_q * cost, 2)
+            sm_eur = round(sm_q * cost, 2)
+            tot_ex_eur = round(tot_ex_qty * cost, 2)
 
         # Totales exactos del SKU derivados de sus ofertas
         ingreso_tot = round(sum(o['facturacion_neta_eur'] for o in ofertas_clientes), 2)
@@ -1357,7 +1439,7 @@ def build_scenario_production_data(scenario_name='revisado'):
 
         # Horizonte de rotación dinámico según velocidad del SKU
         if nm_q > 0 and sm_q == 0:
-            holding_days = 270.0  # No-mover sin demanda: previene 9 meses de inmovilización / caducidad
+            holding_days = 270.0
         elif sm_q > 0 and nac_6m > 0:
             holding_days = max(90.0, min(180.0, round((tot_ex_qty / nac_6m) * 180.0, 0)))
         else:
@@ -1370,8 +1452,13 @@ def build_scenario_production_data(scenario_name='revisado'):
             o['sku_desc'] = desc
             o['formato'] = fmt
             o['holding_days'] = holding_days
-            o['holding_cost_saved_eur'] = round(o_cogs * TASA_HOLDING_INVENTARIO * (holding_days / 365.0), 2)
-            o['net_financial_gain_eur'] = round(o['holding_cost_saved_eur'] - o.get('coste_fin_eur', 0.0), 2)
+            # El traslado interno / reprocesado mantiene el material dentro del inventario de la empresa: cero ahorro de holding por liberación de capital
+            if o.get('es_reprocesado_interno'):
+                o['holding_cost_saved_eur'] = 0.0
+                o['net_financial_gain_eur'] = 0.0
+            else:
+                o['holding_cost_saved_eur'] = round(o_cogs * TASA_HOLDING_INVENTARIO * (holding_days / 365.0), 2)
+                o['net_financial_gain_eur'] = round(o['holding_cost_saved_eur'] - o.get('coste_fin_eur', 0.0), 2)
 
             # Enriquecimiento operativo: Siguiente paso y fecha límite («Qué hago hoy»)
             if o.get('es_reprocesado_interno'):
@@ -1405,57 +1492,79 @@ def build_scenario_production_data(scenario_name='revisado'):
 
             o['vigencia'] = "30/11/2026"
 
-            # 3 Alternativas Económicas comparadas por propuesta individual
-            # Alternativa A: Plan Asignado Actual
-            # Nota: c_margen_est ya deduce COGS, rappel, merchandising (incluye regalo) y coste financiero de aplazamiento.
-            # Por tanto, la ganancia neta total consolidada es Margen estimado + Ahorro de holding de inventario.
-            gan_a = round(o.get('margen_estimado_eur', 0.0) + o.get('holding_cost_saved_eur', 0.0), 2) if not o.get('es_reprocesado_interno') else round(o.get('compras_materia_prima_evitadas_eur', 0.0) - o.get('coste_tecnico_reprocesado_eur', 0.0), 2)
-            coste_com_a = round(o.get('coste_dto_eur', 0.0) + o.get('coste_rappel_eur', 0.0) + o.get('coste_merch_eur', 0.0), 2)
+            # 3 Alternativas Económicas comparadas bajo criterio homogéneo de Costes Relevantes (ACCA):
+            # El coste histórico de fabricación/existencia (o_cogs) es un coste hundido común a todas las alternativas.
+            # Separamos explícitamente Margen Contable (con COGS) vs Beneficio Incremental Relevante (vs mantener inmovilizado = 0 €).
+            # En alt_a la facturacion_eur ya es facturacion_neta_eur (descuento ya deducido de tarifa);
+            # incluir coste_dto_eur aquí duplicaría visualmente el descuento respecto al margen y flujo incremental.
+            coste_com_a = round(o.get('coste_rappel_eur', 0.0) + o.get('coste_merch_eur', 0.0), 2)
+            if o.get('es_reprocesado_interno'):
+                incr_a = round(o.get('compras_materia_prima_evitadas_eur', 0.0) - o.get('coste_tecnico_reprocesado_eur', 0.0), 2)
+                ventajas_a = [
+                    "Recupera principio activo a coste técnico (condicionado a compatibilidad y compras evitables)",
+                    "Sin ahorro financiero/holding porque el material permanece en planta"
+                ]
+            else:
+                incr_a = round(
+                    o.get('facturacion_neta_eur', 0.0)
+                    - o.get('coste_rappel_eur', 0.0)
+                    - o.get('coste_merch_eur', 0.0)
+                    - o.get('coste_fin_eur', 0.0)
+                    + o.get('holding_cost_saved_eur', 0.0),
+                    2
+                )
+                ventajas_a = ["Preserva precio de referencia", "Fideliza al cliente con obsequio técnico", "Libera capital y espacio en almacén"]
+
             alt_a = {
                 'id': 'alt_a',
                 'nombre': f"{o.get('plan_id', 'PLAN')}: {o.get('plan_name', 'Plan Asignado')}",
-                'tipo': 'Plan Asignado (Recomendado)',
+                'tipo': 'Plan Asignado',
                 'facturacion_eur': o.get('facturacion_neta_eur', 0.0),
                 'cogs_eur': o_cogs,
                 'coste_comercial_eur': coste_com_a,
                 'coste_fin_eur': o.get('coste_fin_eur', 0.0),
                 'margen_eur': o.get('margen_estimado_eur', 0.0),
+                'margen_contable_eur': o.get('margen_estimado_eur', 0.0),
                 'margen_pct': o.get('margen_estimado_pct', 0.0),
                 'plazo_pago': o.get('plazo_pago', '60 días'),
-                'dso_dias': o.get('dias_extra', 0) + 60,
+                'dso_dias': (o.get('dias_extra', 0) + 60) if not o.get('es_reprocesado_interno') else 0,
                 'ahorro_holding_eur': o.get('holding_cost_saved_eur', 0.0),
-                'ganancia_neta_eur': gan_a,
-                'ventajas': ["Preserva precio de tarifa", "Fideliza al cliente con obsequio técnico", "Evita canibalización"] if not o.get('es_reprocesado_interno') else ["Recupera principio activo a coste técnico", "Cero exposición a impagos"]
+                'beneficio_incremental_eur': incr_a,
+                'ganancia_neta_eur': incr_a,
+                'requiere_validacion_tecnica': bool(o.get('es_reprocesado_interno')),
+                'ventajas': ventajas_a
             }
 
-            # Alternativa B: Liquidación Rápida de Caja (Descuento Directo agresivo, sin regalo, cobro 30 días)
+            # Alternativa B: Liquidación Rápida de Caja (30d, sin regalo)
             if o.get('es_reprocesado_interno'):
                 fact_b = round(o_cogs * 0.90, 2)
-                coste_b = round(o_cogs, 2)
-                margen_b = round(fact_b - coste_b, 2)
-                gan_b = round(margen_b + o.get('holding_cost_saved_eur', 0.0), 2)
+                margen_b = round(fact_b - o_cogs, 2)
+                ahorro_hold_b = round(o_cogs * TASA_HOLDING_INVENTARIO * (holding_days / 365.0), 2)
+                incr_b = round(fact_b + ahorro_hold_b, 2)
                 alt_b = {
                     'id': 'alt_b',
-                    'nombre': "Venta Outlet a Terceros (Liquidación Directa)",
-                    'tipo': 'Liquidación Rápida',
+                    'nombre': "Venta Outlet a Terceros (Liquidación Directa -10% s/Coste)",
+                    'tipo': 'Liquidación Rápida (Condicionada a Demanda)',
                     'facturacion_eur': fact_b,
                     'cogs_eur': o_cogs,
                     'coste_comercial_eur': 0.0,
                     'coste_fin_eur': 0.0,
                     'margen_eur': margen_b,
+                    'margen_contable_eur': margen_b,
                     'margen_pct': round((margen_b / fact_b) * 100, 1) if fact_b > 0 else 0.0,
                     'plazo_pago': "30 días (Contado)",
                     'dso_dias': 30,
-                    'ahorro_holding_eur': o.get('holding_cost_saved_eur', 0.0),
-                    'ganancia_neta_eur': gan_b,
-                    'ventajas': ["Entrada de liquidez externa en 30 días", "Sin saturar reactor de planta"]
+                    'ahorro_holding_eur': ahorro_hold_b,
+                    'beneficio_incremental_eur': incr_b,
+                    'ganancia_neta_eur': incr_b,
+                    'requiere_validacion_tecnica': True,
+                    'ventajas': ["Entrada de liquidez externa en 30 días (supeditado a comprador outlet)", "Libera espacio sin ocupar reactor"]
                 }
             else:
-                # -20% adicional de descuento directo sobre pvp_oferta, sin regalo (0€ merch) y pago a 30 días
                 fact_b = round(o.get('facturacion_neta_eur', 0.0) * 0.80, 2)
                 coste_com_b = round(o.get('coste_rappel_eur', 0.0), 2)
                 margen_b = round(fact_b - o_cogs - coste_com_b, 2)
-                gan_b = round(margen_b + o.get('holding_cost_saved_eur', 0.0), 2)
+                incr_b = round(fact_b - coste_com_b + o.get('holding_cost_saved_eur', 0.0), 2)
                 alt_b = {
                     'id': 'alt_b',
                     'nombre': "Liquidación Directa -20% (Sin Regalo, Cobro 30d)",
@@ -1465,76 +1574,91 @@ def build_scenario_production_data(scenario_name='revisado'):
                     'coste_comercial_eur': coste_com_b,
                     'coste_fin_eur': 0.0,
                     'margen_eur': margen_b,
+                    'margen_contable_eur': margen_b,
                     'margen_pct': round((margen_b / fact_b) * 100, 1) if fact_b > 0 else 0.0,
                     'plazo_pago': "30 días (Acelerado)",
                     'dso_dias': 30,
                     'ahorro_holding_eur': o.get('holding_cost_saved_eur', 0.0),
-                    'ganancia_neta_eur': gan_b,
-                    'ventajas': ["Cobro acelerado en 30 días", "Ahorro íntegro de unidades de regalo", "Cierre comercial expedito"]
+                    'beneficio_incremental_eur': incr_b,
+                    'ganancia_neta_eur': incr_b,
+                    'requiere_validacion_tecnica': False,
+                    'ventajas': ["Cobro acelerado en 30 días", "Sin consumo de obsequios técnicos", "Libera almacén frente a situación pasiva"]
                 }
 
-            # Alternativa C: Reprocesado Interno a Reactor o Almacenamiento Pasivo
-            if o.get('es_reprocesado_interno') or g_code:
+            # Alternativa C: Reprocesado Interno a Reactor (condicionado) o Situación Base Inactiva
+            if not o.get('es_reprocesado_interno') and g_code:
                 comp_evit = round(o_cogs * 0.85, 2)
                 cost_tec = round(o.get('vol_asignado', 0.0) * 0.08, 2)
-                gan_c = round(comp_evit - cost_tec + o.get('holding_cost_saved_eur', 0.0), 2)
+                margen_contable_c = round(comp_evit - o_cogs - cost_tec, 2)
+                incr_c = round(comp_evit - cost_tec, 2)
                 alt_c = {
                     'id': 'alt_c',
-                    'nombre': f"Reprocesado Interno en Reactor ({g_code or 'Granel'})",
-                    'tipo': 'Recuperación Técnica en Planta',
+                    'nombre': f"Reprocesado Interno en Reactor ({g_code})",
+                    'tipo': 'Recuperación Técnica (Condicionada)',
                     'facturacion_eur': 0.0,
-                    'cogs_eur': 0.0,
+                    'cogs_eur': o_cogs,
                     'coste_comercial_eur': cost_tec,
                     'coste_fin_eur': 0.0,
-                    'margen_eur': 0.0,
+                    'margen_eur': margen_contable_c,
+                    'margen_contable_eur': margen_contable_c,
                     'margen_pct': 0.0,
-                    'plazo_pago': "Inmediato (Interno)",
+                    'plazo_pago': "Interno (Sin cobro)",
                     'dso_dias': 0,
-                    'ahorro_holding_eur': o.get('holding_cost_saved_eur', 0.0),
-                    'ganancia_neta_eur': gan_c,
-                    'ventajas': [f"Evita compras de materia prima por {comp_evit:,.2f} €", "Cero exposición a impagos comerciales"]
+                    'ahorro_holding_eur': 0.0,
+                    'beneficio_incremental_eur': incr_c,
+                    'ganancia_neta_eur': incr_c,
+                    'requiere_validacion_tecnica': True,
+                    'ventajas': [
+                        f"Ahorro bruto MP sujeto a compatibilidad, demanda del granel ({g_code}) y compra realmente evitable",
+                        "No genera liquidez externa ni elimina el inventario de planta"
+                    ]
                 }
             else:
-                coste_posesion = round(o_cogs * 0.07 * (holding_days / 365.0), 2)
+                coste_posesion_ref = round(o_cogs * TASA_HOLDING_INVENTARIO * (holding_days / 365.0), 2)
                 alt_c = {
                     'id': 'alt_c',
-                    'nombre': f"Almacenamiento Pasivo ({int(holding_days)}d adicionales)",
-                    'tipo': 'Inacción / Pasivo en Nave',
+                    'nombre': f"Mantener Inmovilizado ({int(holding_days)}d referencia)",
+                    'tipo': 'Situación Base (Inacción)',
                     'facturacion_eur': 0.0,
                     'cogs_eur': o_cogs,
                     'coste_comercial_eur': 0.0,
-                    'coste_fin_eur': coste_posesion,
+                    'coste_fin_eur': 0.0,
+                    'coste_posesion_referencia_eur': coste_posesion_ref,
                     'margen_eur': 0.0,
+                    'margen_contable_eur': 0.0,
                     'margen_pct': 0.0,
                     'plazo_pago': "Sin cobro",
                     'dso_dias': 0,
                     'ahorro_holding_eur': 0.0,
-                    'ganancia_neta_eur': -coste_posesion,
-                    'ventajas': ["Sin descuento de tarifa", f"Asume coste de inmovilizado de {coste_posesion:,.2f} € y riesgo de caducidad"]
+                    'beneficio_incremental_eur': 0.0,
+                    'ganancia_neta_eur': 0.0,
+                    'requiere_validacion_tecnica': False,
+                    'ventajas': ["Situación de partida comparativa (0 € incremental)", f"Evitaría asumir inmovilizado estancado (~{coste_posesion_ref:,.2f} € coste oportunidad/caducidad)"]
                 }
 
-            # Regla de recomendación estricta y transparente: compara las 3 opciones admisibles
+            # Regla homogénea ACCA: selecciona la alternativa con mayor beneficio incremental relevante sobre una base común
             candidates = [
-                ('alt_a', alt_a['ganancia_neta_eur']),
-                ('alt_b', alt_b['ganancia_neta_eur']),
-                ('alt_c', alt_c['ganancia_neta_eur'])
+                ('alt_a', alt_a['beneficio_incremental_eur']),
+                ('alt_b', alt_b['beneficio_incremental_eur']),
+                ('alt_c', alt_c['beneficio_incremental_eur'])
             ]
             best_alt, best_gain = max(candidates, key=lambda x: x[1])
             rec_alt = best_alt
 
             if rec_alt == 'alt_a':
-                motivo_rec = f"Maximiza ganancia neta (+{alt_a['ganancia_neta_eur']:,.2f} €) preservando precio de catálogo y fidelizando al cliente con producto complementario."
+                motivo_rec = f"Mayor beneficio incremental relevante (+{alt_a['beneficio_incremental_eur']:,.2f} € vs mantener inmovilizado; margen contable {'+' if alt_a['margen_contable_eur'] >= 0 else ''}{alt_a['margen_contable_eur']:,.2f} €)."
             elif rec_alt == 'alt_b':
-                motivo_rec = f"Maximiza ganancia neta (+{alt_b['ganancia_neta_eur']:,.2f} €) mediante entrada rápida de liquidez a 30 días sin consumo de obsequios."
+                motivo_rec = f"Mayor beneficio incremental relevante (+{alt_b['beneficio_incremental_eur']:,.2f} € vs inmovilizado) vía liquidez a 30 días."
             else:
-                motivo_rec = f"Maximiza ganancia neta (+{alt_c['ganancia_neta_eur']:,.2f} €) mediante valor técnico de recuperación en reactor ({g_code or 'Tanque'}) evitando compras de MP."
+                motivo_rec = f"Mayor beneficio incremental relevante estimado (+{alt_c['beneficio_incremental_eur']:,.2f} €), supeditado a validación técnica y demanda real."
 
             o['alternativas_economicas'] = {
                 'alt_a': alt_a,
                 'alt_b': alt_b,
                 'alt_c': alt_c,
                 'recomendada': rec_alt,
-                'motivo_recomendacion': motivo_rec
+                'motivo_recomendacion': motivo_rec,
+                'criterio_comparacion': 'Coste Relevante Incremental (ACCA): excluye coste histórico hundido de inventario existente'
             }
 
             # Alerta de desactualización y coherencia física en tiempo real
@@ -1836,6 +1960,40 @@ def build_scenario_production_data(scenario_name='revisado'):
             "palets_planta_sop": 747.9,
             "regalos_reservados_catalogo": regalos_reservados_list
         },
+        "hipotesis_calculo": {
+            "es_estimacion_condicionada": True,
+            "estado_aprobacion": "Estimación analítica condicionada (pendiente de aprobación documental / financiera)",
+            "fecha_referencia_balance": "30/09/2026",
+            "fuente_costes_sku": os.path.basename(stock_path) if stock_path else "Stock.xlsx",
+            "tasa_holding_anual_pct": 15.0,
+            "origen_tasa_holding": "Parámetro analítico interno de coste de almacenamiento (excluido en traslados internos/reprocesado)",
+            "tasa_financiera_anual_pct": 5.5,
+            "origen_tasa_financiera": "Parámetro analítico coste financiero de circulante",
+            "dso_base_referencia_dias": 60,
+            "nota_dso_clientes": "El aplazamiento se mide frente a una base general de 60 días (no sustituye condiciones contractuales acreditadas de cada cliente)",
+            "saldos_ltm_balance": {
+                "inventario_total_eur": INVENTARIO_TOTAL_BALANCE_EUR,
+                "ventas_netas_ltm_eur": VENTAS_NETAS_LTM_EUR,
+                "cogs_ltm_total_eur": COGS_LTM_TOTAL_EUR,
+                "clientes_balance_eur": CLIENTES_BALANCE_EUR,
+                "proveedores_balance_eur": PROVEEDORES_BALANCE_EUR
+            },
+            "criterio_comparacion": "ACCA Relevant Costing: el beneficio incremental compara flujos evitables/relevantes contra mantener inmovilizado; el coste histórico del stock existente se muestra aparte como Margen Contable."
+        },
+        "gift_stock_map": {
+            g_sku: {
+                "sku": g_sku,
+                "desc": g_meta["desc"],
+                "envase_l": float(g_meta["envase_l"]),
+                "stock_actual": float(base_skus_dict.get(g_sku, {}).get("stock_actual", stock_map.get(g_sku, {}).get("stock", 0.0)) or 0.0),
+                "pedidos_pendientes": float(base_skus_dict.get(g_sku, {}).get("pedidos_pendientes", 0.0) or 0.0),
+                "stock_libre_disponible": float(_get_live_gift_free_stock(g_sku, free_stock_map)),
+                "stock_reservado_regalos": round(float(stock_reservado.get(g_sku, {}).get("regalos", 0.0) or 0.0), 1),
+                "stock_reservado_ventas": round(float(stock_reservado.get(g_sku, {}).get("ventas", 0.0) or 0.0), 1),
+                "coste_unit_sku": _get_live_gift_unit_cost(g_sku, base_skus_dict=base_skus_dict, live_stock_map=stock_map)
+            }
+            for g_sku, g_meta in CATALOGO_REGALOS.items()
+        },
         "plans": plans_summary,
         "items": suggestions_items
     }
@@ -1854,12 +2012,19 @@ def build_scenario_production_data(scenario_name='revisado'):
 data_revisado = build_scenario_production_data('revisado')
 data_oficial = build_scenario_production_data('oficial')
 
-# 6. Construct Final Output Structure
+stock_src_name = os.path.basename(stock_path) if stock_path else "Stock.xlsx"
+orders_src_name = ", ".join(os.path.basename(f) for f in active_order_files) if active_order_files else "Pedidos.xlsx"
+sd_tup = parse_campaign_source_date(stock_src_name)
+od_tup = max((parse_campaign_source_date(f) for f in active_order_files), default=(0, 0, 0)) if active_order_files else (0, 0, 0)
+
+# 6. Construct Final Output Structure (Dirección General completa vs Versión Comercial aislada)
 output_data = {
     "metadata": {
         "generated_at": datetime.now().isoformat(),
-        "stock_source": os.path.basename(stock_path) if stock_path else "Stock.xlsx",
-        "orders_source": ", ".join(os.path.basename(f) for f in active_order_files) if active_order_files else "Pedidos.xlsx",
+        "stock_source": stock_src_name,
+        "stock_source_date": f"{sd_tup[0]:04d}-{sd_tup[1]:02d}-{sd_tup[2]:02d}" if sd_tup > (0, 0, 0) else "",
+        "orders_source": orders_src_name,
+        "orders_source_date": f"{od_tup[0]:04d}-{od_tup[1]:02d}-{od_tup[2]:02d}" if od_tup > (0, 0, 0) else "",
         "forecast_source": "Revision_Previsiones_Q4_2026_CONSOLIDADO.xlsx (Revisado) / Presupuesto_Ventas_2027_Definitivo.xlsx (Oficial)",
         "current_month": current_month,
         "months": months_metadata,
@@ -1881,29 +2046,83 @@ output_data = {
     "stock_suggestions": data_revisado["stock_suggestions"]
 }
 
-out_file = get_dest(os.path.join('web_dashboard', 'production_planning_data.json'))
-with open(out_file, 'w', encoding='utf-8') as f:
-    json.dump(output_data, f, ensure_ascii=False, indent=2)
+COMMERCIAL_BASE_SKU_FIELDS = (
+    'base_sku', 'desc', 'envase', 'envase_litros', 'unidad_medida', 'formato_label',
+    'stock_actual', 'stock_envasado', 'stock_envases', 'stock_litros', 'stock_match_type',
+    'granel_code', 'granel_desc', 'granel_stock', 'granel_family',
+    'pedidos_pendientes', 'pedidos_pendientes_nacional', 'pedidos_pendientes_export',
+    'stock_comprometido_pedidos', 'stock_libre_disponible',
+    'monthly_forecast', 'monthly_forecast_nacional', 'monthly_forecast_export',
+    'demanda_nac_n2', 'demanda_nac_q4', 'demanda_nac_mid', 'demanda_nac_q1_27', 'demanda_nac_6m',
+    'no_mover_qty', 'slow_mover_qty', 'fast_mover_qty',
+    'no_mover_litros', 'slow_mover_litros', 'fast_mover_litros',
+    'no_mover_envases', 'slow_mover_envases', 'fast_mover_envases',
+    'is_nomover', 'is_slowmover', 'is_fastmover',
+    'has_nacional', 'has_export', 'destinos', 'sub_items'
+)
 
-out_js_file = get_dest(os.path.join('web_dashboard', 'production_planning_data.js'))
-with open(out_js_file, 'w', encoding='utf-8') as f:
-    f.write("window.PRODUCTION_PLANNING_DATA = " + json.dumps(output_data, ensure_ascii=False) + ";\n")
+COMMERCIAL_DETAILED_SKU_FIELDS = (
+    'sku', 'base_sku', 'desc', 'envase', 'envase_litros', 'unidad_medida', 'formato_label',
+    'is_nacional', 'pais', 'ambito', 'monthly_forecast', 'clientes', 'comerciales',
+    'pendientes_uds', 'pedidos_pendientes',
+    'stock_actual', 'stock_envasado', 'stock_litros', 'stock_envases', 'stock_match_type',
+    'granel_code', 'granel_desc', 'granel_stock', 'granel_family',
+    'demanda_nac_n2', 'demanda_nac_q4', 'demanda_nac_6m',
+    'no_mover_qty', 'slow_mover_qty', 'fast_mover_qty',
+    'no_mover_litros', 'slow_mover_litros',
+    'is_nomover', 'is_slowmover', 'is_fastmover'
+)
 
-def safe_copy(src, dst):
-    try:
-        shutil.copy2(src, dst)
-    except Exception:
-        try:
-            with open(src, 'rb') as f_in, open(dst, 'wb') as f_out:
-                f_out.write(f_in.read())
-        except Exception as e:
-            print(f"Aviso copiando {src} a {dst}: {e}")
+def build_commercial_sanitized_production_data(full_data):
+    """Genera el payload comercial con lista blanca estricta: sin costes, márgenes, saldos contables ni ofertas internas."""
+    def sanitize_scenario(sc_data):
+        return {
+            "graneles": copy.deepcopy(sc_data.get("graneles", [])),
+            "base_skus": [
+                {k: copy.deepcopy(b[k]) for k in COMMERCIAL_BASE_SKU_FIELDS if k in b}
+                for b in sc_data.get("base_skus", [])
+            ],
+            "detailed_skus": [
+                {k: copy.deepcopy(d[k]) for k in COMMERCIAL_DETAILED_SKU_FIELDS if k in d}
+                for d in sc_data.get("detailed_skus", [])
+            ]
+        }
+
+    meta_comm = copy.deepcopy(full_data.get("metadata", {}))
+    meta_comm["commercial_sanitized"] = True
+    sc_rev = sanitize_scenario(full_data["scenarios"]["revisado"])
+    sc_ofi = sanitize_scenario(full_data["scenarios"]["oficial"])
+    return {
+        "metadata": meta_comm,
+        "scenarios": {
+            "revisado": sc_rev,
+            "oficial": sc_ofi
+        },
+        "graneles": sc_rev["graneles"],
+        "base_skus": sc_rev["base_skus"],
+        "detailed_skus": sc_rev["detailed_skus"]
+    }
+
+commercial_output_data = build_commercial_sanitized_production_data(output_data)
+
+out_com_file = get_dest(os.path.join('web_dashboard', 'production_planning_data.json'))
+with open(out_com_file, 'w', encoding='utf-8') as f:
+    json.dump(commercial_output_data, f, ensure_ascii=False, indent=2)
+
+out_com_js = get_dest(os.path.join('web_dashboard', 'production_planning_data.js'))
+with open(out_com_js, 'w', encoding='utf-8') as f:
+    f.write("window.PRODUCTION_PLANNING_DATA = " + json.dumps(commercial_output_data, ensure_ascii=False) + ";\n")
 
 dir_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'web_dashboard_direccion')
 if os.path.exists(dir_dir):
-    safe_copy(out_file, get_dest(os.path.join('web_dashboard_direccion', 'production_planning_data.json')))
-    safe_copy(out_js_file, get_dest(os.path.join('web_dashboard_direccion', 'production_planning_data.js')))
+    out_dir_file = get_dest(os.path.join('web_dashboard_direccion', 'production_planning_data.json'))
+    with open(out_dir_file, 'w', encoding='utf-8') as f:
+        json.dump(output_data, f, ensure_ascii=False, indent=2)
 
-print(f"\n[OK] Successfully generated {out_file} and synchronized to web_dashboard_direccion.")
+    out_dir_js = get_dest(os.path.join('web_dashboard_direccion', 'production_planning_data.js'))
+    with open(out_dir_js, 'w', encoding='utf-8') as f:
+        f.write("window.PRODUCTION_PLANNING_DATA = " + json.dumps(output_data, ensure_ascii=False) + ";\n")
+
+print(f"\n[OK] Successfully generated Dirección (completa) y Comercial (aislada) production planning datasets.")
 print(f"Revisado -> Base SKUs: {len(data_revisado['base_skus'])}, Sugerencias: {len(data_revisado['stock_suggestions']['items'])} SKUs, Exceso: {data_revisado['stock_suggestions']['kpis']['exceso_total_cost_eur']:,.2f} €")
 print(f"Oficial  -> Base SKUs: {len(data_oficial['base_skus'])}, Sugerencias: {len(data_oficial['stock_suggestions']['items'])} SKUs, Exceso: {data_oficial['stock_suggestions']['kpis']['exceso_total_cost_eur']:,.2f} €")

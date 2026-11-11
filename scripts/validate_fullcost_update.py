@@ -4034,6 +4034,47 @@ def main():
 
             fail("VIOLACIÓN DE SEGURIDAD: web_dashboard/index.html contiene módulos o títulos de Dirección General en lugar de la versión comercial abierta.")
 
+        for forbidden_html_tok in ["stock_suggestions", "precio_unitario", "no_mover_eur", "slow_mover_eur"]:
+            if forbidden_html_tok in html_content:
+                fail(f"VIOLACIÓN DE SEGURIDAD: web_dashboard/index.html contiene referencia prohibida '{forbidden_html_tok}'.")
+
+    # 8B. Validación de aislamiento estricto de datos en el paquete comercial (web_dashboard/production_planning_data.*)
+    comm_prod_json = get_dest(os.path.join("web_dashboard", "production_planning_data.json"))
+    comm_prod_js = get_dest(os.path.join("web_dashboard", "production_planning_data.js"))
+    FORBIDDEN_COMMERCIAL_KEYS = {
+        "stock_suggestions", "alternativas_economicas", "ofertas_clientes",
+        "campanas_ofertas", "simulador_resumen", "balance_empresa", "hipotesis_calculo",
+        "inventario_total_base_eur", "clientes_balance_eur", "proveedores_balance_eur",
+        "cogs_ltm_total_eur", "margen_neto_eur", "margen_bruto_eur", "margen_contable_eur",
+        "beneficio_incremental_eur", "ganancia_neta_eur", "coste_fin_eur", "coste_unit_eur",
+        "cogs_eur", "precio_unitario", "no_mover_eur", "slow_mover_eur", "stock_eur",
+        "regalo_coste_eur", "holding_cost_saved_eur", "ingreso_neto_eur", "ingreso_bruto_eur",
+        "neto_caja_eur"
+    }
+
+    def scan_forbidden_commercial(obj, path="root"):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if k in FORBIDDEN_COMMERCIAL_KEYS:
+                    fail(f"VIOLACIÓN DE SEGURIDAD COMERCIAL: clave financiera/interna '{k}' expuesta en {path}.{k}")
+                scan_forbidden_commercial(v, f"{path}.{k}")
+        elif isinstance(obj, list):
+            for idx, item in enumerate(obj):
+                scan_forbidden_commercial(item, f"{path}[{idx}]")
+
+    if os.path.exists(comm_prod_json):
+        with open(comm_prod_json, "r", encoding="utf-8") as f_cj:
+            comm_payload = json.load(f_cj)
+        scan_forbidden_commercial(comm_payload, "web_dashboard/production_planning_data.json")
+        if os.path.exists(comm_prod_js):
+            with open(comm_prod_js, "r", encoding="utf-8") as f_cjs:
+                raw_cjs = f_cjs.read().strip()
+            if not raw_cjs.startswith("window.PRODUCTION_PLANNING_DATA = "):
+                fail("web_dashboard/production_planning_data.js no comienza con window.PRODUCTION_PLANNING_DATA = ")
+            js_payload_str = raw_cjs[len("window.PRODUCTION_PLANNING_DATA = "):].rstrip(";")
+            scan_forbidden_commercial(json.loads(js_payload_str), "web_dashboard/production_planning_data.js")
+
+
 
 
 
@@ -4306,8 +4347,321 @@ def main():
 
                     os.remove(tmp_chk)
 
+    # 9B. Validación independiente económica, física, ACCA y de frescura de la Suite Comercial de Stock
+    dir_prod_json = get_dest(os.path.join("web_dashboard_direccion", "production_planning_data.json"))
+    if not os.path.exists(dir_prod_json):
+        fail("Falta web_dashboard_direccion/production_planning_data.json para auditoría de Suite Comercial de Stock.", last_date)
 
+    with open(dir_prod_json, "r", encoding="utf-8") as f_dp:
+        dir_prod = json.load(f_dp)
 
+    import math as _math
+    import glob as _glob
+    from datetime import datetime as _dt
+
+    def _parse_campaign_src_date(fname):
+        base_f = os.path.basename(fname)
+        if base_f.startswith("~$"):
+            return None
+        m_full = re.search(r"(\d{2})[._-](\d{2})[._-](\d{4})", base_f)
+        if m_full:
+            d, m, y = int(m_full.group(1)), int(m_full.group(2)), int(m_full.group(3))
+            try:
+                return _dt(y, m, d)
+            except ValueError:
+                return None
+        m_dm = re.search(r"(\d{1,2})\.(\d{1,2})(?:\.(\d{2})(?!\d))?", base_f)
+        if m_dm:
+            d, m = int(m_dm.group(1)), int(m_dm.group(2))
+            y = (2000 + int(m_dm.group(3))) if m_dm.group(3) else (2026 if m >= 9 else 2027)
+            try:
+                return _dt(y, m, d)
+            except ValueError:
+                return None
+        return None
+
+    def _req_finite(val, ctx):
+        if isinstance(val, bool) or not isinstance(val, (int, float)) or not _math.isfinite(float(val)):
+            fail(f"INTEGRIDAD NUMÉRICA STOCK: valor no finito o inválido ({val!r}) en {ctx}", last_date)
+        return float(val)
+
+    def _valid_dmy(s):
+        if not isinstance(s, str):
+            return False
+        m = re.match(r"^(\d{2})/(\d{2})/(\d{4})$", s.strip())
+        if not m:
+            return False
+        d, mo, y = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        try:
+            _dt(y, mo, d)
+            return True
+        except ValueError:
+            return False
+
+    latest_stock_disk = max([d for d in (_parse_campaign_src_date(f) for f in _glob.glob(get_source("Stock*.xlsx"))) if d is not None], default=None)
+    latest_orders_disk = max([d for d in (_parse_campaign_src_date(f) for f in _glob.glob(get_source("Pedidos *.xlsx"))) if d is not None], default=None)
+    meta = dir_prod.get("metadata") or {}
+    if latest_stock_disk and meta.get("stock_source_date"):
+        if meta["stock_source_date"] != latest_stock_disk.strftime("%Y-%m-%d"):
+            fail(f"FRESCURA FUENTES: stock_source_date={meta['stock_source_date']} difiere del Stock más reciente ({latest_stock_disk.strftime('%Y-%m-%d')}).", last_date)
+    if latest_orders_disk and meta.get("orders_source_date"):
+        if meta["orders_source_date"] != latest_orders_disk.strftime("%Y-%m-%d"):
+            fail(f"FRESCURA FUENTES: orders_source_date={meta['orders_source_date']} difiere del Pedidos más reciente ({latest_orders_disk.strftime('%Y-%m-%d')}).", last_date)
+
+    scenarios_dict = dir_prod.get("scenarios")
+    if not isinstance(scenarios_dict, dict) or "revisado" not in scenarios_dict or "oficial" not in scenarios_dict:
+        fail("INTEGRIDAD STOCK: faltan escenarios 'revisado' y/u 'oficial' en production_planning_data.json.", last_date)
+
+    for scen_name in ("revisado", "oficial"):
+        sc_data = scenarios_dict[scen_name]
+        ss = sc_data.get("stock_suggestions")
+        if not isinstance(ss, dict):
+            fail(f"INTEGRIDAD STOCK [{scen_name}]: falta bloque stock_suggestions.", last_date)
+
+        hip = ss.get("hipotesis_calculo")
+        if not isinstance(hip, dict) or not (hip.get("estado_aprobacion") or hip.get("estado_validacion")):
+            fail(f"TRANSPARENCIA [{scen_name}]: falta metadata hipotesis_calculo/estado_aprobacion.", last_date)
+
+        base_skus = sc_data.get("base_skus") or []
+        sku_map = {str(s.get("base_sku", "")).strip(): s for s in base_skus if s.get("base_sku")}
+        gift_stock_map = ss.get("gift_stock_map") or {}
+        items = ss.get("items") or []
+        kpis = ss.get("kpis") or {}
+        plans = ss.get("plans") or []
+
+        if not items:
+            fail(f"INTEGRIDAD STOCK [{scen_name}]: items vacío.", last_date)
+
+        plan_acc = {}
+        sum_it_vol = 0.0
+        sum_it_exceso_eur = 0.0
+        sum_it_ing_neto = 0.0
+        sum_it_margen = 0.0
+        sum_it_ahorro = 0.0
+        sum_it_fin = 0.0
+
+        for it in items:
+            sku = str(it.get("base_sku", "")).strip()
+            ctx_it = f"{scen_name}.items[{sku}]"
+            st_fis = _req_finite(it.get("stock_actual", 0), f"{ctx_it}.stock_actual")
+            ped_p = _req_finite(it.get("pedidos_pendientes", 0), f"{ctx_it}.pedidos_pendientes")
+            st_lib = _req_finite(it.get("stock_libre_disponible", 0), f"{ctx_it}.stock_libre_disponible")
+            if st_fis < -0.01 or st_lib < -0.01 or st_lib > st_fis + 0.05:
+                fail(f"INCOHERENCIA FÍSICA [{ctx_it}]: stock_libre_disponible={st_lib} vs stock_actual={st_fis}.", last_date)
+            if abs(st_lib - max(0.0, st_fis - ped_p)) > 0.15:
+                fail(f"INCOHERENCIA STOCK LIBRE [{ctx_it}]: stock_libre_disponible={st_lib} vs físico-pedidos={max(0.0, st_fis - ped_p):.2f}.", last_date)
+
+            ex_qty = _req_finite(it.get("exceso_total_qty", 0), f"{ctx_it}.exceso_total_qty")
+            ex_eur = _req_finite(it.get("exceso_total_eur", 0), f"{ctx_it}.exceso_total_eur")
+            it_ing = _req_finite(it.get("ingreso_neto_eur", 0), f"{ctx_it}.ingreso_neto_eur")
+            it_mrg = _req_finite(it.get("margen_neto_eur", 0), f"{ctx_it}.margen_neto_eur")
+            it_aho = _req_finite(it.get("holding_cost_saved_eur", 0), f"{ctx_it}.holding_cost_saved_eur")
+            it_fin = _req_finite(it.get("coste_fin_pago_eur", 0), f"{ctx_it}.coste_fin_pago_eur")
+            it_cost_u = _req_finite(it.get("coste_unit", 0), f"{ctx_it}.coste_unit")
+            exact_cost_u = _req_finite((sku_map.get(sku) or {}).get("precio_unitario", it_cost_u), f"{ctx_it}.exact_cost_unit")
+            if abs(it_cost_u - exact_cost_u) > 0.015:
+                fail(f"COSTE UNITARIO DESINCRONIZADO [{ctx_it}]: coste_unit={it_cost_u} vs base_sku={exact_cost_u}.", last_date)
+
+            if ex_qty < -0.01 or ex_qty > st_lib + 0.15:
+                fail(f"EXCESO SOBRE STOCK LIBRE [{ctx_it}]: exceso_total_qty={ex_qty} supera stock_libre_disponible={st_lib}.", last_date)
+
+            sum_it_vol += ex_qty
+            sum_it_exceso_eur += ex_eur
+            sum_it_ing_neto += it_ing
+            sum_it_margen += it_mrg
+            sum_it_ahorro += it_aho
+            sum_it_fin += it_fin
+
+            offers = it.get("ofertas_clientes") or []
+            if not offers:
+                fail(f"INTEGRIDAD STOCK [{ctx_it}]: SKU sin ofertas_clientes.", last_date)
+
+            sum_o_vol = 0.0
+            sum_o_ing = 0.0
+            sum_o_mrg = 0.0
+            sum_o_aho = 0.0
+            sum_o_fin = 0.0
+            env_cap = _req_finite(it.get("envase_l", 0), f"{ctx_it}.envase_l")
+
+            for o in offers:
+                oid = str(o.get("id_oferta", "")).strip()
+                ctx_o = f"{ctx_it}.oferta[{oid}]"
+                vol = _req_finite(o.get("vol_asignado", 0), f"{ctx_o}.vol_asignado")
+                if vol <= 0 or vol > st_lib + 0.05 or vol > st_fis + 0.05:
+                    fail(f"RESERVA IMPOSIBLE [{ctx_o}]: vol_asignado={vol} frente a stock_libre={st_lib}, stock_actual={st_fis}.", last_date)
+
+                if not _valid_dmy(o.get("fecha_limite")):
+                    fail(f"FECHA INVÁLIDA [{ctx_o}]: fecha_limite={o.get('fecha_limite')!r}.", last_date)
+
+                is_rework = bool(o.get("es_reprocesado_interno"))
+                if not is_rework and env_cap > 0 and vol >= env_cap - 1e-6:
+                    env_n = round(vol / env_cap)
+                    if abs(vol - env_n * env_cap) > 0.05:
+                        fail(f"ENVASE FRACCIONADO [{ctx_o}]: vol_asignado={vol} no es múltiplo de envase_l={env_cap}.", last_date)
+
+                pvp_ref = _req_finite(o.get("pvp_tarifa_ref", 0), f"{ctx_o}.pvp_tarifa_ref")
+                pvp_of = _req_finite(o.get("pvp_oferta", 0), f"{ctx_o}.pvp_oferta")
+                dto_pct = _req_finite(o.get("dto_pct", 0), f"{ctx_o}.dto_pct")
+                fact_n = _req_finite(o.get("facturacion_neta_eur", 0), f"{ctx_o}.facturacion_neta_eur")
+                c_rap = _req_finite(o.get("coste_rappel_eur", 0), f"{ctx_o}.coste_rappel_eur")
+                c_fin = _req_finite(o.get("coste_fin_eur", 0), f"{ctx_o}.coste_fin_eur")
+                c_mrc = _req_finite(o.get("coste_merch_eur", 0), f"{ctx_o}.coste_merch_eur")
+                c_reg = _req_finite(o.get("regalo_coste_eur", 0), f"{ctx_o}.regalo_coste_eur")
+                cogs = _req_finite(o.get("cogs_eur", 0), f"{ctx_o}.cogs_eur")
+                mrg_est = _req_finite(o.get("margen_estimado_eur", 0), f"{ctx_o}.margen_estimado_eur")
+                hold_s = _req_finite(o.get("holding_cost_saved_eur", 0), f"{ctx_o}.holding_cost_saved_eur")
+
+                if c_reg > c_mrc + 0.05:
+                    fail(f"REGALO/MERCH INCONSISTENTE [{ctx_o}]: regalo_coste_eur={c_reg} > coste_merch_eur={c_mrc}.", last_date)
+
+                if not is_rework:
+                    expected_mrg = fact_n - cogs - c_rap - c_mrc - c_fin
+                    if abs(mrg_est - expected_mrg) > 0.25:
+                        fail(f"ARITMÉTICA MARGEN [{ctx_o}]: margen_estimado_eur={mrg_est} != fact-cogs-rap-merch-fin={expected_mrg:.2f}.", last_date)
+                    if abs(fact_n - (vol * pvp_of)) > max(0.5, 0.002 * abs(fact_n)):
+                        fail(f"ARITMÉTICA FACTURACIÓN [{ctx_o}]: facturacion_neta_eur={fact_n} != vol*pvp={vol * pvp_of:.2f}.", last_date)
+                    if pvp_ref > 0 and abs(dto_pct - ((1.0 - (pvp_of / pvp_ref)) * 100.0)) > 0.25:
+                        fail(f"DESCUENTO INCOHERENTE [{ctx_o}]: dto_pct={dto_pct} vs real={((1.0 - (pvp_of / pvp_ref)) * 100.0):.2f}%.", last_date)
+                    if abs(cogs - (vol * exact_cost_u)) > max(0.5, 0.002 * abs(cogs)):
+                        fail(f"COGS INCOHERENTE [{ctx_o}]: cogs_eur={cogs} != vol*coste_unit={vol * exact_cost_u:.2f}.", last_date)
+                else:
+                    mp_sav = _req_finite(o.get("compras_materia_prima_evitadas_eur", 0), f"{ctx_o}.compras_materia_prima_evitadas_eur")
+                    tec_c = _req_finite(o.get("coste_tecnico_reprocesado_eur", 0), f"{ctx_o}.coste_tecnico_reprocesado_eur")
+                    expected_rw_mrg = mp_sav - tec_c - cogs
+                    if abs(mrg_est - expected_rw_mrg) > 0.25:
+                        fail(f"ARITMÉTICA MARGEN REWORK [{ctx_o}]: margen_estimado_eur={mrg_est} != mp-tec-cogs={expected_rw_mrg:.2f}.", last_date)
+                    if abs(fact_n) > 0.01 or abs(c_fin) > 0.01 or abs(hold_s) > 0.01:
+                        fail(f"REPROCESADO CON AHORRO/COBRO FICTICIO [{ctx_o}]: fact={fact_n}, fin={c_fin}, holding={hold_s}.", last_date)
+                    net_fin_g = _req_finite(o.get("net_financial_gain_eur", 0), f"{ctx_o}.net_financial_gain_eur")
+                    if abs(net_fin_g) > 0.01:
+                        fail(f"REPROCESADO CON GANANCIA FINANCIERA FICTICIA [{ctx_o}]: net_financial_gain_eur={net_fin_g}.", last_date)
+
+                # Validación de regalo contra stock real y coste único en vivo
+                reg_sku = o.get("regalo_sku")
+                reg_uds = _req_finite(o.get("regalo_uds", 0), f"{ctx_o}.regalo_uds")
+                if reg_sku and reg_sku != "-" and reg_uds > 0:
+                    g_info = gift_stock_map.get(reg_sku)
+                    g_sku_row = sku_map.get(reg_sku)
+                    if not g_sku_row and not g_info:
+                        fail(f"REGALO SIN SKU VIVO [{ctx_o}]: regalo_sku={reg_sku} no existe en catálogo vivo.", last_date)
+                    g_env_l = _req_finite((g_info or {}).get("envase_l", (g_sku_row or {}).get("envase_litros", 1.0)) or 1.0, f"{ctx_o}.gift_env_l")
+                    g_free = _req_finite((g_info or {}).get("stock_libre_disponible", (g_sku_row or {}).get("stock_libre_disponible", 0)), f"{ctx_o}.gift_stock")
+                    g_req_qty = reg_uds * g_env_l
+                    if g_req_qty > g_free + 0.05:
+                        fail(f"REGALO SIN STOCK [{ctx_o}]: {reg_uds}u ({g_req_qty} L/Kg) de {reg_sku} > stock_libre={g_free}.", last_date)
+                    g_cost_live = _req_finite((g_info or {}).get("coste_unit_sku", (g_sku_row or {}).get("precio_unitario", 0)), f"{ctx_o}.gift_cost")
+                    if g_cost_live <= 0:
+                        fail(f"REGALO SIN COSTE VIVO [{ctx_o}]: {reg_sku} coste={g_cost_live}.", last_date)
+                    if abs(c_reg - (g_req_qty * g_cost_live)) > 0.25:
+                        fail(f"COSTE DE REGALO DESACTUALIZADO [{ctx_o}]: regalo_coste_eur={c_reg} != {g_req_qty}*{g_cost_live:.4f}={g_req_qty * g_cost_live:.2f}.", last_date)
+
+                # Cuadre de calendario de cobros
+                cash_sum = (
+                    _req_finite(o.get("caja_0_30d_eur", 0), f"{ctx_o}.caja_0_30d_eur") +
+                    _req_finite(o.get("caja_31_60d_eur", 0), f"{ctx_o}.caja_31_60d_eur") +
+                    _req_finite(o.get("caja_61_90d_eur", 0), f"{ctx_o}.caja_61_90d_eur") +
+                    _req_finite(o.get("caja_90d_plus_eur", 0), f"{ctx_o}.caja_90d_plus_eur")
+                )
+                if abs(cash_sum - fact_n) > 0.25:
+                    fail(f"CALENDARIO COBROS DESCUADRADO [{ctx_o}]: buckets={cash_sum:.2f} != facturacion_neta={fact_n:.2f}.", last_date)
+
+                # Validación simétrica ACCA de alternativas económicas y recomendación
+                alts = o.get("alternativas_economicas")
+                if not isinstance(alts, dict) or not isinstance(alts.get("alt_a"), dict):
+                    fail(f"FALTAN ALTERNATIVAS ECONÓMICAS [{ctx_o}].", last_date)
+                alt_a = alts["alt_a"]
+                a_ben = _req_finite(alt_a.get("beneficio_incremental_eur", alt_a.get("ganancia_neta_eur")), f"{ctx_o}.alt_a.beneficio_incremental_eur")
+                a_mrg_c = _req_finite(alt_a.get("margen_contable_eur"), f"{ctx_o}.alt_a.margen_contable_eur")
+                if not is_rework:
+                    exp_a_ben = (fact_n - c_rap - c_mrc - c_fin) + hold_s
+                else:
+                    exp_a_ben = _req_finite(o.get("compras_materia_prima_evitadas_eur", 0), f"{ctx_o}.mp") - _req_finite(o.get("coste_tecnico_reprocesado_eur", 0), f"{ctx_o}.tec")
+                if abs(a_ben - exp_a_ben) > 0.25:
+                    fail(f"ALT A INCREMENTAL CORRUPTO [{ctx_o}]: {a_ben} != esperado={exp_a_ben:.2f}.", last_date)
+                if abs(a_mrg_c - mrg_est) > 0.25:
+                    fail(f"ALT A MARGEN CONTABLE CORRUPTO [{ctx_o}]: {a_mrg_c} != margen_estimado={mrg_est:.2f}.", last_date)
+
+                cand_alts = []
+                for ak in ("alt_a", "alt_b", "alt_c"):
+                    av = alts.get(ak)
+                    if isinstance(av, dict):
+                        b_val = _req_finite(av.get("beneficio_incremental_eur", av.get("ganancia_neta_eur")), f"{ctx_o}.{ak}.beneficio_incremental_eur")
+                        g_val = _req_finite(av.get("ganancia_neta_eur"), f"{ctx_o}.{ak}.ganancia_neta_eur")
+                        if abs(b_val - g_val) > 0.05:
+                            fail(f"DESINCRONIZACIÓN ALTERNATIVA [{ctx_o}.{ak}]: beneficio_incremental={b_val} != ganancia_neta={g_val}.", last_date)
+                        m_cont = _req_finite(av.get("margen_contable_eur"), f"{ctx_o}.{ak}.margen_contable_eur")
+                        m_eur = _req_finite(av.get("margen_eur"), f"{ctx_o}.{ak}.margen_eur")
+                        if abs(m_cont - m_eur) > 0.05:
+                            fail(f"DESINCRONIZACIÓN MARGEN ALT [{ctx_o}.{ak}]: margen_contable={m_cont} != margen_eur={m_eur}.", last_date)
+                        a_hld = _req_finite(av.get("ahorro_holding_eur", 0), f"{ctx_o}.{ak}.ahorro_holding_eur")
+                        a_fac = _req_finite(av.get("facturacion_eur", 0), f"{ctx_o}.{ak}.facturacion_eur")
+                        a_com = _req_finite(av.get("coste_comercial_eur", 0), f"{ctx_o}.{ak}.coste_comercial_eur")
+                        a_fin = _req_finite(av.get("coste_fin_eur", 0), f"{ctx_o}.{ak}.coste_fin_eur")
+                        if "Inacción" in str(av.get("tipo", "")) or "Inmovilizado" in str(av.get("nombre", "")):
+                            if abs(b_val) > 0.05 or abs(m_cont) > 0.05 or abs(a_hld) > 0.05:
+                                fail(f"ALT BASE INACCIÓN NO CERO [{ctx_o}.{ak}]: ben={b_val}, mrg={m_cont}, hld={a_hld}.", last_date)
+                        elif a_fac <= 0.01:
+                            # Reprocesado / ahorro MP interno en alternativa
+                            if abs(a_hld) > 0.01:
+                                fail(f"ALT REPROCESADO CON AHORRO HOLDING FICTICIO [{ctx_o}.{ak}].", last_date)
+                            if not av.get("requiere_validacion_tecnica"):
+                                fail(f"ALT REPROCESADO SIN BANDERA TÉCNICA [{ctx_o}.{ak}].", last_date)
+                        else:
+                            if abs(b_val - (a_fac - a_com - a_fin + a_hld)) > 0.35:
+                                fail(f"ALT INCREMENTAL CORRUPTO [{ctx_o}.{ak}]: {b_val} != fact-com-fin+holding={(a_fac - a_com - a_fin + a_hld):.2f}.", last_date)
+                        cand_alts.append((ak, b_val))
+
+                max_ben = max(v for _, v in cand_alts)
+                rec_key = alts.get("recomendada")
+                rec_vals = [v for k_alt, v in cand_alts if k_alt == rec_key]
+                if not rec_vals or rec_vals[0] < max_ben - 0.05:
+                    fail(f"RECOMENDACIÓN INCOHERENTE [{ctx_o}]: recomendada={rec_key!r} no alcanza el máximo beneficio incremental ({max_ben:.2f} €).", last_date)
+
+                sum_o_vol += vol
+                sum_o_ing += fact_n
+                sum_o_mrg += mrg_est
+                sum_o_aho += hold_s
+                sum_o_fin += c_fin
+
+                p_id = o.get("plan_id")
+                if p_id:
+                    pa = plan_acc.setdefault(p_id, {"n": 0, "ing": 0.0, "mrg": 0.0, "fin": 0.0, "aho": 0.0})
+                    pa["n"] += 1
+                    pa["ing"] += fact_n
+                    pa["mrg"] += mrg_est
+                    pa["fin"] += c_fin
+                    pa["aho"] += hold_s
+
+            if abs(sum_o_vol - ex_qty) > 0.35 or abs(sum_o_ing - it_ing) > 0.50 or abs(sum_o_mrg - it_mrg) > 0.50 or abs(sum_o_aho - it_aho) > 0.50 or abs(sum_o_fin - it_fin) > 0.50:
+                fail(f"DESCUADRE SKU vs OFERTAS [{ctx_it}]: suma ofertas ({sum_o_vol:.2f}u, ing={sum_o_ing:.2f}, mrg={sum_o_mrg:.2f}, aho={sum_o_aho:.2f}, fin={sum_o_fin:.2f}) != SKU ({ex_qty}, {it_ing}, {it_mrg}, {it_aho}, {it_fin}).", last_date)
+
+        # Cuadre KPIs globales vs suma de SKUs
+        if (
+            abs(sum_it_vol - _req_finite(kpis.get("exceso_total_qty", 0), f"{scen_name}.kpis.exceso_total_qty")) > 1.0 or
+            abs(sum_it_exceso_eur - _req_finite(kpis.get("exceso_total_cost_eur", 0), f"{scen_name}.kpis.exceso_total_cost_eur")) > 1.0 or
+            abs(sum_it_ing_neto - _req_finite(kpis.get("ingreso_neto_total_eur", 0), f"{scen_name}.kpis.ing")) > 1.0 or
+            abs(sum_it_margen - _req_finite(kpis.get("margen_neto_total_eur", 0), f"{scen_name}.kpis.mrg")) > 1.0 or
+            abs(sum_it_ahorro - _req_finite(kpis.get("holding_cost_saved_total_eur", 0), f"{scen_name}.kpis.ahorro")) > 1.0 or
+            abs(sum_it_fin - _req_finite(kpis.get("coste_financiero_aplazamiento_total_eur", 0), f"{scen_name}.kpis.fin")) > 1.0
+        ):
+            fail(f"DESCUADRE KPIs GLOBALES [{scen_name}] frente a suma de ítems SKU.", last_date)
+
+        # Cuadre tarjetas de plan vs suma de ofertas agrupadas
+        for p_card in plans:
+            p_id = p_card.get("plan_id")
+            pa = plan_acc.get(p_id)
+            if not pa:
+                fail(f"PLAN SIN OFERTAS [{scen_name}.{p_id}].", last_date)
+            if (
+                int(p_card.get("ofertas_count", -1)) != pa["n"] or
+                abs(_req_finite(p_card.get("ingreso_neto_eur", 0), f"{scen_name}.{p_id}.ing") - pa["ing"]) > 1.0 or
+                abs(_req_finite(p_card.get("margen_neto_eur", 0), f"{scen_name}.{p_id}.mrg") - pa["mrg"]) > 1.0 or
+                abs(_req_finite(p_card.get("coste_fin_pago_eur", 0), f"{scen_name}.{p_id}.fin") - pa["fin"]) > 1.0 or
+                abs(_req_finite(p_card.get("holding_cost_saved_eur", 0), f"{scen_name}.{p_id}.aho") - pa["aho"]) > 1.0
+            ):
+                fail(f"DESCUADRE TARJETA DE PLAN [{scen_name}.{p_id}] frente a sus ofertas.", last_date)
+
+    print("   -> Suite Comercial de Stock (integridad física, regalos vivos, ACCA, KPIs, planes y frescura) validada.")
 
 
 

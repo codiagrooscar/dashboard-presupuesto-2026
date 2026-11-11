@@ -470,6 +470,84 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(resp_body)
             return
 
+        if path == '/api/stock_offer_feedback':
+            user = self.get_session_user()
+            if not user:
+                err_body = json.dumps({'success': False, 'error': 'No autorizado: sesión requerida'}).encode('utf-8')
+                self.send_response(401)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(err_body)))
+                self.end_headers()
+                self.wfile.write(err_body)
+                return
+
+            try:
+                from datetime import datetime
+                content_length = int(self.headers.get('Content-Length', 0))
+                post_body = self.rfile.read(content_length)
+                payload = json.loads(post_body.decode('utf-8'))
+                if not isinstance(payload, dict):
+                    raise ValueError('El cuerpo debe ser un objeto JSON.')
+
+                fb_key = str(payload.get('key') or '').strip()
+                estado = str(payload.get('estado') or '').strip().upper()
+                if not fb_key or estado not in ('ACEPTADA', 'RECHAZADA', 'PENDIENTE'):
+                    err_body = json.dumps({'success': False, 'error': 'Parámetros inválidos: key y estado válidos requeridos.'}).encode('utf-8')
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.send_header('Content-Length', str(len(err_body)))
+                    self.end_headers()
+                    self.wfile.write(err_body)
+                    return
+
+                fb_file = PROJECT_DIR / "Gastos" / "stock_offers_feedback.json"
+                feedback_map = {}
+                if fb_file.exists():
+                    with open(fb_file, 'r', encoding='utf-8') as f:
+                        loaded = json.load(f)
+                        if not isinstance(loaded, dict):
+                            raise ValueError('stock_offers_feedback.json no contiene un objeto JSON válido.')
+                        feedback_map = loaded
+
+                if estado == 'PENDIENTE':
+                    feedback_map.pop(fb_key, None)
+                else:
+                    feedback_map[fb_key] = {
+                        'key': fb_key,
+                        'id_oferta': str(payload.get('id_oferta') or '').strip(),
+                        'scenario': str(payload.get('scenario') or '').strip(),
+                        'estado': estado,
+                        'motivo': str(payload.get('motivo') or '').strip(),
+                        'contract_fingerprint': str(payload.get('contract_fingerprint') or '').strip(),
+                        'usuario': user,
+                        'timestamp': str(payload.get('timestamp') or datetime.now().isoformat())
+                    }
+
+                import tempfile
+                fb_file.parent.mkdir(parents=True, exist_ok=True)
+                if fb_file.exists():
+                    shutil.copy2(fb_file, fb_file.with_suffix('.json.bak'))
+                with tempfile.NamedTemporaryFile('w', dir=str(fb_file.parent), delete=False, encoding='utf-8', suffix='.tmp') as tmp_f:
+                    json.dump(feedback_map, tmp_f, ensure_ascii=False, indent=2)
+                    tmp_path = Path(tmp_f.name)
+                os.replace(tmp_path, fb_file)
+
+                ok_body = json.dumps({'success': True, 'feedback': feedback_map}).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(ok_body)))
+                self.end_headers()
+                self.wfile.write(ok_body)
+                return
+            except Exception as e:
+                err_body = json.dumps({'success': False, 'error': f'Error persistiendo estado de oferta: {e}'}).encode('utf-8')
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(err_body)))
+                self.end_headers()
+                self.wfile.write(err_body)
+                return
+
         self.send_error(404, "Endpoint no encontrado")
 
     def do_HEAD(self):
@@ -553,6 +631,40 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
                     VISTA_SYNC_PENDIENTE = False
 
         # Status check
+        if path == '/api/stock_offer_feedback':
+            user = self.get_session_user()
+            if not user:
+                err_body = json.dumps({'success': False, 'error': 'Autenticación requerida'}).encode('utf-8')
+                self.send_response(401)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Content-Length', str(len(err_body)))
+                self.end_headers()
+                self.wfile.write(err_body)
+                return
+            fb_file = PROJECT_DIR / "Gastos" / "stock_offers_feedback.json"
+            feedback_map = {}
+            if fb_file.exists():
+                try:
+                    with open(fb_file, 'r', encoding='utf-8') as f:
+                        loaded = json.load(f)
+                        if isinstance(loaded, dict):
+                            feedback_map = loaded
+                except Exception as e:
+                    err_body = json.dumps({'success': False, 'error': str(e)}).encode('utf-8')
+                    self.send_response(500)
+                    self.send_header('Content-Type', 'application/json; charset=utf-8')
+                    self.send_header('Content-Length', str(len(err_body)))
+                    self.end_headers()
+                    self.wfile.write(err_body)
+                    return
+            resp = json.dumps({'success': True, 'feedback': feedback_map}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(resp)))
+            self.end_headers()
+            self.wfile.write(resp)
+            return
+
         if path == '/api/auth/status':
             user = self.get_session_user()
             resp = json.dumps({

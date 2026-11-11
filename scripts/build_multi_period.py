@@ -83,27 +83,70 @@ def get_latest_october_file():
         return oct_candidates[0][2]
     return 'Pedidos 02.10 comerciales.xlsx' if os.path.exists('Pedidos 02.10 comerciales.xlsx') else None
 
-def get_latest_november_file():
-    candidates = [
-        f for f in os.listdir('.')
-        if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
-    ]
-    if os.path.exists('Pedidos') and os.path.isdir('Pedidos'):
-        candidates += [
-            os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
+def parse_campaign_order_date(filename, campaign_start_year=2026):
+    base_f = os.path.basename(str(filename or ''))
+    m_iso = re.search(r'(20\d{2})[-_\.](\d{1,2})[-_\.](\d{1,2})', base_f)
+    if m_iso:
+        return (int(m_iso.group(1)), int(m_iso.group(2)), int(m_iso.group(3)))
+    m_dmy4 = re.search(r'(\d{1,2})[\./-](\d{1,2})[\./-](20\d{2})', base_f)
+    if m_dmy4:
+        return (int(m_dmy4.group(3)), int(m_dmy4.group(2)), int(m_dmy4.group(1)))
+    m_dm = re.search(r'(\d{1,2})\.(\d{1,2})(?:\.(\d{2})(?!\d))?', base_f)
+    if m_dm:
+        day, month = int(m_dm.group(1)), int(m_dm.group(2))
+        if m_dm.group(3):
+            yr = 2000 + int(m_dm.group(3))
+        else:
+            yr = campaign_start_year if month >= 9 else campaign_start_year + 1
+        return (yr, month, day)
+    return (0, 0, 0)
+
+def detect_period_from_order_file(filepath, fallback_date=(2026, 11, 11)):
+    yr, mo, dy = parse_campaign_order_date(filepath)
+    if (yr, mo, dy) == (0, 0, 0):
+        yr, mo, dy = fallback_date
+    month_abbr = {
+        1: ('Ene', 'Enero'), 2: ('Feb', 'Febrero'), 3: ('Mar', 'Marzo'),
+        4: ('Abr', 'Abril'), 5: ('May', 'Mayo'), 6: ('Jun', 'Junio'),
+        7: ('Jul', 'Julio'), 8: ('Ago', 'Agosto'), 9: ('Sep', 'Septiembre'),
+        10: ('Oct', 'Octubre'), 11: ('Nov', 'Noviembre'), 12: ('Dic', 'Diciembre')
+    }
+    abbr, full_name = month_abbr.get(mo, ('Nov', 'Noviembre'))
+    period_id = f"{yr:04d}-{mo:02d}"
+    cutoff_str = f"{dy:02d}/{mo:02d}/{yr:04d}"
+    month_col = f"{abbr}-{str(yr)[-2:]} (u)"
+    return {
+        'year': yr,
+        'month': mo,
+        'day': dy,
+        'period_id': period_id,
+        'period_name': f"{full_name} {yr}",
+        'cutoff_str': cutoff_str,
+        'month_col': month_col
+    }
+
+def get_latest_november_file(candidates=None):
+    if candidates is None:
+        candidates = [
+            f for f in os.listdir('.')
             if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
         ]
-    nov_candidates = []
+        if os.path.exists('Pedidos') and os.path.isdir('Pedidos'):
+            candidates += [
+                os.path.join('Pedidos', f) for f in os.listdir('Pedidos')
+                if f.startswith('Pedidos') and f.endswith('.xlsx') and not f.startswith(('temp_', '~$'))
+            ]
+    dated_candidates = []
     for f in candidates:
         base_f = os.path.basename(f)
-        m = re.search(r'(\d{1,2})\.(\d{1,2})', base_f)
-        if m:
-            day, month = int(m.group(1)), int(m.group(2))
-            if month == 11 and day >= 3:
-                nov_candidates.append((month, day, f))
-    if nov_candidates:
-        nov_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
-        return nov_candidates[0][2]
+        if not base_f.startswith('Pedidos') or not base_f.endswith('.xlsx') or base_f.startswith(('temp_', '~$')):
+            continue
+        d_tup = parse_campaign_order_date(base_f)
+        if d_tup >= (2026, 11, 3):
+            dated_candidates.append((d_tup, f))
+    if dated_candidates:
+        dated_candidates.sort(key=lambda x: x[0], reverse=True)
+        return dated_candidates[0][1]
     return 'Pedidos03.11 comerciales.xlsx' if os.path.exists('Pedidos03.11 comerciales.xlsx') else None
 
 def load_data_sources():
@@ -168,8 +211,9 @@ def load_data_sources():
     else:
         df_ped_oct = df_ped_sep.iloc[0:0].copy()
 
-    # 4. Pedidos Noviembre (Pedidos 03.11 comerciales.xlsx y posteriores de noviembre)
+    # 4. Pedidos Período En Curso (Noviembre / Diciembre / Enero... con soporte de cambio de año)
     nov_file = get_latest_november_file()
+    active_period = detect_period_from_order_file(nov_file)
     if nov_file and os.path.exists(nov_file):
         df_ped_nov = safe_read_excel(nov_file)
         df_ped_nov['Cliente'] = df_ped_nov['Cliente'].apply(map_client_name)
@@ -178,7 +222,10 @@ def load_data_sources():
         df_ped_nov = df_ped_nov[~df_ped_nov['CLIENTE_NORM'].str.contains('SUSTAINABLE', case=False, na=False)].copy()
         if 'FechaPedido' in df_ped_nov.columns:
             dt_nov = pd.to_datetime(df_ped_nov['FechaPedido'], errors='coerce')
-            df_ped_nov = df_ped_nov[(dt_nov.dt.month == 11) | (df_ped_nov['FechaPedido'].isna())].copy()
+            df_ped_nov = df_ped_nov[
+                ((dt_nov.dt.month == active_period['month']) & (dt_nov.dt.year == active_period['year']))
+                | (df_ped_nov['FechaPedido'].isna())
+            ].copy()
         df_ped_nov['Comercial'] = df_ped_nov['CLIENTE_NORM'].map(client_map).fillna('Sin Asignar')
     else:
         df_ped_nov = df_ped_sep.iloc[0:0].copy()
@@ -768,17 +815,20 @@ def build_all():
         is_active=False
     )
 
-    # Período Noviembre 2026 (En Curso)
-    m_nov = re.search(r'(\d{1,2})\.(\d{1,2})', nov_file) if nov_file else None
-    nov_corte = f"{m_nov.group(1).zfill(2)}/{m_nov.group(2).zfill(2)}/2026" if m_nov else "11/11/2026"
+    # Período En Curso dinámico detectado desde la fuente de pedidos activa (soporta cambio de mes/año)
+    active_p = detect_period_from_order_file(nov_file)
+    active_pid = active_p['period_id']
+    active_pname = active_p['period_name']
+    nov_corte = active_p['cutoff_str']
+    active_mcol = active_p['month_col'] if active_p['month_col'] in df_bud.columns else 'Nov-26 (u)'
 
-    # 1. Escenario Presupuesto Oficial (15,18M€, 356.263 u en nov)
+    # 1. Escenario Presupuesto Oficial (15,18M€)
     d_nov_oficial = build_month_dataset(
         df_ped=df_ped_nov,
         df_bud=df_bud,
-        month_col='Nov-26 (u)',
-        period_id='2026-11',
-        period_name='Noviembre 2026',
+        month_col=active_mcol,
+        period_id=active_pid,
+        period_name=active_pname,
         period_subtitle=f'Presupuesto Oficial 15,18M€ (Corte a {nov_corte})',
         period_status='En Curso',
         badge_class='badge-success',
@@ -786,15 +836,15 @@ def build_all():
         is_active=True
     )
 
-    # 2. Escenario Previsiones Revisadas Q4 Comerciales (324.729 u en nov)
+    # 2. Escenario Previsiones Revisadas Q4 Comerciales
     df_bud_rev = load_revised_q4_forecast()
-    if df_bud_rev is not None and len(df_bud_rev) > 0:
+    if df_bud_rev is not None and len(df_bud_rev) > 0 and active_mcol in df_bud_rev.columns:
         d_nov_revisado = build_month_dataset(
             df_ped=df_ped_nov,
             df_bud=df_bud_rev,
-            month_col='Nov-26 (u)',
-            period_id='2026-11',
-            period_name='Noviembre 2026',
+            month_col=active_mcol,
+            period_id=active_pid,
+            period_name=active_pname,
             period_subtitle=f'Previsiones Revisadas Q4 Comerciales (Corte a {nov_corte})',
             period_status='En Curso',
             badge_class='badge-success',
@@ -812,7 +862,7 @@ def build_all():
     }
     d_nov['active_scenario'] = 'revisado'
 
-    # Período Acumulado Campaña (Sep + Oct + Nov) bajo ambos escenarios
+    # Período Acumulado Campaña bajo ambos escenarios
     d_acum_rev = build_accumulated_dataset([d_sep, d_oct, d_nov_revisado], fecha_corte=nov_corte)
     d_acum_ofi = build_accumulated_dataset([d_sep, d_oct, d_nov_oficial], fecha_corte=nov_corte)
     d_acum = dict(d_acum_rev)
@@ -823,7 +873,7 @@ def build_all():
     d_acum['active_scenario'] = 'revisado'
 
     periods_data = {
-        'default_period': '2026-11',
+        'default_period': active_pid,
         'active_scenario': 'revisado',
         'scenarios_metadata': {
             'revisado': {
@@ -842,13 +892,13 @@ def build_all():
             }
         },
         'periods': {
-            '2026-11': d_nov,
+            active_pid: d_nov,
             '2026-10': d_oct,
             '2026-09': d_sep,
             'acumulado': d_acum
         },
         'period_list': [
-            {'id': '2026-11', 'nombre': 'Noviembre 2026', 'badge': 'EN CURSO', 'badge_class': 'badge-success'},
+            {'id': active_pid, 'nombre': active_pname, 'badge': 'EN CURSO', 'badge_class': 'badge-success'},
             {'id': '2026-10', 'nombre': 'Octubre 2026', 'badge': 'CERRADO', 'badge_class': 'badge-neutral'},
             {'id': '2026-09', 'nombre': 'Septiembre 2026', 'badge': 'CERRADO', 'badge_class': 'badge-neutral'},
             {'id': 'acumulado', 'nombre': 'Acumulado Campaña', 'badge': 'CONSOLIDADO', 'badge_class': 'badge-info'}
@@ -861,8 +911,8 @@ def build_all():
 
     with open(get_dest('web_dashboard/dashboard_data.js'), 'w', encoding='utf-8') as f:
         f.write("window.DASHBOARD_PERIODS_DATA = " + json.dumps(periods_data, ensure_ascii=False) + ";\n")
-        # Mantener window.DASHBOARD_DATA apuntando por defecto al período en curso (Noviembre)
-        f.write("window.DASHBOARD_DATA = window.DASHBOARD_PERIODS_DATA.periods['2026-11'];\n")
+        # Mantener window.DASHBOARD_DATA apuntando por defecto al período en curso
+        f.write(f"window.DASHBOARD_DATA = window.DASHBOARD_PERIODS_DATA.periods[{json.dumps(active_pid)}];\n")
 
     def safe_copy(src, dst):
         try:

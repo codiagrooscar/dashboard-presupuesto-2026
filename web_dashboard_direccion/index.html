@@ -6144,16 +6144,92 @@
     // =========================================================================
     // MODULO: COMPROBACIÓN DE ESTADO Y OFERTA DESACTUALIZADA (PUNTO 4 CHATGPT)
     // =========================================================================
+    function getScenarioLabel(scenarioKey) {
+      return scenarioKey === 'oficial' ? 'Oficial' : 'Revisado';
+    }
+
+    function getScenarioSuggestions(scenarioKey) {
+      const key = scenarioKey || currentScenario || 'revisado';
+      if (rawProductionPlanningData && rawProductionPlanningData.scenarios && rawProductionPlanningData.scenarios[key] && rawProductionPlanningData.scenarios[key].stock_suggestions) {
+        return rawProductionPlanningData.scenarios[key].stock_suggestions;
+      }
+      return (productionData && productionData.stock_suggestions) ? productionData.stock_suggestions : null;
+    }
+
+    function resolveOfferStockContext(o, it) {
+      const bSku = o.base_sku || (o.id_oferta ? o.id_oferta.split('-')[1] : null);
+      const sugItems = (productionData && productionData.stock_suggestions && productionData.stock_suggestions.items) || [];
+      const baseItems = (productionData && productionData.base_skus) || [];
+      const sugItem = bSku ? sugItems.find(x => x.base_sku === bSku) : null;
+      const baseItem = bSku ? baseItems.find(x => x.base_sku === bSku) : null;
+
+      if (it) {
+        const sameStockAsBase = baseItem && (it.stock_actual === undefined || Number(it.stock_actual) === Number(baseItem.stock_actual));
+        const fallbackBase = sameStockAsBase ? baseItem : null;
+        return {
+          stock_actual: it.stock_actual !== undefined ? it.stock_actual : (fallbackBase ? fallbackBase.stock_actual : undefined),
+          stock_libre_disponible: it.stock_libre_disponible !== undefined ? it.stock_libre_disponible : (fallbackBase ? fallbackBase.stock_libre_disponible : undefined),
+          stock_libre: it.stock_libre,
+          stock_comprometido_pedidos: it.stock_comprometido_pedidos !== undefined ? it.stock_comprometido_pedidos : (fallbackBase ? fallbackBase.stock_comprometido_pedidos : undefined),
+          pedidos_pendientes: it.pedidos_pendientes !== undefined ? it.pedidos_pendientes : (fallbackBase ? fallbackBase.pedidos_pendientes : undefined),
+          pendientes_entrega: it.pendientes_entrega,
+          stock_reservado_regalos: it.stock_reservado_regalos,
+          stock_reservado_ventas: it.stock_reservado_ventas,
+          stock_reservado_reprocesado: it.stock_reservado_reprocesado,
+          ofertas_clientes: it.ofertas_clientes
+        };
+      }
+
+      if (sugItem || baseItem) {
+        return Object.assign({}, baseItem || {}, sugItem || {});
+      }
+      return null;
+    }
+
+    function computeLiveFreeStockInfo(stockRec, o) {
+      if (!stockRec) {
+        if (o && o.alertas_desactualizacion && o.alertas_desactualizacion.stock_libre_disponible !== undefined && o.alertas_desactualizacion.stock_libre_disponible !== null) {
+          return { verifiable: true, freeStock: Number(o.alertas_desactualizacion.stock_libre_disponible) };
+        }
+        return { verifiable: false, reason: 'Sin datos de stock libre ni compromisos de pedido para el SKU.' };
+      }
+
+      const hasExplicitFree = (stockRec.stock_libre_disponible !== undefined && stockRec.stock_libre_disponible !== null)
+        || (stockRec.stock_libre !== undefined && stockRec.stock_libre !== null);
+      const explicitFree = (stockRec.stock_libre_disponible !== undefined && stockRec.stock_libre_disponible !== null)
+        ? Number(stockRec.stock_libre_disponible)
+        : (hasExplicitFree ? Number(stockRec.stock_libre) : null);
+
+      const commitmentField = (stockRec.stock_comprometido_pedidos !== undefined && stockRec.stock_comprometido_pedidos !== null)
+        ? Number(stockRec.stock_comprometido_pedidos)
+        : ((stockRec.pedidos_pendientes !== undefined && stockRec.pedidos_pendientes !== null)
+          ? Number(stockRec.pedidos_pendientes)
+          : ((stockRec.pendientes_entrega !== undefined && stockRec.pendientes_entrega !== null)
+            ? Number(stockRec.pendientes_entrega)
+            : null));
+
+      const hasStockActual = stockRec.stock_actual !== undefined && stockRec.stock_actual !== null;
+
+      if (hasStockActual && commitmentField !== null) {
+        const computedFree = Math.max(0, Number(stockRec.stock_actual) - commitmentField);
+        return {
+          verifiable: true,
+          freeStock: hasExplicitFree ? Math.min(explicitFree, computedFree) : computedFree
+        };
+      }
+
+      if (hasExplicitFree) {
+        return { verifiable: true, freeStock: explicitFree };
+      }
+
+      return {
+        verifiable: false,
+        reason: 'El registro de stock físico no incluye stock libre ni pedidos comprometidos; no se asume compromiso cero.'
+      };
+    }
+
     function checkOfferStatus(o, it) {
       if (!o) return { status: 'UNKNOWN', badgeBg: 'rgba(100,116,139,0.2)', badgeColor: '#cbd5e1', badgeBorder: '#64748b', badgeText: '—', tooltip: '', isWarning: true };
-
-      // Localizar el item del SKU si no se pasa explícitamente
-      if (!it && productionData && productionData.stock_suggestions && productionData.stock_suggestions.items) {
-        const bSku = o.base_sku || (o.id_oferta ? o.id_oferta.split('-')[1] : null);
-        if (bSku) {
-          it = productionData.stock_suggestions.items.find(x => x.base_sku === bSku);
-        }
-      }
 
       // 1. Estado registrado manualmente en feedback
       const fb = (getOffersFeedback())[o.id_oferta] || {};
@@ -6204,29 +6280,41 @@
         }
       }
 
-      // 3. Comprobación estricta de stock físico disponible actual del SKU (no usar disponibilidad histórica)
-      let liveFreeStock = 0;
-      if (it) {
-        if (it.stock_libre !== undefined && it.stock_libre !== null) {
-          liveFreeStock = Number(it.stock_libre);
-        } else if (it.stock_actual !== undefined) {
-          liveFreeStock = Number(it.stock_actual) - Number(it.pendientes_entrega || 0);
-        }
-      } else if (o.alertas_desactualizacion && o.alertas_desactualizacion.stock_libre_disponible !== undefined) {
-        liveFreeStock = Number(o.alertas_desactualizacion.stock_libre_disponible);
-      } else {
-        liveFreeStock = Number(o.vol_asignado || 0);
+      // 3. Comprobación estricta de stock libre real tras pedidos comprometidos y reservas compartidas
+      const stockCtx = resolveOfferStockContext(o, it);
+      const stockInfo = computeLiveFreeStockInfo(stockCtx, o);
+      if (!stockInfo.verifiable) {
+        return {
+          status: 'STOCK_NO_VERIFICABLE',
+          badgeBg: 'rgba(245,158,11,0.25)',
+          badgeColor: '#fde68a',
+          badgeBorder: 'rgba(245,158,11,0.5)',
+          badgeText: '⚠️ Stock Libre No Verificado',
+          tooltip: stockInfo.reason,
+          isWarning: true
+        };
       }
 
+      const liveFreeStock = stockInfo.freeStock;
       const volRequerido = Number(o.vol_asignado || 0);
-      if (liveFreeStock < volRequerido) {
+      const giftReserved = Number((stockCtx && stockCtx.stock_reservado_regalos) || 0);
+      const salesReserved = Number((stockCtx && stockCtx.stock_reservado_ventas) || 0);
+      const reworkReserved = Number((stockCtx && stockCtx.stock_reservado_reprocesado) || 0);
+      const offerInItemList = stockCtx && Array.isArray(stockCtx.ofertas_clientes)
+        ? stockCtx.ofertas_clientes.some(x => x.id_oferta === o.id_oferta)
+        : false;
+      const sharedDemand = offerInItemList
+        ? Math.max(volRequerido, salesReserved + giftReserved + reworkReserved)
+        : Math.max(volRequerido + giftReserved, salesReserved + giftReserved + reworkReserved);
+
+      if (liveFreeStock < volRequerido || (sharedDemand > 0 && liveFreeStock < sharedDemand - 1e-6)) {
         return {
           status: 'DESACTUALIZADA_STOCK',
           badgeBg: 'rgba(245,158,11,0.25)',
           badgeColor: '#fde68a',
           badgeBorder: 'rgba(245,158,11,0.5)',
           badgeText: '⚠️ Stock Insuficiente',
-          tooltip: 'Stock libre actual en nave (' + fmtNum(liveFreeStock) + ') menor al cupo requerido (' + fmtNum(volRequerido) + ')',
+          tooltip: 'Stock libre disponible (' + fmtNum(liveFreeStock) + ' L/Kg) menor al cupo requerido/reservado (' + fmtNum(Math.max(volRequerido, sharedDemand)) + ')',
           isWarning: true
         };
       }
@@ -6237,7 +6325,7 @@
         badgeColor: '#34d399',
         badgeBorder: 'rgba(16,185,129,0.4)',
         badgeText: '🟢 En Plazo y Stock OK',
-        tooltip: 'Stock libre reservado (' + fmtNum(liveFreeStock) + ' L/Kg) y propuesta vigente hasta ' + (fechaStr || '30/11/2026'),
+        tooltip: 'Stock libre disponible (' + fmtNum(liveFreeStock) + ' L/Kg) y propuesta vigente hasta ' + (fechaStr || '30/11/2026'),
         isWarning: false
       };
     }
@@ -6246,6 +6334,7 @@
     // MODULO: GESTOR DE SIMULACIONES Y COMPARADOR CEO (PUNTO 3 CHATGPT)
     // =========================================================================
     function getSavedSimulations() {
+      const activeScenario = currentScenario || 'revisado';
       try {
         const raw = localStorage.getItem('codiagro_stock_simulations');
         if (raw) {
@@ -6255,7 +6344,7 @@
       } catch (e) {}
 
       // Escenarios base por defecto si no hay nada guardado
-      const sug = (productionData && productionData.stock_suggestions) ? productionData.stock_suggestions : null;
+      const sug = getScenarioSuggestions(activeScenario);
       const allSkus = (sug && sug.items) ? sug.items.map(x => x.base_sku) : [];
       const nmSkus = (sug && sug.items) ? sug.items.filter(x => x.is_nomover).map(x => x.base_sku) : [];
 
@@ -6265,6 +6354,7 @@
           name: 'Plan Integral (Cartera Completa ' + allSkus.length + ' SKUs)',
           date: '11/11/2026 07:38',
           notes: 'Selección global de todas las referencias NoMovers y SlowMovers auditadas.',
+          escenario: activeScenario,
           skus: allSkus,
           is_builtin: true
         },
@@ -6273,6 +6363,7 @@
           name: 'Plan de Choque NoMovers Urgentes',
           date: '11/11/2026 07:38',
           notes: 'Enfocado exclusivamente en las referencias sin rotación (>6 meses) para cortar coste holding.',
+          escenario: activeScenario,
           skus: nmSkus,
           is_builtin: true
         }
@@ -6293,8 +6384,9 @@
       }
     }
 
-    function computeSimulationMetrics(skuList) {
-      const sug = (productionData && productionData.stock_suggestions) ? productionData.stock_suggestions : null;
+    function computeSimulationMetrics(skuList, scenarioKey = null) {
+      const targetScenario = scenarioKey || currentScenario || 'revisado';
+      const sug = getScenarioSuggestions(targetScenario);
       if (!sug || !sug.items) return null;
       const skuSet = new Set(skuList);
       const items = sug.items.filter(it => skuSet.has(it.base_sku));
@@ -6319,6 +6411,7 @@
       const netGain = items.reduce((a, b) => a + (b.net_financial_gain_eur || 0), 0);
 
       return {
+        escenario: targetScenario,
         count, qty, cost, rev, margin, marginPct, sumExtCost, dioSaving, dsoImpact, cccNet, holdingSaved, netGain
       };
     }
@@ -6470,19 +6563,26 @@
 
               <div style="display:flex;flex-direction:column;gap:0.75rem;">
                 ${list.map((sim, sIdx) => {
-                  const m = computeSimulationMetrics(sim.skus) || { count: 0, cost: 0, rev: 0, margin: 0, dioSaving: 0, netGain: 0 };
-                  const isCurrentActive = sim.skus.length === sugSelectedSkus.size && sim.skus.every(x => sugSelectedSkus.has(x));
+                  const simScenario = sim.escenario || currentScenario || 'revisado';
+                  const simScenarioLabel = getScenarioLabel(simScenario);
+                  const m = computeSimulationMetrics(sim.skus, simScenario) || { count: 0, cost: 0, rev: 0, margin: 0, dioSaving: 0, netGain: 0 };
+                  const sameScenarioActive = simScenario === (currentScenario || 'revisado');
+                  const isCurrentActive = sameScenarioActive && sim.skus.length === sugSelectedSkus.size && sim.skus.every(x => sugSelectedSkus.has(x));
+                  const scenBadgeStyle = simScenario === 'oficial'
+                    ? 'background:rgba(168,85,247,0.2);color:#c084fc;border:1px solid rgba(168,85,247,0.4);'
+                    : 'background:rgba(56,189,248,0.2);color:#38bdf8;border:1px solid rgba(56,189,248,0.4);';
 
                   return `
                     <div style="background:rgba(30,41,59,0.7);border:1px solid ${isCurrentActive ? '#10b981' : '#334155'};border-radius:8px;padding:0.9rem 1.1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
                       <div style="max-width:55%;">
-                        <div style="display:flex;align-items:center;gap:0.4rem;">
+                        <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
                           <strong style="font-size:0.92rem;color:#f8fafc;">${sim.name}</strong>
                           ${isCurrentActive ? '<span class="tab-badge" style="background:rgba(16,185,129,0.2);color:#34d399;font-size:0.65rem;border:1px solid rgba(16,185,129,0.4);">ACTIVA EN PANTALLA</span>' : ''}
-                          ${sim.is_builtin ? '<span class="tab-badge" style="background:rgba(56,189,248,0.2);color:#38bdf8;font-size:0.65rem;border:1px solid rgba(56,189,248,0.4);">OFICIAL</span>' : ''}
+                          <span class="tab-badge" style="${scenBadgeStyle}font-size:0.65rem;">${simScenarioLabel.toUpperCase()}</span>
+                          ${sim.is_builtin ? '<span class="tab-badge" style="background:rgba(148,163,184,0.18);color:#cbd5e1;font-size:0.65rem;border:1px solid rgba(148,163,184,0.35);">BASE</span>' : ''}
                         </div>
                         <div style="font-size:0.72rem;color:#94a3b8;margin-top:0.2rem;">
-                          📅 ${sim.date} &bull; ${sim.skus.length} SKUs &bull; ${sim.notes || 'Sin observaciones'}
+                          📅 ${sim.date} &bull; ${sim.skus.length} SKUs &bull; Escenario ${simScenarioLabel} &bull; ${sim.notes || 'Sin observaciones'}
                         </div>
                         <div style="display:flex;gap:0.85rem;font-size:0.75rem;margin-top:0.4rem;">
                           <span style="color:#cbd5e1;">Coste: <strong style="color:#fbbf24;">${fmtCurr(m.cost)}</strong></span>
@@ -6517,15 +6617,15 @@
                 <div style="background:rgba(30,41,59,0.7);padding:0.75rem;border-radius:8px;border:1px solid #38bdf8;">
                   <label style="display:block;font-size:0.75rem;color:#38bdf8;font-weight:700;margin-bottom:0.3rem;">Escenario Base (A):</label>
                   <select id="selectCompareSimA" onchange="actualizarComparativaModal()" style="width:100%;background:#1e293b;color:#f8fafc;border:1px solid #475569;border-radius:6px;padding:0.4rem 0.6rem;font-size:0.8rem;">
-                    <option value="current">🖥️ Selección Actual en Pantalla (${sugSelectedSkus.size} SKUs)</option>
-                    ${list.map(s => `<option value="${s.id}" ${s.id === simAId ? 'selected' : ''}>${s.name} (${s.skus.length} SKUs)</option>`).join('')}
+                    <option value="current">🖥️ Selección Actual en Pantalla [${getScenarioLabel(currentScenario || 'revisado')}] (${sugSelectedSkus.size} SKUs)</option>
+                    ${list.map(s => `<option value="${s.id}" ${s.id === simAId ? 'selected' : ''}>${s.name} [${getScenarioLabel(s.escenario || currentScenario || 'revisado')}] (${s.skus.length} SKUs)</option>`).join('')}
                   </select>
                 </div>
                 <div style="background:rgba(30,41,59,0.7);padding:0.75rem;border-radius:8px;border:1px solid #c084fc;">
                   <label style="display:block;font-size:0.75rem;color:#c084fc;font-weight:700;margin-bottom:0.3rem;">Escenario a Contrastar (B):</label>
                   <select id="selectCompareSimB" onchange="actualizarComparativaModal()" style="width:100%;background:#1e293b;color:#f8fafc;border:1px solid #475569;border-radius:6px;padding:0.4rem 0.6rem;font-size:0.8rem;">
-                    <option value="current" ${simBId === 'current' ? 'selected' : ''}>🖥️ Selección Actual en Pantalla (${sugSelectedSkus.size} SKUs)</option>
-                    ${list.map(s => `<option value="${s.id}" ${s.id === simBId ? 'selected' : ''}>${s.name} (${s.skus.length} SKUs)</option>`).join('')}
+                    <option value="current" ${simBId === 'current' ? 'selected' : ''}>🖥️ Selección Actual en Pantalla [${getScenarioLabel(currentScenario || 'revisado')}] (${sugSelectedSkus.size} SKUs)</option>
+                    ${list.map(s => `<option value="${s.id}" ${s.id === simBId ? 'selected' : ''}>${s.name} [${getScenarioLabel(s.escenario || currentScenario || 'revisado')}] (${s.skus.length} SKUs)</option>`).join('')}
                   </select>
                 </div>
               </div>
@@ -6574,14 +6674,25 @@
       const target = list.find(s => s.id === simId);
       if (!target) return;
 
+      const targetScenario = target.escenario || currentScenario || 'revisado';
+      if (target.escenario && target.escenario !== currentScenario) {
+        if (typeof switchScenario === 'function') {
+          switchScenario(targetScenario);
+        } else if (typeof applyProductionScenario === 'function' && rawProductionPlanningData) {
+          currentScenario = targetScenario;
+          applyProductionScenario(targetScenario);
+        }
+      }
+
       sugSelectedSkus = new Set(target.skus);
+      sugSelectionInitialized = true;
       renderSugTableContent();
       renderQueHagoHoyWidget();
       updateSugSimulation();
 
       const modal = document.getElementById('modalGestorSimOverlay');
       if (modal) modal.remove();
-      mostrarToastNotificacion('🎯 Simulación cargada en pantalla: ' + target.name);
+      mostrarToastNotificacion('🎯 Simulación cargada (' + getScenarioLabel(targetScenario) + '): ' + target.name);
     };
 
     window.eliminarSimulacion = function(simId) {
@@ -6603,19 +6714,35 @@
       const idB = selB.value;
       const list = getSavedSimulations();
 
-      const getSkus = (id) => {
-        if (id === 'current') return Array.from(sugSelectedSkus);
+      const resolveSide = (id) => {
+        if (id === 'current') {
+          return {
+            skus: Array.from(sugSelectedSkus),
+            escenario: currentScenario || 'revisado'
+          };
+        }
         const f = list.find(s => s.id === id);
-        return f ? f.skus : [];
+        return {
+          skus: f ? (f.skus || []) : [],
+          escenario: (f && f.escenario) ? f.escenario : (currentScenario || 'revisado')
+        };
       };
 
-      const mA = computeSimulationMetrics(getSkus(idA));
-      const mB = computeSimulationMetrics(getSkus(idB));
+      const sideA = resolveSide(idA);
+      const sideB = resolveSide(idB);
+      const mA = computeSimulationMetrics(sideA.skus, sideA.escenario);
+      const mB = computeSimulationMetrics(sideB.skus, sideB.escenario);
 
       if (!mA || !mB) {
         cont.innerHTML = '<div style="text-align:center;padding:2rem;color:#94a3b8;">No se pudieron calcular las métricas comparativas.</div>';
         return;
       }
+
+      const labelScenA = getScenarioLabel(sideA.escenario);
+      const labelScenB = getScenarioLabel(sideB.escenario);
+      const diffScenarioBanner = sideA.escenario !== sideB.escenario
+        ? `<div style="background:rgba(245,158,11,0.12);border-bottom:1px solid rgba(245,158,11,0.35);padding:0.45rem 0.75rem;font-size:0.74rem;color:#fde68a;">ℹ️ Comparativa entre escenarios distintos: <strong>${labelScenA}</strong> (A) vs <strong>${labelScenB}</strong> (B). Cada columna refleja los datos propios de su escenario.</div>`
+        : '';
 
       const deltaCount = mB.count - mA.count;
       const deltaQty = mB.qty - mA.qty;
@@ -6637,12 +6764,13 @@
 
       cont.innerHTML = `
         <div style="background:rgba(15,23,42,0.9);border:1px solid #334155;border-radius:8px;overflow:hidden;">
+          ${diffScenarioBanner}
           <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
             <thead>
               <tr style="background:#1e293b;border-bottom:1px solid #334155;color:#94a3b8;">
                 <th style="padding:0.6rem 0.75rem;text-align:left;">Métrica Estratégica</th>
-                <th style="padding:0.6rem 0.75rem;text-align:right;color:#38bdf8;">Escenario A</th>
-                <th style="padding:0.6rem 0.75rem;text-align:right;color:#c084fc;">Escenario B</th>
+                <th style="padding:0.6rem 0.75rem;text-align:right;color:#38bdf8;">Escenario A (${labelScenA})</th>
+                <th style="padding:0.6rem 0.75rem;text-align:right;color:#c084fc;">Escenario B (${labelScenB})</th>
                 <th style="padding:0.6rem 0.75rem;text-align:right;">Diferencial (B - A)</th>
               </tr>
             </thead>

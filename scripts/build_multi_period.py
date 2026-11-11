@@ -770,7 +770,7 @@ def build_all():
 
     # Período Noviembre 2026 (En Curso)
     m_nov = re.search(r'(\d{1,2})\.(\d{1,2})', nov_file) if nov_file else None
-    nov_corte = f"{m_nov.group(1).zfill(2)}/{m_nov.group(2).zfill(2)}/2026" if m_nov else "10/11/2026"
+    nov_corte = f"{m_nov.group(1).zfill(2)}/{m_nov.group(2).zfill(2)}/2026" if m_nov else "11/11/2026"
 
     # 1. Escenario Presupuesto Oficial (15,18M€, 356.263 u en nov)
     d_nov_oficial = build_month_dataset(

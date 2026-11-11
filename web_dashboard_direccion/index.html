@@ -6262,8 +6262,8 @@
       const defaultSims = [
         {
           id: 'sim_default_all',
-          name: 'Plan Integral (Cartera Completa 68 SKUs)',
-          date: '10/11/2026 08:00',
+          name: 'Plan Integral (Cartera Completa ' + allSkus.length + ' SKUs)',
+          date: '11/11/2026 07:38',
           notes: 'Selección global de todas las referencias NoMovers y SlowMovers auditadas.',
           skus: allSkus,
           is_builtin: true
@@ -6271,7 +6271,7 @@
         {
           id: 'sim_default_nomover',
           name: 'Plan de Choque NoMovers Urgentes',
-          date: '10/11/2026 08:00',
+          date: '11/11/2026 07:38',
           notes: 'Enfocado exclusivamente en las referencias sin rotación (>6 meses) para cortar coste holding.',
           skus: nmSkus,
           is_builtin: true
@@ -6407,7 +6407,7 @@
         date: dateStr,
         notes: notas,
         escenario: currentScenario || 'revisado',
-        version_datos: '10/11/2026',
+        version_datos: (productionData && productionData.fecha_generacion) ? productionData.fecha_generacion : '11/11/2026',
         skus: Array.from(sugSelectedSkus),
         is_builtin: false
       };
@@ -6751,7 +6751,7 @@
         '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
         'Cliente: ' + o.cliente + '\n' +
         'País: ' + o.pais + ' | Comercial Responsable: ' + o.comercial + '\n' +
-        'Fecha de Emisión: 10/11/2026 | Validez: ' + (o.vigencia || '30/11/2026') + '\n\n' +
+        'Fecha de Emisión: ' + (new Date().toLocaleDateString('es-ES')) + ' | Validez: ' + (o.vigencia || '30/11/2026') + '\n\n' +
         '📦 PRODUCTO PROPUESTO:\n' +
         '• Referencia: ' + (o.base_sku || it.base_sku) + ' — ' + (o.sku_desc || it.desc) + '\n' +
         '• Formato: ' + (o.formato || it.formato) + '\n' +

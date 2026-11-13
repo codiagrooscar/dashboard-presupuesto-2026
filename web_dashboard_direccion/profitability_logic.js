@@ -1991,6 +1991,7 @@ function renderProfitHistoricoView() {
 let fullcostActiveSection = 'waterfall'; // 'waterfall', 'capacidad', 'maquila', 'pricing'
 
 // Estado del simulador de precios
+let simProcess = '120'; // '110' Alcaplant, '120' Líquidos, '130' Sólidos
 let simFormat = '5L';
 let simMpCost = 1.25;
 let simVolume = 1000;
@@ -2008,7 +2009,9 @@ function setFullcostActiveSection(sec) {
 }
 
 function handleSimParamChange(param, val) {
-  if (param === 'format') {
+  if (param === 'process') {
+    simProcess = val;
+  } else if (param === 'format') {
     simFormat = val;
   } else if (param === 'mp') {
     simMpCost = (val === '' || val === null || val === undefined) ? NaN : parseFloat(val);
@@ -2098,19 +2101,34 @@ function renderProfitFullCostView() {
   const maq = fc.maquila || {};
   const pricing = fc.pricing || {};
 
-  // Formato seleccionado para el simulador
-  const fmtObj = (pricing.formatos_estandar || []).find(f => f.id === simFormat) || (pricing.formatos_estandar ? pricing.formatos_estandar[1] : { coste_envase: 1.15, mano_obra_h_por_1000: 1.54, cadencia_h: 650 });
-  const horasEnvasado = (simVolume / 1000) * (fmtObj.mano_obra_h_por_1000 || 1.54);
-  // Tarifa horaria completa de envasado (MOD + CIF) sincronizada desde el modelo de actividad:
-  const envasadoRate = (pricing && pricing.tarifas_horarias && typeof pricing.tarifas_horarias.ceco_140_envasado === 'number') ? pricing.tarifas_horarias.ceco_140_envasado : 105.14;
-  const costePlantaLote = horasEnvasado * envasadoRate;
-  const costeModLote = costePlantaLote * 0.60; // 60% Mano de obra directa y ETT
-  const costeCifLote = costePlantaLote * 0.40; // 40% Costes indirectos de planta absorbibles
-  const costeEnvaseLote = simVolume * (fmtObj.coste_envase || 1.15);
-  const factorLitros = simFormat === '1L' ? 1 : (simFormat === '5L' ? 5 : (simFormat === '20L' ? 20 : (simFormat === '1000L' ? 1000 : 5)));
+  // Motor unificado con la ficha técnica de SKU: Proceso (CECO 110/120/130) + Envasado (CECO 140)
+  const cad = (pricing && pricing.cadencias_produccion) ? pricing.cadencias_produccion : {};
+  const tar = (meta && meta.tarifas_ceco_eur_h) ? meta.tarifas_ceco_eur_h : {};
+  const fmtObj = (pricing.formatos_estandar || []).find(f => f.id === simFormat) || { coste_envase: simFormat === '1L' ? 0.55 : (simFormat === '20L' ? 3.8 : (simFormat === '200L' ? 18.0 : (simFormat === '1000L' ? 85.0 : 1.15))) };
+  const factorLitros = simFormat === '1L' ? 1 : (simFormat === '20L' ? 20 : (simFormat === '200L' ? 200 : (simFormat === '1000L' ? 1000 : 5)));
+  const activeProcess = simFormat === 'SOL_5KG' ? '130' : simProcess;
+  const hSint = activeProcess === '110' ? Number(cad.h_sint_110 ?? 0.001) : (activeProcess === '130' ? Number(cad.h_sint_130 ?? 0.00125) : Number(cad.h_sint_120 ?? 0.001));
+  const rateSint = Number(tar[activeProcess] ?? (activeProcess === '110' ? 72.03 : (activeProcess === '130' ? 162.26 : 51.22)));
+  const hEnv = simFormat === '1L' ? Number(cad.h_env_1L ?? 0.004545)
+    : (simFormat === '20L' ? Number(cad.h_env_20L ?? 0.000911)
+    : (simFormat === '200L' ? Number(cad.h_env_200L ?? 0.0005)
+    : (simFormat === '1000L' ? Number(cad.h_env_1000L ?? 0.000333)
+    : Number(cad.h_env_5L ?? 0.001667))));
+  const rateEnv = Number(tar['140'] ?? 183.49);
+  const costeSintesisU = hSint * rateSint;
+  const costeEnvasadoU = hEnv * rateEnv;
+  const costeSintesisLote = simVolume * factorLitros * costeSintesisU;
+  const costeEnvasadoLote = simVolume * factorLitros * costeEnvasadoU;
+  const costePlantaLote = costeSintesisLote + costeEnvasadoLote;
+  const costeEnvaseLote = simVolume * (fmtObj.coste_envase ?? 1.15);
   const costeMpLote = simVolume * factorLitros * simMpCost;
-  const costeTotalLote = costeMpLote + costeEnvaseLote + costeModLote + costeCifLote;
+  const costeTotalLote = costeMpLote + costeEnvaseLote + costePlantaLote;
   const costeUnitario = simVolume > 0 ? (costeTotalLote / simVolume) : 0;
+  const costeIndustrialLKg = factorLitros > 0 ? (costeUnitario / factorLitros) : 0;
+  const extraPyGU = (fc.coste_completo_2026 && typeof fc.coste_completo_2026.extra_por_unidad === 'number') ? fc.coste_completo_2026.extra_por_unidad : 0.5033;
+  const extraPyGEnv = extraPyGU * factorLitros;
+  const costeCompletoEnv = costeUnitario + extraPyGEnv;
+  const costeCompletoLKg = costeIndustrialLKg + extraPyGU;
   
   // Validaciones rigurosas del cotizador (Hallazgo H08)
   const isMarginValid = !isNaN(simTargetMargin) && simTargetMargin < 100 && simTargetMargin >= 0;
@@ -2186,12 +2204,12 @@ function renderProfitFullCostView() {
 
         <div class="kpi-card accent-emerald">
           <div class="kpi-header">
-            <span class="kpi-title">MARGEN PLANTA COMPLETO</span>
-            <span class="tab-badge badge-success">55,1% Margen</span>
+            <span class="kpi-title">MARGEN INDUSTRIAL (PLANTA)</span>
+            <span class="tab-badge badge-success">55,1% s/Producción</span>
           </div>
           <div class="kpi-value" style="color:#34d399">${fmtEur(sub3Margin)}</div>
           <div class="kpi-detail">
-            <span>Tras absorber 100% de MOD y Costes Indirectos Planta</span>
+            <span>Tras absorber 100% MOD+CIF (${fmtEur((fc.totales_drilldown||{}).coste_planta_total || 124561.76)}) · M. Actividad Ventas: <strong>${fmtEur((fc.totales_drilldown||{}).margen_industrial_eur || 216120.50)}</strong></span>
           </div>
         </div>
 
@@ -2243,11 +2261,44 @@ function renderProfitFullCostView() {
         <button class="pill-btn ${fullcostActiveSection === 'pricing' ? 'active' : ''}" onclick="setFullcostActiveSection('pricing')" style="border-color:rgba(16,185,129,0.4)">
           🧮 7. Cotizador Precios
         </button>
+        <button class="pill-btn ${fullcostActiveSection === 'coste_completo' ? 'active' : ''}" onclick="setFullcostActiveSection('coste_completo')" style="border-color:rgba(56,189,248,0.55); background:${fullcostActiveSection === 'coste_completo' ? 'rgba(56,189,248,0.22)' : 'rgba(56,189,248,0.08)'}">
+          🏛️ 8. Coste Completo 100% PyG & Trazabilidad
+        </button>
         </div>
 
       <!-- CONTENIDO DE LA SECCIÓN ACTIVA (Envuelto en contenedor con ID para filtrado dinámico) -->
       <div id="fullcostSectionContent">
-        ${renderFullCostSectionContent(fullcostActiveSection, fc, simFormat, simMpCost, simVolume, simTargetMargin, fmtObj, costeMpLote, costeEnvaseLote, costeModLote, costeCifLote, costeTotalLote, costeUnitario, precioBreakeven, precioSugeridoRojo, precioSugeridoObjetivo, precioSugeridoExport, facturacionSim, beneficioBrutoSim)}
+        ${renderFullCostSectionContent(fullcostActiveSection, fc, {
+          meta,
+          simProcess,
+          activeProcess,
+          simFormat,
+          simMpCost,
+          simVolume,
+          simTargetMargin,
+          factorLitros,
+          hSint,
+          hEnv,
+          costeSintesisU,
+          costeEnvasadoU,
+          costeSintesisLote,
+          costeEnvasadoLote,
+          costeMpLote,
+          costeEnvaseLote,
+          costeTotalLote,
+          costeUnitario,
+          costeIndustrialLKg,
+          extraPyGU,
+          extraPyGEnv,
+          costeCompletoEnv,
+          costeCompletoLKg,
+          precioBreakeven,
+          precioSugeridoRojo,
+          precioSugeridoObjetivo,
+          precioSugeridoExport,
+          facturacionSim,
+          beneficioBrutoSim
+        })}
       </div>
     </div>
   `;
@@ -2257,6 +2308,7 @@ function renderProfitFullCostView() {
 let fullcostClientSearch = '';
 let fullcostClientFilter = 'ALL';
 let fullcostProdSearch = '';
+let fullcostCompletoSearch = '';
 
 window.setFullcostClientSearch = function(val) {
   fullcostClientSearch = (val || '').toLowerCase().trim();
@@ -2283,6 +2335,22 @@ window.setFullcostProdSearch = function(val) {
   fullcostProdSearch = (val || '').toLowerCase().trim();
   const c = document.getElementById('fullcostSectionContent');
   if (c) c.innerHTML = renderFullcostProductosSection();
+};
+
+window.setFullcostCompletoSearch = function(val) {
+  fullcostCompletoSearch = (val || '').toLowerCase().trim();
+  const c = document.getElementById('fullcostSectionContent');
+  const fc = typeof fullCostData !== 'undefined' ? fullCostData : null;
+  if (c && fc) {
+    const inputBefore = document.getElementById('fullcostCompletoSearchInput');
+    const curPos = inputBefore ? inputBefore.selectionStart : null;
+    c.innerHTML = renderFullcostCompletoSection(fc);
+    const inputAfter = document.getElementById('fullcostCompletoSearchInput');
+    if (inputAfter) {
+      inputAfter.focus();
+      if (curPos !== null) inputAfter.selectionStart = inputAfter.selectionEnd = curPos;
+    }
+  }
 };
 
 function exportFullcostClientesCsv() {
@@ -2502,8 +2570,10 @@ function renderFullcostProductosSection() {
                 <th style="text-align:right">Ventas (€)</th>
                 <th style="text-align:right">Materiales (€)</th>
                 <th style="text-align:right">Coste Planta (€)</th>
+                <th style="text-align:right">Coste Ind./u</th>
+                <th style="text-align:right; color:#38bdf8" title="Coste completo con reparto medio presupuestario (100% PyG 2026)">Completo Med. PyG/u</th>
                 <th style="text-align:right">Margen Industrial (€)</th>
-                <th style="text-align:right">% Margen</th>
+                <th style="text-align:right">% M. Ind.</th>
                 <th style="text-align:center">Estado</th>
               </tr>
             </thead>
@@ -2511,14 +2581,22 @@ function renderFullcostProductosSection() {
               ${list.map(p => `
                 <tr>
                   <td style="font-weight:700; font-family:monospace; color:#38bdf8">${p.sku}</td>
-                  <td style="color:#fff">${p.desc}</td>
+                  <td style="color:#fff">
+                    ${p.desc}
+                    ${p.es_devolucion_neta ? '<span class="tab-badge badge-warning" style="margin-left:0.35rem; font-size:0.68rem">Devolución neta</span>' : ''}
+                  </td>
                   <td><span class="tab-badge" style="background:rgba(255,255,255,0.06)">${p.familia}</span></td>
-                  <td style="color:#a78bfa; font-size:0.8rem; font-weight:600">${p.ruta || 'Líquidos (CECO 120)'}</td>
+                  <td style="color:#a78bfa; font-size:0.8rem; font-weight:600">
+                    ${p.ruta || 'Líquidos (CECO 120)'}
+                    ${p.ruta_origen === 'Pendiente clasificación' ? '<div style="font-size:0.68rem; color:#fbbf24">Pendiente clasificación</div>' : ''}
+                  </td>
                   <td style="color:#94a3b8; font-size:0.8rem">${p.formato || '5L / 5kg'}</td>
                   <td style="text-align:right; font-weight:600">${fmtNum(p.uds)}</td>
                   <td style="text-align:right; font-weight:700">${fmtEur(p.ventas)}</td>
                   <td style="text-align:right; color:var(--muted)">${fmtEur(p.cogs_materiales)}</td>
                   <td style="text-align:right; color:var(--muted)">${fmtEur(p.coste_planta_fullcost)}</td>
+                  <td style="text-align:right; font-family:monospace; color:#cbd5e1">${p.coste_pendiente || typeof p.coste_industrial_u !== 'number' ? '<span style="color:#fbbf24">Pendiente</span>' : p.coste_industrial_u.toFixed(4).replace('.', ',') + ' €'}</td>
+                  <td style="text-align:right; font-family:monospace; font-weight:700; color:#38bdf8">${p.coste_pendiente || typeof p.coste_completo_u !== 'number' ? '<span style="color:#fbbf24">Pendiente</span>' : p.coste_completo_u.toFixed(4).replace('.', ',') + ' €'}</td>
                   <td style="text-align:right; font-weight:700; color:${(p.semaforo === 'SIN COSTE' || p.semaforo === 'ALERTA') ? '#94a3b8' : (p.semaforo === 'VERDE' ? '#34d399' : (p.semaforo === 'AMARILLO' ? '#fbbf24' : '#f87171'))}">${fmtEur(p.margen_industrial_eur)}</td>
                   <td style="text-align:right; font-weight:800; color:${(p.semaforo === 'SIN COSTE' || p.semaforo === 'ALERTA') ? '#94a3b8' : (p.semaforo === 'VERDE' ? '#34d399' : (p.semaforo === 'AMARILLO' ? '#fbbf24' : '#f87171'))}">${p.margen_industrial_pct}%</td>
                   <td style="text-align:center">
@@ -2596,8 +2674,216 @@ function renderFullcostComercialesSection() {
   `;
 }
 
-function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolume, simTargetMargin, fmtObj, costeMpLote, costeEnvaseLote, costeModLote, costeCifLote, costeTotalLote, costeUnitario, precioBreakeven, precioSugeridoRojo, precioSugeridoObjetivo, precioSugeridoExport, facturacionSim, beneficioBrutoSim) {
-  const isMarginValid = !isNaN(simTargetMargin) && simTargetMargin < 100 && simTargetMargin >= 0;
+function renderFullcostCompletoSection(fc) {
+  const cc = (fc && fc.coste_completo_2026) ? fc.coste_completo_2026 : null;
+  if (!cc) {
+    return '<p style="color:var(--muted)">No se han generado todavía los datos de Coste Completo 100% PyG.</p>';
+  }
+  const bloques = cc.bloques || [];
+  const cat = cc.catalogo_espana_ref || [];
+  const nom = fc.nomenclatura_margenes || [];
+  const pend = fc.parametros_pendientes_planta || [];
+  const caps = fc.capacidades || [];
+  const q = (fullcostCompletoSearch || '').toLowerCase();
+  const filteredCat = cat.filter(r => {
+    if (!q) return true;
+    return (r.producto || '').toLowerCase().includes(q)
+      || (r.sku || '').toLowerCase().includes(q)
+      || (r.desc || '').toLowerCase().includes(q)
+      || (r.formato || '').toLowerCase().includes(q);
+  });
+
+  return `
+    <div style="display:flex; flex-direction:column; gap:1.35rem;">
+      <!-- BLOQUE 1: COSTE COMPLETO CON REPARTO MEDIO PRESUPUESTARIO (100% PYG 2026) -->
+      <div style="background:linear-gradient(135deg, rgba(56,189,248,0.14) 0%, rgba(15,23,42,0.95) 100%); border:1px solid rgba(56,189,248,0.45); border-radius:var(--radius-md); padding:1.25rem 1.5rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.85rem">
+          <div>
+            <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.15rem">
+              🏛️ Coste completo con reparto medio presupuestario (100% PyG 2026) (+${cc.extra_por_unidad.toFixed(4).replace('.', ',')} €/u)
+            </h4>
+            <p style="margin:0.25rem 0 0 0; font-size:0.83rem; color:var(--muted)">
+              Base anual presupuestada: <strong>${fmtNum(cc.base_unidades_2026)} L/kg</strong> · Puente dinámico 2026: Total gastos no-COGS <strong>${fmtEur(cc.total_gastos_no_cogs_2026 || 0)}</strong> = Planta absorbida <strong>${fmtEur(cc.planta_anual_absorbida_2026 || 0)}</strong> + Bolsa pendiente <strong>${fmtEur(cc.bolsa_pendiente_2026 || 0)}</strong> (exacto: <code>${(cc.extra_por_unidad_exacto || cc.extra_por_unidad).toFixed(8).replace('.', ',')} €/u</code> · dif. redondeo 4 dec.: ${fmtEur(cc.diferencia_redondeo_anual || 0)}).
+            </p>
+          </div>
+          <span class="tab-badge badge-info" style="font-size:0.85rem; font-weight:800">
+            Reparto medio PyG: +${cc.extra_por_unidad.toFixed(4).replace('.', ',')} €/L-kg
+          </span>
+        </div>
+
+        <div class="table-container">
+          <table style="font-size:0.84rem">
+            <thead>
+              <tr>
+                <th>Bloque de Gasto 2026 (fuera de COGS y Planta)</th>
+                <th style="text-align:right">Importe Anual 2026 (€)</th>
+                <th style="text-align:right">Reparto (€/L o €/kg)</th>
+                <th>Trazabilidad Cuentas Mayor / Origen</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${bloques.map(b => `
+                <tr>
+                  <td style="font-weight:700; color:#fff">${b.concepto}</td>
+                  <td style="text-align:right; color:#cbd5e1">${fmtEur(b.importe_anual)}</td>
+                  <td style="text-align:right; font-weight:800; font-family:monospace; color:#38bdf8">${b.eur_u.toFixed(4).replace('.', ',')} €</td>
+                  <td style="color:#94a3b8; font-size:0.8rem">${b.cuenta}</td>
+                </tr>
+              `).join('')}
+              <tr style="background:rgba(56,189,248,0.12); font-weight:800;">
+                <td style="color:#38bdf8">TOTAL EXTRA COMPLETO 100% PyG SOBRE COSTE INDUSTRIAL</td>
+                <td style="text-align:right; color:#38bdf8">${fmtEur(bloques.reduce((s, b) => s + b.importe_anual, 0))}</td>
+                <td style="text-align:right; font-family:monospace; color:#34d399; font-size:0.95rem">+${cc.extra_por_unidad.toFixed(4).replace('.', ',')} €</td>
+                <td style="color:#cbd5e1">Base: ${fmtNum(cc.base_unidades_2026)} L/kg</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BLOQUE 2: TABLA SALWAX, AGROXILATO K Y PRODUCTOS SOLICITADOS -->
+      <div class="table-card">
+        <div style="padding:1.15rem 1.35rem; border-bottom:1px solid var(--card-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem">
+          <div>
+            <h4 style="margin:0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.08rem">
+              📦 Coste Completo Unitario — Salwax, Agroxilato K y Gama Solicitada (${filteredCat.length} referencias)
+            </h4>
+            <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--muted)">
+              Sincronizado con Costes_Completos_Salwax_Agroxilato_Espana.xlsx · Comparativa frente a tu referencia industrial anterior.
+            </p>
+          </div>
+          <input id="fullcostCompletoSearchInput" type="text" placeholder="Filtrar por producto, SKU o formato..." value="${fullcostCompletoSearch}" oninput="setFullcostCompletoSearch(this.value)" style="background:rgba(15,23,42,0.9); border:1px solid var(--card-border); color:#fff; padding:0.45rem 0.85rem; border-radius:var(--radius-sm); font-size:0.85rem; width:260px;" />
+        </div>
+        <div class="table-container">
+          <table style="font-size:0.83rem">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>SKU</th>
+                <th>Formato</th>
+                <th>País Ref.</th>
+                <th style="text-align:right">COGS Mat. (€/u)</th>
+                <th style="text-align:right">Planta (€/u)</th>
+                <th style="text-align:right">Industrial (€/u)</th>
+                <th style="text-align:right">Extra PyG (€/u)</th>
+                <th style="text-align:right; color:#34d399">Coste Completo (€/u)</th>
+                <th style="text-align:right; color:#fbbf24">Ref. Ind. Ant.</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredCat.map(r => `
+                <tr>
+                  <td style="font-weight:700; color:#fff">${r.producto}</td>
+                  <td style="font-family:monospace; color:#38bdf8; font-weight:700">${r.sku}</td>
+                  <td style="color:#cbd5e1">${r.formato}</td>
+                  <td><span class="tab-badge" style="background:rgba(255,255,255,0.06); font-size:0.72rem">${r.pais}</span></td>
+                  <td style="text-align:right; font-family:monospace">${typeof r.cogs_u === 'number' ? r.cogs_u.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
+                  <td style="text-align:right; font-family:monospace; color:var(--muted)">${typeof r.planta_u === 'number' ? r.planta_u.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
+                  <td style="text-align:right; font-family:monospace; font-weight:700; color:#e2e8f0">${typeof r.coste_industrial_u === 'number' ? r.coste_industrial_u.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
+                  <td style="text-align:right; font-family:monospace; color:#94a3b8">${typeof r.extra_pyg_u === 'number' ? '+' + r.extra_pyg_u.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
+                  <td style="text-align:right; font-family:monospace; font-weight:800; color:#34d399">${typeof r.coste_completo_u === 'number' ? r.coste_completo_u.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
+                  <td style="text-align:right; font-family:monospace; color:${r.ref_industrial_anterior !== null ? '#fbbf24' : 'var(--muted)'}">${r.ref_industrial_anterior !== null ? r.ref_industrial_anterior.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- BLOQUE 3: NOMENCLATURA OFICIAL DE MÁRGENES + TRAZABILIDAD CECOs -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(380px, 1fr)); gap:1.25rem">
+        <div class="table-card" style="padding:1.25rem">
+          <h4 style="margin:0 0 0.75rem 0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.02rem">
+            📐 Nomenclatura Oficial de Márgenes (5 Niveles)
+          </h4>
+          <div style="display:flex; flex-direction:column; gap:0.55rem; font-size:0.82rem">
+            ${nom.map(n => `
+              <div style="background:rgba(15,23,42,0.75); border:1px solid var(--card-border); border-radius:var(--radius-sm); padding:0.65rem 0.85rem">
+                <div style="font-weight:800; color:#38bdf8">${n.nivel}</div>
+                <div style="color:#e2e8f0; margin-top:0.15rem"><code>${n.formula}</code></div>
+                <div style="color:var(--muted); font-size:0.77rem; margin-top:0.1rem">${n.uso}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="table-card" style="padding:1.25rem">
+          <h4 style="margin:0 0 0.75rem 0; font-family:'Outfit',sans-serif; color:#fff; font-size:1.02rem">
+            🏭 Trazabilidad CECOs Planta (Sep-26) y Parámetros Pendientes
+          </h4>
+          <div class="table-container" style="margin-bottom:0.9rem">
+            <table style="font-size:0.8rem">
+              <thead>
+                <tr>
+                  <th>CECO</th>
+                  <th style="text-align:right">Tarifa €/h</th>
+                  <th style="text-align:right">H. Reales / Nom.</th>
+                  <th style="text-align:right">Actividad</th>
+                  <th style="text-align:right">Subactividad</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${caps.map(cp => `
+                  <tr>
+                    <td style="font-weight:700; color:#fff">${cp.ceco} · ${cp.nombre.replace('Producción ', '')}</td>
+                    <td style="text-align:right; font-family:monospace; color:#38bdf8">${fmtEur(cp.tarifa_efectiva_hora)}</td>
+                    <td style="text-align:right">${cp.horas_reales} / ${cp.horas_nominales} h</td>
+                    <td style="text-align:right; color:#34d399">${fmtEur(cp.coste_actividad_eur)}</td>
+                    <td style="text-align:right; color:#fbbf24">${fmtEur(cp.coste_subactividad_eur)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          ${pend.map(p => `
+            <div style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.4); border-radius:var(--radius-sm); padding:0.65rem 0.85rem; margin-bottom:0.5rem; font-size:0.79rem">
+              <div style="font-weight:800; color:#fbbf24">⚠️ ${p.parametro} (${p.estado})</div>
+              <div style="color:#e2e8f0; margin-top:0.15rem">Actual: <strong>${p.valor_actual}</strong> · Alternativa: <strong>${p.alternativa_plantilla}</strong></div>
+              <div style="color:var(--muted); margin-top:0.1rem">${p.impacto_sep26}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFullCostSectionContent(section, fc, simCtx = {}) {
+  const {
+    meta = (fc && fc.metadata) || {},
+    simProcess: _simProcess = '120',
+    activeProcess = '120',
+    simFormat: _simFormat = '5L',
+    simMpCost: _simMpCost = 1.25,
+    simVolume: _simVolume = 1000,
+    simTargetMargin: _simTargetMargin = 66.0,
+    factorLitros = 5,
+    hSint = 0.001,
+    hEnv = 0.001667,
+    costeSintesisU = 0,
+    costeEnvasadoU = 0,
+    costeSintesisLote = 0,
+    costeEnvasadoLote = 0,
+    costeMpLote = 0,
+    costeEnvaseLote = 0,
+    costeTotalLote = 0,
+    costeUnitario = 0,
+    costeIndustrialLKg = 0,
+    extraPyGU = 0.5033,
+    extraPyGEnv = 0,
+    costeCompletoEnv = 0,
+    costeCompletoLKg = 0,
+    precioBreakeven = 0,
+    precioSugeridoRojo = 0,
+    precioSugeridoObjetivo = 0,
+    precioSugeridoExport = 0,
+    facturacionSim = 0,
+    beneficioBrutoSim = 0
+  } = simCtx || {};
+  const isMarginValid = !isNaN(_simTargetMargin) && _simTargetMargin < 100 && _simTargetMargin >= 0;
+  if (section === 'coste_completo') {
+    return renderFullcostCompletoSection(fc);
+  }
   if (section === 'clientes') {
     return renderFullcostClientesSection();
   }
@@ -2960,15 +3246,26 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
           </p>
 
           <div style="display:flex; flex-direction:column; gap:1rem">
-            <div>
-              <label style="display:block; font-size:0.8rem; font-weight:700; color:#cbd5e1; margin-bottom:0.35rem">Formato de Envase:</label>
-              <select onchange="handleSimParamChange('format', this.value)" style="width:100%; background:rgba(15,23,42,0.8); border:1px solid var(--card-border); border-radius:var(--radius-sm); color:#fff; padding:0.55rem 0.85rem; font-size:0.85rem;">
-                <option value="1L" ${simFormat === '1L' ? 'selected' : ''}>Botella 1 Litro (Cadencia 1.200 u/h)</option>
-                <option value="5L" ${simFormat === '5L' ? 'selected' : ''}>Garrafa 5 Litros (Cadencia 650 u/h)</option>
-                <option value="20L" ${simFormat === '20L' ? 'selected' : ''}>Bidón 20 Litros (Cadencia 240 u/h)</option>
-                <option value="1000L" ${simFormat === '1000L' ? 'selected' : ''}>Contenedor IBC 1.000 Litros (Granel)</option>
-                <option value="SOL_5KG" ${simFormat === 'SOL_5KG' ? 'selected' : ''}>Saco Sólido 5 kg (Cadencia 400 u/h)</option>
-              </select>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem">
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:#cbd5e1; margin-bottom:0.35rem">Proceso de Síntesis (CECO):</label>
+                <select onchange="handleSimParamChange('process', this.value)" style="width:100%; background:rgba(15,23,42,0.8); border:1px solid var(--card-border); border-radius:var(--radius-sm); color:#fff; padding:0.55rem 0.85rem; font-size:0.85rem;">
+                  <option value="110" ${simProcess === '110' ? 'selected' : ''}>CECO 110 · Alcaplant (${Number((meta && meta.tarifas_ceco_eur_h && meta.tarifas_ceco_eur_h['110']) ?? 72.03).toFixed(2).replace('.', ',')} €/h)</option>
+                  <option value="120" ${simProcess === '120' ? 'selected' : ''}>CECO 120 · Líquidos (${Number((meta && meta.tarifas_ceco_eur_h && meta.tarifas_ceco_eur_h['120']) ?? 51.22).toFixed(2).replace('.', ',')} €/h)</option>
+                  <option value="130" ${simProcess === '130' ? 'selected' : ''}>CECO 130 · Sólidos (${Number((meta && meta.tarifas_ceco_eur_h && meta.tarifas_ceco_eur_h['130']) ?? 162.26).toFixed(2).replace('.', ',')} €/h)</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:#cbd5e1; margin-bottom:0.35rem">Formato de Envase:</label>
+                <select onchange="handleSimParamChange('format', this.value)" style="width:100%; background:rgba(15,23,42,0.8); border:1px solid var(--card-border); border-radius:var(--radius-sm); color:#fff; padding:0.55rem 0.85rem; font-size:0.85rem;">
+                  <option value="1L" ${simFormat === '1L' ? 'selected' : ''}>Botella 1 Litro</option>
+                  <option value="5L" ${simFormat === '5L' ? 'selected' : ''}>Garrafa 5 Litros</option>
+                  <option value="20L" ${simFormat === '20L' ? 'selected' : ''}>Garrafa / Saco 20 L-kg</option>
+                  <option value="200L" ${simFormat === '200L' ? 'selected' : ''}>Bidón 200 Litros</option>
+                  <option value="1000L" ${simFormat === '1000L' ? 'selected' : ''}>Contenedor IBC 1.000 L / Big Bag</option>
+                  <option value="SOL_5KG" ${simFormat === 'SOL_5KG' ? 'selected' : ''}>Saco Sólido 5 kg (CECO 130)</option>
+                </select>
+              </div>
             </div>
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem">
@@ -3035,16 +3332,24 @@ function renderFullCostSectionContent(section, fc, simFormat, simMpCost, simVolu
               <strong style="color:#fff">${fmtEur(costeEnvaseLote / simVolume)}/ud</strong>
             </div>
             <div style="display:flex; justify-content:space-between; color:#cbd5e1">
-              <span>MOD Envasado (CECO 140):</span>
-              <strong style="color:#fff">${fmtEur(costeModLote / simVolume)}/ud</strong>
+              <span>Proceso Síntesis (CECO ${activeProcess} · ${(hSint * 1000).toFixed(2)} h/1000u):</span>
+              <strong style="color:#fff">${fmtEur(costeSintesisLote / simVolume)}/env <span style="color:#94a3b8; font-weight:400">(${costeSintesisU.toFixed(4).replace('.', ',')} €/u)</span></strong>
             </div>
             <div style="display:flex; justify-content:space-between; color:#cbd5e1">
-              <span>Costes Indirectos Fabriles (CIF):</span>
-              <strong style="color:#fff">${fmtEur(costeCifLote / simVolume)}/ud</strong>
+              <span>Envasado (CECO 140 · ${(hEnv * 1000).toFixed(2)} h/1000u):</span>
+              <strong style="color:#fff">${fmtEur(costeEnvasadoLote / simVolume)}/env <span style="color:#94a3b8; font-weight:400">(${costeEnvasadoU.toFixed(4).replace('.', ',')} €/u)</span></strong>
             </div>
             <div style="border-top:1px solid var(--card-border); margin-top:0.35rem; padding-top:0.45rem; display:flex; justify-content:space-between; font-weight:800; color:#38bdf8">
-              <span>COSTE INDUSTRIAL COMPLETO:</span>
-              <span>${fmtEur(costeUnitario)}/ud</span>
+              <span>COSTE INDUSTRIAL (COGS + PLANTA):</span>
+              <span>${fmtEur(costeUnitario)}/env <span style="font-weight:600; font-size:0.78rem">(${costeIndustrialLKg.toFixed(4).replace('.', ',')} €/L-kg)</span></span>
+            </div>
+            <div style="display:flex; justify-content:space-between; color:#94a3b8; font-size:0.8rem">
+              <span>+ Reparto medio PyG 2026 (${extraPyGU.toFixed(4).replace('.', ',')} €/L-kg × ${factorLitros} u):</span>
+              <strong style="color:#fbbf24">+${fmtEur(extraPyGEnv)}/env</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-weight:800; color:#34d399">
+              <span>COSTE COMPLETO CON REPARTO MEDIO PyG:</span>
+              <span>${fmtEur(costeCompletoEnv)}/env <span style="font-weight:600; font-size:0.78rem">(${costeCompletoLKg.toFixed(4).replace('.', ',')} €/L-kg)</span></span>
             </div>
           </div>
 

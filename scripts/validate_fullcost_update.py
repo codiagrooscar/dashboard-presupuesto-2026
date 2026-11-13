@@ -4696,6 +4696,156 @@ def main():
 
     coincidencia_rai = "COINCIDENTE (0,00 €)" if diff_recalc <= 0.01 else f"DESVIACIÓN ({diff_recalc:.2f} €)"
 
+    # Validaciones económicas bloqueantes del modelo Coste Completo 100% PyG y Cotizador Unificado
+    cc_2026 = fc.get("coste_completo_2026") or {}
+    if not cc_2026:
+        fail("Bloque 'coste_completo_2026' ausente en fullcost_data.json", last_date)
+    base_uds = _req_finite(cc_2026.get("base_unidades_2026"), "coste_completo_2026.base_unidades_2026")
+    tot_no_cogs = _req_finite(cc_2026.get("total_gastos_no_cogs_2026"), "coste_completo_2026.total_gastos_no_cogs_2026")
+    planta_anual = _req_finite(cc_2026.get("planta_anual_absorbida_2026"), "coste_completo_2026.planta_anual_absorbida_2026")
+    bolsa_pend = _req_finite(cc_2026.get("bolsa_pendiente_2026"), "coste_completo_2026.bolsa_pendiente_2026")
+    extra_exact = _req_finite(cc_2026.get("extra_por_unidad_exacto"), "coste_completo_2026.extra_por_unidad_exacto")
+    extra_round = _req_finite(cc_2026.get("extra_por_unidad"), "coste_completo_2026.extra_por_unidad")
+    recup_exact = _req_finite(cc_2026.get("recuperacion_anual_exacta"), "coste_completo_2026.recuperacion_anual_exacta")
+
+    if base_uds <= 0:
+        fail(f"base_unidades_2026 debe ser > 0 (actual: {base_uds})", last_date)
+    if abs((planta_anual + bolsa_pend) - tot_no_cogs) > 0.05:
+        fail(f"DESCUADRE PUENTE ANUAL 2026: planta ({planta_anual:.2f}) + bolsa ({bolsa_pend:.2f}) != total_gastos_no_cogs ({tot_no_cogs:.2f})", last_date)
+    if abs(extra_exact - (bolsa_pend / base_uds)) > 1e-6:
+        fail(f"DESCUADRE EXTRA EXACTO 2026: {extra_exact:.8f} != {bolsa_pend / base_uds:.8f}", last_date)
+    if abs(extra_round - round(extra_exact, 4)) > 1e-6:
+        fail(f"DESCUADRE EXTRA REDONDEADO 2026: {extra_round:.4f} != {round(extra_exact, 4):.4f}", last_date)
+    if abs(recup_exact - tot_no_cogs) > 0.05:
+        fail(f"DESCUADRE RECUPERACIÓN ANUAL EXACTA: {recup_exact:.2f} != {tot_no_cogs:.2f}", last_date)
+
+    cad_pr = ((fc.get("pricing") or {}).get("cadencias_produccion") or {})
+    for ck in ("h_sint_110", "h_sint_120", "h_sint_130", "h_env_1L", "h_env_5L", "h_env_20L", "h_env_200L", "h_env_1000L"):
+        if _req_finite(cad_pr.get(ck), f"pricing.cadencias_produccion.{ck}") <= 0:
+            fail(f"Cadencia inválida en pricing.cadencias_produccion.{ck}", last_date)
+
+    # Contraste cadencias contra trazabilidad_parametros (parámetros de origen)
+    cad_src_vals = None
+    for tp in (fc.get("trazabilidad_parametros") or []):
+        if isinstance(tp.get("valor"), dict) and "h_env_20L" in tp["valor"]:
+            cad_src_vals = tp["valor"]
+            break
+    if not cad_src_vals:
+        fail("No se encontró el parámetro de cadencias de origen en trazabilidad_parametros", last_date)
+    for ck in ("h_sint_110", "h_sint_120", "h_sint_130", "h_env_1L", "h_env_5L", "h_env_20L", "h_env_200L", "h_env_1000L"):
+        if abs(float(cad_pr[ck]) - float(cad_src_vals[ck])) > 1e-6:
+            fail(f"DESCUADRE CADENCIA {ck}: pricing={cad_pr[ck]} != origen={cad_src_vals[ck]}", last_date)
+
+    tar_meta = ((fc.get("metadata") or {}).get("tarifas_ceco_eur_h") or {})
+    caps_map = {str(c.get("ceco")): float(c.get("tarifa_eur_h", 0.0) or 0.0) for c in (fc.get("capacidades") or [])}
+    for ck in ("110", "120", "130", "140"):
+        t_m = _req_finite(tar_meta.get(ck), f"metadata.tarifas_ceco_eur_h.{ck}")
+        if ck in caps_map and abs(t_m - caps_map[ck]) > 0.02:
+            fail(f"DESCUADRE TARIFA CECO {ck}: metadata={t_m} != capacidades={caps_map[ck]}", last_date)
+
+    # Contraste presupuesto anual 2026 contra fuente PyG origen
+    pnl26_src = get_source(os.path.join("Gastos", "2026-Forecast-Codiagro P&L con octubre simulación.xlsx"))
+    if not os.path.exists(pnl26_src):
+        fail(f"Fuente presupuestaria anual PyG 2026 ausente: {pnl26_src}", last_date)
+    wb_p26 = openpyxl.load_workbook(pnl26_src, data_only=True, read_only=True)
+    ws_t26 = wb_p26["TABLA"]
+    t_map = {}
+    for rt in ws_t26.iter_rows(values_only=True):
+        lt = str(rt[1] or "").strip() if len(rt) > 1 else ""
+        vt = rt[14] if len(rt) > 14 else None
+        if lt and isinstance(vt, (int, float)):
+            t_map[lt] = abs(float(vt))
+    ws_pm26 = wb_p26["PL Mensual 2026"]
+    rap_s = pp_s = ett_s = 0.0
+    for rm in ws_pm26.iter_rows(values_only=True):
+        v23 = rm[22] if len(rm) > 22 else None
+        if not isinstance(v23, (int, float)):
+            continue
+        cs = str(rm[8] or "").strip() if len(rm) > 8 else ""
+        ep_m = str(rm[6] or "").strip() if len(rm) > 6 else ""
+        if cs.startswith("709"):
+            rap_s += abs(float(v23))
+        elif cs.startswith("706") and not ep_m.startswith("15.-"):
+            pp_s += abs(float(v23))
+        elif cs.startswith("607"):
+            ett_s += abs(float(v23))
+    wb_p26.close()
+    src_no_cogs = round(
+        t_map["6.- Gastos de personal"] + t_map["7.- Otros gastos de explotación"]
+        + t_map["8.- Amortización del inmovilizado"] + t_map["15.- Gastos financieros"]
+        + rap_s + pp_s + ett_s, 2
+    )
+    if abs(tot_no_cogs - src_no_cogs) > 0.05:
+        fail(f"DESCUADRE PRESUPUESTO PYG 2026 vs FUENTE: json={tot_no_cogs:.2f} != fuente={src_no_cogs:.2f}", last_date)
+
+    # Carga de escandallos maestros (Gastos/Costes SKU.xlsx) para validar COGS unitario
+    costes_sku_src = get_source(os.path.join("Gastos", "Costes SKU.xlsx"))
+    wb_csku = openpyxl.load_workbook(costes_sku_src, data_only=True, read_only=True)
+    ws_csku = wb_csku["Costes SKU"]
+    master_cogs_map = {}
+    for rc in ws_csku.iter_rows(min_row=5, values_only=True):
+        sk_c = str(rc[0]).strip().upper() if rc[0] else ""
+        if not sk_c:
+            continue
+        fm_v = float(rc[6] or 0)
+        pk_v = float(rc[7] or 0)
+        tm_v = float(rc[8] or 0)
+        master_cogs_map[sk_c] = round(tm_v if tm_v > 0 else (fm_v + pk_v), 4)
+    wb_csku.close()
+    eq_sku = {"A-50TR": "A-50BBTR", "SPCE20001CR": "SPCE0001CR", "SPCE20005CR": "SPCE0005CR", "A-50BB": "A-50BBTR", "AGXKAEP0001": "AGXKAE0001RO"}
+
+    for prod in fc.get("productos", []):
+        sku_p = str(prod.get("sku", "?")).strip().upper()
+        uds_p = float(prod.get("uds", 0.0) or 0.0)
+        mat_p = float(prod.get("cogs_materiales", 0.0) or 0.0)
+        pla_p = float(prod.get("coste_planta_fullcost", 0.0) or 0.0)
+        ind_u = prod.get("coste_industrial_u")
+        comp_u = prod.get("coste_completo_u")
+        if prod.get("coste_pendiente"):
+            if ind_u is not None or comp_u is not None:
+                fail(f"Producto {sku_p} marcado coste_pendiente=True pero tiene coste numérico ({ind_u}, {comp_u})", last_date)
+            continue
+        if ind_u is None or comp_u is None:
+            fail(f"Producto {sku_p} sin coste_pendiente pero con coste_industrial_u/coste_completo_u nulo", last_date)
+        ind_u_f = _req_finite(ind_u, f"productos[{sku_p}].coste_industrial_u")
+        comp_u_f = _req_finite(comp_u, f"productos[{sku_p}].coste_completo_u")
+        cogs_u = _req_finite(prod.get("cogs_u"), f"productos[{sku_p}].cogs_u")
+        planta_u = _req_finite(prod.get("planta_u"), f"productos[{sku_p}].planta_u")
+
+        # Contraste COGS maestro obligatorio usando sku_maestro_cogs registrado
+        sku_lk = str(prod.get("sku_maestro_cogs") or eq_sku.get(sku_p, sku_p)).strip().upper()
+        if sku_lk not in master_cogs_map or master_cogs_map[sku_lk] <= 0:
+            fail(f"SKU {sku_p} sin correspondencia validada en Costes SKU.xlsx (sku_maestro_cogs={sku_lk})", last_date)
+        if abs(cogs_u - master_cogs_map[sku_lk]) > 0.0002:
+            fail(f"DESCUADRE COGS MAESTRO SKU {sku_p} (maestro {sku_lk}): cogs_u={cogs_u} != Costes_SKU={master_cogs_map[sku_lk]}", last_date)
+
+        # Recálculo de planta_u desde cadencias + tarifas + ruta + formato
+        ruta_s = str(prod.get("ruta", ""))
+        fmt_s = str(prod.get("formato", ""))
+        c_proc = "110" if "110" in ruta_s else ("130" if "130" in ruta_s else "120")
+        k_env = "h_env_1000L" if "1000L" in fmt_s else ("h_env_200L" if "200L" in fmt_s else ("h_env_20L" if "20L" in fmt_s else ("h_env_1L" if "1L" in fmt_s else "h_env_5L")))
+        planta_exp = round(float(cad_pr[f"h_sint_{c_proc}"]) * float(tar_meta[c_proc]) + float(cad_pr[k_env]) * float(tar_meta["140"]), 4)
+        if abs(planta_u - planta_exp) > 0.0002:
+            fail(f"DESCUADRE PLANTA CADENCIA SKU {sku_p} (CECO {c_proc}, {k_env}): planta_u={planta_u} != esperado={planta_exp}", last_date)
+
+        if abs(ind_u_f - round(cogs_u + planta_u, 4)) > 0.0002:
+            fail(f"DESCUADRE INDUSTRIAL SKU {sku_p}: {ind_u_f} != cogs_u({cogs_u}) + planta_u({planta_u})", last_date)
+        if abs(comp_u_f - round(ind_u_f + extra_round, 4)) > 0.0002:
+            fail(f"DESCUADRE COMPLETO SKU {sku_p}: {comp_u_f} != ind({ind_u_f}) + extra({extra_round})", last_date)
+        if uds_p <= 0 and (abs(mat_p) > 0.01 or abs(pla_p) > 0.01) and ind_u_f <= 0:
+            fail(f"DEVOLUCIÓN CON COSTE FICTICIO CERO/NO POSITIVO en SKU {sku_p}: uds={uds_p}, ind_u={ind_u_f}", last_date)
+
+    for ref_it in (cc_2026.get("catalogo_espana_ref") or []):
+        if ref_it.get("coste_pendiente"):
+            continue
+        r_ind = _req_finite(ref_it.get("coste_industrial_u"), f"catalogo_espana_ref[{ref_it.get('sku')}].ind")
+        r_comp = _req_finite(ref_it.get("coste_completo_u"), f"catalogo_espana_ref[{ref_it.get('sku')}].comp")
+        if abs(r_comp - round(r_ind + extra_round, 4)) > 0.0002:
+            fail(f"DESCUADRE CATÁLOGO REF {ref_it.get('sku')}: {r_comp} != {r_ind} + {extra_round}", last_date)
+
+    print("   -> Validación económica bloqueante Coste Completo 100% PyG + Devoluciones + Cotizador + Maestros OK.")
+
+
 
 
     

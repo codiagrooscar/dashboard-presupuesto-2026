@@ -35,9 +35,32 @@ var fmtPct = window.fmtPct = window.fmtPct || function(val) {
     return (typeof currentLang !== 'undefined' && currentLang === 'en');
   }
 
+  function getCurrentScenario() {
+    if (typeof window.currentScenario !== 'undefined' && window.currentScenario) {
+      return window.currentScenario;
+    }
+    try {
+      const s = sessionStorage.getItem('codiagro_selected_scenario');
+      if (s) return s;
+    } catch (e) {}
+    return 'revisado';
+  }
+
   function getActiveDataset() {
     const raw = window.MARTA_TRACKING_DATA;
     if (!raw) return null;
+    const sc = getCurrentScenario();
+    const scData = (raw.scenarios && raw.scenarios[sc]) ? raw.scenarios[sc] : null;
+
+    if (scData) {
+      if (currentMode === 'euros' && scData.euros) {
+        return scData.euros;
+      }
+      if (scData.unidades) {
+        return scData.unidades;
+      }
+    }
+
     if (currentMode === 'euros' && raw.euros) {
       return raw.euros;
     }
@@ -362,18 +385,24 @@ var fmtPct = window.fmtPct = window.fmtPct || function(val) {
     const kpi2Badge = formatPct(pctVendido) + (isEn() ? ' ALREADY ACHIEVED' : ' YA CUMPLIDO');
     const kpi3Label = isEn() ? (isEur ? `Pending to Invoice (${pendPeriodName})` : `Pending to Sell (${pendPeriodName})`) : (isEur ? `Pendiente por Facturar (${pendPeriodName})` : `Pendiente por Vender (${pendPeriodName})`);
     const kpi3Sub = isEn() ? (isEur ? `${pendMonths} Revenue` : `${pendMonths} Volume`) : (isEur ? `Importe ${pendMonths}` : `Volumen ${pendMonths}`);
+    const sc = getCurrentScenario();
+    const isRev = sc === 'revisado';
+    const scBadge = isRev
+      ? `<span class="tab-badge badge-success" style="font-size:0.65rem; margin-left:0.4rem; vertical-align:middle;">🎯 ${isEn() ? 'Rev. Q4' : 'Prev. Q4'}</span>`
+      : `<span class="tab-badge badge-info" style="font-size:0.65rem; margin-left:0.4rem; vertical-align:middle;">🏢 ${isEn() ? 'Official' : 'Oficial'}</span>`;
+
     const prevNovDic = totales.prevision_nov_dic || 0;
     const cierreConPrev = totales.cierre_con_prevision || (realVendido + prevNovDic);
     const pctCierreConPrev = estTotal > 0 ? ((cierreConPrev / estTotal) * 100) : 0;
 
-    const kpi4Label = isEn() ? `Sales Rep Forecast (${pendPeriodName})` : `Previsión Comercial (${pendPeriodName})`;
+    const kpi4Label = (isEn() ? `Sales Rep Forecast (${pendPeriodName})` : `Previsión Comercial (${pendPeriodName})`) + scBadge;
     const kpi4Val = formatAmountCompact(prevNovDic);
     const kpi4Sub = isEn()
       ? `Year-End with Forecast: ${formatAmountCompact(cierreConPrev)} (${formatPct(pctCierreConPrev)})`
       : `Ventas a fin de año: ${formatAmountCompact(cierreConPrev)} (${formatPct(pctCierreConPrev)})`;
     const kpi4Tooltip = isEn()
-      ? `Commercial forecast for ${pendPeriodName}: ${formatAmount(prevNovDic)} | Projected 2026 Year-End: ${formatAmount(cierreConPrev)} (${formatPct(pctCierreConPrev)} of budget)`
-      : `Previsión de comerciales para ${pendPeriodName}: ${formatAmount(prevNovDic)} | Ventas a fin de año si se cumplen: ${formatAmount(cierreConPrev)} (${formatPct(pctCierreConPrev)} sobre presupuesto)`;
+      ? `Commercial forecast (${isRev ? 'Q4 Revised' : 'Official Budget'}) for ${pendPeriodName}: ${formatAmount(prevNovDic)} | Projected 2026 Year-End: ${formatAmount(cierreConPrev)} (${formatPct(pctCierreConPrev)} of budget)`
+      : `Previsión comercial (${isRev ? 'Revisión Q4' : 'Presupuesto Oficial'}) para ${pendPeriodName}: ${formatAmount(prevNovDic)} | Ventas a fin de año si se cumplen: ${formatAmount(cierreConPrev)} (${formatPct(pctCierreConPrev)} sobre presupuesto)`;
 
     const sectionThermometerTitle = isEn() ? `📊 Achievement Thermometer by Sales Rep (${unitName})` : `📊 Termómetro de Cumplimiento por Comercial (${unitName})`;
     const sectionHintText = isEn() ? 'Click on a sales rep to filter the table' : 'Haz clic en un comercial para filtrar la tabla';
@@ -735,4 +764,5 @@ var fmtPct = window.fmtPct = window.fmtPct || function(val) {
   };
 
   window.initMartaTracking = initMartaTracking;
+  window.renderTrackingDashboard = renderTrackingDashboard;
 })();

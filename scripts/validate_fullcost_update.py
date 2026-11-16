@@ -4399,7 +4399,7 @@ def main():
             return False
 
     latest_stock_disk = max([d for d in (_parse_campaign_src_date(f) for f in _glob.glob(get_source("Stock*.xlsx"))) if d is not None], default=None)
-    latest_orders_disk = max([d for d in (_parse_campaign_src_date(f) for f in _glob.glob(get_source("Pedidos *.xlsx"))) if d is not None], default=None)
+    latest_orders_disk = max([d for d in (_parse_campaign_src_date(f) for f in _glob.glob(get_source("Pedidos*.xlsx"))) if d is not None], default=None)
     meta = dir_prod.get("metadata") or {}
     if latest_stock_disk and meta.get("stock_source_date"):
         if meta["stock_source_date"] != latest_stock_disk.strftime("%Y-%m-%d"):

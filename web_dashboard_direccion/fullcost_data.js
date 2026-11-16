@@ -1102,8 +1102,8 @@ window.fullCostData = {
       "cogs_u": 1.1327,
       "planta_u": 0.5087,
       "coste_industrial_u": 1.6414,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.1447
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.1416
     },
     {
       "sku": "AGXK1000",
@@ -1126,8 +1126,8 @@ window.fullCostData = {
       "cogs_u": 0.8877,
       "planta_u": 0.1123,
       "coste_industrial_u": 1.0,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.5033
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.5002
     },
     {
       "sku": "AN0005",
@@ -1150,8 +1150,8 @@ window.fullCostData = {
       "cogs_u": 0.4595,
       "planta_u": 0.3779,
       "coste_industrial_u": 0.8374,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.3407
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.3376
     },
     {
       "sku": "AN0020",
@@ -1174,8 +1174,8 @@ window.fullCostData = {
       "cogs_u": 0.3672,
       "planta_u": 0.2392,
       "coste_industrial_u": 0.6064,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.1097
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.1066
     },
     {
       "sku": "PT0020",
@@ -1198,8 +1198,8 @@ window.fullCostData = {
       "cogs_u": 1.04,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.2584,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.7617
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.7586
     },
     {
       "sku": "AVAN0020",
@@ -1222,8 +1222,8 @@ window.fullCostData = {
       "cogs_u": 2.1357,
       "planta_u": 0.2184,
       "coste_industrial_u": 2.3541,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.8574
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.8543
     },
     {
       "sku": "FTK0005",
@@ -1246,8 +1246,8 @@ window.fullCostData = {
       "cogs_u": 0.9277,
       "planta_u": 0.3779,
       "coste_industrial_u": 1.3056,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.8089
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.8058
     },
     {
       "sku": "AGXK0200",
@@ -1270,8 +1270,8 @@ window.fullCostData = {
       "cogs_u": 0.9657,
       "planta_u": 0.143,
       "coste_industrial_u": 1.1087,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.612
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.6089
     },
     {
       "sku": "SS0001",
@@ -1294,8 +1294,8 @@ window.fullCostData = {
       "cogs_u": 1.0457,
       "planta_u": 1.0368,
       "coste_industrial_u": 2.0825,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.5858
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.5827
     },
     {
       "sku": "SPAR0001",
@@ -1318,8 +1318,8 @@ window.fullCostData = {
       "cogs_u": 4.6362,
       "planta_u": 0.8852,
       "coste_industrial_u": 5.5214,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 6.0247
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 6.0216
     },
     {
       "sku": "C-MB0005",
@@ -1342,8 +1342,8 @@ window.fullCostData = {
       "cogs_u": 3.6224,
       "planta_u": 0.3571,
       "coste_industrial_u": 3.9795,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 4.4828
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 4.4797
     },
     {
       "sku": "SPCE0001",
@@ -1366,8 +1366,8 @@ window.fullCostData = {
       "cogs_u": 6.1848,
       "planta_u": 0.8852,
       "coste_industrial_u": 7.07,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 7.5733
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 7.5702
     },
     {
       "sku": "NB1000",
@@ -1390,8 +1390,8 @@ window.fullCostData = {
       "cogs_u": 2.8796,
       "planta_u": 0.1123,
       "coste_industrial_u": 2.9919,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 3.4952
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 3.4921
     },
     {
       "sku": "FIORI1000",
@@ -1414,8 +1414,8 @@ window.fullCostData = {
       "cogs_u": 0.7636,
       "planta_u": 0.1123,
       "coste_industrial_u": 0.8759,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.3792
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.3761
     },
     {
       "sku": "PREZN0005",
@@ -1438,8 +1438,8 @@ window.fullCostData = {
       "cogs_u": 1.2153,
       "planta_u": 0.5087,
       "coste_industrial_u": 1.724,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.2273
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.2242
     },
     {
       "sku": "CPLUS0020",
@@ -1462,8 +1462,8 @@ window.fullCostData = {
       "cogs_u": 0.8517,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.0701,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.5734
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.5703
     },
     {
       "sku": "SS0020",
@@ -1486,8 +1486,8 @@ window.fullCostData = {
       "cogs_u": 0.9581,
       "planta_u": 0.37,
       "coste_industrial_u": 1.3281,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.8314
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.8283
     },
     {
       "sku": "BIO0020",
@@ -1510,8 +1510,8 @@ window.fullCostData = {
       "cogs_u": 0.807,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.0254,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.5287
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.5256
     },
     {
       "sku": "AGXCR1000",
@@ -1534,8 +1534,8 @@ window.fullCostData = {
       "cogs_u": 0.7922,
       "planta_u": 0.1123,
       "coste_industrial_u": 0.9045,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.4078
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.4047
     },
     {
       "sku": "WHITE0020",
@@ -1558,8 +1558,8 @@ window.fullCostData = {
       "cogs_u": 0.3774,
       "planta_u": 0.37,
       "coste_industrial_u": 0.7474,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.2507
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.2476
     },
     {
       "sku": "A-500001",
@@ -1582,8 +1582,8 @@ window.fullCostData = {
       "cogs_u": 1.8719,
       "planta_u": 1.0368,
       "coste_industrial_u": 2.9087,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 3.412
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 3.4089
     },
     {
       "sku": "ANAE0005",
@@ -1606,8 +1606,8 @@ window.fullCostData = {
       "cogs_u": 0.4639,
       "planta_u": 0.3779,
       "coste_industrial_u": 0.8418,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.3451
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.342
     },
     {
       "sku": "A-50(2)0005",
@@ -1630,8 +1630,8 @@ window.fullCostData = {
       "cogs_u": 1.7291,
       "planta_u": 0.5087,
       "coste_industrial_u": 2.2378,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.7411
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.738
     },
     {
       "sku": "C-CU1000",
@@ -1654,8 +1654,8 @@ window.fullCostData = {
       "cogs_u": 1.5953,
       "planta_u": 0.1123,
       "coste_industrial_u": 1.7076,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.2109
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.2078
     },
     {
       "sku": "SPCE0020",
@@ -1678,8 +1678,8 @@ window.fullCostData = {
       "cogs_u": 5.5272,
       "planta_u": 0.2184,
       "coste_industrial_u": 5.7456,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 6.2489
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 6.2458
     },
     {
       "sku": "CALCIO0005",
@@ -1702,8 +1702,8 @@ window.fullCostData = {
       "cogs_u": 1.2918,
       "planta_u": 0.5087,
       "coste_industrial_u": 1.8005,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.3038
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.3007
     },
     {
       "sku": "AGXK0020",
@@ -1726,8 +1726,8 @@ window.fullCostData = {
       "cogs_u": 1.0022,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.2206,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.7239
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.7208
     },
     {
       "sku": "JF0020",
@@ -1750,8 +1750,8 @@ window.fullCostData = {
       "cogs_u": 1.0222,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.2406,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.7439
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.7408
     },
     {
       "sku": "B1000",
@@ -1774,8 +1774,8 @@ window.fullCostData = {
       "cogs_u": 0.762,
       "planta_u": 0.1123,
       "coste_industrial_u": 0.8743,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.3776
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.3745
     },
     {
       "sku": "C-CU0001",
@@ -1798,8 +1798,8 @@ window.fullCostData = {
       "cogs_u": 2.379,
       "planta_u": 0.8852,
       "coste_industrial_u": 3.2642,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 3.7675
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 3.7644
     },
     {
       "sku": "PT0005",
@@ -1822,8 +1822,8 @@ window.fullCostData = {
       "cogs_u": 1.3177,
       "planta_u": 0.3571,
       "coste_industrial_u": 1.6748,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.1781
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.175
     },
     {
       "sku": "BIO0005",
@@ -1846,8 +1846,8 @@ window.fullCostData = {
       "cogs_u": 0.8991,
       "planta_u": 0.3571,
       "coste_industrial_u": 1.2562,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.7595
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.7564
     },
     {
       "sku": "C-L0020",
@@ -1870,8 +1870,8 @@ window.fullCostData = {
       "cogs_u": 1.9112,
       "planta_u": 0.2184,
       "coste_industrial_u": 2.1296,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.6329
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.6298
     },
     {
       "sku": "B0001",
@@ -1894,8 +1894,8 @@ window.fullCostData = {
       "cogs_u": 1.3984,
       "planta_u": 0.8852,
       "coste_industrial_u": 2.2836,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.7869
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.7838
     },
     {
       "sku": "S0020",
@@ -1918,8 +1918,8 @@ window.fullCostData = {
       "cogs_u": 0.5926,
       "planta_u": 0.2184,
       "coste_industrial_u": 0.811,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.3143
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.3112
     },
     {
       "sku": "C-L0001",
@@ -1942,8 +1942,8 @@ window.fullCostData = {
       "cogs_u": 2.4213,
       "planta_u": 0.8852,
       "coste_industrial_u": 3.3065,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 3.8098
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 3.8067
     },
     {
       "sku": "F-A1000",
@@ -1966,8 +1966,8 @@ window.fullCostData = {
       "cogs_u": 1.8546,
       "planta_u": 0.1123,
       "coste_industrial_u": 1.9669,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.4702
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.4671
     },
     {
       "sku": "AQUOMAR0005",
@@ -1990,8 +1990,8 @@ window.fullCostData = {
       "cogs_u": 2.2135,
       "planta_u": 0.3571,
       "coste_industrial_u": 2.5706,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 3.0739
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 3.0708
     },
     {
       "sku": "BROTA0020",
@@ -2014,8 +2014,8 @@ window.fullCostData = {
       "cogs_u": 1.2432,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.4616,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.9649
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.9618
     },
     {
       "sku": "SPCE2B0020",
@@ -2038,8 +2038,8 @@ window.fullCostData = {
       "cogs_u": 4.8327,
       "planta_u": 0.2184,
       "coste_industrial_u": 5.0511,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 5.5544
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 5.5513
     },
     {
       "sku": "C-CU0005",
@@ -2062,8 +2062,8 @@ window.fullCostData = {
       "cogs_u": 1.7932,
       "planta_u": 0.3571,
       "coste_industrial_u": 2.1503,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.6536
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.6505
     },
     {
       "sku": "AGXCR0001",
@@ -2086,8 +2086,8 @@ window.fullCostData = {
       "cogs_u": 1.4757,
       "planta_u": 0.8852,
       "coste_industrial_u": 2.3609,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.8642
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.8611
     },
     {
       "sku": "AVAN0001",
@@ -2110,8 +2110,8 @@ window.fullCostData = {
       "cogs_u": 2.8586,
       "planta_u": 0.8852,
       "coste_industrial_u": 3.7438,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 4.2471
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 4.244
     },
     {
       "sku": "AGMG0001",
@@ -2134,8 +2134,8 @@ window.fullCostData = {
       "cogs_u": 1.7644,
       "planta_u": 1.0368,
       "coste_industrial_u": 2.8012,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 3.3045
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 3.3014
     },
     {
       "sku": "CODIR1000",
@@ -2158,8 +2158,8 @@ window.fullCostData = {
       "cogs_u": 1.2075,
       "planta_u": 0.1123,
       "coste_industrial_u": 1.3198,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.8231
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.82
     },
     {
       "sku": "PT1000",
@@ -2182,8 +2182,8 @@ window.fullCostData = {
       "cogs_u": 0.8784,
       "planta_u": 0.1123,
       "coste_industrial_u": 0.9907,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.494
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.4909
     },
     {
       "sku": "PHD0005",
@@ -2206,8 +2206,8 @@ window.fullCostData = {
       "cogs_u": 1.3335,
       "planta_u": 0.3571,
       "coste_industrial_u": 1.6906,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.1939
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.1908
     },
     {
       "sku": "AQUOM0005",
@@ -2230,8 +2230,8 @@ window.fullCostData = {
       "cogs_u": 7.0299,
       "planta_u": 0.3571,
       "coste_industrial_u": 7.387,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 7.8903
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 7.8872
     },
     {
       "sku": "BIO0001",
@@ -2254,8 +2254,8 @@ window.fullCostData = {
       "cogs_u": 1.3433,
       "planta_u": 0.8852,
       "coste_industrial_u": 2.2285,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.7318
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.7287
     },
     {
       "sku": "BROTA0005",
@@ -2278,8 +2278,8 @@ window.fullCostData = {
       "cogs_u": 1.3232,
       "planta_u": 0.3571,
       "coste_industrial_u": 1.6803,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.1836
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.1805
     },
     {
       "sku": "C-MB0020",
@@ -2302,8 +2302,8 @@ window.fullCostData = {
       "cogs_u": 3.5563,
       "planta_u": 0.2184,
       "coste_industrial_u": 3.7747,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 4.278
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 4.2749
     },
     {
       "sku": "PIV0020",
@@ -2326,8 +2326,8 @@ window.fullCostData = {
       "cogs_u": 0.7351,
       "planta_u": 0.2184,
       "coste_industrial_u": 0.9535,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.4568
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.4537
     },
     {
       "sku": "AGZNP0005",
@@ -2350,8 +2350,8 @@ window.fullCostData = {
       "cogs_u": 2.5167,
       "planta_u": 0.5087,
       "coste_industrial_u": 3.0254,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 3.5287
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 3.5256
     },
     {
       "sku": "AQUOM0020",
@@ -2374,8 +2374,8 @@ window.fullCostData = {
       "cogs_u": 6.9402,
       "planta_u": 0.2184,
       "coste_industrial_u": 7.1586,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 7.6619
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 7.6588
     },
     {
       "sku": "AVAN0005",
@@ -2398,8 +2398,8 @@ window.fullCostData = {
       "cogs_u": 2.2184,
       "planta_u": 0.3571,
       "coste_industrial_u": 2.5755,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 3.0788
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 3.0757
     },
     {
       "sku": "PHD0020",
@@ -2422,8 +2422,8 @@ window.fullCostData = {
       "cogs_u": 1.2673,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.4857,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.989
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.9859
     },
     {
       "sku": "AGRMG0005",
@@ -2446,8 +2446,8 @@ window.fullCostData = {
       "cogs_u": 1.1116,
       "planta_u": 0.3571,
       "coste_industrial_u": 1.4687,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.972
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.9689
     },
     {
       "sku": "AGXKAEP0001",
@@ -2470,8 +2470,8 @@ window.fullCostData = {
       "cogs_u": 1.524,
       "planta_u": 0.8852,
       "coste_industrial_u": 2.4092,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.9125
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.9094
     },
     {
       "sku": "DECA0005",
@@ -2494,8 +2494,8 @@ window.fullCostData = {
       "cogs_u": 0.4945,
       "planta_u": 0.5087,
       "coste_industrial_u": 1.0032,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.5065
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.5034
     },
     {
       "sku": "PT0200",
@@ -2518,8 +2518,8 @@ window.fullCostData = {
       "cogs_u": 1.0035,
       "planta_u": 0.143,
       "coste_industrial_u": 1.1465,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.6498
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.6467
     },
     {
       "sku": "ANAE0020",
@@ -2542,8 +2542,8 @@ window.fullCostData = {
       "cogs_u": 0.3716,
       "planta_u": 0.2392,
       "coste_industrial_u": 0.6108,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.1141
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.111
     },
     {
       "sku": "C-L0005",
@@ -2566,8 +2566,8 @@ window.fullCostData = {
       "cogs_u": 1.9772,
       "planta_u": 0.3571,
       "coste_industrial_u": 2.3343,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.8376
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.8345
     },
     {
       "sku": "S1000",
@@ -2590,8 +2590,8 @@ window.fullCostData = {
       "cogs_u": 0.4781,
       "planta_u": 0.1123,
       "coste_industrial_u": 0.5904,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.0937
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.0906
     },
     {
       "sku": "P-5X0020RU",
@@ -2614,8 +2614,8 @@ window.fullCostData = {
       "cogs_u": 0.8409,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.0593,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.5626
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.5595
     },
     {
       "sku": "S0200",
@@ -2638,8 +2638,8 @@ window.fullCostData = {
       "cogs_u": 0.5561,
       "planta_u": 0.143,
       "coste_industrial_u": 0.6991,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.2024
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.1993
     },
     {
       "sku": "AGXCR0005",
@@ -2662,8 +2662,8 @@ window.fullCostData = {
       "cogs_u": 1.0315,
       "planta_u": 0.3571,
       "coste_industrial_u": 1.3886,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.8919
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.8888
     },
     {
       "sku": "SS0005",
@@ -2686,8 +2686,8 @@ window.fullCostData = {
       "cogs_u": 0.9774,
       "planta_u": 0.5087,
       "coste_industrial_u": 1.4861,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.9894
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.9863
     },
     {
       "sku": "TRI0005",
@@ -2710,8 +2710,8 @@ window.fullCostData = {
       "cogs_u": 1.6238,
       "planta_u": 0.3571,
       "coste_industrial_u": 1.9809,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.4842
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.4811
     },
     {
       "sku": "G30020",
@@ -2734,8 +2734,8 @@ window.fullCostData = {
       "cogs_u": 2.0091,
       "planta_u": 0.2184,
       "coste_industrial_u": 2.2275,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.7308
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.7277
     },
     {
       "sku": "A-50(2)0020",
@@ -2758,8 +2758,8 @@ window.fullCostData = {
       "cogs_u": 1.7173,
       "planta_u": 0.37,
       "coste_industrial_u": 2.0873,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.5906
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.5875
     },
     {
       "sku": "N0200",
@@ -2782,8 +2782,8 @@ window.fullCostData = {
       "cogs_u": 0.8416,
       "planta_u": 0.143,
       "coste_industrial_u": 0.9846,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.4879
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.4848
     },
     {
       "sku": "C-CU0020",
@@ -2806,8 +2806,8 @@ window.fullCostData = {
       "cogs_u": 1.7194,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.9378,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.4411
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.438
     },
     {
       "sku": "C-MB0001",
@@ -2830,8 +2830,8 @@ window.fullCostData = {
       "cogs_u": 4.0665,
       "planta_u": 0.8852,
       "coste_industrial_u": 4.9517,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 5.455
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 5.4519
     },
     {
       "sku": "JF0005",
@@ -2854,8 +2854,8 @@ window.fullCostData = {
       "cogs_u": 1.1067,
       "planta_u": 0.3571,
       "coste_industrial_u": 1.4638,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.9671
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.964
     },
     {
       "sku": "BEY0020",
@@ -2878,8 +2878,8 @@ window.fullCostData = {
       "cogs_u": 1.4921,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.7105,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.2138
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.2107
     },
     {
       "sku": "B0020",
@@ -2902,8 +2902,8 @@ window.fullCostData = {
       "cogs_u": 0.8882,
       "planta_u": 0.2184,
       "coste_industrial_u": 1.1066,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.6099
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.6068
     },
     {
       "sku": "SSAE0005",
@@ -2926,8 +2926,8 @@ window.fullCostData = {
       "cogs_u": 1.4477,
       "planta_u": 0.5087,
       "coste_industrial_u": 1.9564,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.4597
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.4566
     },
     {
       "sku": "PHD0001",
@@ -2950,8 +2950,8 @@ window.fullCostData = {
       "cogs_u": 1.9824,
       "planta_u": 0.8852,
       "coste_industrial_u": 2.8676,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 3.3709
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 3.3678
     },
     {
       "sku": "CM3M0005",
@@ -2974,8 +2974,8 @@ window.fullCostData = {
       "cogs_u": 1.9344,
       "planta_u": 0.3571,
       "coste_industrial_u": 2.2915,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.7948
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.7917
     },
     {
       "sku": "CALCIO0020",
@@ -2998,8 +2998,8 @@ window.fullCostData = {
       "cogs_u": 1.2756,
       "planta_u": 0.37,
       "coste_industrial_u": 1.6456,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.1489
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.1458
     },
     {
       "sku": "BR-590005",
@@ -3022,8 +3022,8 @@ window.fullCostData = {
       "cogs_u": 0.5035,
       "planta_u": 0.5087,
       "coste_industrial_u": 1.0122,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.5155
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.5124
     },
     {
       "sku": "B0005",
@@ -3046,8 +3046,8 @@ window.fullCostData = {
       "cogs_u": 0.9542,
       "planta_u": 0.3571,
       "coste_industrial_u": 1.3113,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 1.8146
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 1.8115
     },
     {
       "sku": "BROTA0001",
@@ -3070,8 +3070,8 @@ window.fullCostData = {
       "cogs_u": 1.9507,
       "planta_u": 0.8852,
       "coste_industrial_u": 2.8359,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 3.3392
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 3.3361
     },
     {
       "sku": "PT0001",
@@ -3094,8 +3094,8 @@ window.fullCostData = {
       "cogs_u": 1.5619,
       "planta_u": 0.8852,
       "coste_industrial_u": 2.4471,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.9504
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.9473
     },
     {
       "sku": "RUN0005",
@@ -3118,8 +3118,8 @@ window.fullCostData = {
       "cogs_u": 4.0262,
       "planta_u": 0.3571,
       "coste_industrial_u": 4.3833,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 4.8866
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 4.8835
     },
     {
       "sku": "F-MIX0020",
@@ -3142,8 +3142,8 @@ window.fullCostData = {
       "cogs_u": 1.9003,
       "planta_u": 0.2184,
       "coste_industrial_u": 2.1187,
-      "extra_pyg_u": 0.5033,
-      "coste_completo_u": 2.622
+      "extra_pyg_u": 0.5002,
+      "coste_completo_u": 2.6189
     }
   ],
   "comerciales": [
@@ -5096,7 +5096,7 @@ window.fullCostData = {
     "denominacion": "Coste completo con reparto medio presupuestario (100% PyG 2026)",
     "fuente_presupuestaria": {
       "archivo": "Gastos/2026-Forecast-Codiagro P&L con octubre simulación.xlsx",
-      "fecha_modificacion": "2026-11-11 13:01:53",
+      "fecha_modificacion": "2026-11-13 09:34:02",
       "periodo": "Ejercicio 2026 (Forecast 2026 con octubre simulación)",
       "hojas": [
         "TABLA (Col O: Total 2026)",
@@ -5117,14 +5117,14 @@ window.fullCostData = {
       "archivo_comisiones": "outputs/fullcost_septiembre_2026/Rappels Marta.xlsx (Resumen!D30)"
     },
     "base_unidades_2026": 5845036.0,
-    "total_gastos_no_cogs_2026": 4785102.07,
+    "total_gastos_no_cogs_2026": 4766910.72,
     "planta_anual_absorbida_2026": 1843281.96,
-    "bolsa_pendiente_2026": 2941820.11,
-    "extra_por_unidad_exacto": 0.50330231,
-    "extra_por_unidad": 0.5033,
-    "recuperacion_anual_exacta": 4785102.07,
-    "recuperacion_anual_redondeada": 4785088.58,
-    "diferencia_redondeo_anual": -13.49,
+    "bolsa_pendiente_2026": 2923628.76,
+    "extra_por_unidad_exacto": 0.50019003,
+    "extra_por_unidad": 0.5002,
+    "recuperacion_anual_exacta": 4766910.72,
+    "recuperacion_anual_redondeada": 4766968.97,
+    "diferencia_redondeo_anual": 58.25,
     "bloques": [
       {
         "concepto": "Rappels Comerciales",
@@ -5146,20 +5146,20 @@ window.fullCostData = {
       },
       {
         "concepto": "Portes / Transporte Ventas (bruto)",
-        "importe_anual": 443047.46,
-        "eur_u": 0.0758,
+        "importe_anual": 440602.92,
+        "eur_u": 0.0754,
         "cuenta": "624* (flete facturado aparte: 200.324 EUR)"
       },
       {
         "concepto": "Financieros + Pronto Pago + Bancos",
-        "importe_anual": 444157.29,
-        "eur_u": 0.076,
+        "importe_anual": 431626.58,
+        "eur_u": 0.0738,
         "cuenta": "706* + 626* + 662*/665*"
       },
       {
         "concepto": "Estructura + Subactividad Planta",
-        "importe_anual": 1176793.44,
-        "eur_u": 0.2013,
+        "importe_anual": 1173577.34,
+        "eur_u": 0.2008,
         "cuenta": "Admin, Gerencia, Mkt, Reg, I+D, Amort., ETT 607 y Subactividad"
       }
     ],
@@ -5173,8 +5173,8 @@ window.fullCostData = {
         "cogs_u": null,
         "planta_u": 0.8852,
         "coste_industrial_u": 1.899,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 2.4023,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 2.3992,
         "ref_industrial_anterior": null
       },
       {
@@ -5186,8 +5186,8 @@ window.fullCostData = {
         "cogs_u": 0.6703,
         "planta_u": 0.3571,
         "coste_industrial_u": 1.0274,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.5307,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.5276,
         "ref_industrial_anterior": null
       },
       {
@@ -5199,8 +5199,8 @@ window.fullCostData = {
         "cogs_u": 0.5926,
         "planta_u": 0.2184,
         "coste_industrial_u": 0.811,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.3143,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.3112,
         "ref_industrial_anterior": null
       },
       {
@@ -5212,8 +5212,8 @@ window.fullCostData = {
         "cogs_u": 0.5561,
         "planta_u": 0.143,
         "coste_industrial_u": 0.6991,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.2024,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.1993,
         "ref_industrial_anterior": null
       },
       {
@@ -5225,8 +5225,8 @@ window.fullCostData = {
         "cogs_u": 0.4781,
         "planta_u": 0.1123,
         "coste_industrial_u": 0.5904,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.0937,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.0906,
         "ref_industrial_anterior": null
       },
       {
@@ -5238,8 +5238,8 @@ window.fullCostData = {
         "cogs_u": 0.9774,
         "planta_u": 0.5087,
         "coste_industrial_u": 1.4861,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.9894,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.9863,
         "ref_industrial_anterior": null
       },
       {
@@ -5251,8 +5251,8 @@ window.fullCostData = {
         "cogs_u": 0.9581,
         "planta_u": 0.37,
         "coste_industrial_u": 1.3281,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.8314,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.8283,
         "ref_industrial_anterior": null
       },
       {
@@ -5264,8 +5264,8 @@ window.fullCostData = {
         "cogs_u": null,
         "planta_u": 0.2639,
         "coste_industrial_u": 1.3147,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.818,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.8149,
         "ref_industrial_anterior": null
       },
       {
@@ -5277,8 +5277,8 @@ window.fullCostData = {
         "cogs_u": 1.524,
         "planta_u": 0.8852,
         "coste_industrial_u": 2.3446,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 2.8479,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 2.8448,
         "ref_industrial_anterior": null
       },
       {
@@ -5290,8 +5290,8 @@ window.fullCostData = {
         "cogs_u": 1.0799,
         "planta_u": 0.3571,
         "coste_industrial_u": 1.437,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.9403,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.9372,
         "ref_industrial_anterior": null
       },
       {
@@ -5303,8 +5303,8 @@ window.fullCostData = {
         "cogs_u": 1.0022,
         "planta_u": 0.2184,
         "coste_industrial_u": 1.2206,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.7239,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.7208,
         "ref_industrial_anterior": null
       },
       {
@@ -5316,8 +5316,8 @@ window.fullCostData = {
         "cogs_u": 0.9657,
         "planta_u": 0.143,
         "coste_industrial_u": 1.1087,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.612,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.6089,
         "ref_industrial_anterior": null
       },
       {
@@ -5329,8 +5329,8 @@ window.fullCostData = {
         "cogs_u": 0.8877,
         "planta_u": 0.1123,
         "coste_industrial_u": 1.0,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.5033,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.5002,
         "ref_industrial_anterior": null
       },
       {
@@ -5342,8 +5342,8 @@ window.fullCostData = {
         "cogs_u": 0.3672,
         "planta_u": 0.2392,
         "coste_industrial_u": 0.6064,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.1097,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.1066,
         "ref_industrial_anterior": null
       },
       {
@@ -5355,8 +5355,8 @@ window.fullCostData = {
         "cogs_u": 0.4698,
         "planta_u": 0.5087,
         "coste_industrial_u": 0.9785,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.4818,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.4787,
         "ref_industrial_anterior": null
       },
       {
@@ -5368,8 +5368,8 @@ window.fullCostData = {
         "cogs_u": 0.3774,
         "planta_u": 0.37,
         "coste_industrial_u": 0.7474,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.2507,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.2476,
         "ref_industrial_anterior": null
       },
       {
@@ -5381,8 +5381,8 @@ window.fullCostData = {
         "cogs_u": 0.81,
         "planta_u": 0.2184,
         "coste_industrial_u": 1.0284,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.5317,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.5286,
         "ref_industrial_anterior": null
       },
       {
@@ -5394,8 +5394,8 @@ window.fullCostData = {
         "cogs_u": 1.3433,
         "planta_u": 0.8852,
         "coste_industrial_u": 2.2285,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 2.7318,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 2.7287,
         "ref_industrial_anterior": null
       },
       {
@@ -5407,8 +5407,8 @@ window.fullCostData = {
         "cogs_u": 0.8991,
         "planta_u": 0.3571,
         "coste_industrial_u": 1.2562,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.7595,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.7564,
         "ref_industrial_anterior": null
       },
       {
@@ -5420,8 +5420,8 @@ window.fullCostData = {
         "cogs_u": 0.807,
         "planta_u": 0.2184,
         "coste_industrial_u": 1.0254,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.5287,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.5256,
         "ref_industrial_anterior": null
       },
       {
@@ -5433,8 +5433,8 @@ window.fullCostData = {
         "cogs_u": 0.7831,
         "planta_u": 0.143,
         "coste_industrial_u": 0.9261,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.4294,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.4263,
         "ref_industrial_anterior": null
       },
       {
@@ -5446,8 +5446,8 @@ window.fullCostData = {
         "cogs_u": 0.7069,
         "planta_u": 0.1123,
         "coste_industrial_u": 0.8192,
-        "extra_pyg_u": 0.5033,
-        "coste_completo_u": 1.3225,
+        "extra_pyg_u": 0.5002,
+        "coste_completo_u": 1.3194,
         "ref_industrial_anterior": null
       }
     ]
@@ -5474,7 +5474,7 @@ window.fullCostData = {
       "uso": "Contribución neta tras logística real de cada cliente"
     },
     {
-      "nivel": "5. Coste Completo con Reparto Medio Presupuestario (+0.5033 EUR/u)",
+      "nivel": "5. Coste Completo con Reparto Medio Presupuestario (+0.5002 EUR/u)",
       "formula": "COGS + Planta + Reparto medio PyG 2026 (Rappels, Comis., Portes, Fin./PP, Estructura)",
       "uso": "Referencia de cobertura global (no sustituye condiciones individuales por cliente)"
     }

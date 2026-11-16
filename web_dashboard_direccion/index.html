@@ -3854,6 +3854,7 @@
       const savedScenario = sessionStorage.getItem('codiagro_selected_scenario');
       if (savedScenario) currentScenario = savedScenario;
     } catch (e) {}
+    window.currentScenario = currentScenario;
 
     function getEffectivePeriodData(periodId, scenarioKey) {
       if (!allPeriodsData || !allPeriodsData.periods[periodId]) return null;
@@ -3866,6 +3867,7 @@
 
     function switchScenario(scenarioKey) {
       currentScenario = scenarioKey;
+      window.currentScenario = scenarioKey;
       try { sessionStorage.setItem('codiagro_selected_scenario', scenarioKey); } catch (e) {}
 
       // Update UI buttons
@@ -3897,6 +3899,11 @@
       updateHeaderInfo();
       updateNavBadges();
       renderCurrentTab();
+
+      // Sincronizar Cierre 2026 Q4 (Marta) si está activo
+      if (typeof window.renderTrackingDashboard === 'function' && currentTab === 'tracking_marta') {
+        window.renderTrackingDashboard();
+      }
 
       const modalOverlay = document.getElementById('kpiModalOverlay');
       if (modalOverlay && modalOverlay.classList.contains('active')) {

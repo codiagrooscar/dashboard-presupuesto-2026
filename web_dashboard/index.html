@@ -2134,11 +2134,11 @@
         mrp_selected_count: "meses seleccionados",
         mrp_active_range: "Ventana activa:",
         
-        mrp_preset_n: "N (Oct 26)",
-        mrp_preset_n1: "N+1 (Oct-Nov)",
-        mrp_preset_n2: "N+2 (Oct-Dic 2026)",
-        mrp_preset_n5: "N+5 (Oct 26 - Mar 27)",
-        mrp_preset_rest_2026: "Resto 2026 (Oct-Dic)",
+        mrp_preset_n: "N (Nov 26)",
+        mrp_preset_n1: "N+1 (Nov-Dic)",
+        mrp_preset_n2: "N+2 (Nov-Dic-Ene 27)",
+        mrp_preset_n5: "N+5 (Nov 26 - Abr 27)",
+        mrp_preset_rest_2026: "Resto 2026 (Nov-Dic)",
         mrp_preset_q1_2027: "Q1 2027 (Ene-Mar)",
         mrp_preset_h1_2027: "1er Semestre 2027",
         mrp_preset_all_2027: "Todo 2027 (12 meses)",
@@ -2385,11 +2385,11 @@
         mrp_selected_count: "months selected",
         mrp_active_range: "Active window:",
         
-        mrp_preset_n: "N (Oct 26)",
-        mrp_preset_n1: "N+1 (Oct-Nov)",
-        mrp_preset_n2: "N+2 (Oct-Dec 2026)",
-        mrp_preset_n5: "N+5 (Oct 26 - Mar 27)",
-        mrp_preset_rest_2026: "Remainder 2026 (Oct-Dec)",
+        mrp_preset_n: "N (Nov 26)",
+        mrp_preset_n1: "N+1 (Nov-Dec)",
+        mrp_preset_n2: "N+2 (Nov-Dec-Jan 27)",
+        mrp_preset_n5: "N+5 (Nov 26 - Apr 27)",
+        mrp_preset_rest_2026: "Remainder 2026 (Nov-Dec)",
         mrp_preset_q1_2027: "Q1 2027 (Jan-Mar)",
         mrp_preset_h1_2027: "H1 2027 (Jan-Jun)",
         mrp_preset_all_2027: "Full 2027 (12 months)",
@@ -3352,7 +3352,7 @@
     // ESTADO Y LÓGICA: PLANIFICACIÓN DE LA PRODUCCIÓN (MRP)
     // ==========================================================
     let productionData = null;
-    let selectedMonths = new Set(['2026-10', '2026-11', '2026-12']); // Default N+2 (Oct + Nov + Dic 2026)
+    let selectedMonths = new Set(['2026-11', '2026-12', '2027-01']); // Default N+2 (Nov + Dic 2026 + Ene 2027)
     let activePreset = 'N2';
     let prodSubtab = 'mrp'; // 'mrp' (Hoja 1), 'granel' (Hoja 2), 'envase' (Hoja 3), 'rotacion' (Hoja 4)
     let prodViewMode = 'base'; // 'base' (Formulación/Envase Planta) o 'detail' (Por Destino)
@@ -3389,6 +3389,12 @@
         };
       } else {
         productionData = rawProductionPlanningData;
+      }
+      if (productionData && productionData.metadata && productionData.metadata.presets) {
+        const pKey = activePreset || 'N2';
+        if (productionData.metadata.presets[pKey] && (!selectedMonths || selectedMonths.size === 0 || selectedMonths.has('2026-10'))) {
+          selectedMonths = new Set(productionData.metadata.presets[pKey]);
+        }
       }
     }
 
@@ -4103,16 +4109,23 @@
       const { rows, totals } = computeProductionTableData();
       const meta = productionData.metadata;
 
+      const getPresetLabel = (key, fallbackKey) => {
+        if (meta && meta.preset_labels && meta.preset_labels[key]) {
+          return meta.preset_labels[key];
+        }
+        return t(fallbackKey);
+      };
+
       const presetButtons = [
-        { key: 'N', label: t('mrp_preset_n') },
-        { key: 'N1', label: t('mrp_preset_n1') },
-        { key: 'N2', label: '⭐ ' + t('mrp_preset_n2'), highlight: true },
-        { key: 'N5', label: '⭐ ' + t('mrp_preset_n5'), highlight: true },
-        { key: 'REST_2026', label: t('mrp_preset_rest_2026') },
-        { key: 'Q1_2027', label: t('mrp_preset_q1_2027') },
-        { key: 'H1_2027', label: t('mrp_preset_h1_2027') },
-        { key: 'ALL_2027', label: t('mrp_preset_all_2027') },
-        { key: 'ALL_15', label: t('mrp_preset_all_15') }
+        { key: 'N', label: getPresetLabel('N', 'mrp_preset_n') },
+        { key: 'N1', label: getPresetLabel('N1', 'mrp_preset_n1') },
+        { key: 'N2', label: '⭐ ' + getPresetLabel('N2', 'mrp_preset_n2'), highlight: true },
+        { key: 'N5', label: '⭐ ' + getPresetLabel('N5', 'mrp_preset_n5'), highlight: true },
+        { key: 'REST_2026', label: getPresetLabel('REST_2026', 'mrp_preset_rest_2026') },
+        { key: 'Q1_2027', label: getPresetLabel('Q1_2027', 'mrp_preset_q1_2027') },
+        { key: 'H1_2027', label: getPresetLabel('H1_2027', 'mrp_preset_h1_2027') },
+        { key: 'ALL_2027', label: getPresetLabel('ALL_2027', 'mrp_preset_all_2027') },
+        { key: 'ALL_15', label: getPresetLabel('ALL_15', 'mrp_preset_all_15') }
       ];
 
       let presetsHtml = presetButtons.map(p => `

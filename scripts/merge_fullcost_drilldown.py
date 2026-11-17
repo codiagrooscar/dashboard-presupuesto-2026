@@ -2337,25 +2337,57 @@ if os.path.exists(espana_xlsx):
                 continue
             sku_r = str(row_ref[idx_sku] or "").strip()
             desc_r = str(row_ref[3] or "").strip()
-            pais_r = str(row_ref[4] or "").strip()
-            ind_r = round(float(row_ref[idx_ind] or 0.0), 4)
-            comp_r = round(ind_r + EXTRA_PYG_UNITARIO_2026, 4)
+            pais_r = str(row_ref[4] or "").strip().upper()
+            raw_ind_val = row_ref[idx_ind]
+            ind_r = round(float(raw_ind_val), 4) if isinstance(raw_ind_val, (int, float)) else None
             c_ref_info = get_cogs(sku_r, pais_r, desc_r)
-            cogs_r = round(float(c_ref_info["cogs_medio"]), 4) if c_ref_info else None
             h_sr, c_sr, h_er, c_er, _, _, _ = get_ind_hours(sku_r, desc_r, c_ref_info["familia"] if c_ref_info else "")
             pl_r = round(h_sr * round(rate_by_ceco.get(c_sr, 0.0), 2) + h_er * round(rate_by_ceco.get(c_er, 0.0), 2), 4)
             ref_ant = row_ref[idx_ant] if idx_ant is not None and len(row_ref) > idx_ant and isinstance(row_ref[idx_ant], (int, float)) else None
+
+            exact_pais_ok = bool(c_ref_info and (c_ref_info["sku"] == sku_r.upper() or c_ref_info["pais"] == pais_r))
+            cogs_cand = round(float(c_ref_info["cogs_medio"]), 4) if c_ref_info else None
+            ind_calc = round(cogs_cand + pl_r, 4) if cogs_cand is not None else None
+            matches_excel = (ind_r is not None and ind_calc is not None and abs(ind_calc - ind_r) <= 0.0002)
+
+            if cogs_cand is not None and exact_pais_ok and matches_excel:
+                coste_pend = False
+                cogs_out = cogs_cand
+                ind_out = ind_calc
+                comp_out = round(ind_out + EXTRA_PYG_UNITARIO_2026, 4)
+                fuente_out = "Maestro Costes SKU.xlsx + Cadencias Planta"
+                motivo_pend = None
+                sku_m_out = c_ref_info["sku"]
+            else:
+                coste_pend = True
+                cogs_out = None
+                ind_out = None
+                comp_out = None
+                fuente_out = "Pendiente validación maestro España"
+                sku_m_out = c_ref_info["sku"] if c_ref_info else None
+                if not c_ref_info:
+                    motivo_pend = "Ausente en Costes SKU.xlsx"
+                elif not exact_pais_ok:
+                    motivo_pend = f"Solo variantes externas ({c_ref_info['sku']} / {c_ref_info['pais']}); pendiente escandallo España"
+                else:
+                    motivo_pend = f"Descuadre maestro ({ind_calc:.4f}) vs Excel España ({ind_r:.4f})"
+
             catalogo_espana_ref.append({
                 "producto": str(row_ref[0] or ""),
                 "sku": sku_r,
                 "formato": str(row_ref[2] or ""),
                 "desc": desc_r,
                 "pais": pais_r,
-                "cogs_u": cogs_r,
+                "coste_pendiente": coste_pend,
+                "sku_maestro_cogs": sku_m_out,
+                "fuente_coste": fuente_out,
+                "motivo_pendiente": motivo_pend,
+                "cogs_u": cogs_out,
                 "planta_u": pl_r,
-                "coste_industrial_u": ind_r,
+                "coste_industrial_u": ind_out,
                 "extra_pyg_u": EXTRA_PYG_UNITARIO_2026,
-                "coste_completo_u": comp_r,
+                "coste_completo_u": comp_out,
+                "ref_industrial_excel": ind_r,
                 "ref_industrial_anterior": round(float(ref_ant), 4) if ref_ant is not None else None,
             })
     wb_ref.close()

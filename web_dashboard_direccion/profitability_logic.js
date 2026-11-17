@@ -2781,7 +2781,7 @@ function renderFullcostCompletoSection(fc) {
                   <td style="text-align:right; font-family:monospace; color:var(--muted)">${typeof r.planta_u === 'number' ? r.planta_u.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
                   <td style="text-align:right; font-family:monospace; font-weight:700; color:#e2e8f0">${typeof r.coste_industrial_u === 'number' ? r.coste_industrial_u.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
                   <td style="text-align:right; font-family:monospace; color:#94a3b8">${typeof r.extra_pyg_u === 'number' ? '+' + r.extra_pyg_u.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
-                  <td style="text-align:right; font-family:monospace; font-weight:800; color:#34d399">${typeof r.coste_completo_u === 'number' ? r.coste_completo_u.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
+                  <td style="text-align:right; font-family:monospace; font-weight:800; color:${r.coste_pendiente ? '#fbbf24' : '#34d399'}" title="${r.motivo_pendiente || ''}">${r.coste_pendiente ? '<span class="tab-badge" style="background:rgba(245,158,11,0.18);color:#fbbf24;border:1px solid rgba(245,158,11,0.35);font-size:0.7rem">Pendiente maestro</span>' : (typeof r.coste_completo_u === 'number' ? r.coste_completo_u.toFixed(4).replace('.', ',') + ' €' : '—')}</td>
                   <td style="text-align:right; font-family:monospace; color:${r.ref_industrial_anterior !== null ? '#fbbf24' : 'var(--muted)'}">${r.ref_industrial_anterior !== null ? r.ref_industrial_anterior.toFixed(4).replace('.', ',') + ' €' : '—'}</td>
                 </tr>
               `).join('')}

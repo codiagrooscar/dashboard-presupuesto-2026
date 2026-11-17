@@ -4398,8 +4398,11 @@ def main():
         except ValueError:
             return False
 
-    latest_stock_disk = max([d for d in (_parse_campaign_src_date(f) for f in _glob.glob(get_source("Stock*.xlsx"))) if d is not None], default=None)
-    latest_orders_disk = max([d for d in (_parse_campaign_src_date(f) for f in _glob.glob(get_source("Pedidos*.xlsx"))) if d is not None], default=None)
+    app_web_dir = r"C:\Users\oscar.ocampo\OneDrive - Agroquímica Codiagro S.L\Escritorio\Estado de pedidos\Aplicacion web"
+    stock_globs = _glob.glob(get_source("Stock*.xlsx")) + _glob.glob(os.path.join(app_web_dir, "Stock*.xlsx"))
+    orders_globs = _glob.glob(get_source("Pedidos*.xlsx")) + _glob.glob(os.path.join(app_web_dir, "Pedidos*.xlsx"))
+    latest_stock_disk = max([d for d in (_parse_campaign_src_date(f) for f in stock_globs) if d is not None], default=None)
+    latest_orders_disk = max([d for d in (_parse_campaign_src_date(f) for f in orders_globs) if d is not None], default=None)
     meta = dir_prod.get("metadata") or {}
     if latest_stock_disk and meta.get("stock_source_date"):
         if meta["stock_source_date"] != latest_stock_disk.strftime("%Y-%m-%d"):
@@ -4710,6 +4713,19 @@ def main():
 
     if base_uds <= 0:
         fail(f"base_unidades_2026 debe ser > 0 (actual: {base_uds})", last_date)
+
+    # Contraste independiente del denominador base_unidades_2026 contra profitability_data.json
+    prof_path = get_dest(os.path.join("web_dashboard_direccion", "profitability_data.json"))
+    if not os.path.exists(prof_path):
+        prof_path = os.path.join("web_dashboard_direccion", "profitability_data.json")
+    if not os.path.exists(prof_path):
+        fail(f"Fuente de unidades anuales ausente para contrastar base_unidades_2026: {prof_path}", last_date)
+    with open(prof_path, "r", encoding="utf-8") as _fp:
+        _prof_d = json.load(_fp)
+    src_base_uds = round(sum(float(px.get("uds_2026") or 0.0) for px in (_prof_d.get("productos") or [])), 2)
+    if abs(base_uds - src_base_uds) > 0.05:
+        fail(f"DESCUADRE DENOMINADOR ANUAL 2026: base_unidades_2026={base_uds:.2f} != fuente_anual={src_base_uds:.2f}", last_date)
+
     if abs((planta_anual + bolsa_pend) - tot_no_cogs) > 0.05:
         fail(f"DESCUADRE PUENTE ANUAL 2026: planta ({planta_anual:.2f}) + bolsa ({bolsa_pend:.2f}) != total_gastos_no_cogs ({tot_no_cogs:.2f})", last_date)
     if abs(extra_exact - (bolsa_pend / base_uds)) > 1e-6:
@@ -4835,13 +4851,65 @@ def main():
         if uds_p <= 0 and (abs(mat_p) > 0.01 or abs(pla_p) > 0.01) and ind_u_f <= 0:
             fail(f"DEVOLUCIÓN CON COSTE FICTICIO CERO/NO POSITIVO en SKU {sku_p}: uds={uds_p}, ind_u={ind_u_f}", last_date)
 
-    for ref_it in (cc_2026.get("catalogo_espana_ref") or []):
+    cat_ref = cc_2026.get("catalogo_espana_ref") or []
+    espana_src = get_source("Costes_Completos_Salwax_Agroxilato_Espana.xlsx")
+    if not os.path.exists(espana_src):
+        fail(f"Fuente de catálogo ausente: {espana_src}", last_date)
+    wb_esp = openpyxl.load_workbook(espana_src, data_only=True, read_only=True)
+    ws_esp = wb_esp["Salwax y Agroxilato España"]
+    expected_cat_skus = [str(rr[1]).strip().upper() for rr in ws_esp.iter_rows(min_row=4, values_only=True) if rr and rr[1]]
+    wb_esp.close()
+    if len(cat_ref) < len(expected_cat_skus) or len(cat_ref) == 0:
+        fail(f"CATÁLOGO INCOMPLETO O ELIMINADO: catalogo_espana_ref={len(cat_ref)} < esperado={len(expected_cat_skus)}", last_date)
+    actual_cat_skus = [str(it.get("sku", "")).strip().upper() for it in cat_ref]
+    if len(actual_cat_skus) != len(set(actual_cat_skus)):
+        fail(f"SKUs DUPLICADOS EN CATÁLOGO: {actual_cat_skus}", last_date)
+    if set(actual_cat_skus) != set(expected_cat_skus):
+        fail(f"DESCUADRE SKUs CATÁLOGO vs EXCEL: faltan={set(expected_cat_skus)-set(actual_cat_skus)}, sobran={set(actual_cat_skus)-set(expected_cat_skus)}", last_date)
+
+    for ref_it in cat_ref:
+        r_sku = str(ref_it.get("sku", "?")).strip().upper()
         if ref_it.get("coste_pendiente"):
+            if ref_it.get("coste_industrial_u") is not None or ref_it.get("coste_completo_u") is not None:
+                fail(f"Catálogo SKU {r_sku} marcado coste_pendiente=True pero con coste numérico", last_date)
             continue
-        r_ind = _req_finite(ref_it.get("coste_industrial_u"), f"catalogo_espana_ref[{ref_it.get('sku')}].ind")
-        r_comp = _req_finite(ref_it.get("coste_completo_u"), f"catalogo_espana_ref[{ref_it.get('sku')}].comp")
+        r_cogs = _req_finite(ref_it.get("cogs_u"), f"catalogo_espana_ref[{r_sku}].cogs_u")
+        r_planta = _req_finite(ref_it.get("planta_u"), f"catalogo_espana_ref[{r_sku}].planta_u")
+        r_ind = _req_finite(ref_it.get("coste_industrial_u"), f"catalogo_espana_ref[{r_sku}].ind")
+        r_comp = _req_finite(ref_it.get("coste_completo_u"), f"catalogo_espana_ref[{r_sku}].comp")
+        r_lk = str(ref_it.get("sku_maestro_cogs") or eq_sku.get(r_sku, r_sku)).strip().upper()
+        if r_lk not in master_cogs_map or master_cogs_map[r_lk] <= 0:
+            fail(f"Catálogo SKU {r_sku} sin correspondencia validada en Costes SKU.xlsx ({r_lk})", last_date)
+        if abs(r_cogs - master_cogs_map[r_lk]) > 0.0002:
+            fail(f"DESCUADRE COGS MAESTRO CATÁLOGO SKU {r_sku} ({r_lk}): {r_cogs} != {master_cogs_map[r_lk]}", last_date)
+
+        # Recálculo independiente de planta_u del catálogo según ruta + formato + cadencias + tarifas
+        r_fmt = str(ref_it.get("formato", "")).upper()
+        r_desc = str(ref_it.get("desc", "")).upper()
+        if any(k in r_desc for k in ("ALCAPLANT", "FLOW")) or r_sku.startswith(("AN", "AO", "FTK")):
+            r_cproc = "110"
+        elif r_sku.startswith(("SS", "WHITE", "A-50", "W33")) or any(k in r_fmt for k in ("KG", "BIG BAG")):
+            r_cproc = "130"
+        else:
+            r_cproc = "120"
+        if any(k in r_fmt for k in ("1000", "BIG BAG", "GRANEL")):
+            r_kenv = "h_env_1000L"
+        elif "200" in r_fmt:
+            r_kenv = "h_env_200L"
+        elif "20" in r_fmt:
+            r_kenv = "h_env_20L"
+        elif "1 L" in r_fmt or "1L" in r_fmt or "1 KG" in r_fmt:
+            r_kenv = "h_env_1L"
+        else:
+            r_kenv = "h_env_5L"
+        r_planta_exp = round(float(cad_pr[f"h_sint_{r_cproc}"]) * float(tar_meta[r_cproc]) + float(cad_pr[r_kenv]) * float(tar_meta["140"]), 4)
+        if abs(r_planta - r_planta_exp) > 0.0002:
+            fail(f"DESCUADRE PLANTA CADENCIA CATÁLOGO SKU {r_sku} (CECO {r_cproc}, {r_kenv}): planta_u={r_planta} != esperado={r_planta_exp}", last_date)
+
+        if abs(r_ind - round(r_cogs + r_planta, 4)) > 0.0002:
+            fail(f"DESCUADRE INDUSTRIAL CATÁLOGO SKU {r_sku}: {r_ind} != cogs({r_cogs}) + planta({r_planta})", last_date)
         if abs(r_comp - round(r_ind + extra_round, 4)) > 0.0002:
-            fail(f"DESCUADRE CATÁLOGO REF {ref_it.get('sku')}: {r_comp} != {r_ind} + {extra_round}", last_date)
+            fail(f"DESCUADRE CATÁLOGO REF {r_sku}: {r_comp} != {r_ind} + {extra_round}", last_date)
 
     print("   -> Validación económica bloqueante Coste Completo 100% PyG + Devoluciones + Cotizador + Maestros OK.")
 

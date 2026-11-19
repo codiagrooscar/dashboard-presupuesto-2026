@@ -25,9 +25,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_oct_dic": 722533.34,
             "pct_vendido": 87.5,
             "crec_nec_oct_pct": 77.6,
-            "prevision_nov_dic": 857254.0,
-            "cierre_con_prevision": 5903239.0,
-            "pct_cierre_con_prevision": 102.3
+            "prevision_nov_dic": 873598.0,
+            "cierre_con_prevision": 5919583.0,
+            "pct_cierre_con_prevision": 102.6
           },
           "conteos_valoracion": {
             "Ya cumplido": 37,
@@ -140,9 +140,9 @@ window.MARTA_TRACKING_DATA = {
             "ventas_2025_resto": 3440.0,
             "ventas_2026_real": 517213.0,
             "pendiente_cierre": 97576.61,
-            "prevision_nov_dic": 103520.0,
-            "cierre_con_prevision": 620733.0,
-            "pct_cierre_con_prevision": 101.0
+            "prevision_nov_dic": 119864.0,
+            "cierre_con_prevision": 637077.0,
+            "pct_cierre_con_prevision": 103.6
           },
           {
             "comercial": "Pedro",
@@ -1802,9 +1802,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_cierre": 16042.77,
             "corte_periodo": 10,
             "corte_mes": "Octubre",
-            "prevision_nov_dic": 19920.0,
-            "cierre_con_prevision": 281395.0,
-            "pct_cierre_con_prevision": 101.4
+            "prevision_nov_dic": 21008.0,
+            "cierre_con_prevision": 282483.0,
+            "pct_cierre_con_prevision": 101.8
           },
           {
             "comercial": "Mehmet",
@@ -1827,9 +1827,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_cierre": 42185.83,
             "corte_periodo": 10,
             "corte_mes": "Octubre",
-            "prevision_nov_dic": 0.0,
-            "cierre_con_prevision": 0.0,
-            "pct_cierre_con_prevision": 0.0
+            "prevision_nov_dic": 57000.0,
+            "cierre_con_prevision": 57000.0,
+            "pct_cierre_con_prevision": 135.1
           },
           {
             "comercial": "Mehmet",
@@ -1852,9 +1852,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_cierre": 6333.9,
             "corte_periodo": 10,
             "corte_mes": "Octubre",
-            "prevision_nov_dic": 6760.0,
-            "cierre_con_prevision": 13870.0,
-            "pct_cierre_con_prevision": 103.2
+            "prevision_nov_dic": 0.0,
+            "cierre_con_prevision": 7110.0,
+            "pct_cierre_con_prevision": 52.9
           },
           {
             "comercial": "Mehmet",
@@ -1877,9 +1877,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_cierre": 43976.8,
             "corte_periodo": 10,
             "corte_mes": "Octubre",
-            "prevision_nov_dic": 46840.0,
-            "cierre_con_prevision": 86540.0,
-            "pct_cierre_con_prevision": 103.4
+            "prevision_nov_dic": 41856.0,
+            "cierre_con_prevision": 81556.0,
+            "pct_cierre_con_prevision": 97.5
           },
           {
             "comercial": "Mehmet",
@@ -1902,9 +1902,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_cierre": -10962.69,
             "corte_periodo": 10,
             "corte_mes": "Octubre",
-            "prevision_nov_dic": 30000.0,
-            "cierre_con_prevision": 238928.0,
-            "pct_cierre_con_prevision": 120.7
+            "prevision_nov_dic": 0.0,
+            "cierre_con_prevision": 208928.0,
+            "pct_cierre_con_prevision": 105.5
           },
           {
             "comercial": "Pedro",
@@ -3080,9 +3080,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_oct_dic": 2232302.37,
             "pct_vendido": 85.3,
             "crec_nec_oct_pct": 79.3,
-            "prevision_nov_dic": 2080969.81,
-            "cierre_con_prevision": 15028667.41,
-            "pct_cierre_con_prevision": 99.0
+            "prevision_nov_dic": 2104838.75,
+            "cierre_con_prevision": 15052536.35,
+            "pct_cierre_con_prevision": 99.2
           },
           "conteos_valoracion": {
             "Ya cumplido": 39,
@@ -3196,9 +3196,9 @@ window.MARTA_TRACKING_DATA = {
             "ventas_2025_resto": 20005.1,
             "ventas_2026_real": 1450490.81,
             "pendiente_cierre": 353759.14,
-            "prevision_nov_dic": 332129.43,
-            "cierre_con_prevision": 1782620.24,
-            "pct_cierre_con_prevision": 98.8
+            "prevision_nov_dic": 355998.37,
+            "cierre_con_prevision": 1806489.18,
+            "pct_cierre_con_prevision": 100.1
           },
           {
             "comercial": "Pedro",
@@ -4858,9 +4858,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_cierre": 103437.17,
             "corte_periodo": 10,
             "corte_mes": "Octubre",
-            "prevision_nov_dic": 88527.36,
-            "cierre_con_prevision": 908211.01,
-            "pct_cierre_con_prevision": 98.4
+            "prevision_nov_dic": 86338.67,
+            "cierre_con_prevision": 906022.32,
+            "pct_cierre_con_prevision": 98.1
           },
           {
             "comercial": "Mehmet",
@@ -4883,9 +4883,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_cierre": 92074.13,
             "corte_periodo": 10,
             "corte_mes": "Octubre",
-            "prevision_nov_dic": 0.0,
-            "cierre_con_prevision": 0.0,
-            "pct_cierre_con_prevision": 0.0
+            "prevision_nov_dic": 132280.0,
+            "cierre_con_prevision": 132280.0,
+            "pct_cierre_con_prevision": 143.7
           },
           {
             "comercial": "Mehmet",
@@ -4908,9 +4908,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_cierre": 28688.54,
             "corte_periodo": 10,
             "corte_mes": "Octubre",
-            "prevision_nov_dic": 29186.67,
-            "cierre_con_prevision": 58522.51,
-            "pct_cierre_con_prevision": 100.9
+            "prevision_nov_dic": 0.0,
+            "cierre_con_prevision": 29335.84,
+            "pct_cierre_con_prevision": 50.6
           },
           {
             "comercial": "Mehmet",
@@ -4933,9 +4933,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_cierre": 138508.8,
             "corte_periodo": 10,
             "corte_mes": "Octubre",
-            "prevision_nov_dic": 139010.4,
-            "cierre_con_prevision": 251421.72,
-            "pct_cierre_con_prevision": 100.2
+            "prevision_nov_dic": 137379.7,
+            "cierre_con_prevision": 249791.02,
+            "pct_cierre_con_prevision": 99.6
           },
           {
             "comercial": "Mehmet",
@@ -4958,9 +4958,9 @@ window.MARTA_TRACKING_DATA = {
             "pendiente_cierre": -8949.5,
             "corte_periodo": 10,
             "corte_mes": "Octubre",
-            "prevision_nov_dic": 75405.0,
-            "cierre_con_prevision": 564465.0,
-            "pct_cierre_con_prevision": 117.6
+            "prevision_nov_dic": 0.0,
+            "cierre_con_prevision": 489060.0,
+            "pct_cierre_con_prevision": 101.9
           },
           {
             "comercial": "Pedro",
@@ -12251,9 +12251,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_oct_dic": 722533.34,
         "pct_vendido": 87.5,
         "crec_nec_oct_pct": 77.6,
-        "prevision_nov_dic": 857254.0,
-        "cierre_con_prevision": 5903239.0,
-        "pct_cierre_con_prevision": 102.3
+        "prevision_nov_dic": 873598.0,
+        "cierre_con_prevision": 5919583.0,
+        "pct_cierre_con_prevision": 102.6
       },
       "conteos_valoracion": {
         "Ya cumplido": 37,
@@ -12366,9 +12366,9 @@ window.MARTA_TRACKING_DATA = {
         "ventas_2025_resto": 3440.0,
         "ventas_2026_real": 517213.0,
         "pendiente_cierre": 97576.61,
-        "prevision_nov_dic": 103520.0,
-        "cierre_con_prevision": 620733.0,
-        "pct_cierre_con_prevision": 101.0
+        "prevision_nov_dic": 119864.0,
+        "cierre_con_prevision": 637077.0,
+        "pct_cierre_con_prevision": 103.6
       },
       {
         "comercial": "Pedro",
@@ -14028,9 +14028,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_cierre": 16042.77,
         "corte_periodo": 10,
         "corte_mes": "Octubre",
-        "prevision_nov_dic": 19920.0,
-        "cierre_con_prevision": 281395.0,
-        "pct_cierre_con_prevision": 101.4
+        "prevision_nov_dic": 21008.0,
+        "cierre_con_prevision": 282483.0,
+        "pct_cierre_con_prevision": 101.8
       },
       {
         "comercial": "Mehmet",
@@ -14053,9 +14053,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_cierre": 42185.83,
         "corte_periodo": 10,
         "corte_mes": "Octubre",
-        "prevision_nov_dic": 0.0,
-        "cierre_con_prevision": 0.0,
-        "pct_cierre_con_prevision": 0.0
+        "prevision_nov_dic": 57000.0,
+        "cierre_con_prevision": 57000.0,
+        "pct_cierre_con_prevision": 135.1
       },
       {
         "comercial": "Mehmet",
@@ -14078,9 +14078,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_cierre": 6333.9,
         "corte_periodo": 10,
         "corte_mes": "Octubre",
-        "prevision_nov_dic": 6760.0,
-        "cierre_con_prevision": 13870.0,
-        "pct_cierre_con_prevision": 103.2
+        "prevision_nov_dic": 0.0,
+        "cierre_con_prevision": 7110.0,
+        "pct_cierre_con_prevision": 52.9
       },
       {
         "comercial": "Mehmet",
@@ -14103,9 +14103,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_cierre": 43976.8,
         "corte_periodo": 10,
         "corte_mes": "Octubre",
-        "prevision_nov_dic": 46840.0,
-        "cierre_con_prevision": 86540.0,
-        "pct_cierre_con_prevision": 103.4
+        "prevision_nov_dic": 41856.0,
+        "cierre_con_prevision": 81556.0,
+        "pct_cierre_con_prevision": 97.5
       },
       {
         "comercial": "Mehmet",
@@ -14128,9 +14128,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_cierre": -10962.69,
         "corte_periodo": 10,
         "corte_mes": "Octubre",
-        "prevision_nov_dic": 30000.0,
-        "cierre_con_prevision": 238928.0,
-        "pct_cierre_con_prevision": 120.7
+        "prevision_nov_dic": 0.0,
+        "cierre_con_prevision": 208928.0,
+        "pct_cierre_con_prevision": 105.5
       },
       {
         "comercial": "Pedro",
@@ -15306,9 +15306,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_oct_dic": 2232302.37,
         "pct_vendido": 85.3,
         "crec_nec_oct_pct": 79.3,
-        "prevision_nov_dic": 2080969.81,
-        "cierre_con_prevision": 15028667.41,
-        "pct_cierre_con_prevision": 99.0
+        "prevision_nov_dic": 2104838.75,
+        "cierre_con_prevision": 15052536.35,
+        "pct_cierre_con_prevision": 99.2
       },
       "conteos_valoracion": {
         "Ya cumplido": 39,
@@ -15422,9 +15422,9 @@ window.MARTA_TRACKING_DATA = {
         "ventas_2025_resto": 20005.1,
         "ventas_2026_real": 1450490.81,
         "pendiente_cierre": 353759.14,
-        "prevision_nov_dic": 332129.43,
-        "cierre_con_prevision": 1782620.24,
-        "pct_cierre_con_prevision": 98.8
+        "prevision_nov_dic": 355998.37,
+        "cierre_con_prevision": 1806489.18,
+        "pct_cierre_con_prevision": 100.1
       },
       {
         "comercial": "Pedro",
@@ -17084,9 +17084,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_cierre": 103437.17,
         "corte_periodo": 10,
         "corte_mes": "Octubre",
-        "prevision_nov_dic": 88527.36,
-        "cierre_con_prevision": 908211.01,
-        "pct_cierre_con_prevision": 98.4
+        "prevision_nov_dic": 86338.67,
+        "cierre_con_prevision": 906022.32,
+        "pct_cierre_con_prevision": 98.1
       },
       {
         "comercial": "Mehmet",
@@ -17109,9 +17109,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_cierre": 92074.13,
         "corte_periodo": 10,
         "corte_mes": "Octubre",
-        "prevision_nov_dic": 0.0,
-        "cierre_con_prevision": 0.0,
-        "pct_cierre_con_prevision": 0.0
+        "prevision_nov_dic": 132280.0,
+        "cierre_con_prevision": 132280.0,
+        "pct_cierre_con_prevision": 143.7
       },
       {
         "comercial": "Mehmet",
@@ -17134,9 +17134,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_cierre": 28688.54,
         "corte_periodo": 10,
         "corte_mes": "Octubre",
-        "prevision_nov_dic": 29186.67,
-        "cierre_con_prevision": 58522.51,
-        "pct_cierre_con_prevision": 100.9
+        "prevision_nov_dic": 0.0,
+        "cierre_con_prevision": 29335.84,
+        "pct_cierre_con_prevision": 50.6
       },
       {
         "comercial": "Mehmet",
@@ -17159,9 +17159,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_cierre": 138508.8,
         "corte_periodo": 10,
         "corte_mes": "Octubre",
-        "prevision_nov_dic": 139010.4,
-        "cierre_con_prevision": 251421.72,
-        "pct_cierre_con_prevision": 100.2
+        "prevision_nov_dic": 137379.7,
+        "cierre_con_prevision": 249791.02,
+        "pct_cierre_con_prevision": 99.6
       },
       {
         "comercial": "Mehmet",
@@ -17184,9 +17184,9 @@ window.MARTA_TRACKING_DATA = {
         "pendiente_cierre": -8949.5,
         "corte_periodo": 10,
         "corte_mes": "Octubre",
-        "prevision_nov_dic": 75405.0,
-        "cierre_con_prevision": 564465.0,
-        "pct_cierre_con_prevision": 117.6
+        "prevision_nov_dic": 0.0,
+        "cierre_con_prevision": 489060.0,
+        "pct_cierre_con_prevision": 101.9
       },
       {
         "comercial": "Pedro",
@@ -18361,9 +18361,9 @@ window.MARTA_TRACKING_DATA = {
       "pendiente_oct_dic": 722533.34,
       "pct_vendido": 87.5,
       "crec_nec_oct_pct": 77.6,
-      "prevision_nov_dic": 857254.0,
-      "cierre_con_prevision": 5903239.0,
-      "pct_cierre_con_prevision": 102.3
+      "prevision_nov_dic": 873598.0,
+      "cierre_con_prevision": 5919583.0,
+      "pct_cierre_con_prevision": 102.6
     },
     "conteos_valoracion": {
       "Ya cumplido": 37,
@@ -18476,9 +18476,9 @@ window.MARTA_TRACKING_DATA = {
       "ventas_2025_resto": 3440.0,
       "ventas_2026_real": 517213.0,
       "pendiente_cierre": 97576.61,
-      "prevision_nov_dic": 103520.0,
-      "cierre_con_prevision": 620733.0,
-      "pct_cierre_con_prevision": 101.0
+      "prevision_nov_dic": 119864.0,
+      "cierre_con_prevision": 637077.0,
+      "pct_cierre_con_prevision": 103.6
     },
     {
       "comercial": "Pedro",
@@ -20138,9 +20138,9 @@ window.MARTA_TRACKING_DATA = {
       "pendiente_cierre": 16042.77,
       "corte_periodo": 10,
       "corte_mes": "Octubre",
-      "prevision_nov_dic": 19920.0,
-      "cierre_con_prevision": 281395.0,
-      "pct_cierre_con_prevision": 101.4
+      "prevision_nov_dic": 21008.0,
+      "cierre_con_prevision": 282483.0,
+      "pct_cierre_con_prevision": 101.8
     },
     {
       "comercial": "Mehmet",
@@ -20163,9 +20163,9 @@ window.MARTA_TRACKING_DATA = {
       "pendiente_cierre": 42185.83,
       "corte_periodo": 10,
       "corte_mes": "Octubre",
-      "prevision_nov_dic": 0.0,
-      "cierre_con_prevision": 0.0,
-      "pct_cierre_con_prevision": 0.0
+      "prevision_nov_dic": 57000.0,
+      "cierre_con_prevision": 57000.0,
+      "pct_cierre_con_prevision": 135.1
     },
     {
       "comercial": "Mehmet",
@@ -20188,9 +20188,9 @@ window.MARTA_TRACKING_DATA = {
       "pendiente_cierre": 6333.9,
       "corte_periodo": 10,
       "corte_mes": "Octubre",
-      "prevision_nov_dic": 6760.0,
-      "cierre_con_prevision": 13870.0,
-      "pct_cierre_con_prevision": 103.2
+      "prevision_nov_dic": 0.0,
+      "cierre_con_prevision": 7110.0,
+      "pct_cierre_con_prevision": 52.9
     },
     {
       "comercial": "Mehmet",
@@ -20213,9 +20213,9 @@ window.MARTA_TRACKING_DATA = {
       "pendiente_cierre": 43976.8,
       "corte_periodo": 10,
       "corte_mes": "Octubre",
-      "prevision_nov_dic": 46840.0,
-      "cierre_con_prevision": 86540.0,
-      "pct_cierre_con_prevision": 103.4
+      "prevision_nov_dic": 41856.0,
+      "cierre_con_prevision": 81556.0,
+      "pct_cierre_con_prevision": 97.5
     },
     {
       "comercial": "Mehmet",
@@ -20238,9 +20238,9 @@ window.MARTA_TRACKING_DATA = {
       "pendiente_cierre": -10962.69,
       "corte_periodo": 10,
       "corte_mes": "Octubre",
-      "prevision_nov_dic": 30000.0,
-      "cierre_con_prevision": 238928.0,
-      "pct_cierre_con_prevision": 120.7
+      "prevision_nov_dic": 0.0,
+      "cierre_con_prevision": 208928.0,
+      "pct_cierre_con_prevision": 105.5
     },
     {
       "comercial": "Pedro",
